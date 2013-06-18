@@ -1,0 +1,26 @@
+{% if title %}
+<li {% if itemclass is defined %}class="{{ itemclass }}" {% endif -%}
+    {% if menu.endpoint_name %}data-endpoint="{{ menu.endpoint_name }}"{% endif %}>
+
+    {% if url %}
+      <a href="{{ url }}">{{ title }}</a>
+    {% else %}
+      <span>{{ title }}</span>
+    {% endif %}
+    {% if menu.has_children %}
+      <ul class="menu">
+        {% for item in menu %}
+          {{ item.render() }}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </li>
+{% else %}
+  {% if menu.has_children %}
+    <ul class="menu">
+      {% for item in menu %}
+        {{ item.render() }}
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endif %}

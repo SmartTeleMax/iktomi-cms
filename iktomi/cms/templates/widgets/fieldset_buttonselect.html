@@ -1,0 +1,8 @@
+<input id="{{ widget.id }}" name="{{ widget.input_name }}" type="hidden" value="{{ value|escape }}" />
+<script type="text/javascript">
+  window.addEvent('domready', function(){
+    {{ fieldset_name }}.declare_field('{{ widget.id }}', {{ tabs }});
+    {{ fieldset_name }}.setup('{{ widget.id }}');
+    {{ fieldset_name }}.disable_create_button();
+  });
+</script>

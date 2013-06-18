@@ -1,0 +1,30 @@
+<div class="init-block w-popup-stream-select" id="{{ widget.id }}"
+     data-block-name="popup-stream-select
+                      {%- if widget.multiple and widget.select_all_button %}-with-all{%- endif -%}"
+     {%- if readonly %}data-readonly="true"{% endif %}
+     data-config="{{ widget.js_config() }}">
+  <div class="w-buttons">
+    {% if widget.allow_select %}
+    <a class="button hide" id="{{ widget.id }}-btn" href="#select">
+      <span>{{ widget.open_btn_text }}</span>
+    </a>
+    {% endif %}
+    {% if widget.allow_create %}
+      <a class="button hide" id="{{ widget.id }}-create" href="{{ widget.create_url }}" target="{{ widget.id }}_create_window">
+        <span>{{ widget.create_btn_text }}
+      </a>
+    {% endif %}
+  </div>
+  {% for v in options %}
+    <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
+  {% endfor %}
+  <div>
+    <table class="w-popup-stream-select-items">
+      <tbody id="{{ widget.id }}-div">
+        {% for v in options %}
+          {{ widget.item_row(v, loop.cycle('odd', 'even')) }}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

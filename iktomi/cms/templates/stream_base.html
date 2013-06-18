@@ -1,0 +1,85 @@
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+<div class="content streamcontainer itemlist">
+  {% if not is_popup %}
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="abovetable">
+      <tr valign="bottom">
+        <td class="stream_title">
+          <h1 class="nowrap">{{ title }}</h1>
+        </td>
+        <td class="stream_buttons">
+          {% if allow_add %}
+          <a href="{{ item_url() }}" class="button icon-add" id="create_button">
+            Создать
+          </a>
+          {% endif %}
+          <div style="clear: right; margin-bottom: 10px;"></div>
+        </td>
+      </tr>
+    </table>
+  {% endif %}
+
+  {% if filter_form.show_tabs|default(False) %}
+    <div class="filtr">
+      <div class="line"></div>
+      <div class="inside">
+
+
+        <div class="list_tabs">
+          <!-- TabSelect buttons will be injected here-->
+        </div>
+
+        <div class="fieldset_tabs">
+         <!-- ButtonSelect buttons will be injected here -->
+        </div>
+
+      </div>
+      <div style="clear:right;"></div>
+    </div>
+  {% endif %}
+
+
+  <div class="table">
+    {% if live_search %}
+      {% set search_input_id = filter_form.id + '-livesearch' %}
+      Поиск: <input type="text" class="stream_search" id="{{ search_input_id }}" />
+    {% endif %}
+
+    <div class="line"></div>
+
+
+    <table  class="container">
+      <tr>
+        <td style="vertical-align: top;" class="stream-items">
+          {% block stream_items %}{% endblock %}
+        </td>
+        {% if filter_form %}
+        <td class="sidefilter" style="vertical-align: top;" id="sidefilter">
+          <form id="{{ filter_form.id }}" action="{{ url_for(stream.module_name) }}" class="filter-form init-block" data-block-name="filter-form">
+            <fieldset>
+              <legend>Фильтры</legend>
+              <table>
+                {{ filter_form.render() }}
+                <tr>
+                  <td>&nbsp;</td>
+                  <td class="">
+                    <input type="submit" value="Применить" style="display: none;">
+                    <a class="button" style="float: right;" onclick="this.getParent('form').retrieve('submitFilter')(); return false;">
+                      Применить
+                    </a>
+                    <div style="clear: right;"></div>
+                  </td>
+                </tr>
+              </table>
+            </fieldset>
+          {% if stream.list_edit_action %}
+          </form>
+          {% endif %}
+        </td>
+
+        {% endif %}
+      </tr>
+    </table>
+  </div>
+</div>
+

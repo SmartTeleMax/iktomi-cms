@@ -1,0 +1,80 @@
+{% if not no_layout %}
+  {% extends "stream_base.html" %}
+{% endif %}
+
+{% macro paginate(paginator) %}
+  {% if paginator %}
+    <div class="pages">
+      {% for p, u in paginator.pages %}
+        {% if p==paginator.page  %}
+          <div class="active">{{ p }}</div>
+        {% elif p==None %}
+          <div>&hellip;</div>
+        {% else %}
+          <a href="{{ u }}"><div>{{ p }}</div></a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% set pager = paginate(paginator) %}
+
+{% block stream_items %}
+  {{ pager }}
+  {% block items %}
+    {% if stream.list_edit_action %}
+    <form method="POST"
+          action="{{ env.url_for(stream.module_name + '.' + stream.list_edit_action.action) }}" 
+          id="{{ list_item_form.id }}"
+          class="init-block" data-block-name="stream-sortable" data-selector=".item">
+    {% endif %}
+    <table class="items">
+      <thead>
+        <tr>
+          {% for field in list_fields.values() %}
+            <th style="width: {{ field.width }};">
+              {{ field }}
+            </th>
+          {% endfor %}
+          {% if list_item_form is defined %}
+          <th>
+            <button type="submit" class="button icon-apply submit-list-edit">
+              Сохранить
+            </button>
+          </th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+        {% for field in list_fields.values() %}
+        <td></td>
+        {% endfor %}
+    
+        {% if list_item_form is defined %}
+        <td>
+          <button type="submit" class="button icon-apply submit-list-edit">
+            Сохранить
+          </button>
+        </td>
+        {% endif %}
+        </tr>
+      </tfoot>
+    
+      <tbody>
+        {% block item_rows %}
+        {% for item in paginator.items %}
+        {{ item_row(item, list_fields=list_fields, url=item_url(item),
+                    row_cls=loop.cycle('odd', 'even'),
+                    row_index=loop.index, list_item_form=list_item_form) }}
+        {% endfor %}
+        {% endblock %}
+      </tbody>
+    </table>
+    {% if stream.list_edit_action %}
+    </form>
+    {% endif %}
+  {% endblock %}
+  {{ pager }}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% macro render_subfield(subfield, loop) %}
+  {% if subfield.error %}
+    <tr class="error-row">
+      <td colspan="2">
+        <div class="error">{{ subfield.error }}</div>
+      </td>
+    </tr>
+  {% endif %}
+  <tr class="form-row{% if loop.last %} last{% endif %}{% if loop.first %} first{% endif %}{% if subfield.classname %} {{ subfield.classname }}{% endif %}">
+    {% if subfield.label %}
+    <th>
+      <label for="{{ subfield.id }}">{{ subfield.label }}</label>    
+    </th>
+    {% else %}
+    <td></td>
+    {% endif %}
+    <td>
+      {{ subfield.render() }}
+    </td>
+  </tr>
+{% endmacro %}
+
+<table class="fieldset tabbed_fieldset" id="{{ field.input_name }}-container">
+  {% if field.common_fields %}
+    {% for subfield in field.common_fields %}
+      {{ render_subfield(field.get_field(subfield), loop) }}
+    {% endfor %}
+  {% endif %}
+  {% if field.tabbed_fields %}
+    <tr>
+      <td colspan="2" class="tabbed_data">
+        <div class="switchers">
+          {% for tab in field.tabbed_fields %}
+            <span>{{ tab.tab }}</span>
+          {% endfor %}
+        </div>
+        <div class="tabbed_content">
+          <table class="fieldset hidden">
+            {% for subfield in field.tabbed_fields_list %}
+              {{ render_subfield(field.get_field(subfield), loop) }}
+            {% endfor %}
+          </table>
+        </div>
+      </td>
+    </tr>
+  {% endif %}
+</table>
+<script type="text/javascript">
+  {#new TabbedFieldSet('{{ field.input_name }}-container', {{ quote_js(field.json_config) }});#}
+  new TabbedFieldSet('{{ field.input_name }}-container', {{ field.json_config|safe }});
+</script>

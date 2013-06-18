@@ -1,0 +1,16 @@
+
+<li {% if itemclass is defined -%}class="{{ itemclass }}" {% endif -%}
+    {% if menu.endpoint_name %}data-endpoint="{{ menu.endpoint_name }}"{% endif %}>
+
+  <a href="{{ url }}">{{ title }}</a>
+  {% if menu.create %}
+    <a class="create" href="{{ menu.create_url }}">+</a>
+  {% endif %}
+  {% if menu.has_children %}
+    <ul class="menu">
+      {% for item in menu %}
+        {{ item.render() }}
+      {% endfor %}
+    </ul>
+  {% endif %}
+</li>

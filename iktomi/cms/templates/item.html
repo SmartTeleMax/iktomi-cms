@@ -1,0 +1,112 @@
+{% macro buttons(is_popup=False) %}
+
+<div class="buttons form-controls">
+  <div>
+    {% if not is_popup %}
+    {% if delete_allowed and 'delete' in item_buttons %}
+    <a href="{{ delete_url }}" class="button icon-delete" style="margin-left: 15px; margin-right: 50px">
+      <span><b></b>Удалить</span>
+    </a>
+    {% endif %}
+    
+    
+    {% for action in actions %}
+      {% if action.display %}
+        {% if action.mode == 'after-post' %}
+          <a href="{{ url_for(env.stream.stream_endpoint(env) + '.' + action.action, item=item.id) }}" rel="after-post" class="button{% if action.cls %} icon-{{ action.cls}}{% endif %}" style="margin-left: 15px;">
+            {{ action.title }}
+          </a>
+        {% elif action.mode == 'post' %}
+          <a href="{{ url_for(env.stream.stream_endpoint(env) + '.' + action.action, item=item.id) }}" rel="post" style="margin-left: 15px;" class="button{% if action.cls %} icon-{{ action.cls}}{% endif %}">
+	        {{ action.title }}
+	      </a>
+        {% elif action.mode in ('get', 'custom') %}
+	      <a href="{{ url_for(env.stream.stream_endpoint(env) + '.' + action.action, item=item.id) }}" style="margin-left: 15px;" class="button{% if action.cls %} icon-{{ action.cls}}{% endif %}">
+	        {{ action.title }}
+	      </a>        
+	    {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    {% if save_allowed and create_allowed and 'save_and_add_another' in item_buttons %}
+    <a href="{{ url_for(stream.module_name+'.item', item=None).qs_set(filter_form.get_data()) }}"
+       class="button icon-add" style="margin-left: 15px" rel="save-and-add">
+      <span><b></b>Сохранить и создать новый</span>
+    </a>
+    {% endif %}
+    
+    {% if save_allowed and 'save_and_continue' in item_buttons %}
+    <a href="" class="button icon-apply" style="margin-left: 15px" rel="save-and-continue">
+      <span><b></b>Сохранить и продолжить</span>
+    </a>
+    {% endif %}
+    
+    {% if save_allowed and 'save' in item_buttons %}
+    <a href="{{ stream_url }}" class="button icon-back" style="margin-left: 15px" rel="save">
+      <span><b></b>Сохранить и закрыть</span>
+    </a>
+    {% endif %}
+    
+  </div>
+</div>
+
+{% endmacro %}
+
+
+{% block content %}
+<div id="loader-overlay" class="loader-overlay overlay">
+  <div>
+    Идет загрузка
+  </div>
+</div>
+
+<form id="{{ form.id }}"
+      class="init-block item-form{% if is_popup %} popup-form{% endif %}"
+      action="{{ submit_url }}"
+      method="post"
+      enctype="multipart/form-data"
+      data-block-name="item-form"
+      {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
+  <input type="hidden" name="edit_session" value="{{ edit_session }}"/>
+  <table border="0" cellspacing="0" cellpadding="0" class="content">
+    <tbody>
+      <tr valign="bottom">
+        <td>
+          <table border="0" cellspacing="0" cellpadding="0" width="100%" class="header">
+            <tr valign="bottom">
+              <td>
+                <h1>
+                  {% if is_popup %}
+                  {{ stream_title }}
+                  {% else %}
+                  <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
+                  {% endif %}
+                </h1>
+              </td>
+              <td>{{ buttons(is_popup) }}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          <div class="text">
+            <div class="line"></div>
+            <div class="form">
+              {{ form.render() }}
+            </div>
+          </div>
+          <div class="bottom">{{ buttons(is_popup) }}</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {%- if item.id -%}
+    {{ macros.item_lock(item, stream_url.qs_set(filter_form.get_data()), lock_timeout, lock_message, edit_session) }}
+  {%- endif -%}
+</form>
+
+
+{% endblock %}

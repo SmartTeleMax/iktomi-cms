@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Вход</TITLE>
+<LINK rel="stylesheet" type="text/css" href="{{ CMS_STATIC_URL + 'css/main.css' }}">
+<META http-equiv="Content-Type" content="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<TABLE border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+<TR valign="top" height="1%"><TD>
+
+<TABLE border="0" cellspacing="0" cellpadding="0" width="100%" class="top">
+<TR><TD class="line"><DIV>&nbsp;</DIV></TD></TR>
+<TR><TD class="navigation">
+<DIV class="bottomline">
+<DIV class="links"><DIV>&nbsp;</DIV></DIV>
+</DIV>
+</TD></TR>
+</TABLE>
+
+</TD></TR>
+<TR height="99%"><TD> 
+
+<FORM action="" method="POST">
+
+<TABLE border="0" cellspacing="0" cellpadding="0" width="100%" class="enter">
+<TR>
+<TD width="20%"></TD>
+<TD width="80%"><H1>Вход</H1></TD>
+</TR>
+{% if message %}
+    <TR>
+      <TD width="20%"></TD>
+      <TD width="80%">{{ message }}</TD>
+    </TR>
+{% endif %}
+
+{% for field in form.fields %}
+  {% if field.error %}
+    <tr>
+      <td width="20%"></td>
+      <td>
+	<span class="error">{{ field.error }}</span>
+      </td>
+    </tr>
+  {% endif %}
+    <TR>
+      <TD width="20%" align="right">
+	<LABEL for="id-{{ field.name }}">{{ field.label }}</LABEL>
+      </TD>
+      <TD width="80%">
+	{{ field.render() }}
+      </TD>
+    </TR>
+{% endfor %}
+
+<TR>
+<TD width="20%"></TD>
+<TD width="80%">
+  <INPUT type="submit" value="войти" class="gray"></TD>
+</TR>
+</TABLE>
+
+</FORM>
+
+</TD></TR>
+</TABLE>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    {% block title %}
+    <title>{{ title|default('Административный интерфейс')|striptags }}</title>
+    {% endblock %}
+  {{ packed_css_tag_cms() }}
+  {{ packed_js_tag_cms() }}
+  {{ packed_css_tag() }}
+  {{ packed_js_tag() }}
+
+    {% block extrahead %}
+    {% endblock %}
+  </head>
+  <body>
+    <div class="navigation">
+      {{ context.top_menu.render() }}
+      <div class="links">
+        {% if user %}
+        <form action="{{ url_for('logout') }}" method="POST">
+          <div class="user">Привет, <b>{{ user.name }}</b></div>
+          <div class="quit"><a onclick="this.getParent('form').submit();return false" href="">Завершить сеанс</a></div>
+        </form>
+        {% else %}
+          <div>
+            <a href="{{ url_for('login') }}">Авторизация</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div id="flash-messages"></div>
+
+    <div id="app-content">
+      {#% block content %}{% endblock %#}
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+  </body>
+</html>

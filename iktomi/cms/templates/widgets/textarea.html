@@ -1,0 +1,10 @@
+<textarea id="{{ widget.id }}" name="{{ widget.input_name }}"
+          {%- if readonly %} readonly="readonly"{% endif %}
+          {%- if widget.classname %} class="{{ widget.classname }}"{% endif %}>{{ value|escape }}</textarea>
+{% if widget.autoresize -%}
+<script type="text/javascript">
+  window.addEvent('domready', function() {
+    textarea_autoresize('{{ widget.id }}');
+  });
+</script>
+{%- endif %}

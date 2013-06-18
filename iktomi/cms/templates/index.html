@@ -1,0 +1,40 @@
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+<table style="margin: auto; font-size: 16pt;" cellspacing="2em">
+  <tbody>
+    {% for row in dashboard %}
+    <tr>
+      {% for col in row %}
+      <td valign="top" style="padding: 1em;">
+        <fieldset>
+          <legend style="font-weight: bold">{{ col[0] }}</legend>
+          <table class='langs-streams'>
+          {% for streams in col[1:] %}
+          <tr>
+            {% if streams is mapping %}
+              <td colspan="2">
+                <a href="{{ url_for(streams['endpoint']) }}">{{ streams['title'] }}</a>
+              </td>
+            {% elif streams is string %}
+              <td colspan="2">
+                <a href="{{ url_for(streams) }}">{{ get_stream_title(streams) }}</a>
+              </td>
+            {% else %}
+              {% for stream in streams %}
+                <td>
+                  <a href="{{ url_for(stream) }}">{{ get_stream_title(stream) }}</a>
+                </td>
+              {% endfor %}
+            {% endif %}
+          </tr>
+          {% endfor %}
+          </table>
+        </fieldset>
+      </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+    <tr>
+    </tr>
+  </tbody>
+</table>
