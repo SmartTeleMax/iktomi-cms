@@ -1,0 +1,38 @@
+.form .form-row {
+    vertical-align:middle;
+    text-align:left;
+    padding: 5px 0 5px 200px;
+    border-bottom: 1px solid #eee;
+}
+.form .form-row label {
+    padding:10px ;
+}
+.form .form-row .form-label{
+  position: relative;
+  }
+  .form .form-row .form-label label{
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    left: -200px;
+    width: 180px;
+    height: 100%;
+  }
+
+.content{
+    width:100%;
+}
+
+.content>tbody>tr>td{
+    padding:0 20px
+}
+
+.form .form-row>th{
+  vertical-align: top;
+  padding-top: 20px;
+  }
+
+textarea.bigtext{
+    font-size: 15px;
+    min-height: 350px; min-width:800px;
+}

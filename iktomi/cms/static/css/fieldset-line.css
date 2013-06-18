@@ -1,0 +1,16 @@
+table.fieldset-line {
+  border-collapse: collapse;
+}
+
+table.fieldset-line tr.error-row td.empty {
+  padding: 0;
+  line-height: 0;
+}
+
+table.fieldset-line tr.error-row td.invalid {
+  padding: 2px 4px;
+}
+
+table.fieldset-line tr.subfields td {
+  padding: 5px 0 5px 0;
+}

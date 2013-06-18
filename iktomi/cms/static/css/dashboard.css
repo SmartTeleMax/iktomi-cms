@@ -1,0 +1,17 @@
+fieldset {
+    padding: 0 15px 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+fieldset div {
+    margin: 5px 0;
+}
+
+legend {
+    border: 1px solid #ccc;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding: 2px 4px;
+}

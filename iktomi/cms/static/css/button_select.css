@@ -1,0 +1,10 @@
+.fieldset_buttons {
+  background: #e3f5ce none repeat scroll 0% 0%;
+  overflow: hidden;
+}
+
+.fieldset_buttons .toolbar {
+  float: left;
+  padding: 0px;
+  margin: 0px 20px 0px 0px;
+}

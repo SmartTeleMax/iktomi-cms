@@ -1,0 +1,55 @@
+#flashmessages{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    overflow: visible;
+    z-index: 1000;
+}
+.flashmessage{
+    padding: 10px;
+    background: #fff;
+    text-align: center;
+    width: 600px;
+    margin: auto;
+    opacity: 0;
+    margin-top: -34px;
+    -webkit-transition: opacity .3s, margin-top .3s;
+    -moz-transition: opacity .3s, margin-top .3s;
+    transition: opacity .3s, margin-top .3s;
+    border: 1px solid #CBCDD2;
+    border-top: none;
+}
+/*.flashmessage:last-child{
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  }*/
+.flashmessage.show{
+    opacity: 1;
+    margin-top: 0;
+}
+.flashmessage.success{
+    border-color: #3A991A;
+    color: #3A991A;
+}
+.flashmessage.failure{
+    border-color: #d7342e;
+    color: #d7342e;
+}
+.flashmessage .close{
+    float: right;
+    color: inherit;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    height: 15px;
+    width: 15px;
+    padding: 0;
+    line-height: 15px;
+    background: transparent;
+}
+button.close:before{
+    content: "✘";
+    color: #4273ba;
+}

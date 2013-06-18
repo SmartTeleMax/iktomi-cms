@@ -1,0 +1,23 @@
+.list_tabs button {
+  margin-right: 10px;
+  background: #666150;
+  color: #dddddd;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  -webkit-transition: background .2s, color .2s;
+  -moz-transition: background .2s, color .2s;
+  transition: background .2s, color .2s;
+
+  border-radius: 3px 3px 0 0;
+}
+
+.list_tabs .selected {
+  background: #e3f5ce;
+  color: #445533;
+}
+
+.list_tabs .toolbar {
+  padding: 5px 0;
+  background: #e3f5ce;
+}

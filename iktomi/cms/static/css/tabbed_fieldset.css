@@ -1,0 +1,44 @@
+.tabbed_fieldset .hidden {
+  display: none;
+}
+
+.tabbed_fieldset {
+  padding: 0px;
+  margin: 5px;
+}
+
+.tabbed_fieldset .switchers {
+  overflow: hidden;
+  padding: 0 0 0 5px;
+}
+
+.tabbed_fieldset .switchers span {
+  padding: 4px 6px;
+  margin-bottom: -2px;
+  margin-left: 5px;
+  color: #dddddd;
+  background: #666150;
+  cursor: pointer;
+  font-size: 80%;
+  float: left;
+}
+
+.tabbed_fieldset .switchers span.active {
+  color: #445533;
+  background: #a3c288;
+}
+
+/*.tabbed_fieldset .form-row th {
+  white-space: nowrap;
+  width: 1%;
+}*/
+
+.tabbed_fieldset .tabbed_content {
+  border: 1px solid #a3c288;
+  border-top: 2px solid #a3c288;
+}
+
+/*.tabbed_fieldset .tabbed_content .header {
+  height: 8px;
+  background: #a3c288;
+}*/

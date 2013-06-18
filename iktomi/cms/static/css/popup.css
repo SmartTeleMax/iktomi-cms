@@ -1,0 +1,144 @@
+.popup {
+    position: absolute;
+    display: none;
+    visibility: hidden;
+    left: 0px;
+    top: 0px;
+    border-collapse:collapse;
+}
+
+.popup-top-left,
+.popup-top-right,
+.popup-bottom-left,
+.popup-bottom-right {
+    width:23px;
+    height:23px;
+    background: transparent url(images/popup/corners.png) no-repeat;
+}
+.popup-border-left,
+.popup-border-right {
+  padding-left:23px;
+}
+
+.popup-top-left {
+    background-position: top left;
+}
+
+.popup-top-right {
+    background-position: top right;
+}
+
+.popup-bottom-left {
+    background-position: bottom left;
+}
+
+.popup-bottom-right {
+    background-position: bottom right;
+}
+
+.popup-border-top,
+.popup-border-bottom {
+    background: transparent url(images/popup/border-horizontal.png) repeat-x;
+}
+
+.popup-border-right,
+.popup-border-left {
+    background: transparent url(images/popup/border-vertical.png) repeat-y;
+}
+
+.popup-border-top {
+    background-position: top;
+}
+
+.popup-border-bottom {
+    background-position: bottom;
+}
+
+.popup-border-left {
+    background-position: left;
+}
+
+.popup-border-right {
+    background-position: right;
+}
+
+.popup-close-btn {
+    width: 30px;
+    height: 30px;
+    background: url(images/popup/close.png) no-repeat;
+    cursor: pointer;
+    position:absolute;
+    top:0px;
+}
+
+.popup-content {
+    background: #ebe9e3;
+    padding: 1px 0;
+    text-align: left;
+    overflow:hidden;
+}
+
+.popup-title {
+    font-size: 18px;
+    color: #850708;
+    text-align: center;
+}
+
+.popup-body {
+    padding-top: 10px;
+    overflow: auto;
+    min-width:250px;
+}
+
+.popup-filters{
+    float:right;
+    max-width:240px;
+    overflow:auto
+}
+
+.with_filters{
+    margin-right:250px
+}
+
+.popup-body .submit-row {
+    text-align: center;
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px solid .aaa;
+    overflow: hidden;
+}
+
+.popup-body .submit {
+    display: none;
+}
+
+.popup-pagination{
+    margin:10px 0px
+}
+
+.popup-pagination .page{
+    padding:0.2em 0.6em;
+    line-height:15px;
+    margin-left:5px;
+    cursor:pointer;
+    border:1px solid .cccccc;
+    
+}
+
+.popup-pagination .current_page{
+    border:1px solid #cccccc;
+    background-color: #cccccc;
+    color: #ffffff;
+    cursor:default;
+}
+
+.loader{
+    background: url('images/popup/loader.gif') no-repeat;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width:32px;
+    height:32px;
+}
+
+

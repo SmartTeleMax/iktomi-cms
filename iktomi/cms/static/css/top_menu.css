@@ -1,0 +1,87 @@
+.navigation .menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navigation .menu li {
+  float: left;
+  padding: 10px;
+  margin: 0 2px;
+  overflow: hidden;
+  background: #717b83;
+}
+
+.navigation .menu li:first-of-type {
+  margin-left: 50px;
+}
+
+.navigation .menu li.active {
+  background: #65a12b;
+}
+
+.navigation .menu li.active > .create {
+  color: #65a12b;
+}
+
+.navigation .menu .menu {
+  display: none;
+  position: absolute;
+  top: 39px;
+  z-index: 1000;
+  background: #717b83;
+  padding: 10px 0px;
+  margin: 0;
+  margin-left: -10px;
+}
+
+.navigation .menu .menu li {
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navigation .menu .menu li > span:first-child {
+  padding-left: 10px;
+  line-height: 200%;
+}
+
+.navigation .menu .menu li > a:first-child {
+  padding-left: 10px;
+  line-height: 200%;
+}
+
+.navigation .menu .menu li > a:last-of-type {
+  padding-right: 10px;
+}
+
+.navigation .menu .menu .divided {
+  margin-top: 5px;
+  border-top: 1px solid #e3e6e8;
+}
+
+.navigation .menu .menu .menu {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  top: 0;
+}
+
+.navigation .menu .menu .menu li > span:first-child {
+  padding-left: 20px;
+}
+
+.navigation .menu .menu .menu li > a:first-child {
+  padding-left: 20px;
+}
+
+.navigation .menu .create {
+  background: url(../images/actions/add_small.png) no-repeat 5px 4px;
+  padding-right: 20px !important;
+  color: #717b83;
+}
+
+.navigation li:hover .menu {
+  display: block;
+}
+
