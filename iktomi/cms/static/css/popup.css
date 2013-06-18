@@ -13,7 +13,7 @@
 .popup-bottom-right {
     width:23px;
     height:23px;
-    background: transparent url(images/popup/corners.png) no-repeat;
+    background: transparent url(../images/popup/corners.png) no-repeat;
 }
 .popup-border-left,
 .popup-border-right {
@@ -38,12 +38,12 @@
 
 .popup-border-top,
 .popup-border-bottom {
-    background: transparent url(images/popup/border-horizontal.png) repeat-x;
+    background: transparent url(../images/popup/border-horizontal.png) repeat-x;
 }
 
 .popup-border-right,
 .popup-border-left {
-    background: transparent url(images/popup/border-vertical.png) repeat-y;
+    background: transparent url(../images/popup/border-vertical.png) repeat-y;
 }
 
 .popup-border-top {
@@ -65,7 +65,7 @@
 .popup-close-btn {
     width: 30px;
     height: 30px;
-    background: url(images/popup/close.png) no-repeat;
+    background: url(../images/popup/close.png) no-repeat;
     cursor: pointer;
     position:absolute;
     top:0px;
@@ -133,7 +133,7 @@
 }
 
 .loader{
-    background: url('images/popup/loader.gif') no-repeat;
+    background: url('../images/popup/loader.gif') no-repeat;
     position: absolute;
     left: 0px;
     top: 0px;
