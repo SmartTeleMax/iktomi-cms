@@ -1,28 +1,24 @@
 # -*- coding: utf-8 -*-
-import logging
-import warnings
+
+import logging, warnings
 
 from webob.exc import HTTPForbidden
+from jinja2 import Markup
 
 from iktomi.utils import cached_property
 from iktomi.utils.odict import OrderedDict
 from iktomi.utils.mdict import MultiDict
 from iktomi import web
+from iktomi.forms import Form
 from iktomi.forms.media import FormJSInline, FormJSRef
 from . import stream_handlers as handlers
 from .flashmessages import flash
 
-from webutils.forms import Form
-from webutils.template_functions import replace_none
-
 logger = logging.getLogger('stream_views')
-
-from jinja2 import Markup
 
 
 def I18nLabel(string, lang):
-    return Markup(u'<span class="lang-%s">%s</span>' %
-                                    (lang, string))
+    return Markup(u'<span class="lang-%s">%s</span>' % (lang, string))
 
 
 def ListFields(*args):
@@ -39,8 +35,8 @@ def ListFields(*args):
 class ListField(object):
 
     def __init__(self, name, title, width='auto', image=False,
-                 transform=replace_none, static=False, link_to_item=True,
-                 classname=''):
+                 transform=lambda f: u'—' if f is None else f,
+                 static=False, link_to_item=True, classname=''):
         self.name = name
         self.title = title
         self.width = width
@@ -118,10 +114,9 @@ class FilterForm(Form):
         return bool(self.fields)
 
     def get_media(self):
-        return [FormJSInline('new FilterForm("%s");' % self.id)
-                ] + Form.get_media(self)
-
-
+        return [
+            FormJSInline('new FilterForm("%s");' % self.id),
+        ] + Form.get_media(self)
 
 
 class Stream(object):
@@ -276,9 +271,7 @@ class Stream(object):
         query = env.db.query(self.config.Model)
         return query
 
-
     # ========= Item actions ====
-
 
     def commit_item_transaction(self, env, item):
         '''commits request.db and flashes success message'''

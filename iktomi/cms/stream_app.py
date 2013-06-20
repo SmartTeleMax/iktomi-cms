@@ -2,7 +2,7 @@
 import inspect
 
 from iktomi import web
-from insadmin.stream_views import Stream
+from .stream_views import Stream
 
 
 def get_stream_class(module_name, root='streams'):

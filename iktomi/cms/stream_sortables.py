@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
-from webutils.forms import Form, Field, FieldSet, FieldList, FormJSRef, FormCSSRef, convs
+
+from iktomi import web
+from iktomi.utils import cached_property
+from iktomi.forms import Form, Field, FieldSet, FieldList, convs
+from iktomi.forms.media import FormJSRef, FormCSSRef, FormJSInline
+
 from .stream_actions import StreamAction
 from .stream_handlers import see_other
 from .item_lock import ModelLockedByOther, ModelLockError
 from .flashmessages import flash
-from iktomi.utils import cached_property
-from iktomi.forms.media import FormJSInline
-from iktomi import web
 
 BR = '\n'
 
+
 def getListItemForm(Model):
+
     class ListItemForm(Form):
         fields = [
             FieldList(
@@ -19,16 +23,17 @@ def getListItemForm(Model):
                 field=FieldSet(
                     'item', 
                     fields=[
-                        Field('item', conv=convs.ModelChoice(model=Model, required=False),
-                              label=u'item'
-                              ),
+                        Field('item',
+                              conv=convs.ModelChoice(model=Model,
+                                                     required=False),
+                              label=u'item'),
                         Field('order',
                               conv=convs.Int(),
                               label=u'Порядок'),
-                        ]
-                    )
-                )
-            ]
+                    ]
+                ),
+            ),
+        ]
         @classmethod
         def for_items(cls, env, items):
             initial = {'items': [{'item': item, 'order': item.order}

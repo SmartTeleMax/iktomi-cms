@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from webutils.forms import files
+
+import os, logging
+
+from iktomi.forms import files
+from itkomi.forms import *
 from iktomi.forms.convs import ValidationError
 from iktomi.web import WebHandler
-from webutils.forms import *
-import os
-import logging
 
 logger = logging.getLogger(__file__)
+
 
 class DNDFileField(files.FileFieldSet):
 
@@ -24,7 +26,8 @@ class DNDFileField(files.FileFieldSet):
                 form = self.form
                 form.presavehooks = getattr(form, 'presavehooks', [])
                 if 'CheckFilesUploaded' not in form.presavehooks:
-                    form.presavehooks = form.presavehooks + ['CheckFilesUploaded']
+                    form.presavehooks = form.presavehooks + \
+                                                ['CheckFilesUploaded']
             except AttributeError: pass
 
 
@@ -34,7 +37,8 @@ class DNDImageField(DNDFileField):
     #: used when file is uploaded
     temp_file_cls = files.TempImageFile
     thumb_size = None
-    thumb_sufix = '__thumb' # XXX not really used in AJAX upload view, but used by TempImageFile
+    thumb_sufix = '__thumb' # XXX not really used in AJAX upload view, but used
+                            # by TempImageFile
     upload_endpoint = 'load_tmp_image'
 
     # Show the thumb or not. Works only with image option on
@@ -80,12 +84,15 @@ class FileUploadHandler(WebHandler):
 
                 length = int(request.headers.get('Content-Length'))
                 if length:
-                    logger.warning('YES! The Content-Length is in headers, but it can not be found in WSGI env!\n')
+                    logger.warning('YES! The Content-Length is in headers, '\
+                                   'but it can not be found in WSGI env!\n')
                 elif 'content-length' in request.GET:
                     length = int(request.GET['content-length'])
-                    logger.warning('Using a value from GET args: %s\n' % length)
+                    logger.warning('Using a value from GET args: %s\n' % \
+                                                                    length)
                 else:
-                    logger.warning('There is no Content-Length either in headers or in get args\n')
+                    logger.warning('There is no Content-Length either in '\
+                                   'headers or in get args\n')
                     return env.json({'status': 'failure',
                                      'error': 'No Content-Length provided'})
 
@@ -105,7 +112,6 @@ class FileUploadHandler(WebHandler):
                 'file_url': env.cfg.FORM_TEMP_URL + filename
                 }
 
-
             if self.temp_file_cls != files.TempUploadedFile:
                 tmp_file = self.temp_file_cls(tmp_dir, fname, ext, uid)
                 if request.GET.get('image'):
@@ -117,7 +123,8 @@ class FileUploadHandler(WebHandler):
                         result['thumbnail'] = env.cfg.FORM_TEMP_URL + filename
                     else:
                         tmp_file.thumb_sufix = '__thumb' # XXX hardcoded
-                        result['thumbnail'] = env.cfg.FORM_TEMP_URL + uid + '__thumb.png'
+                        result['thumbnail'] = env.cfg.FORM_TEMP_URL + uid + \
+                                                                '__thumb.png'
 
                 fp = open(full_path)
                 try:
@@ -128,5 +135,3 @@ class FileUploadHandler(WebHandler):
                 finally:
                     fp.close()
             return env.json(result)
-
-

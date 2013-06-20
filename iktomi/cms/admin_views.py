@@ -4,8 +4,8 @@ import logging
 
 from webob.exc import HTTPForbidden, HTTPMethodNotAllowed
 from iktomi import web
-from insadmin.item_lock import ModelLockError
-from insadmin.stream_views import Stream
+from .item_lock import ModelLockError
+from .stream_views import Stream
 
 logger = logging.getLogger(__name__)
 
