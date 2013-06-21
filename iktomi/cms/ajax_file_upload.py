@@ -3,7 +3,7 @@
 import os, logging
 
 from iktomi.forms import files
-from itkomi.forms import *
+from iktomi.forms import *
 from iktomi.forms.convs import ValidationError
 from iktomi.web import WebHandler
 
