@@ -2,6 +2,7 @@
 
 import os, logging
 from time import time
+import sqlalchemy.orm.util
 
 logger = logging.getLogger(__name__)
 
@@ -42,9 +43,11 @@ class ItemLock(object):
 
     def _item_lock_key(self, obj):
         '''Construct key for memcache. obj should be either model object or its
-        global identifier (obj.global_id).'''
+        global identifier.'''
         if not isinstance(obj, basestring):
-            obj = obj.global_id
+            cls, ident = sqlalchemy.orm.util.identity_key(instance=obj)
+            ident = '-'.join(map(str, ident))
+            obj = '%s.%s:%s' % (cls.__module__, cls.__name__, ident)
         return self._lock_prefix + obj
 
     def _item_lock_value(self, edit_session):
@@ -59,12 +62,11 @@ class ItemLock(object):
     def create(self, obj, force=False):
         '''Marks model object as editted. Returns edit session on success or
         raises exception. obj should be either model object or its global
-        identifier (obj.global_id). When force is True the current lock is
-        ignored.'''
+        identifier. When force is True the current lock is ignored.'''
         cfg = self.env.cfg
         cache = self.env.cache
 
-        cache.clear_cas()
+        cache.cas_ids.clear()
         edit_session = self._create_edit_session()
         key = self._item_lock_key(obj)
         value = self._item_lock_value(edit_session)
@@ -101,8 +103,7 @@ class ItemLock(object):
 
     def update(self, obj, edit_session):
         '''Updates model object lock as being active. Raises exception on
-        error. obj should be either model object or its global identifier
-        (obj.global_id).'''
+        error. obj should be either model object or its global identifier.'''
         cfg = self.env.cfg
         cache = self.env.cache
 
@@ -137,7 +138,7 @@ class ItemLock(object):
 
     def remove(self, obj, edit_session):
         '''Removes lock for model object. obj should be either model object or
-        its global identifier (obj.global_id).'''
+        its global identifier.'''
         cache = self.env.cache
 
         cache.clear_cas()
