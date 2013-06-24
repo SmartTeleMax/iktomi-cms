@@ -104,7 +104,8 @@
   </table>
 
   {%- if item.id -%}
-    {{ macros.item_lock(item, stream_url.qs_set(filter_form.get_data()), lock_timeout, lock_message, edit_session) }}
+    {% from 'macros/item_lock.html' import main as item_lock with context %}
+    {{ item_lock(item, stream_url.qs_set(filter_form.get_data()), lock_timeout, lock_message, edit_session) }}
   {%- endif -%}
 </form>
 
