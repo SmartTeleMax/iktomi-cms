@@ -96,9 +96,8 @@ class ItemLock(object):
             logger.error('Failed to lock model object. '\
                          'Problem with memcached?')
             raise ModelLockError()
-        lock_user = self.env.db.get(self.env.auth_model,
-                                    id=old_value['user_id'])
-        assert lock_user is not None
+        lock_user = self.env.db.query(self.env.auth_model)\
+                                    .get(old_value['user_id'])
         raise ModelLockedByOther(lock_user, old_value['edit_session'])
 
     def update(self, obj, edit_session):
@@ -114,9 +113,8 @@ class ItemLock(object):
             if not old_value:
                 raise ModelLockIsLost()
             elif old_value['edit_session']!=edit_session:
-                lock_user = self.env.db.get(self.env.auth_model,
-                                            id=old_value['user_id'])
-                assert lock_user is not None
+                lock_user = self.env.db.query(self.env.auth_model)\
+                                            .get(old_value['user_id'])
                 raise ModelLockedByOther(lock_user, old_value['edit_session'])
             new_value = self._item_lock_value(edit_session)
             if cache.cas(key, new_value,
