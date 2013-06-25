@@ -106,7 +106,7 @@ class ItemLock(object):
         cfg = self.env.cfg
         cache = self.env.cache
 
-        cache.clear_cas()
+        cache.cas_ids.clear()
         key = self._item_lock_key(obj)
         for i in range(3):
             old_value = cache.gets(key)
