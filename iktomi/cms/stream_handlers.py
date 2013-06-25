@@ -10,7 +10,7 @@ from iktomi.web.url_converters import Integer as IntegerConv, \
 from iktomi.forms import convs
 
 
-from .item_lock import ModelLockError, ModelLockedByOther
+from .item_lock import ItemLock, ModelLockError, ModelLockedByOther
 from .stream_actions import StreamAction
 from .flashmessages import flash
 
@@ -307,6 +307,7 @@ class EditItemHandler(StreamAction):
         if self.item_lock:
             template_data = dict(template_data,
                              item_lock=self.item_lock,
+                             item_global_id=ItemLock.item_global_id(item),
                              lock_message=lock_message,
                              edit_session=edit_session or data.owner_session,
                              lock_timeout=env.cfg.MODEL_LOCK_RENEW)

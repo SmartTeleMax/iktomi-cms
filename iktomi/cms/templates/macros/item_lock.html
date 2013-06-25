@@ -1,16 +1,14 @@
 {% macro main(item, stream_url, lock_timeout, lock_message, edit_session) %}
 <div style="display: none" class="init-block item-lock" data-block-name="item-lock"
-     data-update_lock_url="{{ url_for('update_lock', item_id=item.global_id, edit_session=edit_session) }}" 
-     data-force_lock_url="{{ url_for('force_lock', item_id=item.global_id) }}"
-     data-release_lock_url="{{ url_for('release_lock', item_id=item.global_id, edit_session=edit_session) }}"
+     data-update_lock_url="{{ url_for('update_lock', item_id=item_global_id, edit_session=edit_session) }}"
+     data-force_lock_url="{{ url_for('force_lock', item_id=item_global_id) }}"
+     data-release_lock_url="{{ url_for('release_lock', item_id=item_global_id, edit_session=edit_session) }}"
      data-list_url="{{ stream_url }}"
      data-timeout="{{ lock_timeout }}"
 
-     data-global_id="{{ item.global_id }}"
+     data-global_id="{{ item_global_id }}"
      data-edit_session="{{ edit_session }}"
      data-item_title="{{ quote_js(item.__unicode__()) }}"
      data-lock_message="{{ lock_message }}">
 </div>
 {% endmacro %}
-
-

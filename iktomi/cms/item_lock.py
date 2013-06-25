@@ -41,14 +41,18 @@ class ItemLock(object):
     def _create_edit_session(self):
         return os.urandom(5).encode('hex')
 
+    @staticmethod
+    def item_global_id(obj):
+        cls, ident = sqlalchemy.orm.util.identity_key(instance=obj)
+        ident = '-'.join(map(str, ident))
+        return '%s.%s:%s' % (cls.__module__, cls.__name__, ident)
+
     def _item_lock_key(self, obj):
         '''Construct key for memcache. obj should be either model object or its
         global identifier.'''
         if not isinstance(obj, basestring):
-            cls, ident = sqlalchemy.orm.util.identity_key(instance=obj)
-            ident = '-'.join(map(str, ident))
-            obj = '%s.%s:%s' % (cls.__module__, cls.__name__, ident)
-        return self._lock_prefix + obj
+            obj = self.item_global_id(obj)
+        return self._lock_prefix + str(obj)
 
     def _item_lock_value(self, edit_session):
         # edit_session - unique identifier of one open window
