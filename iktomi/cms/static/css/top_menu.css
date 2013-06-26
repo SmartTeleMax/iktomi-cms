@@ -1,7 +1,27 @@
+.navigation {
+    overflow: hidden;
+    color: #ffffff;
+    background: #5e676e;
+    position: relative;
+    min-height: 20px;
+}
+
+.navigation a {
+    color: #ffffff;
+}
+
+.navigation .links {
+    float: right;
+    padding: 3px 20px;
+    max-width: 250px;
+}
+
 .navigation .menu {
   list-style: none;
-  padding: 0;
+  padding: 0 250px 0 0; /*should be equal to .navigation .links max-width*/
   margin: 0;
+  position: absolute;
+  bottom: 0px;
 }
 
 .navigation .menu li {
@@ -76,7 +96,7 @@
 }
 
 .navigation .menu .create {
-  background: url(../images/actions/add_small.png) no-repeat 5px 4px;
+  background: url(../images/actions/add_small.png) no-repeat 50% 50%;
   padding-right: 20px !important;
   color: #717b83;
 }

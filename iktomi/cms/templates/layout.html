@@ -14,7 +14,6 @@
   </head>
   <body>
     <div class="navigation">
-      {{ context.top_menu.render() }}
       <div class="links">
         {% if user %}
         <form action="{{ url_for('logout') }}" method="POST">
@@ -27,6 +26,7 @@
           </div>
         {% endif %}
       </div>
+      {{ context.top_menu.render() }}
     </div>
 
     <div id="flash-messages"></div>
