@@ -143,7 +143,7 @@ class ItemLock(object):
         its global identifier.'''
         cache = self.env.cache
 
-        cache.clear_cas()
+        cache.cas_ids.clear()
         key = self._item_lock_key(obj)
         # We can't garuantee memcache's delete method will remove only our
         # lock, so we update the record with empty value and minimal (1 sec)
