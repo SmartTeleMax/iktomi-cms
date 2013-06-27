@@ -275,7 +275,7 @@ class Stream(object):
 
     def commit_item_transaction(self, env, item):
         '''commits request.db and flashes success message'''
-        env.db.commit(admin_user=env.user)
+        env.db.commit()
         flash(env, u'Объект (%s) сохранен' % (item,), 'success')
 
     def rollback_due_lock_lost(self, env, item):
