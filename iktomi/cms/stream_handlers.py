@@ -218,6 +218,9 @@ class EditItemHandler(StreamAction):
     def get_item_template(self, env, item):
         return self.stream.item_template_name
 
+    def get_item_form(self, stream, env, item, **kwargs):
+        return stream.config.ItemForm.load_initial(env, item, **kwargs)
+
     def edit_item_handler(self, env, data):
         '''View for item page.'''
         if not env.request.is_xhr:
@@ -255,8 +258,7 @@ class EditItemHandler(StreamAction):
         if not save_allowed:
             form_kw['permissions'] = 'r'
 
-        form = stream.config.ItemForm.load_initial(env, item, initial=initial,
-                                                   **form_kw)
+        form = self.get_item_form(stream, env, item,  initial=initial, **form_kw)
 
         if request.method == 'POST':
             if not save_allowed:
