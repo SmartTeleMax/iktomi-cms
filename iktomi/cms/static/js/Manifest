@@ -7,8 +7,6 @@ menu
 app
 flashmessages
 filter_form
-collapsable_form
-stream_sortable
 tab_select
 
 item_form
@@ -23,7 +21,6 @@ progressbar
 calendar.compat
 popup_stream_select
 popup_stream_select_with_all
-popup_filtered_select
 fieldlist
 tabbed_fieldset
 
