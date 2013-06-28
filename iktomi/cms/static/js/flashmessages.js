@@ -5,6 +5,7 @@
  * Time: 6:22 PM
  * To change this template use File | Settings | File Templates.
  */
+
 function flash(text, className, timeout){
   className = className || '';
   timeout = timeout || 3000;
@@ -41,33 +42,34 @@ function flash(text, className, timeout){
 
 function flashAll(){
   var allCookies = document.cookie.split(';');
+
   for (var i = allCookies.length; i--;) {
-      var name = allCookies[i].trim().split('=')[0];
-      if (name.substr(0, 10) == 'flash-msg-'){
-          var data = Cookie.read(name);
-          Cookie.dispose(name, {'path': '/'});
-          if(data){
-              if (data.charAt(0) == '"'){
-                  // XXX Hack
-                  data = data.substr(1, data.length - 2);
-              }
-              var flashes = JSON.decode(data);
-              for (var j=0; j<flashes.length; j++){
-                  flash(flashes[j][0], flashes[j][1]);
-              }
-          }
+    var c = allCookies[i].trim();
+    if (c.substr(0, 10) ==  'flash-msg-') {
+      var c_name = c.split('=')[0];
+      var data = JSON.decode(Cookie.read(c_name));
+      Cookie.dispose(c_name);
+
+      // ugly hack for double escaped string
+      if (typeof(data) == 'string' && data.charAt(0) == '[') {
+        data = JSON.decode(data);
       }
+	    
+      for (var j=0; j<data.length; j++){
+        flash(data[j][0], data[j][1]);
+      }
+    }
   }
 }
 
 (function(){
   // XXX hack to add callback to all Ajax events
   // May be wrong
-
   var tempSend = XMLHttpRequest.prototype.send;
 
   XMLHttpRequest.prototype.send = function() {
     tempSend.apply(this, arguments);
+
     this.addEventListener('readystatechange', function(){
         if(this.readyState == 4) {
             flashAll();
