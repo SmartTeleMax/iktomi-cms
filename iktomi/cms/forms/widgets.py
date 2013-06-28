@@ -95,8 +95,6 @@ class WysiHtml5(Widget):
                 tags = [tags] if isinstance(tags, basestring) else tags
                 if not (set(tags) - conv_tags):
                     buttons.add(button)
-            else:
-                raise ValueError('Not registered button: %s' % button)
         return (self.buttons - tag_buttons) | buttons
 
     def has_button(self, button):
