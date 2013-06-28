@@ -299,3 +299,72 @@ def get_stream_class(module_name, root='streams'):
 def get_stream(module_name, root='streams'):
     stream_class = get_stream_class(module_name, root=root)
     return stream_class(module_name)
+
+
+class Loner(object):
+
+    def __init__(self, module_name):
+        self.module_name = module_name
+
+    def get_handler(self):
+        return  web.match('/'+self.module_name, self.module_name) | self
+
+    @cached_property
+    def config(self):
+        # Config module must define variables:
+        # title, Model, ItemForm
+        # It can also redefine defaults for:
+        # permissions, template
+        return __import__('loners.'+self.module_name, None, None, ['*'])
+
+    @property
+    def title(self):
+        return self.config.title
+
+    @cached_property
+    def template_name(self):
+        return getattr(self.config, 'template', 'loner')
+
+    def get_permissions(self, env):
+        permissions = getattr(self.config, 'permissions', {})
+        permissions.setdefault('wheel', 'rwxcd')
+        user_permissions = set()
+        for role in env.user.roles:
+            user_permissions |= set(permissions.get(role, ''))
+        return user_permissions
+
+    def has_permission(self, env, permission):
+        return permission in self.get_permissions(env)
+
+    def insure_has_permission(self, env, permission):
+        if not self.has_permission(env, permission):
+            raise Forbidden
+
+    def __call__(self, env, data):
+        self.insure_has_permission(env, 'w') # XXX Allow read-only mode
+        extra_filters = getattr(self.config, 'model_filters', {})
+        item = env.db.query(self.config.Model)\
+                    .filter_by(**extra_filters).scalar()
+        if item is None:
+            item = self.config.Model(**extra_filters)
+        form = self.config.ItemForm.load_initial(env, item)
+
+        request = env.request
+
+        if request.method=='POST':
+            if form.accept(request.form, request.files, roles=env.user.roles):
+                form.update_instance(item)
+                if item not in env.db:
+                    env.db.add(item)
+                env.db.commit()
+                flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+                return see_other(request.url_for(external=True))
+            else:
+                flash(env, u'Объект (%s) не был сохранен из-за ошибок' % \
+                                                                    (item,),
+                              'failure')
+        return env.render_to_response(self.template_name, dict(
+                title=self.config.title,
+                form=form,
+                roles=env.user.roles,
+            ))

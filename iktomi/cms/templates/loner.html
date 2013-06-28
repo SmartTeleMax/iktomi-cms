@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block extrahead %}
+
+  {{ super() }}
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for_static('css/itemform.css') }}" />
+
+  <script type="text/javascript" src="{{ url_for_static('js/presave.js') }}"></script>
+  {% for media in form.get_media() %}    {{ media.render() }}
+  {% endfor %}
+
+  <script type="text/javascript">
+    window.addEvent('domready', function() {
+      function submit() {
+        $('item-form').submit.delay(0, $('item-form'));          
+      }
+      $$('.buttons a[rel="save"]').addEvent('click', function(e) {
+        e.stop();
+        submit();
+      });      $$('.buttons').setStyle('visibility', 'visible');
+    });
+  </script>
+
+{% endblock %}
+
+{% macro buttons() %}
+  <div class="buttons" style="visibility: hidden;">
+    <div>
+      <a href="#" class="button icon-apply" style="margin-left: 15px" rel="save">
+        <span><b></b>Сохранить</span>
+      </a>
+    </div>
+  </div>
+
+{% endmacro %}
+
+
+{% block content %}
+
+  <form id="item-form" action="{{ url_for(env.namespace+'.'+env.current_url_name) }}" method="post" enctype="multipart/form-data" class="item-form">
+
+    <table border="0" cellspacing="0" cellpadding="0" class="content">
+      <tbody>
+      <tr valign="bottom">
+        <td>
+          <table border="0" cellspacing="0" cellpadding="0" width="100%" class="header">
+            <tr valign="bottom">
+              <td>
+                <h1>
+                  <span>{{ title }}</span>
+                </h1>
+              </td>
+              <td>{{ buttons() }}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr valign="top">
+        <td>
+          <div class="text">
+            <div class="line"></div>
+            <div class="inside">
+              <table border="0" cellspacing="0" cellpadding="0" class="form">
+                {{ form.render() }}
+              </table>
+            </div>
+          </div>
+
+          {% block preview %}{% endblock %}
+
+          <div class="bottom">{{ buttons() }}</div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+  </form>
+
+{% endblock %}
