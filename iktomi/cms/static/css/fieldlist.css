@@ -8,7 +8,7 @@ table.fieldlist td {
 }
 
 table.fieldlist td a.remove {
-  background: url(images/reset.gif) no-repeat left;
+  background: url(../images/reset.gif) no-repeat left;
   padding-left: 12px;
   color: #990000;
   text-decoration: none;
