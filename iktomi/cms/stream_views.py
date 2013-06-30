@@ -342,6 +342,9 @@ class Loner(object):
 
     def __call__(self, env, data):
         self.insure_has_permission(env, 'w') # XXX Allow read-only mode
+        if not env.request.is_xhr:
+            return env.render_to_response('layout.html', {})
+
         extra_filters = getattr(self.config, 'model_filters', {})
         item = env.db.query(self.config.Model)\
                     .filter_by(**extra_filters).scalar()
@@ -350,21 +353,20 @@ class Loner(object):
         form = self.config.ItemForm.load_initial(env, item)
 
         request = env.request
-
         if request.method=='POST':
-            if form.accept(request.form, request.files, roles=env.user.roles):
+            if form.accept(request.POST):
                 form.update_instance(item)
                 if item not in env.db:
                     env.db.add(item)
                 env.db.commit()
                 flash(env, u'Объект (%s) сохранен' % (item,), 'success')
-                return see_other(request.url_for(external=True))
+                return env.json({'success': True})
             else:
                 flash(env, u'Объект (%s) не был сохранен из-за ошибок' % \
                                                                     (item,),
                               'failure')
-        return env.render_to_response(self.template_name, dict(
-                title=self.config.title,
-                form=form,
-                roles=env.user.roles,
-            ))
+        return env.json({'html': env.render_to_string(self.template_name, dict(
+                        title=self.config.title,
+                        form=form,
+                        roles=env.user.roles,
+                        ))})
