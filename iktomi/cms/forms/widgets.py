@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from iktomi.forms.widgets import *
 from iktomi.utils import cached_property
 import json
@@ -103,4 +105,67 @@ class WysiHtml5(Widget):
     def block_exists(self, *buttons):
         return self.real_buttons & set(buttons)
 
+
+class PopupStreamSelect(Select):
+    
+    template = 'widgets/popup_stream_select'
+    open_btn_text = u'Выбрать'
+    create_btn_text = u'Создать'
+    allow_create = False
+    allow_select = True
+    allow_delete = True
+    select_all_button = True
+    unshift = False
+    default_filters = {}
+    
+    @cached_property
+    def default_create_filters(self):
+        return self.default_filters
+    
+    @cached_property
+    def stream(self):
+        from streams import streams
+        return streams[self.stream_name]
+    
+    def render_row_template(self, **data):
+        return self.env.render_to_string(self.stream.row_template_name,
+                                         **dict(self.stream.template_data, **data))
+    
+    def item_row(self, item, row_cls=''):
+        url = self.env.url_for(self.stream_name + '.item', item=item.id)
+        return self.render_row_template(stream=self.stream, 
+                                        item=item, list_fields=self.list_fields,
+                                        url=url, row_cls=row_cls)
+    
+    @cached_property
+    def list_fields(self):
+        return self.stream.list_fields
+    
+    @cached_property
+    def create_url(self):
+        return self.env.url_for(self.stream_name + '.item', item=None)\
+                       .qs_set(self.default_create_filters)
+    
+    def js_config(self):
+        data = {
+            'url': self.env.url_for(self.stream_name).qs_set(self.default_filters),
+            'title': self.stream.title,
+            'container': self.id,
+            'input_name': self.input_name,
+            'allow_delete': self.allow_delete,
+            'unshift': self.unshift,
+        }
+        if self.allow_create:
+            data['create_url'] = self.create_url
+        return json.dumps(data) # XXX escape_js
+
+    def get_options(self, value):
+        choice_conv = self.field.conv
+        if isinstance(choice_conv, convs.ListOf):
+            choice_conv = choice_conv.conv
+        assert isinstance(choice_conv, convs.EnumChoice)
+
+        values = value if self.multiple else [value]
+        values = filter(None, map(choice_conv.to_python, values))
+        return values
 
