@@ -100,7 +100,8 @@ class StreamMenu(Menu):
     @cached_property
     def active(self):
         if self.filters:
-            return self.url == '%s?%s' % (self.request.path, self.request.query_string)
+            return self.url == '%s?%s' % (self.request.path,
+                                          self.request.query_string)
         return self.url == self.request.path
 
     @cached_property
@@ -118,7 +119,8 @@ class StreamMenu(Menu):
 
     @cached_property
     def create_url(self):
-        return self.env.url_for(self.stream_name + '.item', item=None).qs_set(self.filters)
+        return self.env.url_for(self.stream_name + '.item', item=None)\
+                                                .qs_set(self.filters)
 
     @cached_property
     def endpoint_name(self):
@@ -136,19 +138,21 @@ class ActionMenu(Menu):
     @cached_property
     def active(self):
         if self.filters:
-            return self.url == '%s?%s' % (self.request.path, self.request.query_string)
+            return self.url == '%s?%s' % (self.request.path,
+                                          self.request.query_string)
         return self.url == self.request.path
 
     @cached_property
     def url(self):
-        return self.env.url_for(self.stream_name + '.action', action=self.action)(self.filters)
+        return self.env.url_for(self.stream_name + '.action',
+                                action=self.action)(self.filters)
 
-class FaceItemMenu(Menu):
 
-    def __init__(self, face_item, title=None, items=None,
+class LonerMenu(Menu):
+
+    def __init__(self, loner_name, title=None, items=None,
                  template_vars={}, env=None):
-        self.face_item = face_item
-        self.face_item_name = face_item.module_name
+        self.loner_name = loner_name
         if title is not None:
             self.title = title
         self.items = items or []
@@ -158,14 +162,18 @@ class FaceItemMenu(Menu):
             item.parent = weakproxy(self)
 
     @cached_property
+    def loner(self):
+        from loners import loners
+        return loners[self.loner_name]
+
+    @cached_property
     def title(self):
-        return self.face_item.title
+        return self.loner.title
 
     @cached_property
     def url(self):
-        return self.env.url_for('face_items.'+self.face_item_name)
+        return self.env.url_for('loners.'+self.loner_name)
 
     @cached_property
     def get_permissions(self):
-        return self.face_item.get_permissions(self.env)
-
+        return self.loner.get_permissions(self.env)
