@@ -48,7 +48,9 @@ var PopupStreamSelect = new Class({
     // XXX disabled
     if (this.options.create_url) {
       this.createBtn = $(this.options.container + '-create');
-      this.createBtn.addEvent('click', function(){
+      this.createBtn.addEvent('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
         this.load(this.options.create_url);
         return false;
       }.bind(this))
@@ -155,7 +157,12 @@ var PopupStreamSelect = new Class({
     this.markSelectedItems();
     this.popup.show();
 
+      
+      console.log('redirect_to', $('redirect_url'))
+
     console.log('popup loaded', result);
+
+
     //var redirect_url = $('redirect_url');
 
     //if(redirect && redirect_url){
@@ -216,7 +223,7 @@ var PopupStreamSelect = new Class({
 
         a.addEvent('click', function(e) {
           e.preventDefault();
-        e.stopPropagation();
+          e.stopPropagation();
           this.onItemClicked(item, a.getProperty('rel').match(/^id:(.*)+/)[1]);
         }.bind(this));
 
