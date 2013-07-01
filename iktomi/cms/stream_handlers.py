@@ -278,6 +278,7 @@ class EditItemHandler(StreamAction):
                                            item=item.id).qs_set(
                                                filter_form.get_data()),
                     return env.json({'success': True,
+                                     'item_id': item.id,
                                      'item_url': item_url})
                 else:
                     stream.rollback_due_lock_lost(env, item)
