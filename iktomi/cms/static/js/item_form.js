@@ -1,9 +1,12 @@
 (function(){
   function ItemForm(frm){
     var this_ = this;
+    this._callback_hook = undefined;
+    frm.store('ItemForm', this);
     console.log('Generating ItemForm #'+frm.id);
     // XXX
     var is_popup = !!frm.getParent('.popup-body');
+    var popup = frm.getParent('.popup');
     var container = frm.getParent('.popup-body') || $('app-content');
     var do_submit;
 
@@ -14,7 +17,13 @@
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(is_popup?'&__popup=':''),
           onSuccess: function(result){
             if (result.success){
-              callback.call(button, result);
+              if (this_._callback_hook) {
+                this_._callback_hook(result, function(){
+                  callback.call(button, result);
+                });
+              } else {
+                callback.call(button, result);
+              }
             } else {
               console.log('form load to', container)
               renderPage(result, container);
@@ -62,8 +71,9 @@
     frm.getElements('.buttons a[rel="save"]').addEvent('click', function(e) {
       e.preventDefault(); e.stopPropagation();
       submit(frm, this, function(result){
+
         if(is_popup){
-          frm.getParent('.popup').retrieve('popup').empty().hide();
+          popup.retrieve('popup').empty().hide();
         } else {
           load(this.getProperty('href'));
         }

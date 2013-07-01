@@ -34,6 +34,8 @@ var PopupStreamSelect = new Class({
     unshift: false
   },
 
+  _select_items: [],
+  _selected_items: [],
   _input: null,
   _items_div: null,
   _multiple: false,
@@ -132,18 +134,21 @@ var PopupStreamSelect = new Class({
 
   },
 
-  show: function() {
+  show: function(callback) {
     this.popup.setTitle(this.options.title);
-    this.load(this.options.url);
+    this.load(this.options.url, callback);
   },
 
-  load: function(url) {
+  load: function(url, callback) {
     this.popup.show_loader();
     url = add_url_params(url, {'__popup':'', '__multiple':this._multiple});
     new Request.JSON({
       'url': url,
       'onSuccess': function(result) {
         this.onContentRecieved(result);
+        if (callback) {
+          callback();
+        }
       }.bind(this)
     }).get();
   },
@@ -152,15 +157,27 @@ var PopupStreamSelect = new Class({
     this.popup.hide_loader();
     this.popup.setContent(result.html);
     Blocks.init(this.popup.contentEl);
+    var frm = this.popup.contentEl.getElement('form');
+    if (frm) {
+      frm.retrieve('ItemForm')._callback_hook = function(result, callback) {
+        /* вызывается при успешном сохранении нового объекта */
+        if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
+          this._select_items.push(result.item_id);
+          this.show(callback);
+        }
+      }.bind(this);
+    }
+
+    var id = this._select_items.pop();
+    while(id) {
+      var item = this.popup.el.getElement('.itemlist .item a[rel=id:'+id+']').getParent('.item');
+      this.onItemClicked(item, ''+id);
+      id = this._select_items.pop();
+    }
 
     this.attachContentEvents();
     this.markSelectedItems();
     this.popup.show();
-
-      
-      console.log('redirect_to', $('redirect_url'))
-
-    console.log('popup loaded', result);
 
 
     //var redirect_url = $('redirect_url');
@@ -203,6 +220,7 @@ var PopupStreamSelect = new Class({
   },
 
   submitItemForm: function(frm){
+      console.log('submit frm', frm)
     this.popup.show_loader();
     var url = frm.get('action');
     url = add_url_params(url, {'__popup':'', '__multiple':this._multiple, '__ajax': ''});
