@@ -31,8 +31,8 @@
 {% macro lang_version(item, lang, field_val) %}
     {% set foreign_item = item|attr(lang) %}
     {% if foreign_item is not none %}
-          <td {% if foreign_item.publish is defined -%}
-                   class="{%- if foreign_item.publish -%}
+          <td {% if foreign_item.public is defined -%}
+                   class="{%- if foreign_item.public -%}
                           published
                           {%- else -%}
                           unpublished
@@ -59,8 +59,8 @@
     {% endif %}
 {% endmacro %}
 
-<tr class="item {{ row_cls }}{% if item.publish is defined -%}
-{%- if item.publish %} published{% else %} unpublished{% endif -%}
+<tr class="item {{ row_cls }}{% if item.public is defined -%}
+{%- if item.public %} published{% else %} unpublished{% endif -%}
 {%- endif %}">
   {% block list_fields %}
       {% for name, field in list_fields.items() %}
