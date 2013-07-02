@@ -169,3 +169,14 @@ class PopupStreamSelect(Select):
         values = filter(None, map(choice_conv.to_python, values))
         return values
 
+
+class TabSelect(Select):
+    
+    template = 'widgets/tab_select'
+    inject_to = 'list_tabs'
+
+    def js_config(self):
+        return json.dumps(dict(
+            getattr(self, 'js_conf', {}),
+            inject_to=self.inject_to
+        ))
