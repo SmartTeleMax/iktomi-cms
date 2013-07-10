@@ -180,3 +180,19 @@ class TabSelect(Select):
             getattr(self, 'js_conf', {}),
             inject_to=self.inject_to
         ))
+
+
+class AjaxFileInput(FileInput):
+    template = 'widgets/ajax_fileinput'
+    upload_url = None
+
+    def js_config(self):
+        conf = {'input': self.id,
+                'error': self.field.error,
+                'uploading_url': self.uploading_url,
+                'value': self.field.clean_value}
+
+        # XXX copy-paste from old code. Should be replaced with better alternative after new uploading api stabilization.
+        if self.field.clean_value is not None:
+            conf['is_value_persistent'] = self.field.clean_value.mode == 'existing'
+        return json.dumps(conf)
