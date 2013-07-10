@@ -189,7 +189,7 @@ class AjaxFileInput(FileInput):
     def js_config(self):
         conf = {'input': self.id,
                 'error': self.field.error,
-                'uploading_url': self.uploading_url,
+                'upload_url': self.upload_url,
                 'value': self.field.clean_value}
 
         # XXX copy-paste from old code. Should be replaced with better alternative after new uploading api stabilization.
