@@ -13,4 +13,5 @@ popup_stream_select
 fieldlist
 fieldset-line
 tabbed_fieldset
-dragupload
+ajax_fileinput
+

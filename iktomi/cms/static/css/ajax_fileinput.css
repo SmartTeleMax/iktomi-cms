@@ -1,0 +1,20 @@
+a.remove {
+    background: url("../images/reset.gif") no-repeat scroll left center transparent;
+    color: #990000;
+    padding-left: 12px;
+    text-decoration: none;
+}
+.progress_box{
+    width: 300px;
+    height: 20px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    background-color: #ddd;
+}
+.progress_percent{
+    height: 20px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    background-color: #77d;
+}
+
