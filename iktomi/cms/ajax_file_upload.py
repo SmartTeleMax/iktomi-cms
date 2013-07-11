@@ -1,77 +1,75 @@
 # -*- coding: utf-8 -*-
 
-import os, logging
+import os, logging, struct, time
 
-from iktomi.forms import files
-from iktomi.forms import *
-from iktomi.forms.convs import ValidationError
 from iktomi.web import WebHandler
 
 logger = logging.getLogger(__file__)
 
 
-class DNDFileField(files.FileFieldSet):
-
-    media = [FormJSRef('dragupload.js'),
-             FormJSRef('progressbar.js'),
-             FormJSRef('presave/Files.js'),
-             FormCSSRef('dragupload.css')]
-    template = 'widgets/dropfile'
-    upload_endpoint = 'load_tmp_file'
-
-    def __init__(self, *args, **kwargs):
-        super(DNDFileField, self).__init__(*args, **kwargs)
-        if 'parent' in kwargs:
-            try:
-                form = self.form
-                form.presavehooks = getattr(form, 'presavehooks', [])
-                if 'CheckFilesUploaded' not in form.presavehooks:
-                    form.presavehooks = form.presavehooks + \
-                                                ['CheckFilesUploaded']
-            except AttributeError: pass
+def time_uid(**kw): #XXX accept slashed arg
+    return (struct.pack('!d', time.time()) + os.urandom(2)).encode('hex')
 
 
-class DNDImageField(DNDFileField):
+class UploadedFileTmp(object):
+    
+    def __init__(self, orig_filename, path):
+        self.orig_filename = orig_filename
+        fname, ext = os.path.splitext(self.orig_filename)
+        uid = time_uid()
+        self.filename = uid + ext
+        self.full_path = os.path.join(path, self.filename)
 
-    template = 'widgets/dropimage'
-    #: used when file is uploaded
-    temp_file_cls = files.TempImageFile
-    thumb_size = None
-    thumb_sufix = '__thumb' # XXX not really used in AJAX upload view, but used
-                            # by TempImageFile
-    upload_endpoint = 'load_tmp_image'
 
-    # Show the thumb or not. Works only with image option on
-    show_thumbnail = True
-    #: use js pre-upload thumbnail generation by canvas
-    canvas_thumb_preview = False
+class UploadedFilePersist(object):
+    pass
 
+
+class FileUploadManager(object):
+    tmp_dir = None
+    persist_dir = None
+    tmp_cls = None
+    persist_cls = None
+
+    def __init__(self, tmp_dir, persist_dir,\
+                     tmp_cls=UploadedFileTmp, persist_cls=UploadedFilePersist):
+        self.tmp_dir = tmp_dir
+        self.persist_dir = persist_dir
+        self.tmp_cls = tmp_cls
+        self.persist_cls = persist_cls
+
+    def save_tmp(self, orig_filename, read, length):
+        tmp_file = self.tmp_cls(orig_filename, self.tmp_dir)
+        fp = open(tmp_file.full_path, 'wb')
+        pos, bufsize = 0, 100000
+        while pos < length:
+            bufsize = min(bufsize, length-pos)
+            data = read(bufsize)
+            fp.write(data)
+            pos += bufsize
+        fp.close()
+        return tmp_file
+
+    def save_persist(self, tmp_file):
+        return self.persist_cls()
+
+    def get_tmp_url(self, tmp_file, env):
+        return ''
+
+    def get_persist_url(self, persist_file, env):
+        return ''
 
 class FileUploadHandler(WebHandler):
-    temp_dir = None
 
-    def __init__(self, cls=files.TempUploadedFile, temp_dir=None):
-        self.temp_file_cls = cls
-        self.temp_dir = temp_dir or self.temp_dir
+    def __init__(self, manager):
+        self.manager = manager
 
     def __call__(self, env, data):
-        tmp_dir = self.temp_dir or env.cfg.FORM_TEMP
         request = env.request
 
         if request.method =="POST":
-            #if "delete" in request.args:
-            #    # XXX separate view
-            #    filename = request.GET["delete"]
-            #    fm.delete_file(filename)
-            #    return HttpResponse(content = ('{"result":"ok"}'))
-
-            fname, ext = os.path.splitext(request.GET["file"])
-            uid = files.time_uid()
-            filename = uid + ext
-            full_path = os.path.join(tmp_dir, filename)
-
-            length = int(request.environ.get('CONTENT_LENGTH', 0))
-            if not length:
+             length = int(request.environ.get('CONTENT_LENGTH', 0))
+             if not length:
                 from StringIO import StringIO
                 from pprint import pprint
                 sio = StringIO()
@@ -96,42 +94,15 @@ class FileUploadHandler(WebHandler):
                     return env.json({'status': 'failure',
                                      'error': 'No Content-Length provided'})
 
-            read = request.environ['wsgi.input'].read
-            fp = open(full_path, 'wb')
-            pos, bufsize = 0, 100000
-            while pos < length:
-                bufsize = min(bufsize, length-pos)
-                data = read(bufsize)
-                fp.write(data)
-                pos += bufsize
-            fp.close()
 
-            result = {
-                "status": 'ok',
-                "file": filename,
-                'file_url': env.cfg.FORM_TEMP_URL + filename
-                }
+             tmp_file = self.manager.save_tmp(request.GET["file"],\
+                                                  request.environ['wsgi.input'].read,\
+                                                  length)
 
-            if self.temp_file_cls != files.TempUploadedFile:
-                tmp_file = self.temp_file_cls(tmp_dir, fname, ext, uid)
-                if request.GET.get('image'):
-                    try:
-                        tmp_file.thumb_size = (int(request.GET['thumb_width']),
-                                               int(request.GET['thumb_height']))
-                    except (KeyError, TypeError):
-                        tmp_file.thumb_size = None
-                        result['thumbnail'] = env.cfg.FORM_TEMP_URL + filename
-                    else:
-                        tmp_file.thumb_sufix = '__thumb' # XXX hardcoded
-                        result['thumbnail'] = env.cfg.FORM_TEMP_URL + uid + \
-                                                                '__thumb.png'
+             result = {
+                 "status": 'ok',
+                 "file": tmp_file.filename,
+                 'file_url': self.manager.get_tmp_url(tmp_file, env)
+                 }
 
-                fp = open(full_path)
-                try:
-                    tmp_file.save(fp, inherited=False)
-                except ValidationError, e:
-                    os.unlink(full_path)
-                    result = {'status': 'failure', 'error': e.message}
-                finally:
-                    fp.close()
-            return env.json(result)
+             return env.json(result)
