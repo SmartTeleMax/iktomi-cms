@@ -338,7 +338,7 @@ class Loner(object):
 
     def insure_has_permission(self, env, permission):
         if not self.has_permission(env, permission):
-            raise Forbidden
+            raise HTTPForbidden
 
     def __call__(self, env, data):
         self.insure_has_permission(env, 'w') # XXX Allow read-only mode

@@ -5,7 +5,7 @@
     {% if not is_popup %}
     {% if delete_allowed and 'delete' in item_buttons %}
     <a href="{{ delete_url }}" class="button icon-delete" style="margin-left: 15px; margin-right: 50px">
-      <span><b></b>Удалить</span>
+      Удалить
     </a>
     {% endif %}
     
@@ -18,13 +18,13 @@
           </a>
         {% elif action.mode == 'post' %}
           <a href="{{ url_for(env.stream.stream_endpoint(env) + '.' + action.action, item=item.id) }}" rel="post" style="margin-left: 15px;" class="button{% if action.cls %} icon-{{ action.cls}}{% endif %}">
-	        {{ action.title }}
-	      </a>
+          {{ action.title }}
+        </a>
         {% elif action.mode in ('get', 'custom') %}
-	      <a href="{{ url_for(env.stream.stream_endpoint(env) + '.' + action.action, item=item.id) }}" style="margin-left: 15px;" class="button{% if action.cls %} icon-{{ action.cls}}{% endif %}">
-	        {{ action.title }}
-	      </a>        
-	    {% endif %}
+        <a href="{{ url_for(env.stream.stream_endpoint(env) + '.' + action.action, item=item.id) }}" style="margin-left: 15px;" class="button{% if action.cls %} icon-{{ action.cls}}{% endif %}">
+          {{ action.title }}
+        </a>
+      {% endif %}
       {% endif %}
     {% endfor %}
     {% endif %}
@@ -32,19 +32,19 @@
     {% if save_allowed and create_allowed and 'save_and_add_another' in item_buttons %}
     <a href="{{ url_for(stream.module_name+'.item', item=None).qs_set(filter_form.get_data()) }}"
        class="button icon-add" style="margin-left: 15px" rel="save-and-add">
-      <span><b></b>Сохранить и создать новый</span>
+      Сохранить и создать новый
     </a>
     {% endif %}
     
     {% if save_allowed and 'save_and_continue' in item_buttons %}
     <a href="" class="button icon-apply" style="margin-left: 15px" rel="save-and-continue">
-      <span><b></b>Сохранить и продолжить</span>
+      Сохранить и продолжить
     </a>
     {% endif %}
     
     {% if save_allowed and 'save' in item_buttons %}
     <a href="{{ stream_url }}" class="button icon-back" style="margin-left: 15px" rel="save">
-      <span><b></b>Сохранить и закрыть</span>
+      Сохранить и закрыть
     </a>
     {% endif %}
     
