@@ -196,3 +196,15 @@ class AjaxFileInput(FileInput):
         if self.field.clean_value is not None:
             conf['is_value_persistent'] = self.field.clean_value.mode == 'existing'
         return json.dumps(conf)
+
+
+class Calendar(TextInput):
+    
+    template = 'widgets/calendar'
+    classname = 'calendar'
+
+    @cached_property
+    def size(self):
+        return len(self.field.from_python(datetime(1999, 12, 31)))+1
+
+
