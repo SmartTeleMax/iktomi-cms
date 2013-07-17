@@ -2,15 +2,15 @@
 
 from iktomi import web
 from iktomi.utils import cached_property
-from iktomi.forms import Form, Field, FieldSet, FieldList, convs
-from iktomi.forms.media import FormJSRef, FormCSSRef, FormJSInline
+from iktomi.forms import Form, Field, FieldSet, FieldList
+from iktomi.cms.forms import convs
 
 from .stream_actions import StreamAction
 from .stream_handlers import see_other
 from .item_lock import ModelLockedByOther, ModelLockError
 from .flashmessages import flash
 
-BR = '\n'
+#BR = '\n'
 
 
 def getListItemForm(Model):
@@ -45,11 +45,6 @@ def getListItemForm(Model):
 #def getGroupedListItemForm(Model, init_js='stream_sortable_grouped_init.js'):
 #    # FieldSet('group', ...) added to avoid custom stream row template
 #    class GroupedListItemForm(Form):
-#        media = Form.media + [
-#            FormJSRef('stream_sortable.js'),
-#            FormJSRef(init_js),
-#            FormCSSRef('stream_sortable.css'),
-#            ]
 #    
 #        fields = [
 #            FieldList(
