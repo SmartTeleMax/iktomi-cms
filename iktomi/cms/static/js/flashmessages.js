@@ -47,7 +47,9 @@ function flashAll(){
     var c = allCookies[i].trim();
     if (c.substr(0, 10) ==  'flash-msg-') {
       var c_name = c.split('=')[0];
-      var data = JSON.decode(Cookie.read(c_name));
+      // Hack to workaround bad cookie processing
+      var cookie = Cookie.read(c_name).replace(/^"|"$/g, '');
+      var data = JSON.decode(cookie);
       Cookie.dispose(c_name);
 
       // ugly hack for double escaped string

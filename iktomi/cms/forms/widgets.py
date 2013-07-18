@@ -107,7 +107,7 @@ class WysiHtml5(Widget):
 
 
 class PopupStreamSelect(Select):
-    
+
     template = 'widgets/popup_stream_select'
     open_btn_text = u'Выбрать'
     create_btn_text = u'Создать'
@@ -117,35 +117,35 @@ class PopupStreamSelect(Select):
     select_all_button = True
     unshift = False
     default_filters = {}
-    
+
     @cached_property
     def default_create_filters(self):
         return self.default_filters
-    
+
     @cached_property
     def stream(self):
         from streams import streams
         return streams[self.stream_name]
-    
+
     def render_row_template(self, **data):
         return self.env.render_to_string(self.stream.row_template_name,
                                          **dict(self.stream.template_data, **data))
-    
+
     def item_row(self, item, row_cls=''):
         url = self.env.url_for(self.stream_name + '.item', item=item.id)
-        return self.render_row_template(stream=self.stream, 
+        return self.render_row_template(stream=self.stream,
                                         item=item, list_fields=self.list_fields,
                                         url=url, row_cls=row_cls)
-    
+
     @cached_property
     def list_fields(self):
         return self.stream.list_fields
-    
+
     @cached_property
     def create_url(self):
         return self.env.url_for(self.stream_name + '.item', item=None)\
                        .qs_set(self.default_create_filters)
-    
+
     def js_config(self):
         data = {
             'url': self.env.url_for(self.stream_name).qs_set(self.default_filters),
@@ -170,8 +170,42 @@ class PopupStreamSelect(Select):
         return values
 
 
+class PopupFilteredSelect(Select):
+
+    template = 'widgets/popup_filtered_select'
+    classname = 'filtered_multiple_select' # XXX strange name for this widget
+    #media = [FormCSSRef('popup_filtered_select.css'),
+    #         FormJSRef('popup_filtered_select.js')]
+    open_btn_text = u'Выбрать'
+    disable_unpublished = False
+
+    def get_options(self, value):
+        options = []
+        # XXX ugly
+        choice_conv = self.field.conv
+        if isinstance(choice_conv, convs.ListOf):
+            choice_conv = choice_conv.conv
+        assert isinstance(choice_conv, convs.EnumChoice)
+
+        values = value if self.multiple else [value]
+        values = map(unicode, values)
+        for choice, label in choice_conv.options():
+            choice = unicode(choice)
+            options.append(dict(value=choice,
+                                title=label,
+                                selected=(choice in values)))
+        return options
+
+    def js_config(self):
+        return json.dumps({
+            'multiple': self.multiple,
+            'required': self.field.conv.required,
+            'disable_unpublished': self.disable_unpublished,
+        })
+
+
 class TabSelect(Select):
-    
+
     template = 'widgets/tab_select'
     inject_to = 'list_tabs'
 
@@ -183,6 +217,7 @@ class TabSelect(Select):
 
 
 class AjaxFileInput(FileInput):
+
     template = 'widgets/ajax_fileinput'
     upload_url = None
 
@@ -199,7 +234,7 @@ class AjaxFileInput(FileInput):
 
 
 class Calendar(TextInput):
-    
+
     template = 'widgets/calendar'
     classname = 'calendar'
 

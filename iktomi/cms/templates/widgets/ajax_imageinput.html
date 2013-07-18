@@ -1,0 +1,20 @@
+{% extends "widgets/ajax_fileinput.html" %}
+
+{% block before_filedata %}
+  {%- if field.show_thumbnail %}
+    {%- if value %}
+        <img class="thumbnail" src="{{ value.url }}" class='value'/>
+    {%- else %}
+        <img class="thumbnail" src="" style="display: none" class="value"/>
+    {%- endif %}
+  {%- endif %}
+{% endblock %}
+
+{% block extra_js_options %}
+  data-image="true"
+  data-canvas-thumb-preview="{{ 'true' if field.canvas_thumb_preview else '' }}"
+  {% if field.thumb_size -%}
+    data-thumb-width="{{ field.thumb_size[0] }}"
+    data-thumb-height="{{ field.thumb_size[1] }}"
+  {%- endif -%}
+{% endblock %}

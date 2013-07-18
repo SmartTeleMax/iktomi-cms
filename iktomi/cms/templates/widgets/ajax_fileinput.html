@@ -1,4 +1,38 @@
-<div class="init-block widget" data-block-name="ajax-fileinput" data-config="{{ widget.js_config() }}">
+{#<div class="init-block widget" data-block-name="ajax-fileinput" data-config="{{ widget.js_config() }}">
   <input id="{{ widget.id }}" type="file" name="{{ widget.input_name|escape }}"
 	 {%- if widget.classname %} class="{{ widget.classname }}"{% endif %} />
+</div>#}
+<div class="init-block filedropwidget"
+     data-input-name="{{ field.input_name }}"
+     id='id_{{field.input_name}}'
+     data-block-name="dropfile"
+     data-url="{{ url_for(field.upload_endpoint) }}"
+     {% block extra_js_options %}{% endblock %}>
+
+  {% set value = field.clean_value %}
+
+  {% if value and not field.conv.required %}
+    <button type="button" class="button ajax-file-delete">удалить</button>
+    <br/>
+  {% endif %}
+
+  {%- block before_filedata %}{% endblock -%}
+  <div class="file_data">
+      {{ field.get_field('mode').render()|safe }}
+      {{ field.get_field('transient_name').render()|safe }}
+      {{ field.get_field('original_name').render()|safe }}
+      {% if value %}
+        <a target="_blank" href="{{ value.url }}">
+          {% if value.mode == 'existing' %}
+              Прикреплённый файл
+          {% else %}
+              Временный загруженный файл
+          {% endif %}
+        </a>
+      {% endif %}
+  </div>
+
+  {{ field.get_field('file').render()|safe }}
 </div>
+
+
