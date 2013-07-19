@@ -2,7 +2,7 @@ var DragUpload = new Class({
   // fires: over, out, start, addfile, start, progress, complete, error
 
   Implements: [Events, Options],
-  // XXX Binds does not attached
+  // XXX Binds are not attached
   //Binds: ['disable', 'enable', '_over', '_leave', '_drop'],
 
   options: {
@@ -14,13 +14,14 @@ var DragUpload = new Class({
   },
 
   check_browser: function(){
-      return true;
-      // works only with Chrome and Gecko 1.9.2 or newer
-      var ff = navigator.userAgent.match(/rv\:(\d+)\.(\d+)\.(\d+).+Gecko/);
-      if (ff){
-          return ff[1] * 10000 + ff[2] * 100 + ff[3] * 1 >= 10902; //XXX ugly
-      }
-      return navigator.userAgent.search('Chrome') != -1;
+    // XXX check is turned off: always return true
+    return true;
+    // works only with Chrome and Gecko 1.9.2 or newer
+    var ff = navigator.userAgent.match(/rv\:(\d+)\.(\d+)\.(\d+).+Gecko/);
+    if (ff){
+      return ff[1] * 10000 + ff[2] * 100 + ff[3] * 1 >= 10902; //XXX ugly
+    }
+    return navigator.userAgent.search('Chrome') != -1;
   },
 
   initialize: function(element, options){
@@ -251,7 +252,7 @@ var FileManagerSingle = new Class({
         );
         this.thumb.setStyle('display', 'none');
         this.deletebtn.setStyle('display', 'none');
-        this.add_hidden('mode', 'delete');
+        this.add_hidden('mode', 'empty');
       }.bind(this));
     }
     //}
