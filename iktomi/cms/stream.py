@@ -14,7 +14,7 @@ from iktomi.forms.media import FormJSInline, FormJSRef
 from . import stream_handlers as handlers
 from .flashmessages import flash
 
-logger = logging.getLogger('stream_views')
+logger = logging.getLogger(__name__)
 
 
 def I18nLabel(string, lang):
