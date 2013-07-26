@@ -49,6 +49,8 @@ function flashAll(){
       var c_name = c.split('=')[0];
       // Hack to workaround bad cookie processing
       var cookie = Cookie.read(c_name).replace(/^"|"$/g, '');
+      if (cookie.charAt(0) == '\\'){ cookie = eval('"'+cookie+'"'); }
+
       var data = JSON.decode(cookie);
       Cookie.dispose(c_name);
 
