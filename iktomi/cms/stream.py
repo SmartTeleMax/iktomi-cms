@@ -358,15 +358,26 @@ class Loner(object):
                 form.update_instance(item)
                 if item not in env.db:
                     env.db.add(item)
-                env.db.commit()
-                flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+
+                self.commit_item_transaction(env, item)
                 return env.json({'success': True})
             else:
-                flash(env, u'Объект (%s) не был сохранен из-за ошибок' % \
-                                                                    (item,),
-                              'failure')
+                self.rollback_due_form_errors()
         return env.json({'html': env.render_to_string(self.template_name, dict(
+                        loner=self,
                         title=self.config.title,
                         form=form,
                         roles=env.user.roles,
                         ))})
+
+    def commit_item_transaction(self, env, item):
+        '''commits request.db and flashes success message'''
+        env.db.commit()
+        flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+
+    def rollback_due_form_errors(self, env, item):
+        env.db.rollback()
+        flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
+                   'failure')
+
+
