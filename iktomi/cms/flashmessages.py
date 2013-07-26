@@ -8,7 +8,7 @@ from iktomi import web
 def flash_message_handler(env, data, nxt):
     env._flash = []
     result = nxt(env, data)
-    if hasattr(env, '_flash') and isinstance(result, Response):
+    if getattr(env, '_flash', None) and isinstance(result, Response):
         result.set_cookie('flash-msg-%s' % time.time(),
                           json.dumps(env._flash), max_age=120)
     return result
