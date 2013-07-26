@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPSeeOther
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.properties import PropertyLoader
+from sqlalchemy.orm.util import identity_key
+from sqlalchemy.orm import class_mapper
 
 from iktomi.utils import cached_property
 from iktomi import web
@@ -301,7 +304,8 @@ class EditItemHandler(StreamAction):
                              flashmessages=[], # XXX
                              stream_url=stream_url,
                              delete_url=delete_url,
-                             actions=[x for x in stream.actions if x.for_item],
+                             actions=[x for x in stream.actions 
+                                      if x.for_item and x.is_visible(env, item)],
                              item_buttons=stream.buttons,
                              create_allowed=create_allowed,
                              save_allowed=save_allowed,
@@ -360,7 +364,7 @@ class DeleteItemHandler(StreamAction):
         if env.request.method == 'POST':
             env.db.delete(item)
             try:
-                env.db.commit(admin_user=env.user)
+                env.db.commit()
             except IntegrityError:
                 env.db.rollback()
                 flash(env, u'Невозможно удалить объект (%s) пока на него'\
@@ -390,7 +394,7 @@ class DeleteItemHandler(StreamAction):
         if exclude is None:
             exclude = set()
         result = {}
-        for cls, props in obj._get_referers().items():
+        for cls, props in self._get_referers(env, obj).items():
             for prop, (count, query) in props.items():
                 left = limit - len(result)
                 if left <= 0:
@@ -424,6 +428,33 @@ class DeleteItemHandler(StreamAction):
                     result.update(indirect_referers)
                     assert obj not in result
         return result
+
+    def _get_referers(self, env, item):
+        '''Returns a dictionary mapping referer model class to query of all
+        objects of this class refering to current object.'''
+        return {}
+        # XXX not implemented
+        #cls, ident = identity_key(instance=item)
+        #metadata = cls.__table__.metadata
+        #result = {}
+        #for other_class in metadata._mapped_models:
+        #    queries = {}
+        #    for prop in class_mapper(other_class).iterate_properties:
+        #        if not (isinstance(prop, PropertyLoader) and \
+        #                issubclass(cls, prop.mapper.class_)):
+        #            continue
+        #        query = env.db.query(prop.parent)
+        #        comp = prop.comparator
+        #        if prop.uselist:
+        #            query = query.filter(comp.contains(item))
+        #        else:
+        #            query = query.filter(comp==item)
+        #        count = query.count()
+        #        if count:
+        #            queries[prop] = (count, query)
+        #    if queries:
+        #        result[other_class] = queries
+        #return result
 
 
 class CleanFormFieldHandler(StreamAction):
