@@ -157,7 +157,7 @@ var PopupStreamSelect = new Class({
     this.popup.hide_loader();
     this.popup.setContent(result.html);
     Blocks.init(this.popup.contentEl);
-    var frm = this.popup.contentEl.getElement('form');
+    var frm = this.popup.contentEl.getElement('.item-form');
     if (frm) {
       frm.retrieve('ItemForm')._callback_hook = function(result, callback) {
         /* вызывается при успешном сохранении нового объекта */
