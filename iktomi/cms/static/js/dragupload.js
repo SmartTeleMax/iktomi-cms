@@ -250,7 +250,7 @@ var FileManagerSingle = new Class({
         this.file_data.empty().adopt(
           new Element('p', {'html': 'файл будет удален'})
         );
-        this.thumb.setStyle('display', 'none');
+        if(this.thumb) { this.thumb.setStyle('display', 'none'); }
         this.deletebtn.setStyle('display', 'none');
         this.add_hidden('mode', 'empty');
       }.bind(this));
