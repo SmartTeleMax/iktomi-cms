@@ -1,0 +1,43 @@
+<a data-wysihtml5-command="table" class="btn">Вставить таблицу</a>
+<div class="wysihtml5-dialog-place">
+  <div class="wysihtml5-dialog"  data-wysihtml5-dialog="table"
+       id="{{ widget.id }}-table" style="display: none; min-width:150px">
+    <label style="display: inline-block; width: 75px">
+      Столбцы:
+    </label>
+    <input data-wysihtml5-dialog-field="cols" value="2" class="text" size="3">
+    <br/>
+    <label style="display: inline-block; width: 75px">
+      Строки:
+    </label>
+    <input data-wysihtml5-dialog-field="rows" value="2" class="text" size="3">
+
+    <br/>
+    <a data-wysihtml5-dialog-action="save">ОК</a>
+    <a data-wysihtml5-dialog-action="cancel">Закрыть</a>
+  </div>
+</div>
+<div class="wysihtml5-dialog-place">
+  <div class="wysihtml5-dialog wysihtml5-menu"
+       id="{{ widget.id }}-table-buttons" style="display: none">
+      <!--a data-wysihtml5-command="moveToNextRow">Переместиться к следующей строке</a-->
+      <!--a data-wysihtml5-command="splitCells">Разделить ячейку</a>
+      <a data-wysihtml5-command="mergeCells">Объединить ячейки</a-->
+      <a data-wysihtml5-command="insertRowBefore">Добавить строку до</a>
+      <a data-wysihtml5-command="insertRowAfter">Добавить строку после</a>
+      <a data-wysihtml5-command="deleteRow">Удалить строку</a>
+      <hr/>
+      <a data-wysihtml5-command="insertColBefore">Добавить столбец до</a>
+      <a data-wysihtml5-command="insertColAfter">Добавить столбец после</a>
+      <a data-wysihtml5-command="deleteCol">Удалить столбец</a>
+      <hr/>
+      <a data-wysihtml5-command="cutRow">Вырезать строку</a>
+      <a data-wysihtml5-command="copyRow">Копировать строку</a>
+      <a data-wysihtml5-command="pasteRowBefore">Вставить строку до</a>
+      <a data-wysihtml5-command="pasteRowAfter">Вставить строку после</a>
+      <hr/>
+      <a data-wysihtml5-command="deleteTable">Удалить таблицу</a>
+      <hr/>
+      <a onclick="this.getParent('.wysihtml5-dialog').style.display = 'none'">Закрыть</a>
+  </div>
+</div>

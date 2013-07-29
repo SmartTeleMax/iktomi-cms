@@ -106,6 +106,8 @@
 
     },
 
+    tagName: 'ABBR',
+
     exec: function(composer, command, value) {
       var dropdown = this._init(composer);
       var stream_select = dropdown.retrieve('widget');
@@ -123,14 +125,14 @@
           }.bind(this));
         }
       } else {
-        var abbr = new Element('abbr', {'title': this.propertyName + ":" + value})
+        var abbr = new Element(this.tagName, {'title': this.propertyName + ":" + value})
 
         composer.selection.getRange().nativeRange.wrapInlineSelection(abbr, composer.element);
       }
     },
 
     state: function(composer, command) {
-      var state = wysihtml5.commands.formatInline.state(composer, command, "ABBR");
+      var state = wysihtml5.commands.formatInline.state(composer, command, this.tagName);
       if (state && state[0].title.substr(0, this.propertyName.length+1) != this.propertyName+':'){
         state = false;
       }
@@ -138,17 +140,17 @@
     }
   };
 
-  wysihtml5.commands.fileLink = Object.merge(Object.create(PopupStreamSelectPlugin), {
-    propertyName: 'filelink',
-    commandName: 'fileLink',
-    streamName: 'files'
-  });
+  wysihtml5.commands.PopupStreamSelectPlugin = PopupStreamSelectPlugin;
 
-  wysihtml5.commands.personLink = Object.merge(Object.create(PopupStreamSelectPlugin), {
-    propertyName: 'personlink',
-    commandName: 'personLink',
-    streamName: 'persons'
-  });
+  /*
+   * Usage:
+   *
+   * wysihtml5.commands.fileLink = Object.merge(Object.create(PopupStreamSelectPlugin), {
+   *   propertyName: 'filelink',
+   *   commandName:  'fileLink',
+   *   streamName:   'files'
+   * });
+  */
 
 })(wysihtml5);
 

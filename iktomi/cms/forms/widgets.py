@@ -8,19 +8,22 @@ class WysiHtml5(Widget):
 
     template = 'widgets/wysihtml5'
 
-    buttons = frozenset(['bold', 'italic', 'underline', 'sup', 'sub',
-                         'blockquote', 'insertunorderedlist',
-                         'insertorderedlist', 'outdent', 'indent',
-                         'createLink', 'insertImage', 'fileLink', 'personLink',
-                         'table', 'extrachars', 'html',
-                         'headings', 'h1', 'h2', 'h3', 'h4', 'aside'])
+    button_blocks = [
+        ('inline', ['bold', 'italic', 'underline']),
+        ('block', ['headings', 'sup', 'sup', 'blockquote']),
+        ('lists', ['insertunorderedlist', 'insertorderedlist',
+                   'outdent', 'indent']),
+        ('advanced', ['createLink', 'insertImage', 'table', 'extrachars']),
+        ('history', ['undo', 'redo']),
+        ('html', ['html']),
+    ]
 
-    media = FormMedia([FormJSRef('wysihtml5-0.4.0pre.js'),
-                       FormJSRef('wysihtml5-block.js'),
-                       FormJSRef('wysihtml5-table.js'),
-                       FormCSSRef('wysihtml5.css'),
-                       FormJSRef('popup_stream_select.js'),
-                       FormJSRef('calendar.compat.js')])
+    #media = FormMedia([FormJSRef('wysihtml5-0.4.0pre.js'),
+    #                   FormJSRef('wysihtml5-block.js'),
+    #                   FormJSRef('wysihtml5-table.js'),
+    #                   FormCSSRef('wysihtml5.css'),
+    #                   FormJSRef('popup_stream_select.js'),
+    #                   FormJSRef('calendar.compat.js')])
 
     BUTTON_TAGS = (
         ('bold', 'b'),
@@ -38,8 +41,6 @@ class WysiHtml5(Widget):
 
         ('createLink', 'a'),
         ('insertImage', 'img'),
-        ('fileLink', 'abbr'),
-        ('personLink', 'abbr'),
 
         ('table', ('table', 'td', 'tr')),
 
@@ -93,17 +94,37 @@ class WysiHtml5(Widget):
         tag_buttons = set()
         for button, tags in self.BUTTON_TAGS:
             tag_buttons.add(button)
-            if button in self.buttons:
-                tags = [tags] if isinstance(tags, basestring) else tags
-                if not (set(tags) - conv_tags):
-                    buttons.add(button)
-        return (self.buttons - tag_buttons) | buttons
+            tags = [tags] if isinstance(tags, basestring) else tags
+            if not (set(tags) - conv_tags):
+                buttons.add(button)
+        all_btns = set(sum(dict(self.button_blocks).values(), []))
+        allowed = (set(all_btns) - tag_buttons) | buttons
+        buttons = [[btn for btn in btns if btn in allowed]
+                   for name, btns in self.button_blocks]
+        return filter(None, buttons)
 
     def has_button(self, button):
         return button in self.real_buttons
 
-    def block_exists(self, *buttons):
-        return self.real_buttons & set(buttons)
+    def remove_buttons(self, remove_buttons):
+        buttons = [
+                (name, [btn for btn in btns 
+                        if btn not in remove_buttons])
+                for name, btns in self.button_blocks]
+        buttons = filter(lambda x: x[1], buttons)
+        return self(button_blocks=buttons)
+
+    def add_buttons(self, buttons):
+        button_blocks = [
+                (name, [btn for btn in btns if btn not in buttons])
+                for name, btns in self.button_blocks]
+        buttons_dict = dict(button_blocks)
+        for name, btns in buttons:
+            if name in buttons_dict:
+                buttons_dict[name] += btns
+            else:
+                button_blocks.append((name, btns))
+        return self(button_blocks=button_blocks)
 
 
 class PopupStreamSelect(Select):
