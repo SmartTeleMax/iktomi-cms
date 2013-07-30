@@ -1,6 +1,6 @@
 (function(){
   window.loadedCSS = [];
-  var current_url = null;
+  var currentUrl = null;
 
   window.addEvent('domready', function(){
     var cssLinks = document.querySelectorAll('head link[type="text/css"]');
@@ -26,13 +26,17 @@
     loadPage();
   });
 
-  function loadPage(url, force){
+  function loadPage(url, force, contentBlock){
+    contentBlock = contentBlock || $('app-content');
+    var isMain = contentBlock == $('app-content');
     if (url){
-      history.pushState(null, null, url);
+      if (isMain) {
+        history.pushState(null, null, url);
+      }
     } else {
       url = window.location.pathname + window.location.search;
     }
-    if (!force && url == current_url){
+    if (isMain && !force && url == currentUrl){
       console.log('Skipping URL (already loaded): ' + url);
       return;
     }
@@ -41,9 +45,9 @@
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       'onSuccess': function(result){
-        current_url = url;
+        if (isMain) { currentUrl = url; }
         console.log('loadPage success', url);
-        renderPage(result);
+        renderPage(result, contentBlock);
       }
     }).get();
   }
@@ -53,8 +57,8 @@
     loadPage();
   }, false);
 
-  function renderPage(result, content_block, callback){
-    var content = content_block !== undefined ? content_block : $('app-content');
+  function renderPage(result, contentBlock, callback){
+    var content = contentBlock || $('app-content');
     content.setStyle('height', content.getHeight());
 
     if (result.location){

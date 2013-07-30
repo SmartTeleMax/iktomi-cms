@@ -37,19 +37,7 @@
     }
 
     function load(url){
-      new Request.JSON({
-        'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
-        'onSuccess': function(result){
-          current_url = url;
-          console.log('loadPage success', url);
-          renderPage(result, container);
-        }//,
-        //'onFailure': function(e){
-        //  flash('Ошибка при загрузке страницы: '+e.status, 'failure', 10*1000)
-        //  //flash('Ошибка загрузки страницы', '');
-        //  //history.back();
-        //}
-      }).get();
+      loadPage(url, true, container);
     }
 
     var redirectHandler = function(e) {
@@ -63,8 +51,8 @@
 
     frm.getElements('.buttons a[rel="post"]').addEvent('click', function(e) {
       e.preventDefault(); e.stopPropagation();
-      frm.action = this.getAttribute('href');
-      submit(frm, this, function(){
+      submit(frm, this, function(result){
+        renderPage(result, container);
       }, this.getAttribute('href'));
     });
 
