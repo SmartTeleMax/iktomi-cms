@@ -362,7 +362,7 @@ class Loner(object):
                 self.commit_item_transaction(env, item)
                 return env.json({'success': True})
             else:
-                self.rollback_due_form_errors()
+                self.rollback_due_form_errors(env, item)
         return env.json({'html': env.render_to_string(self.template_name, dict(
                         loner=self,
                         title=self.config.title,
