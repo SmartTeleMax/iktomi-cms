@@ -10,7 +10,7 @@ class WysiHtml5(Widget):
 
     button_blocks = [
         ('inline', ['bold', 'italic', 'underline']),
-        ('block', ['headings', 'sup', 'sup', 'blockquote']),
+        ('block', ['headings', 'sup', 'sub', 'blockquote']),
         ('lists', ['insertunorderedlist', 'insertorderedlist',
                    'outdent', 'indent']),
         ('advanced', ['createLink', 'insertImage', 'table', 'extrachars']),

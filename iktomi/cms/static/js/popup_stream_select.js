@@ -286,7 +286,7 @@ var PopupStreamSelect = new Class({
 
   makeLinksExternal: function(el) {
     el.getElements('a').setProperty('target', '_blank');
-  },
+  }//,
 
   //onFilterSubmitClicked: function() {
   //  var frm = this.popup.el.getElement('.filter-form');

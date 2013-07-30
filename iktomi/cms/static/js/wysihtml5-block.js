@@ -180,6 +180,24 @@
 })(wysihtml5);
 
 (function(wysihtml5) {
+  function formatInlineCommand(tag){
+    return {
+
+      exec: function(composer, command, value) {
+        composer.commands.exec('formatInline', tag);
+      },
+
+      state: function(composer, command) {
+        return wysihtml5.commands.formatInline.state(composer, command, tag.toUpperCase());
+      }
+    };
+  }
+
+  wysihtml5.commands.sup = formatInlineCommand('sup');
+  wysihtml5.commands.sub = formatInlineCommand('sub');
+})(wysihtml5);
+
+(function(wysihtml5) {
 
   wysihtml5.commands.undo.state = function(composer, command) {
     var link = composer.parent.toolbar.commandMapping['undo:null'].link;
