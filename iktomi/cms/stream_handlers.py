@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPSeeOther
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.properties import PropertyLoader
-from sqlalchemy.orm.util import identity_key
-from sqlalchemy.orm import class_mapper
+#from sqlalchemy.orm.properties import PropertyLoader
+#from sqlalchemy.orm.util import identity_key
+#from sqlalchemy.orm import class_mapper
 
 from iktomi.utils import cached_property
 from iktomi import web
