@@ -340,6 +340,9 @@ class Loner(object):
         if not self.has_permission(env, permission):
             raise HTTPForbidden
 
+    def get_item_form(self, env, item, **kwargs):
+        return self.config.ItemForm.load_initial(env, item, **kwargs)
+
     def __call__(self, env, data):
         self.insure_has_permission(env, 'w') # XXX Allow read-only mode
         if not env.request.is_xhr:
@@ -350,7 +353,8 @@ class Loner(object):
                     .filter_by(**extra_filters).scalar()
         if item is None:
             item = self.config.Model(**extra_filters)
-        form = self.config.ItemForm.load_initial(env, item)
+
+        form = self.get_item_form(env, item)
 
         request = env.request
         if request.method=='POST':
