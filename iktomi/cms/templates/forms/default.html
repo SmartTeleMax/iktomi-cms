@@ -1,6 +1,7 @@
 {% for field in form.fields %}
 <div class="form-row
             {%- if field.error %} with-error{% endif %}
+            {%- if field.render_type == 'full-width' %} full-width{% endif %}
             {%- if field.classname %} {{ field.classname }}{% endif %}"
      {%- if field.render_type == 'hidden' %} style="display: none"{% endif %}>
     {% if field.error %}
@@ -15,12 +16,10 @@
     {% elif field.render_type == 'hidden' %}
         {{ field.render()|safe }}
     {% elif field.render_type == 'full-width' %}
-      <div class="full-width">
         {% if field.label %}
         <p class="th"><label for="{{ field.id }}">{{ field.label }}</label></p>
         {% endif %}
         {{ field.render()|safe }}
-      </div>
     {% else %}
       {% if field.label %}
         <div class="form-label" for="{{ field.id }}"><label>{{ field.label }}</label></div>
