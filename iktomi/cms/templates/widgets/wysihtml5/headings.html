@@ -2,16 +2,16 @@
 <div class="wysihtml5-dialog-place">
   <div class="wysihtml5-dialog wysihtml5-menu"
        data-wysihtml5-dialog="headings" style="display: none;">
-    {% if widget.has_button('h1') %}
+    {% if 'h1' in widget.allowed_elements %}
     <a data-wysihtml5-command="h1">Заголовок 1</a>
     {% endif %}
-    {% if widget.has_button('h2') %}
+    {% if 'h2' in widget.allowed_elements %}
     <a data-wysihtml5-command="h2">Заголовок 2</a>
     {% endif %}
-    {% if widget.has_button('h3') %}
+    {% if 'h3' in widget.allowed_elements %}
     <a data-wysihtml5-command="h3">Заголовок 3</a>
     {% endif %}
-    {% if widget.has_button('h4') %}
+    {% if 'h4' in widget.allowed_elements %}
     <a data-wysihtml5-command="h4">Заголовок 4</a>
     {% endif %}
     <a data-wysihtml5-dialog-action="cancel">Закрыть</a>

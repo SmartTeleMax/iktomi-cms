@@ -87,15 +87,17 @@ class WysiHtml5(Widget):
         return html_conv
 
     @cached_property
-    def real_buttons(self):
-        conv_tags = set(self.html_conv.allowed_elements)
+    def allowed_elements(self):
+        return set(self.html_conv.allowed_elements)
 
+    @cached_property
+    def real_buttons(self):
         buttons = set()
         tag_buttons = set()
         for button, tags in self.BUTTON_TAGS:
             tag_buttons.add(button)
             tags = [tags] if isinstance(tags, basestring) else tags
-            if not (set(tags) - conv_tags):
+            if not (set(tags) - self.allowed_elements):
                 buttons.add(button)
         all_btns = set(sum(dict(self.button_blocks).values(), []))
         allowed = (set(all_btns) - tag_buttons) | buttons
