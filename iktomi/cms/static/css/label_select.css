@@ -1,0 +1,29 @@
+.label-select {
+  padding: 5px 0;
+  border: 1px solid #dddddd;
+  background: #eeeeee;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  }
+
+div.label-select table {
+  border-collapse: collapse;
+  }
+  .label-select td {
+    padding: 0;
+  }
+
+.label-select__option {
+  display: block;
+  margin: 0 6px;
+  padding: 8px 11px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  }
+  .label-select__option.selected {
+    background: #888888;
+    color: #ffffff;
+    text-shadow: #444444 1px 1px;
+    }

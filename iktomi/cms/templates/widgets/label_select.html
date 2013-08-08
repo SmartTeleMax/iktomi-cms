@@ -1,0 +1,22 @@
+<div class="init-block label-select{% if widget.multiple %} multiple{% endif %}"
+     data-block-name="label-select">
+  {% if widget.multiple and value %}
+      {% for v in value %}
+      <input type="hidden" name="{{ widget.input_name }}" value="{{ v|escape }}" class="value" />
+      {% endfor %}
+  {% else %}
+  <input type="hidden" name="{{ widget.input_name }}" value="{{ value|escape }}" class="value" />
+  {% endif %}
+    <table>
+      <tr>
+        {% for option in options %}
+          {% if option.value not in widget.hiddens or option.selected %}
+            <td>
+              <div class="label-select__option{% if option.selected %} selected{% endif %}">{{ option.title|escape }}</div>
+              <input type="hidden" value="{{ option.value|escape }}" />
+            </td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    </table>
+</div>

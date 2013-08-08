@@ -18,13 +18,6 @@ class WysiHtml5(Widget):
         ('html', ['html']),
     ]
 
-    #media = FormMedia([FormJSRef('wysihtml5-0.4.0pre.js'),
-    #                   FormJSRef('wysihtml5-block.js'),
-    #                   FormJSRef('wysihtml5-table.js'),
-    #                   FormCSSRef('wysihtml5.css'),
-    #                   FormJSRef('popup_stream_select.js'),
-    #                   FormJSRef('calendar.compat.js')])
-
     BUTTON_TAGS = (
         ('bold', 'b'),
         ('italic', 'i'),
@@ -197,8 +190,6 @@ class PopupFilteredSelect(Select):
 
     template = 'widgets/popup_filtered_select'
     classname = 'filtered_multiple_select' # XXX strange name for this widget
-    #media = [FormCSSRef('popup_filtered_select.css'),
-    #         FormJSRef('popup_filtered_select.js')]
     open_btn_text = u'Выбрать'
     disable_unpublished = False
 
@@ -237,6 +228,12 @@ class TabSelect(Select):
             getattr(self, 'js_conf', {}),
             inject_to=self.inject_to
         ))
+
+
+class LabelSelect(Select):
+
+    template = 'widgets/label_select'
+    hiddens = [] # hide these options if they are not set
 
 
 class AjaxFileInput(FileInput):
