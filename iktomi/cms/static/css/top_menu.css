@@ -14,9 +14,12 @@
 
 .navigation .links {
     float: right;
-    padding: 3px 20px;
+    padding: 10px 20px;
     max-width: 250px;
-}
+    }
+    .navigation .links .links__link{
+        padding-left: 10px;
+        }
 
 .navigation>.menu {
   list-style: none;

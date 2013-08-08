@@ -18,8 +18,8 @@
       <div class="links">
         {% if user %}
         <form action="{{ url_for('logout') }}" method="POST">
-          <div class="user">Привет, <b>{{ user.name }}</b></div>
-          <div class="quit"><a onclick="this.getParent('form').submit();return false" href="">Завершить сеанс</a></div>
+          <span class="links__link user">Привет, <b>{{ user.name }}</b></span>
+          <span class="links__link quit"><a onclick="this.getParent('form').submit();return false" href="">Завершить сеанс</a></span>
         </form>
         {% else %}
           <div>
