@@ -1,4 +1,4 @@
-BODY { margin: 0px; padding: 0px 0px 50px 0px; background-color: #ffffff; }
+BODY { margin: 0px; padding: 38px 0px 50px 0px; background-color: #ffffff; }
 BODY, TD { font: normal 0.8em Arial, sans-serif; color: #000000; }
 FORM { margin: 0px; padding: 0px; }
 P, UL, OL { margin-top: 0px; margin-bottom: 1em; }
@@ -35,12 +35,14 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
 
 .header .buttons {
   position: fixed;
-  top: 50px;
+  top: 38px;
   right: 20px;
   background: white;
-  border-radius: 20px 0 0 20px;
-  padding: 10px 0px 10px 10px;
+  border-radius: 0 0 0 20px;
+  padding: 20px 0px 10px 10px;
   z-index: 3;
+  max-width: 70%;
+  text-align: right;
   }
   .popup .header .buttons {
     position: absolute;
@@ -48,7 +50,6 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
     padding: 10px 0px 10px 25px;
     right: 32px;
     top: 10px;
-    border-radius: 0 0 0 20px;
     padding: 7px 7px 7px 7px;
     }
 .bottom .buttons { padding: 10px 0px 0px 25px; float: right; }

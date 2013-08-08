@@ -1,9 +1,12 @@
 .navigation {
     color: #ffffff;
     background: #5e676e;
-    position: relative;
-    min-height: 20px;
-}
+    position: fixed;
+    height: 38px;
+    width: 100%;
+    z-index: 100;
+    top: 0;
+    }
 
 .navigation a {
     color: #ffffff;
