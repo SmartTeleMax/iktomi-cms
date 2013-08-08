@@ -4,63 +4,9 @@
     visibility: hidden;
     left: 0px;
     top: 0px;
-    border-collapse:collapse;
+    padding: 0 40px;
 }
 
-.popup-top-left,
-.popup-top-right,
-.popup-bottom-left,
-.popup-bottom-right {
-    width:23px;
-    height:23px;
-    background: transparent url(../images/popup/corners.png) no-repeat;
-}
-.popup-border-left,
-.popup-border-right {
-  padding-left:23px;
-}
-
-.popup-top-left {
-    background-position: top left;
-}
-
-.popup-top-right {
-    background-position: top right;
-}
-
-.popup-bottom-left {
-    background-position: bottom left;
-}
-
-.popup-bottom-right {
-    background-position: bottom right;
-}
-
-.popup-border-top,
-.popup-border-bottom {
-    background: transparent url(../images/popup/border-horizontal.png) repeat-x;
-}
-
-.popup-border-right,
-.popup-border-left {
-    background: transparent url(../images/popup/border-vertical.png) repeat-y;
-}
-
-.popup-border-top {
-    background-position: top;
-}
-
-.popup-border-bottom {
-    background-position: bottom;
-}
-
-.popup-border-left {
-    background-position: left;
-}
-
-.popup-border-right {
-    background-position: right;
-}
 
 .popup-close-btn {
     width: 30px;
@@ -68,14 +14,17 @@
     background: url(../images/popup/close.png) no-repeat;
     cursor: pointer;
     position:absolute;
-    top:0px;
+    top:-10px;
+    right:-15px;
 }
 
 .popup-content {
     background: #ebe9e3;
     padding: 1px 0;
     text-align: left;
-    overflow:hidden;
+    border-radius: 10px;
+    padding: 15px;
+    position: relative;
 }
 
 .popup-title {

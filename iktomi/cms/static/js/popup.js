@@ -22,7 +22,7 @@ var Popup = new Class({
 
     this.zindex=100;
 
-    this.el = new Element('table', {'class': 'popup'});
+    this.el = new Element('div', {'class': 'popup'});
     this.el.store('popup', this);
 
     this.overlay =  new Element('div', {'id':this.id+'-overlay', 'class':'overlay'}).inject(document.body);
@@ -35,25 +35,9 @@ var Popup = new Class({
     // this.paginator_top = new Element('div', {'class': 'popup-pagination', 'id':this.id+'-popup-pagination-top'});
     // this.paginator_bottom = new Element('div', {'class': 'popup-pagination', 'id':this.id+'-popup-pagination-bottom'});
 
-    this.el.adopt([
-      new Element('tbody').adopt([
-        new Element('tr').adopt([
-          new Element('td', {'class': 'popup-top-left'}),
-          new Element('td', {'class': 'popup-border-top'}),
-          new Element('td', {'class': 'popup-top-right'})
-        ]),
-        new Element('tr').adopt([
-          new Element('td', {'class': 'popup-border-left'}),
-          new Element('td', {'class': 'popup-content'}).adopt(this.titleEl, this.fixedContent, this.filters, this.contentEl),
-          new Element('td', {'class': 'popup-border-right'})
-        ]),
-        new Element('tr').adopt([
-          new Element('td', {'class': 'popup-bottom-left'}),
-          new Element('td', {'class': 'popup-border-bottom'}),
-          new Element('td', {'class': 'popup-bottom-right'})
-        ])
-      ])
-    ]).inject(document.body);
+    this.el.adopt(
+      new Element('div', {'class': 'popup-content'}).adopt(this.titleEl, this.fixedContent, this.filters, this.contentEl)
+    ).inject(document.body);
 
     this.empty();
     this._hide = function(e){
@@ -65,7 +49,7 @@ var Popup = new Class({
 
     if(this.options.close_button_on){
       this.close_btn = new Element('div', {'class': 'popup-close-btn'});
-      this.el.getElement('td.popup-top-right').adopt(this.close_btn);
+      this.el.getElement('.popup-content').adopt(this.close_btn);
       this.close_btn.addEvent('mousedown', this._hide);
     }
     if(this.options.clickable_overlay)
@@ -95,7 +79,7 @@ var Popup = new Class({
   },
 
   setZindex: function(){
-    var zindex=0;
+    var zindex=10;
     $$('.popup').each(function(p){
       popup = p.retrieve('popup');
       if(popup.visible == true && popup.zindex > zindex){
