@@ -7,11 +7,12 @@
       </a>
     </div>
   </div>
-
 {% endmacro %}
 
 
 {% block content %}
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 <div id="loader-overlay" class="loader-overlay overlay">
   <div>
     Идет загрузка

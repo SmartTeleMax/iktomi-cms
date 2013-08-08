@@ -372,6 +372,7 @@ class Loner(object):
                         title=self.config.title,
                         form=form,
                         roles=env.user.roles,
+                        menu=(env.namespace + '.' + env.current_url_name).rstrip('.'),
                         ))})
 
     def commit_item_transaction(self, env, item):
