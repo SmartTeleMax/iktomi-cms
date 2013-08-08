@@ -8,7 +8,8 @@
         padding-left: 5px;
         }
 .form .form-row label {
-    padding:10px ;
+    padding: 3px ;
+    margin: 7px ;
 }
 .form .form-row .form-label{
   position: relative;
