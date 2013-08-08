@@ -37,7 +37,7 @@
   <div class="table">
     {% if live_search %}
       {% set search_input_id = filter_form.id + '-livesearch' %}
-      Поиск: <input type="text" class="stream_search" id="{{ search_input_id }}" />
+      Поиск: <input type="text" class="init-block stream_search" id="{{ search_input_id }}" data-block-name="live-search"/>
     {% endif %}
 
     <div class="line"></div>
