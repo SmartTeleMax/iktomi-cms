@@ -46,10 +46,10 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
     position: absolute;
     background: #ebe9e3;
     padding: 10px 0px 10px 25px;
-    right: 43px;
+    right: 32px;
     top: 10px;
     border-radius: 0 0 0 20px;
-    padding: 7px 0px 7px 7px;
+    padding: 7px 7px 7px 7px;
     }
 .bottom .buttons { padding: 10px 0px 0px 25px; float: right; }
 .bottom .buttons INPUT, .header .buttons INPUT { margin-left: 10px; }
