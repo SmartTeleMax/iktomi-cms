@@ -55,7 +55,10 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
 .bottom .buttons { padding: 10px 0px 0px 25px; float: right; }
 .bottom .buttons INPUT, .header .buttons INPUT { margin-left: 10px; }
 
-.content { clear: left; }
+.content {
+  clear: left;
+  padding:0 20px;
+  }
 .arrow { vertical-align: middle; margin-right: 4px; }
 INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 
@@ -143,27 +146,21 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 }
 .container {
   width:100%;
-}
-.container{
-  padding: 0;
-  margin: 0;
-  border-collapse:collapse;
-  vertical-align: top;
-}
-
-.container table {
-    border-collapse: collapse;
-}
-.container td {
+  }
+  .container{
     padding: 0;
     margin: 0;
-}
-
-.container .sidefilter {
-  width:300px;
-  background-color:#F0F1F2;
-  padding:0px 10px 0px 20px;
-}
+    border-collapse:collapse;
+    vertical-align: top;
+  }
+  .container table {
+      border-collapse: collapse;
+  }
+  .container .sidefilter {
+    width:300px;
+    background-color:#F0F1F2;
+    padding:0px 10px 0px 20px;
+  }
 
 .sidefilter table {
     width:100%;
@@ -377,14 +374,14 @@ tr.even td.unpublished {
 }
 .lang-en{
     background-image: url(../images/languages/en.png);
-}
+}*/
 
 .langs-streams {
-  width:100%;
+  /*width:100%;*/
 }
 
 .langs-streams td {
-  width:50%;
+  /*width:50%;*/
   padding: 5px;
 }
 
@@ -396,4 +393,4 @@ tr.even td.unpublished {
 .langversion-links li{
   margin-bottom: 5px;
 }
-*/
+

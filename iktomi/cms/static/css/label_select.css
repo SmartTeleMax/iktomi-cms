@@ -17,8 +17,7 @@ div.label-select table {
   display: block;
   margin: 0 6px;
   padding: 8px 11px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
+  border-radius: 5px;
   cursor: pointer;
   white-space: nowrap;
   }

@@ -23,38 +23,21 @@
 
   <form id="item-form" action="" method="post" enctype="multipart/form-data" class="init-block item-form" data-block-name="item-form">
 
-    <table border="0" cellspacing="0" cellpadding="0" class="content">
-      <tbody>
-      <tr valign="bottom">
-        <td>
-          <table border="0" cellspacing="0" cellpadding="0" width="100%" class="header">
-            <tr valign="bottom">
-              <td>
-                <h1>
-                  <span>{{ title }}</span>
-                  {% block after_title %}{% endblock %}
-                </h1>
-              </td>
-              <td>{% block buttons_top %}{{ buttons() }}{% endblock %}</td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <tr valign="top">
-        <td>
-          <div class="text">
-            <div class="line"></div>
-            <div class="form">
-                {{ form.render() }}
-            </div>
-          </div>
+    <div class="content">
+       <div class="header">
+         <h1>{{ title }}
+           {% block after_title %}{% endblock -%}
+         </h1>
+         {% block buttons_top %}{{ buttons() }}{% endblock %}
+       </div>
+       <div class="text">
+         <div class="line"></div>
+         <div class="form">
+             {{ form.render() }}
+         </div>
+       </div>
 
-          {% block preview %}{% endblock %}
-        </td>
-      </tr>
-      </tbody>
-    </table>
-
+       {% block preview %}{% endblock %}
+    </div>
   </form>
-
 {% endblock %}

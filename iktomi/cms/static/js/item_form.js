@@ -61,7 +61,7 @@
         }, url);
       }
 
-      if (this.dataset.itemForm){
+      if (!this.dataset.itemForm){
         var newData = formHash(frm);
         if (frm.retrieve('initData') != newData){
 
