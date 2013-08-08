@@ -2,21 +2,16 @@
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 <div class="content streamcontainer itemlist">
   {% if not is_popup %}
-    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="abovetable">
-      <tr valign="bottom">
-        <td class="stream_title">
-          <h1 class="nowrap">{{ title }}</h1>
-        </td>
-        <td class="stream_buttons">
-          {% if allow_add %}
-          <a href="{{ item_url() }}" class="button icon-add" id="create_button">
-            Создать
-          </a>
-          {% endif %}
-          <div style="clear: right; margin-bottom: 10px;"></div>
-        </td>
-      </tr>
-    </table>
+    <h1 class="stream_title nowrap">
+      {{- title }}
+      <div class="stream_buttons">
+        {% if allow_add %}
+        <a href="{{ item_url() }}" class="button icon-add" id="create_button">
+          Создать
+        </a>
+        {% endif %}
+      </div>
+    </h1>
   {% endif %}
 
   {% if filter_form.show_tabs|default(False) %}
@@ -58,19 +53,12 @@
           <form id="{{ filter_form.id }}" action="{{ url_for(stream.module_name) }}" class="filter-form init-block" data-block-name="filter-form">
             <fieldset>
               <legend>Фильтры</legend>
-              <table>
-                {{ filter_form.render() }}
-                <tr>
-                  <td>&nbsp;</td>
-                  <td class="">
-                    <input type="submit" value="Применить" style="display: none;">
-                    <a class="button" style="float: right;" onclick="this.getParent('form').retrieve('submitFilter')(); return false;">
-                      Применить
-                    </a>
-                    <div style="clear: right;"></div>
-                  </td>
-                </tr>
-              </table>
+              {{ filter_form.render() }}
+
+              <input type="submit" value="Применить" style="display: none;">
+              <a class="button" style="float: right;" onclick="this.getParent('form').retrieve('submitFilter')(); return false;">
+                Применить
+              </a>
             </fieldset>
           {% if stream.list_edit_action %}
           </form>

@@ -6,12 +6,12 @@
   <div class="w-buttons">
     {% if widget.allow_select %}
     <a class="button hide" id="{{ widget.id }}-btn" href="#select">
-      <span>{{ widget.open_btn_text }}</span>
+      {{ widget.open_btn_text }}
     </a>
     {% endif %}
     {% if widget.allow_create %}
       <a class="button hide" id="{{ widget.id }}-create" href="{{ widget.create_url }}" target="{{ widget.id }}_create_window">
-        <span>{{ widget.create_btn_text }}
+        {{ widget.create_btn_text }}
       </a>
     {% endif %}
   </div>
