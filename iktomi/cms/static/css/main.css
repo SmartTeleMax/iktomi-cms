@@ -290,6 +290,9 @@ div.auto_complete ul strong.highlight {
 .form .textinput {
     width: 300px;
 }
+.form .select-checkbox>div {
+    margin-bottom: 5px;
+}
 
 .form .form-row>td {
     padding: 20px 0;
