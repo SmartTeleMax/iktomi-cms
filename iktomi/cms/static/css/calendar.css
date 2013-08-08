@@ -13,7 +13,7 @@ select.calendar {
 }
 
 button.calendar {
-	background: url(images/calendar-icon.gif);
+	background: url(../images/calendar-icon.gif);
 	border: 0;
 	cursor: pointer;
 	/*float: left;*/
@@ -30,7 +30,7 @@ button.calendar.active {
 }
 
 div.calendar {
-	background: url(images/calendar.png);
+	background: url(../images/calendar.png);
 	height: 175px;
 	padding: 0 12px;
 	text-align: center;
@@ -68,11 +68,11 @@ div.calendar {
 		width: 11px;
 	}
 	div.calendar caption a.prev {
-		background-image: url(images/calendar-prev.gif);
+		background-image: url(../images/calendar-prev.gif);
 		left: 1px;
 	}
 	div.calendar caption a.next {
-		background-image: url(images/calendar-next.gif);
+		background-image: url(../images/calendar-next.gif);
 		right: 1px;
 	}
 	div.calendar caption a:hover {

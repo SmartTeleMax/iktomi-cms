@@ -119,7 +119,7 @@ var Calendar = new Class({
             var this_ = this;
             // create cal button
             cal.button.addClass(this.classes.calendar).addEvent('click', function(e) {
-                e.stop()
+                e.stopPropagation(); e.preventDefault();
                 this_.toggle(cal);
             }).injectAfter(cal.el);
 
@@ -843,7 +843,7 @@ var Calendar = new Class({
                     });
 
                     if (stop) {
-                        e.stop();
+                        e.stopPropagation(); e.preventDefault();
                         return false;
                     }
                     else { el = el.parentNode; }
