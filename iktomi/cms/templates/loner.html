@@ -2,7 +2,9 @@
 {% macro buttons() %}
   <div class="buttons">
     <div>
-      <a href="#" class="button icon-apply" style="margin-left: 15px" rel="save">
+      <a href="#" class="button icon-apply" style="margin-left: 15px" rel="save"
+         data-item-lock="true"
+         data-item-form="true">
         Сохранить
       </a>
     </div>
@@ -48,8 +50,6 @@
           </div>
 
           {% block preview %}{% endblock %}
-
-          <div class="bottom">{% block buttons_bottom %}{{ buttons() }}{% endblock %}</div>
         </td>
       </tr>
       </tbody>

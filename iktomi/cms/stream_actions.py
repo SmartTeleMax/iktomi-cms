@@ -6,6 +6,7 @@ from webob.exc import HTTPForbidden
 class StreamAction(web.WebHandler):
 
     item_lock = True
+    accepts_item_form = True
     for_item = True
     action = title = cls = None
     allowed_for_new = False

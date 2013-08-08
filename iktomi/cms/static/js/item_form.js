@@ -3,6 +3,7 @@
     var this_ = this;
     this._callback_hook = undefined;
     frm.store('ItemForm', this);
+    frm.store('initData', formHash(frm));
     console.log('Generating ItemForm #'+frm.id);
     // XXX
     var is_popup = !!frm.getParent('.popup-body');
@@ -51,9 +52,31 @@
 
     frm.getElements('.buttons a[rel="post"]').addEvent('click', function(e) {
       e.preventDefault(); e.stopPropagation();
-      submit(frm, this, function(result){
-        renderPage(result, container);
-      }, this.getAttribute('href'));
+
+      var button = this;
+      var url = this.getAttribute('href');
+      function doSubmit(){
+        submit(frm, button, function(result){
+          renderPage(result, container);
+        }, url);
+      }
+
+      if (this.dataset.itemForm){
+        var newData = formHash(frm);
+        if (frm.retrieve('initData') != newData){
+
+          var popup = new Popup(_popup_id(), {'close_button_on':false, 'clickable_overlay':false});
+          var buttons_pane = new Element('div', {'class':'buttons'}).adopt(
+            new Element('button', {'type': 'button', 'class': 'button', 'text': 'Продолжить'}).addEvent('click', function(){ popup.hide(); doSubmit(); }),
+            new Element('button', {'type': 'button', 'class': 'button', 'text': 'Отменить'}).addEvent('click', function(){ popup.hide(); }));
+
+          popup.setTitle('Объект был отредактирован со времени последнего сохранения. Это действие приведёт к потере всех изменений.');
+          popup.adopt(buttons_pane);
+          popup.show()
+          return;
+        }
+      }
+      doSubmit();
     });
 
     frm.getElements('.buttons a[rel="save"]').addEvent('click', function(e) {
@@ -91,6 +114,29 @@
 
     window.scrollTo(window.scrollX, window.scrollY+1);
     $('loader-overlay').setStyle('display', 'none');
+  }
+
+  function formHash(el){
+    /*
+     * pseudo-qs formatting for form content
+     */
+    // XXX hash?
+    var queryString = [];
+    el.getElements('input, select, textarea').each(function(el){
+      var type = el.type;
+      if (!el.name || el.name.charAt('0') == '_' || el.name == 'edit_session' || el.disabled || 
+          type == 'submit' || type == 'reset' || type == 'file' || type == 'image') return;
+
+      var value = (el.get('tag') == 'select') ? el.getSelected().map(function(opt){
+        // IE
+        return document.id(opt).get('value');
+      }) : ((type == 'radio' || type == 'checkbox') && !el.checked) ? null : el.get('value');
+
+      Array.from(value).each(function(val){
+        if (typeof val != 'undefined') queryString.push(el.name + '=' + val.trim());
+      });
+    });
+    return queryString.sort().join('&');
   }
 
   Blocks.register('item-form', function(el){
