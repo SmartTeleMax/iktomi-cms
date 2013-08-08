@@ -25,8 +25,10 @@ var Popup = new Class({
     this.el = new Element('div', {'class': 'popup'});
     this.el.store('popup', this);
 
-    this.overlay =  new Element('div', {'id':this.id+'-overlay', 'class':'overlay'}).inject(document.body);
-    this.loader = new Element('div', {'id':this.id+'-stream_loader', 'class':'loader hide'}).inject(document.body);
+    var injectTo = $('app-content');
+
+    this.overlay =  new Element('div', {'id':this.id+'-overlay', 'class':'overlay'}).inject(injectTo);
+    this.loader = new Element('div', {'id':this.id+'-stream_loader', 'class':'loader hide'}).inject(injectTo);
 
     this.contentEl = new Element('div', {'class': 'popup-body', 'id':this.id+'-popup-body'});
     this.fixedContent = new Element('div', {'class': 'popup-body-fixed', 'id': this.id+'-popup-body-fixed'});
@@ -37,7 +39,7 @@ var Popup = new Class({
 
     this.el.adopt(
       new Element('div', {'class': 'popup-content'}).adopt(this.titleEl, this.fixedContent, this.filters, this.contentEl)
-    ).inject(document.body);
+    ).inject(injectTo);
 
     this.empty();
     this._hide = function(e){
