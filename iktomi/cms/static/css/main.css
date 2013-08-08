@@ -33,7 +33,24 @@ INPUT.red { background-color: #990000; color: #ffffff; font-weight: bold; border
 INPUT.green { background-color: #006600; color: #ffffff; font-weight: bold; border-left: 1px solid #54c033; border-top: 1px solid #54c033; border-right: 1px solid #084003; border-bottom: 1px solid #084003; }
 INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; border-left: 1px solid #d1dce3; border-top: 1px solid #d1dce3; border-right: 1px solid #274157; border-bottom: 1px solid #274157; }
 
-.header .buttons { padding: 0px 0px 10px 25px; float: right; }
+.header .buttons {
+  position: fixed;
+  top: 50px;
+  right: 20px;
+  background: white;
+  border-radius: 20px 0 0 20px;
+  padding: 10px 0px 10px 10px;
+  z-index: 3;
+  }
+  .popup .header .buttons {
+    position: absolute;
+    background: #ebe9e3;
+    padding: 10px 0px 10px 25px;
+    right: 43px;
+    top: 18px;
+    border-radius: 0 0 0 20px;
+    padding: 7px 0px 7px 7px;
+    }
 .bottom .buttons { padding: 10px 0px 0px 25px; float: right; }
 .bottom .buttons INPUT, .header .buttons INPUT { margin-left: 10px; }
 

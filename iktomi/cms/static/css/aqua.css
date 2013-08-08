@@ -125,3 +125,10 @@
     .button.icon-change:before{
         background-image: url(../images/actions/change.png);
     }
+
+.form-controls .button{
+    margin-left: 15px;
+    }
+.button.action-delete{
+    margin-right: 50px;
+    }

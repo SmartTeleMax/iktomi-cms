@@ -1,16 +1,19 @@
-  <div style="margin: 0 50px 0 80px">
-    <h1>Подтвердите удаление</h1>
-    <p>Действительно хотите удалить объект &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo;?</p>
-    <form method="post" action="{{ form_url }}" class="delete-form" onsubmit="generalFormSubmit(this); return false;">
-      <a class="button" href="{{ item_url }}">вернуться к редактированию</a>
-      <input type="submit" value="удалить" />
-    </form>
-    {% if referers %}
-    <h1>На объект &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo; ссылаются:</h1>
-    <ul>
-    {% for referer, referer_url in referers.items() %}
-    <li><a href="{{ referer_url }}">{{ referer|escape }}</a></li>
-    {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+
+<div style="margin: 0 50px 0 80px">
+  <h1>Подтвердите удаление</h1>
+  <p>Действительно хотите удалить объект &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo;?</p>
+  <form method="post" action="{{ form_url }}" class="delete-form" onsubmit="generalFormSubmit(this); return false;">
+    <a class="button" href="{{ item_url }}">вернуться к редактированию</a>
+    <input type="submit" value="удалить" />
+  </form>
+  {% if referers %}
+  <h1>На объект &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo; ссылаются:</h1>
+  <ul>
+  {% for referer, referer_url in referers.items() %}
+  <li><a href="{{ referer_url }}">{{ referer|escape }}</a></li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+</div>

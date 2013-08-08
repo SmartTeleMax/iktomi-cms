@@ -34,6 +34,9 @@
   vertical-align: top;
   padding-top: 20px;
   }
+.popup .item-form h1{
+  margin-top: 0;
+  }
 
 textarea.bigtext{
     font-size: 15px;

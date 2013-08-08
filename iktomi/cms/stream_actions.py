@@ -24,7 +24,7 @@ class StreamAction(web.WebHandler):
     def insure_is_available(self, env, item=None):
         """ Shortcut to check is_avalible rule on handle
         """
-        if hasattr(self, 'is_available') and not self.is_available(env, item):
+        if not self.is_available(env, item):
             raise HTTPForbidden
 
     def __init__(self, stream=None, **kw):

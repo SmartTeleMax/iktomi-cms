@@ -23,7 +23,8 @@ def see_other(location):
 
 
 class NoneIntConv(IntegerConv):
-    name='noneint'
+
+    name = 'noneint'
     regex = BaseConv.regex
 
     def to_python(self, value, **kwargs):
@@ -81,7 +82,6 @@ class StreamListHandler(StreamAction):
 
         html = env.render_to_string(self.template_name, data)
         return env.json({
-            #'page': '/',
             'html': html,
         })
     __call__ = list_handler
@@ -143,7 +143,6 @@ class StreamListHandler(StreamAction):
         return result
 
 
-
 class PrepareItemHandler(web.WebHandler):
     """ Helper handler to fetch item by id field.
     `data` in handler should have `item` attr containts item id.
@@ -199,9 +198,10 @@ class PrepareItemHandler(web.WebHandler):
 
 class EditItemHandler(StreamAction):
 
-    action = 'edit_item'
+    action = 'item'
     item_lock = True
     allowed_for_new = True
+    display = False
     title = u'Редактировать/создать'
 
     @property
@@ -238,7 +238,6 @@ class EditItemHandler(StreamAction):
         stream_endpoint = stream.stream_endpoint(env)
         stream_url = env.url_for(stream_endpoint)
         create_allowed = save_allowed = self.create_allowed(env)
-        delete_url = None
         delete_allowed = False
         success = False
 
@@ -251,9 +250,6 @@ class EditItemHandler(StreamAction):
             # Don't add it to session since we don't know yet whether it should
             # be saved (there can be errors in form).
         else:
-            delete_url = env.url_for(stream_endpoint + '.delete',
-                                     item=item.id)\
-                            .qs_set(filter_form.get_data())
             save_allowed = self.save_allowed(env, item)
             delete_allowed = self.delete_allowed(env, item)
 
@@ -301,9 +297,7 @@ class EditItemHandler(StreamAction):
                                                         filter_form.get_data()),
 
                              menu=stream.module_name,
-                             flashmessages=[], # XXX
                              stream_url=stream_url,
-                             delete_url=delete_url,
                              actions=[x for x in stream.actions 
                                       if x.for_item and x.is_visible(env, item)],
                              item_buttons=stream.buttons,
@@ -336,14 +330,18 @@ class EditItemHandler(StreamAction):
 
 class DeleteItemHandler(StreamAction):
 
-    action='delete'
-    title=u'Удалить'
+    action = 'delete'
+    cls = 'delete'
+    title = u'Удалить'
 
     @property
     def app(self):
         return web.match('/<noneint:item>/delete', 'delete',
                          convs={'noneint': NoneIntConv}) | \
             PrepareItemHandler(self) | self
+
+    def is_available(self, env, item):
+        return self.stream.has_permission(env, 'd')
 
     def delete_item_handler(self, env, data):
         if not env.request.is_xhr:
@@ -352,7 +350,7 @@ class DeleteItemHandler(StreamAction):
             data.item, data.edit_session, data.lock_message, data.filter_form
         stream = self.stream
 
-        stream.insure_has_permission(env, 'd')
+        self.insure_is_available(env, item)
 
         stream_url = env.url_for(stream.module_name).qs_set(
             filter_form.get_data())
@@ -376,17 +374,12 @@ class DeleteItemHandler(StreamAction):
         data = dict(item=item,
                     item_url=item_url,
                     form_url=delete_url,
-                    referers=self._list_referers(env, item))
+                    referers=self._list_referers(env, item),
+                    title=u'Удаление объекта «%s»' % item,
+                    menu=stream.module_name)
         html  = env.render_to_string('delete', data)
         return env.json({
-            #'page': '/',
-            'js': [],
             'html': html,
-            'init_code':[],
-            'flashmessages': [], # XXX
-            'css': [],
-            'title': u'Удаление объекта «%s»' % item,
-            'menu': stream.module_name,
         })
     __call__ = delete_item_handler
 
