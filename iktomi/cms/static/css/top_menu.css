@@ -1,5 +1,4 @@
 .navigation {
-    overflow: hidden;
     color: #ffffff;
     background: #5e676e;
     position: relative;
@@ -16,7 +15,7 @@
     max-width: 250px;
 }
 
-.navigation .menu {
+.navigation>.menu {
   list-style: none;
   padding: 0 250px 0 0; /*should be equal to .navigation .links max-width*/
   margin: 0;
@@ -28,7 +27,6 @@
   float: left;
   padding: 10px;
   margin: 0 2px;
-  overflow: hidden;
   background: #717b83;
 }
 
@@ -47,12 +45,13 @@
 .navigation .menu .menu {
   display: none;
   position: absolute;
-  top: 39px;
+  top: 35px;
   z-index: 1000;
   background: #717b83;
   padding: 10px 0px;
   margin: 0;
   margin-left: -10px;
+  overflow: hidden;
 }
 
 .navigation .menu .menu li {
