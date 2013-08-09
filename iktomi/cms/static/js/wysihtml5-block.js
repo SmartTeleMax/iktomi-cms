@@ -26,6 +26,7 @@
     editor.composer.iframe.contentDocument.addEventListener('click', function(e){
       $$('.wysihtml5-dialog').setStyle('display', 'none');
     }, true);
+    extendRange(editor.composer.iframe.contentWindow)
 
     el.store('widget', editor);
 
@@ -86,7 +87,6 @@
       var id = composer.textarea.element.id + '-' + this.propertyName;
       var sel = document.getElementById(id);
       if (!sel.retrieve('widget')){
-        extendRange(composer.iframe.contentWindow)
         var stream_select = new PopupStreamSelect(false, {"readonly": false, 
                   "allow_create": true, 
                   "container": id, 
@@ -195,18 +195,7 @@
       } else {
         var bq = document.createElement('blockquote');
         var range = composer.selection.getRange().nativeRange
-        var first = range.startContainer;
-        while ((first.nodeType != 1 || getCompiledStyle(first, 'display') == 'inline') &&
-               first.parentNode.tagName != 'BODY'){
-          first = first.parentNode;
-        }
-        var last = range.endContainer;
-        while ((last.nodeType != 1 || getCompiledStyle(last, 'display') != 'inline') &&
-               last.parentNode.tagName != 'BODY'){
-          last = last.parentNode;
-        }
-
-        splitAndWrapTags(first, last, composer.iframe.contentDocument.body, bq);
+        range.wrapBlockSelection(bq)
 
         //var blocks = wysihtml5.commands.formatBlock.state(composer, command);
         //composer.commands.exec('formatblock', 'blockquote');
@@ -328,10 +317,10 @@ function extendRange(window){
   }
 
   function getCommonParent(container, start, end){
-    container = container || document.body;
+    container = container || start.ownerDocument.body;
     var s = start;
     var parents = [];
-    while (s && s != container && s != document.body){
+    while (s && s != container && s != start.ownerDocument.body){
       s = s.parentNode;
       parents.push(s);
     }
@@ -384,6 +373,22 @@ function extendRange(window){
     splitAndWrapTags(this.startContainer, this.endContainer, commonParent, element)
   }
 
+  Range.prototype.wrapBlockSelection = function(element, container){
+    var container = container || this.startContainer.ownerDocument.body;
+    var first = this.startContainer;
+    while ((first.nodeType != 1 || getCompiledStyle(first, 'display') == 'inline') &&
+           first.parentNode.tagName != 'BODY' && first.parentNode != container){
+      first = first.parentNode;
+    }
+    var last = this.endContainer;
+    while ((last.nodeType != 1 || getCompiledStyle(last, 'display') == 'inline') &&
+           last.parentNode.tagName != 'BODY' && first.parentNode != container){
+      last = last.parentNode;
+    }
+
+    splitAndWrapTags(first, last, first.ownerDocument.body, element);
+  }
+
   function elementIterator(parent, cont, end, reversed){
       reversed = !!reversed;
       cont = cont || parent[reversed? 'lastChild' : 'firstChild'];
@@ -424,7 +429,6 @@ function extendRange(window){
     return strValue;
   }
   window.getCompiledStyle = getCompiledStyle;
-  window.splitAndWrapTags = splitAndWrapTags;
 }
 
 extendRange(window);
