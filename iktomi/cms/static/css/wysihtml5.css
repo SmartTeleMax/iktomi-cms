@@ -47,11 +47,13 @@ textarea.wysihtml5{
     outline: none;
     }
   .wysihtml5-toolbar a.btn:active,
+  .wysihtml5-toolbar a.btn.wysihtml5-action-active,
   .wysihtml5-toolbar a.btn.wysihtml5-command-active {
     border-color: #b5b5b5;
     background-color: #ddd;
     outline: none;
     }
+  .wysihtml5-commands-disabled a.btn[data-wysihtml5-command],
   .wysihtml5-toolbar a.btn.disabled{
     border-color: transparent;
     background-color: transparent;
