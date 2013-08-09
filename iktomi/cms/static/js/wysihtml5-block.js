@@ -176,11 +176,48 @@
     };
   }
 
-  wysihtml5.commands.blockquote = formatBlockCommand('blockquote');
   wysihtml5.commands.h1 = formatBlockCommand('h1');
   wysihtml5.commands.h2 = formatBlockCommand('h2');
   wysihtml5.commands.h3 = formatBlockCommand('h3');
   wysihtml5.commands.h4 = formatBlockCommand('h4');
+})(wysihtml5);
+
+(function(wysihtml5) {
+  wysihtml5.commands.blockquote = {
+
+    exec: function(composer, command, value) {
+      var tag = this.state(composer, command);
+      if (tag){
+        for (var j = tag.childNodes.length; j--;){
+          tag.parentNode.insertBefore(tag.childNodes[j], tag.nextSibling);
+        }
+        tag.parentNode.removeChild(tag);
+      } else {
+        var bq = document.createElement('blockquote');
+        var range = composer.selection.getRange().nativeRange
+        var first = range.startContainer;
+        while ((first.nodeType != 1 || getCompiledStyle(first, 'display') == 'inline') &&
+               first.parentNode.tagName != 'BODY'){
+          first = first.parentNode;
+        }
+        var last = range.endContainer;
+        while ((last.nodeType != 1 || getCompiledStyle(last, 'display') != 'inline') &&
+               last.parentNode.tagName != 'BODY'){
+          last = last.parentNode;
+        }
+
+        splitAndWrapTags(first, last, composer.iframe.contentDocument.body, bq);
+
+        //var blocks = wysihtml5.commands.formatBlock.state(composer, command);
+        //composer.commands.exec('formatblock', 'blockquote');
+      }
+    },
+
+    state: function(composer, command) {
+      return wysihtml5.commands.formatBlock.state(composer, command, 'BLOCKQUOTE');
+    }
+  };
+
 })(wysihtml5);
 
 (function(wysihtml5) {
@@ -290,51 +327,61 @@ function extendRange(window){
     return true;
   }
 
-  Range.prototype.wrapInlineSelection = function(element, container){
+  function getCommonParent(container, start, end){
     container = container || document.body;
-
-    this.splitBoundaries();
-
-    var s = this.startContainer;
+    var s = start;
     var parents = [];
     while (s && s != container && s != document.body){
       s = s.parentNode;
       parents.push(s);
     }
 
-    var commonParent = this.endContainer;
+    var commonParent = end;
     while (commonParent && !parents.contains(commonParent)){
       commonParent = commonParent.parentNode;
     }
+    return commonParent
+  }
 
-    var start = this.startContainer;
+  function splitAndWrapTags(start, end, commonParent, element){
     while (start.parentNode != commonParent){
       if (start.previousSibling){
-        var clone = start.parentNode.clone(false).inject(start.parentNode, 'before');
+        var clone = Element.prototype.clone.call(start.parentNode, false);
+        start.parentNode.parentNode.insertBefore(clone, start.parentNode);
         while(start.previousSibling){
-          clone.adopt(start.previousSibling, 'top');
+          clone.insertBefore(start.previousSibling, clone.firstChild);
         }
       }
       start = start.parentNode;
     }
 
-    var end = this.endContainer;
     while (end.parentNode != commonParent){
       if (end.nextSibling){
-        var clone = end.parentNode.clone(false).inject(end.parentNode, 'after');
+        var clone = Element.prototype.clone.call(end.parentNode, false);
+        //clone.inject(end.parentNode, 'after');
+        end.parentNode.parentNode.insertBefore(clone, end.parentNode.nextSibling);
         while(end.nextSibling){
-          clone.adopt(end.nextSibling);
+          clone.appendChild(end.nextSibling);
         }
       }
       end = end.parentNode;
     }
 
-    element.inject(start, 'before').adopt(start);
+    start.parentNode.insertBefore(element, start);
+    element.appendChild(start);
     var next = start;
     while (next != end && element.nextSibling){
       next = element.nextSibling;
-      element.adopt(next);
+      element.appendChild(next);
     }
+  }
+
+  Range.prototype.wrapInlineSelection = function(element, container){
+
+    this.splitBoundaries();
+
+    var commonParent = getCommonParent(container, this.startContainer, this.endContainer);
+    splitAndWrapTags(this.startContainer, this.endContainer, commonParent, element)
   }
 
   function elementIterator(parent, cont, end, reversed){
@@ -377,6 +424,7 @@ function extendRange(window){
     return strValue;
   }
   window.getCompiledStyle = getCompiledStyle;
+  window.splitAndWrapTags = splitAndWrapTags;
 }
 
 extendRange(window);
