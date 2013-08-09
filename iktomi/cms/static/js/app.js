@@ -18,8 +18,18 @@
         if (url.indexOf('://') != -1 || url.indexOf('javascript:') == 0){
           return;
         }
-        loadPage(url);
         e.preventDefault();
+
+        var item_forms = Array.from($$('.item-form'));
+        function doLoad() {
+          if (item_forms.length){
+            var item_form = item_forms.shift();
+            item_form.retrieve('ItemForm').withChangesHook(doLoad);
+          } else {
+            loadPage(url);
+          }
+        }
+        doLoad();
       }
     }, false);
 

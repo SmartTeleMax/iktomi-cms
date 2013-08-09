@@ -23,6 +23,7 @@
       //}
       parserRules: config.parserRules // defined in parser rules set 
     });
+    el.store('widget', editor);
 
     $(el.id + '-toolbar').getElements('.btn').each(function(btn){
       btn.set('title', btn.get('text'));

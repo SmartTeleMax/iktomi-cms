@@ -1,131 +1,186 @@
 (function(){
   function ItemForm(frm){
-    var this_ = this;
+    console.log('Generating ItemForm #'+frm.id);
+
+    this.frm = frm;
     this._callback_hook = undefined;
     frm.store('ItemForm', this);
-    frm.store('initData', formHash(frm));
-    console.log('Generating ItemForm #'+frm.id);
-    // XXX
-    var is_popup = !!frm.getParent('.popup-body');
-    var popup = frm.getParent('.popup');
-    var container = frm.getParent('.popup-body') || $('app-content');
-    var do_submit;
+    frm.store('initData', this.formHash());
+    this.container = frm.getParent('.popup-body') || $('app-content');
+    this.is_popup = !!frm.getParent('.popup-body');
+    this.popup = frm.getParent('.popup');
 
-    function submit(frm, button, callback, url) {
-      url = url || frm.getAttribute('action');
-      this_.do_submit = function(){
-        new Request.JSON({
-          url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(is_popup?'&__popup=':''),
-          onSuccess: function(result){
-            if (result.success){
-              if (this_._callback_hook) {
-                this_._callback_hook(result, function(){
-                  callback.call(button, result);
-                });
-              } else {
-                callback.call(button, result);
-              }
-            } else {
-              console.log('form load to', container)
-              renderPage(result, container);
-            }
-          }
-        }).post(frm); // XXX Post to IFRAME!
-      }
+    this.bindEventHandlers();
+    this.addEvents();
+    this.attachHooks();
+    window.scrollTo(window.scrollX, window.scrollY+1);
+    $('loader-overlay').setStyle('display', 'none');
+  }
 
-      var hooks = frm.retrieve('hooks');
-      hooks.apply(button);
-    }
-
-    function load(url){
-      loadPage(url, true, container);
-    }
-
-    var redirectHandler = function(e) {
-      e.preventDefault(); e.stopPropagation();
-      submit(frm, this, function(result){
-        load(this.getProperty('href'));
-      });
-    }
-
-    frm.getElements('.buttons a[rel="after-post"]').addEvent('click', redirectHandler);
-
-    frm.getElements('.buttons a[rel="post"]').addEvent('click', function(e) {
-      e.preventDefault(); e.stopPropagation();
-
-      var button = this;
-      var url = this.getAttribute('href');
-      function doSubmit(){
-        submit(frm, button, function(result){
-          renderPage(result, container);
-        }, url);
-      }
-
-      if (!this.dataset.itemForm){
-        var newData = formHash(frm);
-        if (frm.retrieve('initData') != newData){
-
-          var popup = new Popup(_popup_id(), {'close_button_on':false, 'clickable_overlay':false});
-          var buttons_pane = new Element('div', {'class':'buttons'}).adopt(
-            new Element('button', {'type': 'button', 'class': 'button', 'text': 'Продолжить'}).addEvent('click', function(){ popup.hide(); doSubmit(); }),
-            new Element('button', {'type': 'button', 'class': 'button', 'text': 'Отменить'}).addEvent('click', function(){ popup.hide(); }));
-
-          popup.setTitle('Объект был отредактирован со времени последнего сохранения. Это действие приведёт к потере всех изменений.');
-          popup.adopt(buttons_pane);
-          popup.show()
-          return;
-        }
-      }
-      doSubmit();
-    });
-
-    frm.getElements('.buttons a[rel="save"]').addEvent('click', function(e) {
-      e.preventDefault(); e.stopPropagation();
-      submit(frm, this, function(result){
-
-        if(is_popup){
-          popup.retrieve('popup').empty().hide();
-        } else {
-          load(this.getProperty('href'));
-        }
-      });
-    });
-    frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', function(e) {
-      e.preventDefault(); e.stopPropagation();
-      submit(frm, this, function(result){
-        load(result.item_url, true, container);
-      });
-    });
-    frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', redirectHandler);
-
-    var hooks = new PreSaveHooks(frm);
+  ItemForm.prototype.attachHooks = function(){
+    var hooks = new PreSaveHooks(this.frm);
     hooks.addEvent('ready', function(){
-      this_.do_submit.delay(0);
-    });
-    frm.store('hooks', hooks);
+      this.do_submit.delay(0);
+    }.bind(this));
+    this.frm.store('hooks', hooks);
 
-    if (frm.getProperty('data-presavehooks')){
-      var hooks_list = frm.dataset.presavehooks.split(' ');
+    if (this.frm.dataset.dataPresavehooks){
+      var hooks_list = this.frm.dataset.presavehooks.split(' ');
       console.log(hooks_list);
       for (var i=0; i<hooks_list.length; i++){
         hooks.append(window[hooks_list[i]]);
       }
     }
-
-    window.scrollTo(window.scrollX, window.scrollY+1);
-    $('loader-overlay').setStyle('display', 'none');
   }
 
-  function formHash(el){
+  ItemForm.prototype.bindEventHandlers = function(){
+    this.redirectHandler = this.redirectHandler.bind(this);
+    this.postHandler = this.postHandler.bind(this);
+    this.saveHandler = this.saveHandler.bind(this);
+    this.saveAndContinueHadler = this.saveAndContinueHadler.bind(this);
+  }
+
+  ItemForm.prototype.addEvents = function(){
+    this.frm.getElements('.buttons a[rel="after-post"]').addEvent('click', this.redirectHandler);
+    this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
+    this.frm.getElements('.buttons a[rel="post"]').addEvent('click', this.postHandler);
+    this.frm.getElements('.buttons a[rel="save"]').addEvent('click', this.saveHandler);
+    this.frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', this.saveAndContinueHadler);
+    this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
+  }
+
+  ItemForm.prototype.load = function(url){
+    loadPage(url, true, this.container);
+  }
+
+  ItemForm.prototype.redirectHandler = function(e){
+      e.preventDefault(); e.stopPropagation();
+      console.log(e)
+      this.submit(e.target, function(result, button){
+        this.load(button.getProperty('href'));
+      }.bind(this));
+  }
+
+  ItemForm.prototype.postHandler = function(e){
+    e.preventDefault(); e.stopPropagation();
+
+    var button = e.target;
+    var url = button.getAttribute('href');
+    var doSubmit = function(){
+      this.submit(button, function(result){
+        renderPage(result, this.container);
+      }, url);
+    }.bind(this);
+
+    if (!button.dataset.itemForm){
+      this.withChangesHook(doSubmit);
+    } else {
+      doSubmit();
+    }
+  }
+
+  ItemForm.prototype.saveHandler = function(e){
+    e.preventDefault(); e.stopPropagation();
+    submit(e.target, function(result){
+      if(this.is_popup){
+        this.popup.retrieve('popup').empty().hide();
+      } else {
+        this.load(this.getProperty('href'));
+      }
+    }.bind(this));
+  }
+
+  ItemForm.prototype.saveAndContinueHadler = function(e) {
+    e.preventDefault(); e.stopPropagation();
+    this.submit(e.target, function(result){
+      this.load(result.item_url, true, this.container);
+    }.bind(this));
+  }
+
+  ItemForm.prototype.withChangesHook = function(callback){
+    if(this.hasChanges()){
+      this.showConfirmationPopup(callback);
+    } else {
+      callback();
+    }
+  }
+
+  ItemForm.prototype.showConfirmationPopup = function(doSubmit){
+    if (this.confirmationPopup){
+      var popup = this.confirmationPopup.empty();
+    } else {
+      var popup = new Popup(_popup_id(), {'close_button_on':false, 'clickable_overlay':false});
+      this.confirmationPopup = popup;
+    }
+    var buttons_pane = new Element('div', {'class':'buttons'}).adopt(
+      new Element('button', {'type': 'button', 'class': 'button', 'text': 'Продолжить'}).addEvent('click', function(){ popup.hide(); doSubmit(); }),
+      new Element('button', {'type': 'button', 'class': 'button', 'text': 'Отменить'}).addEvent('click', function(){ popup.hide(); })
+    );
+
+    popup.setTitle('Объект был отредактирован со времени последнего сохранения. Это действие приведёт к потере всех изменений.');
+    popup.adopt(buttons_pane);
+    popup.show();
+  }
+
+  ItemForm.prototype.hasChanges = function(){
+    // XXX does not work! WysiHtml5 sometimes has changes that are done on page 
+    // load and than cleaned up on server side
+    var newData = this.formHash();
+    if (this.frm.retrieve('initData') != newData) {
+      return true;
+    }
+    var wysihtml5s = this.frm.getElements('[data-block-name="wysihtml5"]');
+    // XXX provide an interface for widgets that can track their changes
+    // themselves
+    for (var i=wysihtml5s.length; i--;){
+      var widget = wysihtml5s[i].retrieve('widget');
+      widget.composer.undoManager.transact();
+      if (widget.composer.undoManager.undoPossible()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  ItemForm.prototype.submit = function(button, callback, url) {
+    url = url || this.frm.getAttribute('action');
+    this.do_submit = function(){
+      new Request.JSON({
+        url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
+        onSuccess: function(result){
+          if (result.success){
+            if (this._callback_hook) {
+              this._callback_hook(result, function(){
+                callback.call(this, result, button);
+              });
+            } else {
+              callback.call(this, result, button);
+            }
+          } else {
+            console.log('form load to', this.container)
+            renderPage(result, this.container);
+          }
+        }.bind(this)
+      }).post(this.frm); // XXX Post to IFRAME!
+    }.bind(this);
+
+    var hooks = this.frm.retrieve('hooks');
+    hooks.apply(button);
+  }
+
+  ItemForm.prototype.formHash = function(){
     /*
      * pseudo-qs formatting for form content
      */
     // XXX hash?
     var queryString = [];
-    el.getElements('input, select, textarea').each(function(el){
+    this.frm.getElements('input, select, textarea').each(function(el){
       var type = el.type;
       if (!el.name || el.name.charAt('0') == '_' || el.name == 'edit_session' || el.disabled || 
-          type == 'submit' || type == 'reset' || type == 'file' || type == 'image') return;
+          type == 'submit' || type == 'reset' || type == 'file' || type == 'image' 
+          || el.dataset.blockName == 'wysihtml5') return;
+          // XXX provide an interface for widgets that can track their changes
+          // themselves
 
       var value = (el.get('tag') == 'select') ? el.getSelected().map(function(opt){
         // IE
