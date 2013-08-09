@@ -1,6 +1,7 @@
 <a data-wysihtml5-command="createLink" class="btn">Вставить ссылку</a>
 <div class="wysihtml5-dialog-place">
-  <div class="wysihtml5-dialog" data-wysihtml5-dialog="createLink" style="display: none;">
+  <div class="wysihtml5-dialog" style="display: none;"
+    id="{{ widget.id }}-create-link">
     <label>
       Ссылка:
       <input data-wysihtml5-dialog-field="href" value="http://" class="text">
@@ -9,6 +10,6 @@
       <a data-wysihtml5-dialog-action="save">Применить</a>
       <a data-wysihtml5-command="unlink">Удалить ссылку</a>
     </div>
-    <a data-wysihtml5-dialog-action="cancel">Закрыть</a>
+    <!--a data-wysihtml5-dialog-action="cancel">Закрыть</a-->
   </div>
 </div>
