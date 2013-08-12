@@ -13,6 +13,7 @@ item_form
 item_lock
 presave
 presave/Files
+range
 wysihtml5-0.4.0pre
 wysihtml5-table
 wysihtml5-block
