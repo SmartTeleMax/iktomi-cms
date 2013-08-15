@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from iktomi.forms.widgets import *
+from iktomi.forms.widgets import FieldBlock as BaseFieldBlock
 
 from datetime import datetime
 from iktomi.cms.forms import convs
@@ -264,4 +265,19 @@ class Calendar(TextInput):
     def size(self):
         return len(self.field.from_python(datetime(1999, 12, 31)))+1
 
+class FieldBlock(BaseFieldBlock):
+
+    template = 'widgets/collapsable_block'
+    classname_defaults = {'close': 'collapsable closed',
+                          'open': 'collapsable'}
+    open_with_data = False
+    opened = True
+
+    @cached_property
+    def classname(self):
+        if self.open_with_data or self.opened:
+            for f in self.fields:
+                if self.opened or self.form.python_data[f.name]:
+                    return self.classname_defaults['open']
+        return self.classname_defaults['close']
 
