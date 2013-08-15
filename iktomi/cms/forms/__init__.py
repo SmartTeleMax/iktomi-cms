@@ -1,4 +1,5 @@
 from ...forms import Form
+from ...forms.fields import _get_fields
 
 
 class ModelForm(Form):
@@ -25,7 +26,7 @@ class ModelForm(Form):
     def load_initial(cls, env, item, initial=None, **kwargs):
         initial = initial or {}
         if item.id is not None:
-            for field in cls.fields:
+            for field in _get_fields(cls.fields):
                 # XXX side-effect!
                 initial[field.name] = getattr(item, field.name)
         return cls(env, initial, item=item, **kwargs)

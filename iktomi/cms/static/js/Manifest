@@ -8,6 +8,7 @@ app
 flashmessages
 filter_form
 tab_select
+collapsable_block
 
 item_form
 item_lock

@@ -1,0 +1,32 @@
+.border {
+    border:1px solid #ccc;
+    -moz-border-radius:5px;
+    -webkit-border-radius: 5px;
+    padding:3px 5px;
+    margin-bottom:10px;
+}
+
+.collapsable .block_title{
+    cursor:pointer;
+    color:#3764A0;
+    text-align:left;
+}
+
+.collapsable h2.block_title{
+    padding: 0 0 0 20px;
+    margin: 0;
+    font-size: 16px;
+    background: url(../images/group-expand-sprite.gif) no-repeat scroll 3px -47px;
+}
+
+.collapsable.closed h2.block_title{
+    background-position: 3px 3px;
+}
+
+.collapsable.closed .collapsable-content{
+    display:none;
+}
+.form .collapsable-content>.form-row:last-child,
+.form .form-row.collapsable{
+    border-bottom: none;
+    }

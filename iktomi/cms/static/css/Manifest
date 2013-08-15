@@ -4,6 +4,7 @@ dashboard
 top_menu
 flash
 main
+collapsable_block
 
 itemform
 tab_select
