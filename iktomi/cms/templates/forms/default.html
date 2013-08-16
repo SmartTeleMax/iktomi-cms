@@ -1,4 +1,5 @@
 {% for widget in form.widgets %}
+{%- if widget.readable -%}
 <div class="form-row
             {%- if widget.error %} with-error{% endif %}
             {%- if widget.render_type == 'full-width' %} full-width{% endif %}
@@ -27,4 +28,5 @@
       {{ widget.render()|safe }}
     {% endif %}
 </div>
+{%- endif -%}
 {% endfor %}
