@@ -1,53 +1,56 @@
-{% macro render_subfield(field, loop) %}
+{% macro render_subwidget(widget, loop) %}
 <div class="form-row
-            {%- if field.error %} with-error{% endif %}
-            {%- if field.classname %} {{ field.classname }}{% endif %}"
-     {%- if field.render_type == 'hidden' %} style="display: none"{% endif %}>
-    {%- if field.error -%}
-      <div class="error">{{ field.error }}</div>
+            {%- if widget.error %} with-error{% endif %}
+            {%- if widget.classname %} {{ widget.classname }}{% endif %}"
+     {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
+    {%- if widget.error -%}
+      <div class="error">{{ widget.error }}</div>
     {%- endif %}
 
-    {%- if field.render_type == 'checkbox' %}
-      {{- field.render()|safe -}}
-      {%- if field.label -%}
-        <label for="{{ field.id }}">{{ field.label }}</label>
+    {%- if widget.render_type == 'checkbox' %}
+      {{- widget.render()|safe -}}
+      {%- if widget.label -%}
+        <label for="{{ widget.id }}">{{ widget.label }}</label>
       {%- endif -%}
-    {%- elif field.render_type == 'hidden' %}
-      {{ field.render()|safe }}
-    {%- elif field.render_type == 'full-width' %}
+    {%- elif widget.render_type == 'hidden' %}
+      {{ widget.render()|safe }}
+    {%- elif widget.render_type == 'full-width' %}
       <div class="full-width">
-        {% if field.label %}
-        <p class="th"><label for="{{ field.id }}">{{ field.label }}</label></p>
+        {% if widget.label %}
+        <p class="th"><label for="{{ widget.id }}">{{ widget.label }}</label></p>
         {% endif %}
-        {{ field.render()|safe }}
+        {{ widget.render()|safe }}
       </div>
     {%- else %}
-      {%- if field.label %}
-        <div class="form-label" for="{{ field.id }}"><label>{{ field.label }}</label></div>
+      {%- if widget.label %}
+        <div class="form-label" for="{{ widget.id }}"><label>{{ widget.label }}</label></div>
       {%- endif %}
-      {{- field.render()|safe }}
+      {{- widget.render()|safe }}
     {%- endif %}
 </div>
 {%- endmacro -%}
 
 <div class="init-block fieldset tabbed_fieldset"
-       id="{{ field.input_name }}-container"
+       id="{{ widget.input_name }}-container"
        data-block-name="tabbed-fieldset"
        data-config="{{ field.json_config }}">
+
   {% if field.common_fields %}
     {% for subfield in field.common_fields %}
-      {{ render_subfield(field.get_field(subfield), loop) }}
+      {{ render_subwidget(field.get_field(subfield).widget, loop) }}
     {% endfor %}
   {% endif %}
+
   {% if field.tabbed_fields %}
     <div class="switchers">
       {% for tab in field.tabbed_fields %}
         <span>{{ tab.tab }}</span>
       {% endfor %}
     </div>
+
     <div class="tabbed_content fieldset">
       {% for subfield in field.tabbed_fields_list %}
-        {{ render_subfield(field.get_field(subfield), loop) }}
+        {{ render_subwidget(field.get_field(subfield.widget), loop) }}
       {% endfor %}
     </div>
   {% endif %}
