@@ -29,7 +29,7 @@ def SplitDateTimeField(name, label, required=True,
                        template='fields/fieldset-line'):
     return FieldSet(
         name,
-        template=template,
+        widget=widgets.FieldSetWidget(template=template),
         conv=convs.SplitDateTime(required=required),
         fields=[Field('date',
                       conv=convs.Date(required=required),

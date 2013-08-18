@@ -1,4 +1,4 @@
-from ...forms import Form
+from ...forms import Form, FieldBlock
 
 
 class ModelForm(Form):
@@ -23,9 +23,16 @@ class ModelForm(Form):
 
     @classmethod
     def load_initial(cls, env, item, initial=None, **kwargs):
-        initial = initial or {}
         if item.id is not None:
-            for field in cls.fields:
-                # XXX side-effect!
-                initial[field.name] = getattr(item, field.name)
+            initial = cls._load_initial(item, initial, cls.fields)
         return cls(env, initial, item=item, **kwargs)
+
+    @classmethod
+    def _load_initial(cls, item, initial, fields):
+        initial = dict(initial or {})
+        for field in fields:
+            if isinstance(field, FieldBlock):
+                initial.update(cls._load_initial(item, initial, field.fields))
+            else:
+                initial[field.name] = getattr(item, field.name)
+        return initial
