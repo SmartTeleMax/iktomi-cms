@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from iktomi.forms.widgets import *
+from iktomi.forms import widgets
 
 from datetime import datetime
 from iktomi.cms.forms import convs
@@ -264,4 +265,9 @@ class Calendar(TextInput):
     def size(self):
         return len(self.field.from_python(datetime(1999, 12, 31)))+1
 
+
+class FieldBlockWidget(widgets.FieldBlockWidget):
+
+    classname = 'collapsable'
+    template = 'widgets/collapsable_block'
 

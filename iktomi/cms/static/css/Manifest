@@ -6,6 +6,7 @@ flash
 main
 
 itemform
+collapsable_block
 tab_select
 wysihtml5
 calendar

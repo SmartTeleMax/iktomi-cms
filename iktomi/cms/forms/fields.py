@@ -2,6 +2,7 @@ from datetime import datetime
 
 from iktomi.forms.fields import *
 from iktomi.cms.forms import convs, widgets
+from iktomi.forms import fields
 from iktomi.unstable.forms.files import FileFieldSet
 
 
@@ -39,3 +40,8 @@ def SplitDateTimeField(name, label, required=True,
                       widget=widgets.TextInput(classname='timeinput'))],
         get_initial=get_initial,
         label=label)
+
+
+class FieldBlock(fields.FieldBlock):
+
+    widget = widgets.FieldBlockWidget
