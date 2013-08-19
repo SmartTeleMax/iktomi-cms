@@ -1,0 +1,7 @@
+<div class="border form text init-block {{ widget.classname }}" data-block-name="collapsable-block">
+  <h2 class="block_title">{{ field.title }}</h2>
+  {% set form = field %}
+  <div class="collapsable-content">
+    {% include "forms/default.html" %}
+  </div>
+</div>
