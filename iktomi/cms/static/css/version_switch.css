@@ -1,0 +1,76 @@
+/**
+ * Created by actuosus on 8/19/13.
+ */
+
+@import "switch.css";
+
+.unpublished .switch-switch {
+    background-color: #b7ba63;
+}
+
+.version-switch-on-label,
+.version-switch-off-label {
+    display: block;
+    width: 46px;
+    height: 46px;
+    z-index: 1;
+    position: absolute;
+    top: 5px;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    font-size: 11px;
+    line-height: 43px;
+
+    -moz-transition: all 0.3s ease-in 0s;
+    -webkit-transition: all 0.3s ease-in 0s;
+    -o-transition: all 0.3s ease-in 0s;
+    transition: all 0.3s ease-in 0s;
+}
+
+.version-switch-on-label {
+    background-image: url(../images/worker.svg);
+
+    text-indent: 6em;
+
+    color: transparent;
+    opacity: 1;
+    left: 10px;
+    width: 35px;
+    background-position: 0;
+}
+
+.version-switch-off-label {
+    right: 4px;
+    background-position: 0 12px;
+    background-image: url(../images/eye.svg);
+
+    text-indent: -6.7em;
+}
+
+.switch-checkbox:checked + .switch-label .version-switch-on-label {
+    /*opacity: 1;*/
+    color: #000000;
+    left: 12px;
+}
+
+.switch-checkbox:checked + .switch-label .version-switch-off-label {
+    /*opacity: 0;*/
+    color: transparent;
+}
+
+.current-version-title-wrapper {
+    position: absolute;
+    z-index: 1;
+    font-size: 11px;
+    left: 54px;
+    right: 54px;
+    text-align: center;
+}
+
+.current-version-title {
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    width: 100px;
+    height: 57px;
+}

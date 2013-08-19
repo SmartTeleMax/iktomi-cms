@@ -27,4 +27,5 @@ popup_stream_select_with_all
 fieldlist
 tabbed_fieldset
 label_select
+version_switcher
 
