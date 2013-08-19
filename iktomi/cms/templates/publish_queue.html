@@ -1,0 +1,46 @@
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+<div class="content streamcontainer itemlist">
+  <h1>Очередь публикации</h1>
+  <p>Показываются все опубликованные объекты, у которых имеются неопубликованные изменения.</p>
+
+  {% if not changed %}
+    <p>Очередь публикации пуста.</p>
+  {% endif %}
+
+  <div class="table">
+    <div class="line"></div>
+    <table class="container"><tbody><tr><td>
+      <table class="items">
+        <tbody>
+        {% for stream, item in changed %}
+          <tr class="item {{ loop.cycle('odd', 'even') }}
+                     {%- if item.public is defined -%}
+                       {%- if item.public %} published{% else %} unpublished{% endif -%}
+                       {%- endif %}">
+            <td class="field_id">
+              <a href="{{ url_for(stream.module_name+'.item', item=item.id) }}">
+                {{- item.id -}}
+              </a>
+            </td>
+            <td class="field_id">
+              <a href="{{ url_for(stream.module_name+'.item', item=item.id) }}">
+                {{- stream.title -}}
+              </a>
+            </td>
+            <td>
+              <a href="{{ url_for(stream.module_name+'.item', item=item.id) }}">
+                {%- if item.title is defined %}
+                  {{- item.title -}}
+                {%- else -%}
+                  {{- item -}}
+                {%- endif -%}
+              <a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </td></tr></tbody></table>
+  </div>
+</div>

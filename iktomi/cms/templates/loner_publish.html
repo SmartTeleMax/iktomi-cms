@@ -1,0 +1,39 @@
+{% extends "loner.html" %}
+{% from "macros/version_switch.html" import version_switch %}
+
+{% macro publish_buttons() %}
+  {% if not front_version %}
+  <div class="buttons">
+    {%- if form.item.has_unpublished_changes %}
+    <a href="{{ url_for('loners.' + loner.module_name + '.revert') }}"
+       rel="post" class="button"
+       data-item-lock="true">
+      Восстановить из фронтальной
+    </a>
+    {% endif %}
+
+    {% if form.item.has_unpublished_changes or form.item.state is defined and form.item.state != form.item.PUBLIC %}
+    <a href="{{ url_for('loners.' + loner.module_name + '.publish') }}"
+       rel="post" class="button"
+       data-item-lock="true">
+      Опубликовать
+    </a>
+    {% endif %}
+
+    <a href="#" class="button icon-apply" rel="save"
+       data-item-lock="true"
+       data-item-form="true">
+      Сохранить
+    </a>
+  </div>
+  {% endif %}
+{% endmacro %}
+
+{% block buttons_top %}{{ publish_buttons() }}{% endblock %}
+
+
+{% block after_title %}
+    {# TODO Should handle the unpublished state properly. #}
+    {% set published_version_is_unpublished = form.item.state is defined and form.item.state != form.item.PUBLIC %}
+    {{ version_switch(url_for(loners.module_name+'.published_version', item=item.id), url_for(loners.module_name+'.item', item=item.id), front_version, published_version_is_unpublished) }}
+{% endblock %}
