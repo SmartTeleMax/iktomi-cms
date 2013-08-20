@@ -33,8 +33,8 @@
       <thead>
         <tr>
           {% for field in list_fields.values() %}
-            <th style="width: {{ field.width }};">
-              {{- field -}}
+            <th style="width: {{ field.width }};"{% if not field.title %}class="no-title"{% endif %}>
+              {{- field.title -}}
             </th>
           {% endfor %}
           {% if list_item_form is defined %}
@@ -48,10 +48,7 @@
       </thead>
       <tfoot>
         <tr>
-        {% for field in list_fields.values() %}
-        <td></td>
-        {% endfor %}
-    
+        <td colspan="{{ list_fields|length }}"></td>
         {% if list_item_form is defined %}
         <td>
           <button type="submit" class="button icon-apply submit-list-edit">
@@ -61,7 +58,7 @@
         {% endif %}
         </tr>
       </tfoot>
-    
+
       <tbody>
         {% block item_rows %}
         {% for item in paginator.items %}

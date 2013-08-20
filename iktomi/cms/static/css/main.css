@@ -229,7 +229,10 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
   padding: 10px;
   margin: 0px;
   font-size:100%;
-}
+  }
+  .items th.no-title{
+    padding: 0;
+    }
 
 .sidefilter th label{
   display:block;
@@ -401,4 +404,7 @@ tr.even td.unpublished {
     /* Lock designed by Ben Johnson from The Noun Project, published under CC-BY */
     background-image: url(../images/lock.svg);
     background-size: 30px 30px;
-}
+    }
+    .items td.field_locked{
+        padding: 0;
+        }
