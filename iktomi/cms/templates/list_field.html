@@ -1,0 +1,11 @@
+{% if field.image and field_val.url is defined %}
+    <img src="{% if field.static -%}
+              {{ url_for_static(field_val.url) }}
+              {%- else -%}
+              {{- field_val.url -}}
+              {%- endif -%}" {{ attrs|xmlattr }} style="border: none;" />
+{% elif field.static %}
+  <a href="{{ url_for_static(field_val.url) }}">{{ field_val }}</a>
+{% else %}
+  {{ field_val }}
+{% endif %}

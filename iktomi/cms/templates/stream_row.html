@@ -1,34 +1,26 @@
 {% macro list_field(name, field, item, url, loop) %}
+    {%- set field_val = field(env, item, url, loop) %}
+
+    {%- if field_val.attrs is defined %}
+        {%- set attrs = field_val.attrs %}
+    {%- else %}
+        {%- set attrs = {} %}
+    {%- endif %}
+
     <td class="field_{{ name }}{% if field.classname is defined %} {{ field.classname }}{% endif %}">
-      {% if field.link_to_item %}
+      {%- if field.link_to_item -%}
           <a rel="id:{{ item.id }}" href="{{ url }}">
-      {% endif %}
-      {% set field_val = field(item, url, loop) %}
+      {%- endif -%}
 
-      {% if field_val.attrs is defined %}
-          {% set attrs = field_val.attrs %}
-      {% else %}
-          {% set attrs = {} %}
-      {% endif %}
+      {% include field.template %}
 
-      {% if field.image and field_val.url is defined %}
-          <img src="{% if field.static -%}
-                    {{ url_for_static(field_val.url) }}
-                    {%- else -%}
-                    {{- field_val.url -}}
-                    {%- endif -%}" {{ attrs|xmlattr }} style="border: none;" />
-      {% elif field.static %}
-        <a href="{{ url_for_static(field_val.url) }}">{{ field_val }}</a>
-      {% else %}
-        {{ field_val }}
-      {% endif %}
-      {% if field.link_to_item %}
+      {%- if field.link_to_item -%}
         </a>
-      {% endif %}
+      {%- endif -%}
     </td>
 {% endmacro %}
 
-{% macro lang_version(item, lang, field_val) %}
+{#% macro lang_version(item, lang, field_val) %}
     {% set foreign_item = item|attr(lang) %}
     {% if foreign_item is not none %}
           <td {% if foreign_item.public is defined -%}
@@ -57,18 +49,16 @@
     {% else %}
         <td></td>
     {% endif %}
-{% endmacro %}
+{% endmacro %#}
 
 <tr class="item {{ row_cls }}{% if item.public is defined -%}
 {%- if item.public %} published{% else %} unpublished{% endif -%}
 {%- endif %}">
   {% block list_fields %}
       {% for name, field in list_fields.items() %}
-          {% if name == 'en' or name == 'ru' %}
-              {{ lang_version(item, name, field.transform(item[name])) }}
-          {% else %}
-              {{ list_field(name, field, item, url, loop) }}
-          {% endif %}
+          {#% if name == 'en' or name == 'ru' %}{{ lang_version(item, name, field.transform(item[name])) }}{% else %#}
+          {{ list_field(name, field, item, url, loop) }}
+          {#% endif %#}
       {% endfor %}  
   {% endblock %}
   {% block item_form %}

@@ -394,3 +394,11 @@ tr.even td.unpublished {
   margin-bottom: 5px;
 }
 
+.locked {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    /* Lock designed by Ben Johnson from The Noun Project, published under CC-BY */
+    background-image: url(../images/lock.svg);
+    background-size: 30px 30px;
+}

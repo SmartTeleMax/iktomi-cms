@@ -34,7 +34,7 @@
         <tr>
           {% for field in list_fields.values() %}
             <th style="width: {{ field.width }};">
-              {{ field }}
+              {{- field -}}
             </th>
           {% endfor %}
           {% if list_item_form is defined %}

@@ -155,3 +155,10 @@ class ItemLock(object):
         # returned value.
         if old_value and old_value['edit_session']==edit_session:
             cache.cas(key, '', time=1)
+
+    def check(self, obj):
+        cache = self.env.cache
+        key = self._item_lock_key(obj)
+        value = cache.get(key)
+        return value
+

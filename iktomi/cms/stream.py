@@ -29,14 +29,18 @@ def ListFields(*args):
         fields.append(field)
     if not fields or fields[0].name != 'id':
         fields.insert(0, ListField('id', 'ID', '1%'))
+    fields.insert(1, ItemLockListField())
     return OrderedDict(fields)
 
 
 class ListField(object):
 
+    template='list_field.html'
+
     def __init__(self, name, title, width='auto', image=False,
                  transform=lambda f: u'—' if f is None else f,
-                 static=False, link_to_item=True, classname=''):
+                 static=False, link_to_item=True, classname='',
+                 template=None):
         self.name = name
         self.title = title
         self.width = width
@@ -45,6 +49,7 @@ class ListField(object):
         self.transform = transform
         self.link_to_item = link_to_item
         self.classname = classname
+        self.template = template or self.template
 
     def __iter__(self):
         yield self.name
@@ -53,16 +58,31 @@ class ListField(object):
     def __unicode__(self):
         return self.title
 
-    def __call__(self, item, url, loop):
-        if self.name is not None:
-            field_val = getattr(item, self.name)
-            if self.transform is not None:
-                return self.transform(field_val)
-            return field_val
-        return self.get_value(item, url, loop)
+    def __call__(self, env, item, url, loop):
+        field_val = self.get_value(env, item, url, loop)
+        if self.transform is not None:
+            return self.transform(field_val)
+        return field_val
 
-    def get_value(self, item, url, loop):
-        raise NotImplementedError()
+    def get_value(self, env, item, url, loop):
+        return getattr(item, self.name)
+
+
+class ItemLockListField(ListField):
+
+    template='list_field_item_lock.html'
+
+    def __init__(self, name='lock', title='', **kwargs):
+        kwargs.setdefault('link_to_item', False)
+        kwargs.setdefault('transform', lambda x: x)
+        kwargs.setdefault('width', '1%')
+        return ListField.__init__(self, name, title, **kwargs)
+
+    def get_value(self, env, item, url, loop):
+        lock = env.item_lock.check(item)
+        if lock is not None:
+            return env.db.query(env.auth_model)\
+                         .get(lock['user_id'])
 
 
 class FilterForm(Form):
