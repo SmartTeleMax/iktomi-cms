@@ -35,5 +35,5 @@
 {% block after_title %}
     {# TODO Should handle the unpublished state properly. #}
     {% set published_version_is_unpublished = form.item.state is defined and form.item.state != form.item.PUBLIC %}
-    {{ version_switch(url_for(loners.module_name+'.published_version', item=item.id), url_for(loners.module_name+'.item', item=item.id), front_version, published_version_is_unpublished) }}
+    {{ version_switch(url_for('loners.' + loner.module_name+'.published_version'), url_for('loners.' + loner.module_name), front_version, published_version_is_unpublished) }}
 {% endblock %}

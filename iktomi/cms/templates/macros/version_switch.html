@@ -1,25 +1,25 @@
 {% macro version_switch(published_url, working_url, front_version, published_version_is_unpublished) %}
-    <div class="switch version-switch init-block{%- if published_version_is_unpublished %} unpublished{% endif %}" data-block-name="version-switcher" data-published-version-url="{{ published_url }}" data-working-version-url="{{ working_url }}" title="Версии">
-        <input type="checkbox" class="switch-checkbox" id="switcher" {%- if not front_version %}checked{% endif %} />
-        <label class="switch-label version-switch-label" for="switcher">
-            <div class="switch-inner version-switch-inner"></div>
-            <div class="switch-switch version-switch-switch"></div>
+  <div class="switch version-switch init-block{%- if published_version_is_unpublished %} unpublished{% endif %}" data-block-name="version-switcher" data-published-version-url="{{ published_url }}" data-working-version-url="{{ working_url }}" title="Версии">
+    <input type="checkbox" class="switch-checkbox" id="switcher" {%- if not front_version %}checked{% endif %} />
+    <label class="switch-label version-switch-label" for="switcher">
+      <div class="switch-inner version-switch-inner"></div>
+      <div class="switch-switch version-switch-switch"></div>
 
-            {%- if front_version %}
-                {%- if published_version_is_unpublished %}
-                    {% set current_version_title = "Неопубликованная версия" %}
-                {%- else %}
-                    {% set current_version_title = "Публичная версия" %}
-                {% endif %}
-            {%- else %}
-                {% set current_version_title = "Рабочая версия" %}
-            {% endif %}
-            <div class="current-version-title-wrapper">
-                <span class="current-version-title">{{ current_version_title }}</span>
-            </div>
+      {%- if front_version %}
+          {%- if published_version_is_unpublished %}
+              {% set current_version_title = "Неопубликованная версия" %}
+          {%- else %}
+              {% set current_version_title = "Публичная версия" %}
+          {% endif %}
+      {%- else %}
+          {% set current_version_title = "Рабочая версия" %}
+      {% endif %}
+      <div class="current-version-title-wrapper">
+          <span class="current-version-title">{{ current_version_title }}</span>
+      </div>
 
-            <div class="version-switch-off-label"></div>
-            <div class="version-switch-on-label"></div>
-        </label>
-    </div>
+      <div class="version-switch-off-label"></div>
+      <div class="version-switch-on-label"></div>
+    </label>
+  </div>
 {% endmacro %}
