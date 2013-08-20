@@ -10,13 +10,14 @@ from datetime import datetime
 
 class WithState(object):
 
-    PRIVATE = 0
+    NEW = 0
     PUBLIC = 1
     DELETED = 2
+    UNPUBLISHED = 3
 
     @declared_attr
     def state(self):
-        return Column(Integer, nullable=True, default=self.PRIVATE)
+        return Column(Integer, nullable=True, default=self.NEW)
 
     @declared_attr
     def created_dt(self):

@@ -163,7 +163,8 @@ class RevertAction(PostAction):
     __call__ = revert
 
     def is_available(self, env, item):
-        return item.has_unpublished_changes and \
+        return item.state in (item.PUBLIC, item.UNPUBLISHED) and \
+               item.has_unpublished_changes and \
                 self.stream.has_permission(env, 'w')
 
 
@@ -239,5 +240,5 @@ class PublishStream(PublishStreamNoState):
 
     def front_query(self, env):
         Model = self.config.Model._front_model
-        query = env.db.query(Model).filter(Model.state != Model.DELETED)
+        query = env.db.query(Model).filter(Model.state.in_((Model.PUBLIC, Model.UNPUBLISHED)))
         return query

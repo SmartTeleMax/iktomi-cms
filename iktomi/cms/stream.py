@@ -88,11 +88,13 @@ class FilterForm(Form):
 
     def filter(self, query):
         '''Modifies query'''
+        # XXX will not work with FieldBlocks!
         for field in self.fields:
             filter_value = self.python_data[field.name]
             if filter_value or filter_value == 0:
                 method = getattr(self, 'filter_by__%s' % field.name,
-                                 self.filter_by_default)
+                                 getattr(field, 'filter_query',
+                                         self.filter_by_default))
                 query = method(query, field, filter_value)
         return query
 
