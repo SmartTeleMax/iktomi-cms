@@ -16,29 +16,18 @@ class ModelForm(Form):
         pass
 
     def update_instance(self, obj):
-        self._update_instance(obj, self.fields)
-
-    def _update_instance(self, obj, fields):
-        for field in fields:
-            if isinstance(field, FieldBlock):
-                self._update_instance(obj, field.fields)
-            else:
-                # XXX Check permissions?
-                method = getattr(self, 'update__' + field.name, self.update_default)
-                method(obj, field.name, self.python_data[field.name])
+        for field in self.child_fields:
+            # XXX Check permissions?
+            method = getattr(self, 'update__' + field.name, self.update_default)
+            method(obj, field.name, self.python_data[field.name])
 
     @classmethod
     def load_initial(cls, env, item, initial=None, **kwargs):
         if item.id is not None:
-            initial = cls._load_initial(item, initial, cls.fields)
+            initial = dict(initial or {})
+            for field in cls.child_fields:
+                if isinstance(field, FieldBlock):
+                    initial.update(cls._load_initial(item, initial, field.fields))
+                else:
+                    initial[field.name] = getattr(item, field.name)
         return cls(env, initial, item=item, **kwargs)
-
-    @classmethod
-    def _load_initial(cls, item, initial, fields):
-        initial = dict(initial or {})
-        for field in fields:
-            if isinstance(field, FieldBlock):
-                initial.update(cls._load_initial(item, initial, field.fields))
-            else:
-                initial[field.name] = getattr(item, field.name)
-        return initial
