@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from iktomi import web
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, DeleteItemHandler
-from iktomi.cms.stream import Stream
+from iktomi.cms.stream import Stream, ListField
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.utils import cached_property
@@ -163,8 +163,10 @@ class RevertAction(PostAction):
     __call__ = revert
 
     def is_available(self, env, item):
-        return item.state in (item.PUBLIC, item.UNPUBLISHED) and \
-               item.has_unpublished_changes and \
+        if hasattr(item, 'state') and \
+                item.state not in (item.PUBLIC, item.UNPUBLISHED):
+            return False
+        return item.has_unpublished_changes and \
                 self.stream.has_permission(env, 'w')
 
 
@@ -191,6 +193,17 @@ class DeleteFlagHandler(DeleteItemHandler):
     __call__ = delete_flag_handler
 
 
+class HasChangesListField(ListField):
+
+    template='list_field_has_changes.html'
+
+    def __init__(self, name='has_unpublished_changes', title='', **kwargs):
+        kwargs.setdefault('link_to_item', False)
+        kwargs.setdefault('transform', lambda x: x)
+        kwargs.setdefault('width', '0%')
+        return ListField.__init__(self, name, title, **kwargs)
+
+
 class PublishStreamNoState(Stream):
 
     core_actions = [x for x in Stream.core_actions
@@ -201,6 +214,14 @@ class PublishStreamNoState(Stream):
            AdminPublishAction(),
            RevertAction(),
         ]
+
+    @cached_property
+    def list_fields(self):
+        fields = getattr(self.config, 'list_fields', {})
+        cls = fields.__class__
+        fields = fields.values()
+        fields.insert(1, HasChangesListField())
+        return cls(fields)
 
     @cached_property
     def item_template_name(self):
