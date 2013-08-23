@@ -133,7 +133,7 @@ def _get_column_names(source):
 
 
 class AdminFront(object):
-    '''Model that is replacated (published) to front. You always have two
+    '''Model that is replicated (published) to front. You always have two
     versions: current and published.
     Don't use it for secondary table models that are not replicated directly
     (use AdminModel instead).'''

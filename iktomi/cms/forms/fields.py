@@ -27,7 +27,7 @@ class AjaxImageField(AjaxFileField):
 
 def SplitDateTimeField(name, label, required=True,
                        get_initial=datetime.now,
-                       template='fields/fieldset-line'):
+                       template='widgets/fieldset-line'):
     return FieldSet(
         name,
         widget=widgets.FieldSetWidget(template=template),

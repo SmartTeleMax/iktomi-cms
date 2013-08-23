@@ -81,11 +81,11 @@
 
   ItemForm.prototype.saveHandler = function(e){
     e.preventDefault(); e.stopPropagation();
-    submit(e.target, function(result){
+    this.submit(e.target, function(result, button){
       if(this.is_popup){
         this.popup.retrieve('popup').empty().hide();
       } else {
-        this.load(this.getProperty('href'));
+        this.load(button.getProperty('href'));
       }
     }.bind(this));
   }

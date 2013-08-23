@@ -160,5 +160,5 @@ class ItemLock(object):
         cache = self.env.cache
         key = self._item_lock_key(obj)
         value = cache.get(key)
-        return value
+        return value or None
 
