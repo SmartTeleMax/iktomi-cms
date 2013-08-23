@@ -76,19 +76,16 @@ def _reflect(source, model):
     assert ident is not None
     return db.query(model).get(ident)
 
-def _copy_attributes(source, target):
+def _replicate_attributes(source, target):
+    '''Replicates common SA attributes from source to target'''
+    # XXX Replicate relations here
     for name in _get_column_names(source) & _get_column_names(target):
         setattr(target, name, getattr(source, name))
 
 def _replicate(source, model):
-    '''Update target model. Returns target object.  Model can also be item to
-    copy to.'''
-    if isinstance(model, type):
-        target = model()
-    else:
-        target = model
-
-    _copy_attributes(source, target)
+    '''Replicates an object to other model class and returns its reflection'''
+    target = model()
+    _replicate_attributes(source, target)
     db = object_session(source)
     return db.merge(target)
 
@@ -100,7 +97,7 @@ def _replicate_filter(obj, sources, model):
     for source in sources:
         assert filter(None, identity_key(instance=source))
         target = model()
-        _copy_attributes(source, target)
+        _replicate_attributes(source, target)
         targets.append(target)
     return targets
 
@@ -174,7 +171,7 @@ class AdminFront(object):
 
     def _copy_from_front(self):
         source = self._front_item
-        _replicate(source, self)
+        _replicate_attributes(source, self)
         _replicate_relations(source, self, AdminFront.admin,
                              getattr(self, 'replicatable_relations', []),
                              getattr(self, 'reflectable_relations', []))
