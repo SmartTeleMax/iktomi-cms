@@ -67,7 +67,7 @@ class FrontReplicated(object):
 # ======================================================================
 
 from sqlalchemy.orm.attributes import manager_of_class
-from sqlalchemy.orm import ColumnProperty
+from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy import Boolean
 
 def _reflect(source, model):
@@ -78,9 +78,32 @@ def _reflect(source, model):
 
 def _replicate_attributes(source, target):
     '''Replicates common SA attributes from source to target'''
-    # XXX Replicate relations here
-    for name in _get_column_names(source) & _get_column_names(target):
-        setattr(target, name, getattr(source, name))
+    target_manager = manager_of_class(type(target))
+    for attr in manager_of_class(type(source)).attributes:
+        if attr.key not in target_manager:
+            # It's not common attribute
+            continue
+        target_attr = target_manager[attr.key]
+        if isinstance(attr.property, ColumnProperty):
+            assert isinstance(target_attr.property, ColumnProperty)
+            setattr(target, attr.key, getattr(source, attr.key))
+        elif isinstance(attr.property, RelationshipProperty):
+            assert isinstance(target_attr.property, RelationshipProperty)
+            target_attr_model = target_attr.property.argument
+            value = getattr(source, attr.key)
+            if attr.property.cascade.delete_orphan:
+                # Private, replicate
+                # XXX What if collection_class is not list?
+                if attr.property.uselist:
+                    reflection = _replicate_filter(value, target_attr_model)
+                else:
+                    reflection = target_attr_model()
+                    _replicate_attributes(value, reflection)
+                setattr(target, attr.key, reflection)
+            elif attr.property.secondary is not None:
+                # Many-to-many, reflect
+                reflection = _reflect_filter(value, target_attr_model)
+                setattr(target, attr.key, reflection)
 
 def _replicate(source, model):
     '''Replicates an object to other model class and returns its reflection'''
@@ -89,10 +112,9 @@ def _replicate(source, model):
     db = object_session(source)
     return db.merge(target)
 
-def _replicate_filter(obj, sources, model):
+def _replicate_filter(sources, model):
     '''Replicates list of objects to other model class and returns their
     reflection'''
-    db = object_session(obj)
     targets = []
     for source in sources:
         assert filter(None, identity_key(instance=source))
@@ -107,23 +129,6 @@ def _reflect_filter(sources, model):
     # Some objects may not be available in target DB (not published), so we
     # have to exclude None from the list.
     return [target for target in targets if target is not None]
-
-def _replicate_relations(source, target, models,
-                         replicatable, reflectable):
-    for key, model_name in replicatable:
-        model = getattr(models, model_name)
-        value = getattr(source, key)
-        reflection = _replicate_filter(source, value, model)
-        setattr(target, key, reflection)
-    for key, model_name in reflectable:
-        model = getattr(models, model_name)
-        value = getattr(source, key)
-        reflection = _reflect_filter(value, model)
-        setattr(target, key, reflection)
-
-def _get_column_names(source):
-    return set(a.key for a in manager_of_class(source.__class__).attributes
-               if isinstance(a.property, ColumnProperty))
 
 
 class AdminFront(object):
@@ -165,16 +170,9 @@ class AdminFront(object):
 
     def _copy_to_front(self):
         target = _replicate(self, self._front_model)
-        _replicate_relations(self, target, AdminFront.front,
-                             getattr(self, 'replicatable_relations', []),
-                             getattr(self, 'reflectable_relations', []))
 
     def _copy_from_front(self):
-        source = self._front_item
-        _replicate_attributes(source, self)
-        _replicate_relations(source, self, AdminFront.admin,
-                             getattr(self, 'replicatable_relations', []),
-                             getattr(self, 'reflectable_relations', []))
+        _replicate_attributes(self._front_item, self)
 
     @declared_attr
     def has_unpublished_changes(self):
