@@ -76,17 +76,19 @@ def _reflect(source, model):
     assert ident is not None
     return db.query(model).get(ident)
 
-def _replicate(source, model, condition=True):
-    '''Update target model. Returns target object.
-    Model can also be item to copy to.
-    '''
+def _copy_attributes(source, target):
+    for name in _get_column_names(source) & _get_column_names(target):
+        setattr(target, name, getattr(source, name))
+
+def _replicate(source, model):
+    '''Update target model. Returns target object.  Model can also be item to
+    copy to.'''
     if isinstance(model, type):
         target = model()
     else:
         target = model
 
-    for name in _get_column_names(source) & _get_column_names(target):
-        setattr(target, name, getattr(source, name))
+    _copy_attributes(source, target)
     db = object_session(source)
     return db.merge(target)
 
@@ -97,7 +99,9 @@ def _replicate_filter(obj, sources, model):
     targets = []
     for source in sources:
         assert filter(None, identity_key(instance=source))
-        targets.append(_replicate(source, target))
+        target = model()
+        _copy_attributes(source, target)
+        targets.append(target)
     return targets
 
 def _reflect_filter(sources, model):
