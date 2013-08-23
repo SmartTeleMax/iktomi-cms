@@ -16,29 +16,37 @@
     {% endfor -%}
   {% endif %}
 
-  {% if save_allowed and create_allowed and 'save_and_add_another' in item_buttons %}
-  <a href="{{ url_for(stream.module_name+'.item', item=None).qs_set(filter_form.get_data()) }}"
-     data-item-lock="true"
-     data-item-form="true"
-     class="button icon-add" rel="save-and-add">
-    Сохранить и создать новый
-  </a>
-  {% endif %}
+  {% if save_allowed %}
+  <div class="buttons__save-actions">
+    {% if 'save_and_continue' in item_buttons %}
+    <a href="" class="button icon-apply" rel="save-and-continue"
+       data-item-lock="true"
+       data-item-form="true">
+      Сохранить
+    </a>
+    {% endif %}
 
-  {% if save_allowed and 'save_and_continue' in item_buttons %}
-  <a href="" class="button icon-apply" rel="save-and-continue"
-     data-item-lock="true"
-     data-item-form="true">
-    Сохранить и продолжить
-  </a>
-  {% endif %}
+    {% if (create_allowed and 'save_and_add_another' in item_buttons) or ('save' in item_buttons) %}
+    <div class="buttons__save-hidden">
+      {% if create_allowed and 'save_and_add_another' in item_buttons %}
+      <a href="{{ url_for(stream.module_name+'.item', item=None).qs_set(filter_form.get_data()) }}"
+         data-item-lock="true"
+         data-item-form="true"
+         class="button icon-add" rel="save-and-add">
+        &hellip; и создать новый
+      </a>
+      {% endif %}
 
-  {% if save_allowed and 'save' in item_buttons %}
-  <a href="{{ stream_url }}" class="button icon-back" rel="save"
-     data-item-lock="true"
-     data-item-form="true">
-    Сохранить и закрыть
-  </a>
+      {% if 'save' in item_buttons %}
+      <a href="{{ stream_url }}" class="button icon-back" rel="save"
+         data-item-lock="true"
+         data-item-form="true">
+        &hellip; и закрыть
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
   {% endif %}
 </div>
 {% endmacro %}
@@ -67,8 +75,8 @@
         {%- else -%}
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
         {%- endif %}
-        {% block after_title %}{% endblock -%}
       </h1>
+      {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}
     </div>
     <div class="text">

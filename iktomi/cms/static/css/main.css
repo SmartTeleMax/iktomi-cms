@@ -33,27 +33,69 @@ INPUT.red { background-color: #990000; color: #ffffff; font-weight: bold; border
 INPUT.green { background-color: #006600; color: #ffffff; font-weight: bold; border-left: 1px solid #54c033; border-top: 1px solid #54c033; border-right: 1px solid #084003; border-bottom: 1px solid #084003; }
 INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; border-left: 1px solid #d1dce3; border-top: 1px solid #d1dce3; border-right: 1px solid #274157; border-bottom: 1px solid #274157; }
 
-.header .buttons {
+.header {
   position: fixed;
   top: 38px;
-  right: 20px;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
   background: white;
-  border-radius: 0 0 0 20px;
-  padding: 20px 0px 10px 10px;
+  padding: 20px 20px 10px 20px;
   z-index: 3;
-  max-width: 70%;
-  text-align: right;
+  height: 71px;
   }
-  .popup .header .buttons {
+  .popup .header {
     position: absolute;
     background: #ebe9e3;
-    padding: 10px 0px 10px 25px;
     right: 32px;
     top: 10px;
     padding: 7px 7px 7px 7px;
+    height: 33px;
+    left: 7px;
+    width: auto;
     }
-.bottom .buttons { padding: 10px 0px 0px 25px; float: right; }
-.bottom .buttons INPUT, .header .buttons INPUT { margin-left: 10px; }
+  .header .buttons,
+  .header h1 {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    margin-right: 20px;
+    }
+  .header .buttons{
+    float: right;
+    }
+  .header .line { background-color: #e3e6e8; }
+  .buttons__save-actions{
+    display: inline-block;
+    overflow: hidden;
+    height: 30px;
+  }
+  .buttons__save-actions:hover{
+    height: 60px;
+  }
+  .buttons__save-hidden{
+    position: absolute;
+    background: #fff;
+    top: 55px;
+    right: 25px;
+    visibility: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity .4s, visibility .1s linear .4s;
+    padding: 0 15px 15px 15px;
+    }
+  .buttons__save-actions:hover .buttons__save-hidden{
+    visibility: visible;
+    opacity: 1;
+    transition: opacity .4s, visibility 0s;
+    }
+
+.header+.text{
+  margin-top: 73px !important;
+}
+.popup .header+.text{
+  margin-top: 33px !important;
+}
 
 .content {
   clear: left;
@@ -305,6 +347,7 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 }
 
 .form {
+  box-sizing: border-box;
     width:100%;
 }
 

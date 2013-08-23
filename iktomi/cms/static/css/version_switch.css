@@ -11,15 +11,15 @@
 .version-switch-on-label,
 .version-switch-off-label {
     display: block;
-    width: 46px;
-    height: 46px;
+    width: 26px;
+    height: 26px;
     z-index: 1;
     position: absolute;
     top: 5px;
     background-size: 100%;
     background-repeat: no-repeat;
     font-size: 11px;
-    line-height: 43px;
+    line-height: 23px;
 
     -moz-transition: all 0.3s ease-in 0s;
     -webkit-transition: all 0.3s ease-in 0s;
@@ -35,14 +35,16 @@
     color: transparent;
     opacity: 1;
     left: 10px;
-    width: 35px;
-    background-position: 0;
+    width: 25px;
+    background-position: center center;
+    background-size: 23px;
 }
 
 .version-switch-off-label {
     right: 4px;
-    background-position: 0 12px;
+    background-position: center center;
     background-image: url(../images/eye.svg);
+    background-size: 24px;
 
     text-indent: -6.7em;
 }
@@ -72,5 +74,5 @@
     display: table-cell;
     vertical-align: middle;
     width: 100px;
-    height: 57px;
+    height: 37px;
 }
