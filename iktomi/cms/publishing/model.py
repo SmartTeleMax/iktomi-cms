@@ -81,34 +81,27 @@ def _replicate(source, model, condition=True):
     Model can also be item to copy to.
     '''
     if isinstance(model, type):
-        target = _reflect(source, model)
-        if target is None:
-            target = model()
-            db = object_session(source)
-            db.add(target)
+        target = model()
     else:
         target = model
 
     for name in _get_column_names(source) & _get_column_names(target):
         setattr(target, name, getattr(source, name))
-    return target
+    db = object_session(source)
+    return db.merge(target)
 
 def _replicate_filter(obj, sources, model):
-    '''SETS reflection of object's relation'''
+    '''Replicates list of objects to other model class and returns their
+    reflection'''
     db = object_session(obj)
     targets = []
     for source in sources:
         assert filter(None, identity_key(instance=source))
-        target = model()
-        for name in _get_column_names(source) & _get_column_names(target):
-            value = getattr(source, name)
-            setattr(target, name, value)
-        target = db.merge(target)
-        targets.append(target)
+        targets.append(_replicate(source, target))
     return targets
 
 def _reflect_filter(sources, model):
-    '''GETS reflection of list'''
+    '''Returns reflection of list of objects to other model class'''
     targets = [_reflect(source, model) for source in sources]
     # Some objects may not be available in target DB (not published), so we
     # have to exclude None from the list.
