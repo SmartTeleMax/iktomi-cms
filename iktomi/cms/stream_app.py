@@ -5,18 +5,15 @@ from iktomi import web
 from .stream import Stream
 
 
-def get_stream_class(module_name, root='streams'):
-    module = __import__(root + '.' + module_name, None, None, ['*'])
-    return getattr(module, 'Stream', Stream)
-
-
 def get_stream(module_name, root='streams'):
-    stream_class = get_stream_class(module_name, root=root)
-    return stream_class(module_name)
+    module = __import__(root + '.' + module_name, None, None, ['*'])
+    stream_class = getattr(module, 'Stream', Stream)
+    return stream_class(module_name, root_module=root)
 
 
-def get_streams_app(stream_list):
-    streams = dict((name, get_stream(name)) for name in stream_list)
+def get_streams_app(stream_list, root='streams'):
+    streams = dict((name, get_stream(name, root=root))
+                   for name in stream_list)
 
     def _create_ns(ns):
         handlers_by_namespace.setdefault(ns, [])

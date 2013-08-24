@@ -149,8 +149,9 @@ class Stream(object):
 
     buttons = ['save', 'save_and_continue', 'save_and_add_another', 'delete']
 
-    def __init__(self, module_name):
+    def __init__(self, module_name, root_module='streams'):
         self.module_name = module_name
+        self.root_module = root_module
         self.actions = [x.bind(self) for x in self.core_actions + self.actions]
         self.core_actions = []
 
@@ -241,7 +242,8 @@ class Stream(object):
 
     @cached_property
     def config(self):
-        return __import__('streams.' + self.module_name, None, None, ['*'])
+        return __import__(self.root_module + '.' + self.module_name,
+                          None, None, ['*'])
 
     @cached_property
     def title(self):

@@ -79,9 +79,10 @@ class StreamMenu(Menu):
 
     template = 'menu/stream_menu'
 
-    def __init__(self, stream_name, title=None, create=True,
+    def __init__(self, streams, stream_name, title=None, create=True,
                  filters=None, items=None, template_vars={},
                  env=None):
+        self.streams = streams
         self.stream_name = stream_name
         if title is not None:
             self.title = title
@@ -106,8 +107,7 @@ class StreamMenu(Menu):
 
     @cached_property
     def stream(self):
-        from streams import streams
-        return streams[self.stream_name]
+        return self.streams[self.stream_name]
 
     @cached_property
     def title(self):
