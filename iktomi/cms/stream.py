@@ -324,7 +324,8 @@ def get_stream(module_name, root='streams'):
 
 class Loner(object):
 
-    def __init__(self, module_name):
+    def __init__(self, module_name, root_module='loners'):
+        self.root_module = root_module
         self.module_name = module_name
 
     def get_handler(self):
@@ -336,7 +337,8 @@ class Loner(object):
         # title, Model, ItemForm
         # It can also redefine defaults for:
         # permissions, template
-        return __import__('loners.'+self.module_name, None, None, ['*'])
+        return __import__(self.root_module + '.' + self.module_name,
+                          None, None, ['*'])
 
     @property
     def title(self):

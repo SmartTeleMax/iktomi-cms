@@ -150,8 +150,9 @@ class ActionMenu(Menu):
 
 class LonerMenu(Menu):
 
-    def __init__(self, loner_name, title=None, items=None,
+    def __init__(self, loners, loner_name, title=None, items=None,
                  template_vars={}, env=None):
+        self.loners = loners
         self.loner_name = loner_name
         if title is not None:
             self.title = title
@@ -163,8 +164,7 @@ class LonerMenu(Menu):
 
     @cached_property
     def loner(self):
-        from loners import loners
-        return loners[self.loner_name]
+        return self.loners[self.loner_name]
 
     @cached_property
     def title(self):
