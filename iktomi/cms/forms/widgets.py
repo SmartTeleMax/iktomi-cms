@@ -143,8 +143,7 @@ class PopupStreamSelect(Select):
 
     @cached_property
     def stream(self):
-        from streams import streams
-        return streams[self.stream_name]
+        return self.env.streams[self.stream_name]
 
     def render_row_template(self, **data):
         return self.env.render_to_string(self.stream.row_template_name,
