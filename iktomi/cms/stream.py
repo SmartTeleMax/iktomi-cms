@@ -149,9 +149,9 @@ class Stream(object):
 
     buttons = ['save', 'save_and_continue', 'save_and_add_another', 'delete']
 
-    def __init__(self, module_name, root_module='streams'):
+    def __init__(self, module_name, config):
+        self.config = config
         self.module_name = module_name
-        self.root_module = root_module
         self.actions = [x.bind(self) for x in self.core_actions + self.actions]
         self.core_actions = []
 
@@ -241,11 +241,6 @@ class Stream(object):
         return getattr(self.config, 'list_fields', {})
 
     @cached_property
-    def config(self):
-        return __import__(self.root_module + '.' + self.module_name,
-                          None, None, ['*'])
-
-    @cached_property
     def title(self):
         return getattr(self.config, 'title', self.module_name)
 
@@ -310,16 +305,6 @@ class Stream(object):
         env.db.rollback()
         flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
                    'failure')
-
-
-def get_stream_class(module_name, root='streams'):
-    module = __import__(root + '.' + module_name, None, None, ['*'])
-    return getattr(module, 'Stream', Stream)
-
-
-def get_stream(module_name, root='streams'):
-    stream_class = get_stream_class(module_name, root=root)
-    return stream_class(module_name)
 
 
 class Loner(object):
