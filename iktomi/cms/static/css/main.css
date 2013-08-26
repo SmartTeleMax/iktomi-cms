@@ -1,5 +1,6 @@
 BODY { margin: 0px; padding: 38px 0px 50px 0px; background-color: #ffffff; }
 BODY, TD { font: normal 0.8em Arial, sans-serif; color: #000000; }
+BODY.no-margin { margin: 0; padding: 0px; }
 FORM { margin: 0px; padding: 0px; }
 P, UL, OL { margin-top: 0px; margin-bottom: 1em; }
 A { color: #000000; }

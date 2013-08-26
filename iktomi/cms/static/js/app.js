@@ -82,6 +82,9 @@
 
     Blocks.init(content);
 
+    var bodyClass = contentBlock.getElement('[data-body-class]');
+    document.body.set('class', bodyClass ? bodyClass.dataset.bodyClass : null);
+
     window.setTimeout(function(){content.setStyle('height', '');}, 0);
   }
 
