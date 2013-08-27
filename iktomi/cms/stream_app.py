@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from importlib import import_module
-from iktomi.cms.stream import Stream
+from iktomi.cms.stream import Stream, Loner
 from iktomi import web
 
 
@@ -59,6 +59,26 @@ class Streams(dict):
             result.append('.'.join(parts))
             parts.pop()
         return result
+
+
+class Loners(dict):
+
+    @classmethod
+    def from_list(cls, loner_list, package, loner_class=Loner):
+        return cls((name, cls.get_loner(name, package, loner_class)) \
+                   for name in loner_list)
+
+    @staticmethod
+    def get_loner(name, package, loner_class=Loner):
+        module = import_module('.' + name, package)
+        loner_class = getattr(module, 'Loner', loner_class)
+        return loner_class(name, module)
+
+    def to_app(self):
+        return web.prefix('/loners', name='loners') | web.cases(*[
+            loner.get_handler() for loner in self.values()
+        ])
+
 
 
 

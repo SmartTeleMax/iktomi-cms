@@ -309,21 +309,12 @@ class Stream(object):
 
 class Loner(object):
 
-    def __init__(self, module_name, root_module='loners'):
-        self.root_module = root_module
+    def __init__(self, module_name, config):
+        self.config = config
         self.module_name = module_name
 
     def get_handler(self):
         return  web.match('/'+self.module_name, self.module_name) | self
-
-    @cached_property
-    def config(self):
-        # Config module must define variables:
-        # title, Model, ItemForm
-        # It can also redefine defaults for:
-        # permissions, template
-        return __import__(self.root_module + '.' + self.module_name,
-                          None, None, ['*'])
 
     @property
     def title(self):
