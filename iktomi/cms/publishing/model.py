@@ -2,6 +2,8 @@
 from sqlalchemy import Column, Integer, DateTime
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm.collections import collection_adapter
+from sqlalchemy.orm.attributes import instance_state, instance_dict
 from iktomi.unstable.db.sqla.files import FileProperty, FileEventHandlers
 from iktomi.unstable.db.sqla.images import ImageProperty, ImageEventHandlers
 
@@ -93,13 +95,21 @@ def _replicate_attributes(source, target):
             value = getattr(source, attr.key)
             if attr.property.cascade.delete_orphan:
                 # Private, replicate
-                # XXX What if collection_class is not list?
                 if attr.property.uselist:
+                    adapter = collection_adapter(value)
+                    if adapter:
+                        # Convert any collection to flat iterable
+                        value = adapter.adapt_like_to_iterable(value)
                     reflection = _replicate_filter(value, target_attr_model)
+                    impl = instance_state(target).get_impl(attr.key)
+                    # Set any collection value from flat list
+                    impl._set_iterable(instance_state(target),
+                                       instance_dict(target),
+                                       reflection)
                 else:
                     reflection = target_attr_model()
                     _replicate_attributes(value, reflection)
-                setattr(target, attr.key, reflection)
+                    setattr(target, attr.key, reflection)
             elif attr.property.secondary is not None:
                 # Many-to-many, reflect
                 reflection = _reflect_filter(value, target_attr_model)
