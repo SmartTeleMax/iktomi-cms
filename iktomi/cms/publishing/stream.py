@@ -22,8 +22,8 @@ class FrontVersionHandler(EditItemHandler):
     allowed_for_new = False
     title = u'Просмотр опубликованной версии'
 
-    def get_item_form(self, stream, env, item, **kwargs):
-        form = stream.config.ItemForm.load_initial(env, item, **kwargs)
+    def get_item_form(self, stream, env, item, initial, draft=None):
+        form = EditItemHandler.get_item_form(self, stream, env, item, initial, draft)
         form.model = stream.config.Model._front_model
         return form
 
@@ -48,8 +48,8 @@ class FrontVersionHandler(EditItemHandler):
 
 class AdminEditItemHandler(EditItemHandler):
 
-    def get_item_form(self, stream, env, item, **kwargs):
-        form = stream.config.ItemForm.load_initial(env, item, **kwargs)
+    def get_item_form(self, stream, env, item, initial, draft=None):
+        form = EditItemHandler.get_item_form(self, stream, env, item, initial, draft)
         form.model = stream.config.Model
         return form
 
@@ -232,14 +232,14 @@ class PublishStreamNoState(Stream):
         query = env.db.query(Model)
         return query
 
-    def commit_item_transaction(self, env, item):
+    def commit_item_transaction(self, env, item, **kwargs):
         item.has_unpublished_changes = True
         if not item._front_item:
             env.db.flush()
             # XXX it is better to do this automatically on before_insert or
             #     after_insert
             item._create_front_object()
-        Stream.commit_item_transaction(self, env, item)
+        Stream.commit_item_transaction(self, env, item, **kwargs)
 
 
 class PublishStream(PublishStreamNoState):

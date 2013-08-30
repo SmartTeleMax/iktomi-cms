@@ -173,19 +173,16 @@ class Stream(object):
         apps = [action.app
                 for action in self.actions]
 
-        if from_ns and self.module_name.startswith(from_ns):
-            stream_path = self.module_name[len(from_ns):]
-            if stream_path.startswith("."):
-                stream_path = stream_path[1:]
-        else:
-            stream_path = self.module_name
-            set_stream | \
-            web.cases(*apps)
+
         part = self.module_name.rsplit('.', 1)[-1]
         return web.prefix('/' +part) | \
                web.namespace(part) |\
                set_stream | \
                web.cases(*apps)
+
+    @cached_property
+    def autosave(self):
+        return getattr(self.config, 'autosave', True)
 
     @cached_property
     def app_namespace(self):
@@ -289,22 +286,25 @@ class Stream(object):
 
     # ========= Item actions ====
 
-    def commit_item_transaction(self, env, item):
+    def commit_item_transaction(self, env, item, silent=False):
         '''commits request.db and flashes success message'''
         env.db.commit()
-        flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+        if not silent:
+            flash(env, u'Объект (%s) сохранен' % (item,), 'success')
 
-    def rollback_due_lock_lost(self, env, item):
+    def rollback_due_lock_lost(self, env, item, silent=False):
         '''rollbacks request.db and flashes failure message'''
         env.db.rollback()
-        flash(env, u'Объект (%s) не был сохранен из-за '
-                   u'перехваченной блокировки' % (item,),
-                   'failure')
+        if not silent:
+            flash(env, u'Объект (%s) не был сохранен из-за '
+                       u'перехваченной блокировки' % (item,),
+                       'failure')
 
-    def rollback_due_form_errors(self, env, item):
+    def rollback_due_form_errors(self, env, item, silent=False):
         env.db.rollback()
-        flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
-                   'failure')
+        if not silent:
+            flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
+                       'failure')
 
 
 class Loner(object):
@@ -374,14 +374,16 @@ class Loner(object):
                         menu=(env.namespace + '.' + env.current_url_name).rstrip('.'),
                         ))})
 
-    def commit_item_transaction(self, env, item):
+    def commit_item_transaction(self, env, item, silent=False):
         '''commits request.db and flashes success message'''
         env.db.commit()
-        flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+        if not silent:
+            flash(env, u'Объект (%s) сохранен' % (item,), 'success')
 
-    def rollback_due_form_errors(self, env, item):
+    def rollback_due_form_errors(self, env, item, silent=False):
         env.db.rollback()
-        flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
-                   'failure')
+        if not silent:
+            flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
+                       'failure')
 
 

@@ -1,12 +1,6 @@
 (function(){
-  window.loadedCSS = [];
   var currentUrl = null;
-
   window.addEvent('domready', function(){
-    var cssLinks = document.querySelectorAll('head link[type="text/css"]');
-    for (var i=0; i < cssLinks.length; i++){
-      window.loadedCSS.push(cssLinks[i].getAttribute('href'));
-    }
 
     document.querySelector('body').addEventListener('click', function(e){
       var link = (e.target.tagName == 'A' && e.target.getAttribute('href')?
@@ -37,6 +31,7 @@
   });
 
   function loadPage(url, force, contentBlock){
+    console.log('loadPage');
     contentBlock = contentBlock || $('app-content');
     var isMain = contentBlock == $('app-content');
     if (url){
@@ -50,12 +45,12 @@
       console.log('Skipping URL (already loaded): ' + url);
       return;
     }
+    if (isMain) { currentUrl = url; }
 
     new Request.JSON({
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       'onSuccess': function(result){
-        if (isMain) { currentUrl = url; }
         console.log('loadPage success', url);
         renderPage(result, contentBlock);
       }

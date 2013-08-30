@@ -5,7 +5,7 @@
     this.frm = frm;
     this._callback_hook = undefined;
     frm.store('ItemForm', this);
-    frm.store('initData', this.formHash());
+    frm.store('savedData', this.formHash());
     this.container = frm.getParent('.popup-body') || $('app-content');
     this.is_popup = !!frm.getParent('.popup-body');
     this.popup = frm.getParent('.popup');
@@ -26,10 +26,13 @@
 
     if (this.frm.dataset.dataPresavehooks){
       var hooks_list = this.frm.dataset.presavehooks.split(' ');
-      console.log(hooks_list);
       for (var i=0; i<hooks_list.length; i++){
         hooks.append(window[hooks_list[i]]);
       }
+    }
+
+    if (this.frm.dataset.autosave || 1){
+      this.autoSaveInterval = window.setInterval(this.autoSaveHandler, 5000);
     }
   }
 
@@ -37,6 +40,7 @@
     this.redirectHandler = this.redirectHandler.bind(this);
     this.postHandler = this.postHandler.bind(this);
     this.saveHandler = this.saveHandler.bind(this);
+    this.autoSaveHandler = this.autoSaveHandler.bind(this);
     this.saveAndContinueHadler = this.saveAndContinueHadler.bind(this);
   }
 
@@ -55,7 +59,6 @@
 
   ItemForm.prototype.redirectHandler = function(e){
       e.preventDefault(); e.stopPropagation();
-      console.log(e)
       this.submit(e.target, function(result, button){
         this.load(button.getProperty('href'));
       }.bind(this));
@@ -88,6 +91,38 @@
         this.load(button.getProperty('href'));
       }
     }.bind(this));
+  }
+
+  ItemForm.prototype.autoSaveHandler = function(){
+    if (! this.frm.getParent('body') ) {
+      console.log('AUTOSAVE stop')
+      window.clearInterval(this.autoSaveInterval);
+      return;
+    }
+
+    var newData = this.formHash();
+    //console.log(newData);
+    //console.log(this.frm.retrieve('savedData'));
+    if(this.frm.retrieve('savedData') == newData){
+      console.log('AUTOSAVE no changes');
+      return;
+    }
+
+    var url = this.frm.getAttribute('action') + '/autosave';
+    new Request.JSON({
+      url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
+      onSuccess: function(result){
+        if (result.success || result.error == 'draft'){
+          this.frm.store('savedData', newData);
+        }
+        if (result.success){
+          this.frm.setAttribute('action', result.item_url);
+          if(!this.is_popup){
+            history.replaceState(null, null, result.item_url);
+          }
+        }
+      }.bind(this)
+    }).post(this.frm); 
   }
 
   ItemForm.prototype.saveAndContinueHadler = function(e) {
@@ -123,22 +158,18 @@
   }
 
   ItemForm.prototype.hasChanges = function(){
-    // XXX does not work! WysiHtml5 sometimes has changes that are done on page 
-    // load and than cleaned up on server side
     var newData = this.formHash();
-    if (this.frm.retrieve('initData') != newData) {
-      return true;
-    }
-    var wysihtml5s = this.frm.getElements('[data-block-name="wysihtml5"]');
-    // XXX provide an interface for widgets that can track their changes
-    // themselves
-    for (var i=wysihtml5s.length; i--;){
-      var widget = wysihtml5s[i].retrieve('widget');
-      widget.composer.undoManager.transact();
-      if (widget.composer.undoManager.undoPossible()) {
-        return true;
-      }
-    }
+    return this.frm.retrieve('savedData') != newData;
+    //var wysihtml5s = this.frm.getElements('[data-block-name="wysihtml5"]');
+    //// XXX provide an interface for widgets that can track their changes
+    //// themselves
+    //for (var i=wysihtml5s.length; i--;){
+    //  var widget = wysihtml5s[i].retrieve('widget');
+    //  widget.composer.undoManager.transact();
+    //  if (widget.composer.undoManager.undoPossible()) {
+    //    return true;
+    //  }
+    //}
     return false;
   }
 
@@ -178,14 +209,24 @@
       var type = el.type;
       if (!el.name || el.name.charAt('0') == '_' || el.name == 'edit_session' || el.disabled || 
           type == 'submit' || type == 'reset' || type == 'file' || type == 'image' 
-          || el.dataset.blockName == 'wysihtml5') return;
+          ) return;
           // XXX provide an interface for widgets that can track their changes
           // themselves
 
-      var value = (el.get('tag') == 'select') ? el.getSelected().map(function(opt){
-        // IE
-        return document.id(opt).get('value');
-      }) : ((type == 'radio' || type == 'checkbox') && !el.checked) ? null : el.get('value');
+      if (el.dataset.blockName == 'wysihtml5'){
+        var widget = el.retrieve('widget');
+        if (widget) {
+          widget.composer.undoManager.transact();
+          var value = ''+widget.composer.undoManager.version;
+        } else {
+          var value = '1';
+        }
+      } else {
+        var value = (el.get('tag') == 'select') ? el.getSelected().map(function(opt){
+          // IE
+          return document.id(opt).get('value');
+        }) : ((type == 'radio' || type == 'checkbox') && !el.checked) ? null : el.get('value');
+      }
 
       Array.from(value).each(function(val){
         if (typeof val != 'undefined') queryString.push(el.name + '=' + val.trim());
