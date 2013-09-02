@@ -190,6 +190,10 @@ class Stream(object):
         return env.url_for(name, **kwargs)
 
     @cached_property
+    def autosave(self):
+        return getattr(self.config, 'autosave', True)
+
+    @cached_property
     def app_namespace(self):
         if '.' in self.module_name:
             return self.module_name.rsplit('.', 1)[0]
@@ -291,22 +295,25 @@ class Stream(object):
 
     # ========= Item actions ====
 
-    def commit_item_transaction(self, env, item):
+    def commit_item_transaction(self, env, item, silent=False):
         '''commits request.db and flashes success message'''
         env.db.commit()
-        flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+        if not silent:
+            flash(env, u'Объект (%s) сохранен' % (item,), 'success')
 
-    def rollback_due_lock_lost(self, env, item):
+    def rollback_due_lock_lost(self, env, item, silent=False):
         '''rollbacks request.db and flashes failure message'''
         env.db.rollback()
-        flash(env, u'Объект (%s) не был сохранен из-за '
-                   u'перехваченной блокировки' % (item,),
-                   'failure')
+        if not silent:
+            flash(env, u'Объект (%s) не был сохранен из-за '
+                       u'перехваченной блокировки' % (item,),
+                       'failure')
 
-    def rollback_due_form_errors(self, env, item):
+    def rollback_due_form_errors(self, env, item, silent=False):
         env.db.rollback()
-        flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
-                   'failure')
+        if not silent:
+            flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
+                       'failure')
 
 
 class Loner(object):
@@ -344,8 +351,8 @@ class Loner(object):
         if not self.has_permission(env, permission):
             raise HTTPForbidden
 
-    def get_item_form(self, env, item, **kwargs):
-        return self.config.ItemForm.load_initial(env, item, **kwargs)
+    def get_item_form_class(self, env):
+        return self.config.ItemForm
 
     def __call__(self, env, data):
         self.insure_has_permission(env, 'w') # XXX Allow read-only mode
@@ -379,14 +386,16 @@ class Loner(object):
                         menu=(env.namespace + '.' + env.current_url_name).rstrip('.'),
                         ))})
 
-    def commit_item_transaction(self, env, item):
+    def commit_item_transaction(self, env, item, silent=False):
         '''commits request.db and flashes success message'''
         env.db.commit()
-        flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+        if not silent:
+            flash(env, u'Объект (%s) сохранен' % (item,), 'success')
 
-    def rollback_due_form_errors(self, env, item):
+    def rollback_due_form_errors(self, env, item, silent=False):
         env.db.rollback()
-        flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
-                   'failure')
+        if not silent:
+            flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
+                       'failure')
 
 

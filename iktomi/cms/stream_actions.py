@@ -15,6 +15,8 @@ class StreamAction(web.WebHandler):
     def is_available(self, env, item=None):
         """ Rewrite this method to add condition when action is avalible
         """
+        if item is None or item.id is None:
+            return self.allowed_for_new
         return True
 
     def is_visible(self, env, item=None):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPSeeOther
 from sqlalchemy.exc import IntegrityError
 #from sqlalchemy.orm.properties import PropertyLoader
@@ -8,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from iktomi.utils import cached_property
 from iktomi import web
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
+from iktomi.utils.mdict import MultiDict
 from iktomi.web.url_converters import Integer as IntegerConv, \
                         Converter as BaseConv, ConvertError
 from iktomi.forms import convs
@@ -205,8 +207,12 @@ class EditItemHandler(StreamAction):
 
     @property
     def app(self):
-        return web.match('/<noneint:item>', 'item', convs={'noneint': NoneIntConv}) | \
-            PrepareItemHandler(self) | self
+        return web.prefix('/<noneint:item>', name='item',
+                          convs={'noneint': NoneIntConv}) | \
+            PrepareItemHandler(self) | web.cases(
+                web.match('', '') | self,
+                web.match('/autosave', 'autosave') | web.method('POST', strict=True) | self.autosave
+            )
 
     def create_allowed(self, env):
         return self.stream.has_permission(env, 'c')
@@ -220,8 +226,36 @@ class EditItemHandler(StreamAction):
     def get_item_template(self, env, item):
         return self.stream.item_template_name
 
-    def get_item_form(self, stream, env, item, **kwargs):
-        return stream.config.ItemForm.load_initial(env, item, **kwargs)
+    def get_item_form(self, stream, env, item, initial, draft=None):
+        save_allowed = self.create_allowed(env) \
+                if (item is None or item.id is None) else \
+                self.save_allowed(env, item)
+        form_kw = {}
+        if not save_allowed:
+            form_kw['permissions'] = 'r'
+
+        form_cls = stream.get_item_form_class(env)
+        form = form_cls.load_initial(env, item, initial=initial, **form_kw)
+        form.draft = draft
+        if draft is not None:
+            raw_data = MultiDict(draft.data)
+            form.accept(raw_data) # XXX
+        return form
+
+    def save_item(self, env, filter_form, form, item, draft, autosave):
+        form.update_instance(item)
+        if item not in env.db:
+            env.db.add(item)
+        if draft is not None:
+            env.db.delete(draft)
+
+        self.stream.commit_item_transaction(env, item, silent=autosave)
+        if hasattr(self, 'post_create'):
+            self.post_create(item)
+
+        item_url = env.url_for(self.stream.module_name + '.item', item=item.id).qs_set(
+                                   filter_form.get_data())
+        return item, item_url
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
@@ -251,35 +285,56 @@ class EditItemHandler(StreamAction):
             save_allowed = self.save_allowed(env, item)
             delete_allowed = self.delete_allowed(env, item)
 
-        form_kw = {}
-        if not save_allowed:
-            form_kw['permissions'] = 'r'
+        autosave_allowed = getattr(env, 'draft_form_model', None) and \
+                        self.stream.autosave
+        autosave = autosave_allowed and getattr(data, 'autosave', False)
+        if autosave_allowed:
+            DraftForm = env.draft_form_model
+            draft = DraftForm.get_for_item(env.db, stream.module_name,
+                                           item, env.user)
+        elif getattr(data, 'autosave', False):
+            raise HTTPForbidden
+        else:
+            draft = None
 
-        form = self.get_item_form(stream, env, item,  initial=initial, **form_kw)
+        form = self.get_item_form(stream, env, item, initial, draft)
 
         if request.method == 'POST':
             if not save_allowed:
                 raise HTTPForbidden
             if form.accept(request.POST):
                 if not lock_message:
-                    form.update_instance(item)
-                    if item not in env.db:
-                        env.db.add(item)
-
-                    stream.commit_item_transaction(env, item)
-                    if hasattr(self, 'post_create'):
-                        self.post_create(item)
-
-                    item_url = stream.url_for(env, 'item',
-                                              item=item.id).qs_set(
-                                               filter_form.get_data()),
+                    item, item_url = self.save_item(env, filter_form, form,
+                                                    item, draft, autosave)
                     return env.json({'success': True,
                                      'item_id': item.id,
                                      'item_url': item_url})
+                elif autosave:
+                    stream.rollback_due_lock_lost(env, item)
+                    return env.json({'success': False,
+                                     'error': 'item_lock',
+                                     'lock_message': lock_message})
                 else:
                     stream.rollback_due_lock_lost(env, item)
+            elif autosave:
+                stream.rollback_due_form_errors(env, item, silent=True)
+                if draft is None:
+                    draft = DraftForm(stream_name=stream.module_name,
+                                      object_id=item.id)
+                    env.db.add(draft)
+                draft.data = form.raw_data.items()
+                if not env.user in draft.admins:
+                    draft.admins.append(env.user)
+                draft.update_time = datetime.now()
+                env.db.commit()
+                return env.json({'success': False,
+                                 'error': 'draft',
+                                 'draft_id': draft.id,
+                                 'errors': form.errors,
+                                 })
             else:
-                stream.rollback_due_form_errors(env, item)
+                stream.rollback_due_form_errors(env, item, silent=autosave)
+
         template_data = dict(filter_form=filter_form,
                              success=success,
                              form=form,
@@ -297,6 +352,7 @@ class EditItemHandler(StreamAction):
                              actions=[x for x in stream.actions 
                                       if x.for_item and x.is_visible(env, item)],
                              item_buttons=stream.buttons,
+                             autosave_allowed=autosave_allowed,
                              create_allowed=create_allowed,
                              save_allowed=save_allowed,
                              delete_allowed=delete_allowed,
@@ -318,6 +374,11 @@ class EditItemHandler(StreamAction):
         })
     __call__ = edit_item_handler
 
+
+    def autosave(self, env, data):
+        data.autosave = True
+        return self(env, data)
+
     def process_item_template_data(self, env, template_data):
         '''Preprocessor for template variables.
            Can be overriden by descedant classes.'''
@@ -337,7 +398,8 @@ class DeleteItemHandler(StreamAction):
             PrepareItemHandler(self) | self
 
     def is_available(self, env, item):
-        return self.stream.has_permission(env, 'd')
+        return StreamAction.is_available(self, env, item) and \
+                self.stream.has_permission(env, 'd')
 
     def delete_item_handler(self, env, data):
         if not env.request.is_xhr:

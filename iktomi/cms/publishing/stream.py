@@ -9,12 +9,12 @@ from iktomi.utils import cached_property
 
 class AdminEditItemHandler(EditItemHandler):
 
-    def get_item_form(self, stream, env, item, **kwargs):
+    def get_item_form_class(self, env):
+        stream = self.stream
         Form = stream.config.ItemForm(env.models)
         Form.__module__ = stream.config.__name__
-        form = Form.load_initial(env, item, **kwargs)
-        form.model = stream.get_model(env)
-        return form
+        Form.model = stream.get_model(env)
+        return Form
 
     def process_item_template_data(self, env, td):
         # Filter buttons
@@ -213,14 +213,14 @@ class PublishStreamNoState(Stream):
     def get_model(self, env):
         return getattr(env.models, self.config.Model)
 
-    def commit_item_transaction(self, env, item):
+    def commit_item_transaction(self, env, item, **kwargs):
         item.has_unpublished_changes = True
         if not item._front_item:
             env.db.flush()
             # XXX it is better to do this automatically on before_insert or
             #     after_insert
             item._create_front_object()
-        Stream.commit_item_transaction(self, env, item)
+        Stream.commit_item_transaction(self, env, item, **kwargs)
 
     def url_for(self, env, name=None, **kwargs):
         kwargs.setdefault('version', getattr(env, 'version', None))

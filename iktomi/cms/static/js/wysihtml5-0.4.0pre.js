@@ -5515,8 +5515,8 @@ wysihtml5.dom.replaceWithChildNodes = function(node) {
       iframeDocument.write(sandboxHtml);
       iframeDocument.close();
 
-      this.getWindow = function() { return iframe.contentWindow; };
-      this.getDocument = function() { return iframe.contentWindow.document; };
+      this.getWindow = function() { return iframe.contentWindow || iframeWindow; };
+      this.getDocument = function() { return iframe.contentWindow?iframe.contentWindow.document: iframeDocument; };
 
       // Catch js errors and pass them to the parent's onerror event
       // addEventListener("error") doesn't work properly in some browsers
@@ -7596,6 +7596,7 @@ wysihtml5.commands.redo = {
       this.element = this.composer.element;
 
       this.position = 0;
+      this.version = 0;
       this.historyStr = [];
       this.historyDom = [];
 
@@ -7713,6 +7714,7 @@ wysihtml5.commands.redo = {
       }
 
       this.position++;
+      this.version++;
 
       var range   = this.composer.selection.getRange(),
           node    = range.startContainer || this.element,
@@ -7758,6 +7760,7 @@ wysihtml5.commands.redo = {
 
       this.set(this.historyDom[++this.position - 1]);
       this.editor.fire("redo:composer");
+      this.version++;
     },
 
     undoPossible: function() {
