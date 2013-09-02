@@ -164,8 +164,7 @@ class Stream(object):
             return nxt(env, data)
 
         part = self.module_name.rsplit('.', 1)[-1]
-        return web.prefix('/' +part) | \
-               web.namespace(part) | \
+        return web.prefix('/' +part, name=part) | \
                set_stream_handler
 
     @property

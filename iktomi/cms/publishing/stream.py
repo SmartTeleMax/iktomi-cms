@@ -7,50 +7,13 @@ from iktomi.cms.flashmessages import flash
 from iktomi.utils import cached_property
 
 
-class FrontPrepareItemHandler(PrepareItemHandler):
-    """ Helper handler to fetch item by id field.
-    `data` in handler should have `item` attr containts item id.
-    """
-
-    def retrieve_item(self, env, item):
-        return self.action.stream.front_query(env).filter_by(id=item).first()
-
-
-class FrontVersionHandler(EditItemHandler):
-
-    action = 'published_version'
-    allowed_for_new = False
-    title = u'Просмотр опубликованной версии'
-
-    def get_item_form(self, stream, env, item, **kwargs):
-        form = stream.config.ItemForm.load_initial(env, item, **kwargs)
-        form.model = stream.config.Model._front_model
-        return form
-
-    @property
-    def app(self):
-        return web.match('/<int:item>/published-version', self.action) | \
-            web.method('GET', strict=True) | \
-            FrontPrepareItemHandler(self) | self
-
-    def publish_allowed(self, env, item=None):
-        # XXX
-        return self.stream.has_permission(env, 'p')
-
-    def process_item_template_data(self, env, td):
-        # Filter buttons
-        td['item_buttons'] = []#'unpublish']
-        td['actions'] = [x for x in td['actions']
-                         if x.action in ('unpublish', 'front_publish')]
-        td['front_version'] = True
-        return td
-
-
 class AdminEditItemHandler(EditItemHandler):
 
     def get_item_form(self, stream, env, item, **kwargs):
-        form = stream.config.ItemForm.load_initial(env, item, **kwargs)
-        form.model = stream.config.Model
+        Form = stream.config.ItemForm(env.models)
+        Form.__module__ = stream.config.__name__
+        form = Form.load_initial(env, item, **kwargs)
+        form.model = stream.get_model(env)
         return form
 
     def process_item_template_data(self, env, td):
@@ -81,13 +44,12 @@ class AdminPublishAction(PostAction):
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
-        module_name = env.stream.module_name
 
         data.item.publish()
         flash(env, u'Объект «%s» опубликован' % data.item, 'success')
         env.db.commit()
 
-        url = env.url_for(module_name + '.item', item=data.item.id)
+        url = self.stream.url_for(env, 'item', item=data.item.id)
         return env.json({'result': 'success',
                          'location': url})
     __call__ = admin_publish
@@ -209,11 +171,29 @@ class PublishStreamNoState(Stream):
     core_actions = [x for x in Stream.core_actions
                     if x.action not in ('delete', 'item')] + [
            AdminEditItemHandler(),
-           FrontVersionHandler(),
            DeleteFlagHandler(),
            AdminPublishAction(),
            RevertAction(),
         ]
+
+    versions = (('admin', u'Редакторская версия'),
+                ('front', u'Фронтальная версия'),)
+    versions_dict = dict(versions)
+
+    @property
+    def prefix_handler(self):
+        @web.request_filter
+        def set_models(env, data, nxt):
+            assert data.version in self.versions_dict.keys()
+            env.models = getattr(env.models, data.version)
+            env.version = data.version
+            return nxt(env, data)
+
+        version_prefix = web.prefix('/<any("%s"):version>' % \
+                                     ('","'.join(self.versions_dict.keys())))
+        #return version_prefix | set_models | \
+        return super(PublishStreamNoState, self).prefix_handler |\
+               version_prefix | set_models
 
     @cached_property
     def list_fields(self):
@@ -227,10 +207,11 @@ class PublishStreamNoState(Stream):
     def item_template_name(self):
         return getattr(self.config, 'item_template', 'item_publish')
 
-    def front_query(self, env):
-        Model = self.config.Model._front_model
-        query = env.db.query(Model)
-        return query
+    def item_query(self, env):
+        return env.db.query(self.get_model(env))
+
+    def get_model(self, env):
+        return getattr(env.models, self.config.Model)
 
     def commit_item_transaction(self, env, item):
         item.has_unpublished_changes = True
@@ -241,13 +222,16 @@ class PublishStreamNoState(Stream):
             item._create_front_object()
         Stream.commit_item_transaction(self, env, item)
 
+    def url_for(self, env, name=None, **kwargs):
+        kwargs.setdefault('version', getattr(env, 'version', None))
+        return super(PublishStreamNoState, self).url_for(env, name, **kwargs)
+
 
 class PublishStream(PublishStreamNoState):
 
     core_actions = [x for x in Stream.core_actions
                     if x.action not in ('delete', 'item')] + [
            AdminEditItemHandler(),
-           FrontVersionHandler(),
            DeleteFlagHandler(),
            AdminPublishAction(),
            UnpublishAction(),
@@ -255,11 +239,7 @@ class PublishStream(PublishStreamNoState):
         ]
 
     def item_query(self, env):
-        Model = self.config.Model
-        query = env.db.query(Model).filter(Model.state != Model.DELETED)
-        return query
+        query = super(PublishStream, self).item_query(env)
+        Model = self.get_model(env)
+        return query.filter(Model.state != Model.DELETED)
 
-    def front_query(self, env):
-        Model = self.config.Model._front_model
-        query = env.db.query(Model).filter(Model.state.in_((Model.PUBLIC, Model.UNPUBLISHED)))
-        return query
