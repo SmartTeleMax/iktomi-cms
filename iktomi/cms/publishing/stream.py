@@ -9,12 +9,7 @@ from iktomi.utils import cached_property
 
 class AdminEditItemHandler(EditItemHandler):
 
-    def get_item_form_class(self, env):
-        stream = self.stream
-        Form = stream.config.ItemForm(env.models)
-        Form.__module__ = stream.config.__name__
-        Form.model = stream.get_model(env)
-        return Form
+
 
     def process_item_template_data(self, env, td):
         # Filter buttons
@@ -179,6 +174,12 @@ class PublishStreamNoState(Stream):
     versions = (('admin', u'Редакторская версия'),
                 ('front', u'Фронтальная версия'),)
     versions_dict = dict(versions)
+
+    def get_item_form_class(self, env):
+        Form = self.config.ItemForm(env.models)
+        Form.__module__ = self.config.__name__
+        Form.model = self.get_model(env)
+        return Form
 
     @property
     def prefix_handler(self):
