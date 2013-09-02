@@ -155,6 +155,25 @@ class Stream(object):
         self.actions = [x.bind(self) for x in self.core_actions + self.actions]
         self.core_actions = []
 
+    @property
+    def prefix_handler(self):
+        """ Handler match stream path, setup stream namespace and env"""
+        @web.request_filter
+        def set_stream_handler(env, data, nxt):
+            env.stream = self
+            return nxt(env, data)
+
+        part = self.module_name.rsplit('.', 1)[-1]
+        return web.prefix('/' +part) | \
+               web.namespace(part) | \
+               set_stream_handler
+
+    @property
+    def app_handler(self):
+        """ Handler add stream action's app handlers """
+        apps = [action.app for action in self.actions]
+        return web.cases(*apps)
+
     def get_handler(self, from_ns=None):
         """ Get web handler for routing.
 
@@ -165,27 +184,11 @@ class Stream(object):
             "from_ns should point out namespace that we are already in, "\
             "that also part of curent stream module_name"
 
-        @web.request_filter
-        def set_stream(env, data, nxt):
-            env.stream = self
-            return nxt(env, data)
+        return self.prefix_handler | self.app_handler
 
-        apps = [action.app
-                for action in self.actions]
-
-        if from_ns and self.module_name.startswith(from_ns):
-            stream_path = self.module_name[len(from_ns):]
-            if stream_path.startswith("."):
-                stream_path = stream_path[1:]
-        else:
-            stream_path = self.module_name
-            set_stream | \
-            web.cases(*apps)
-        part = self.module_name.rsplit('.', 1)[-1]
-        return web.prefix('/' +part) | \
-               web.namespace(part) |\
-               set_stream | \
-               web.cases(*apps)
+    def url_for(self, env, name=None, **kwargs):
+        name = name and '%s.%s' % (self.module_name, name) or self.module_name
+        return env.url_for(name, **kwargs)
 
     @cached_property
     def app_namespace(self):
@@ -323,6 +326,9 @@ class Loner(object):
     @cached_property
     def template_name(self):
         return getattr(self.config, 'template', 'loner')
+
+    def get_model(self, env):
+        return self.config.Model
 
     def get_permissions(self, env):
         permissions = getattr(self.config, 'permissions', {})

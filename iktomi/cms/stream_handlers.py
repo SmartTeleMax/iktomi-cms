@@ -109,13 +109,12 @@ class StreamListHandler(StreamAction):
         paginator = ModelPaginator(request, query,
                                    impl=FancyPageRange(),
                                    limit=getattr(stream.config, 'limit', None),
-                                   url=env.url_for(stream.module_name).qs_set(
+                                   url=stream.url_for(env).qs_set(
                                        filter_form.get_data()))
 
         def item_url(item=None):
             item_id = item.id if item is not None else None
-            endpoint = stream.module_name + '.item'
-            return env.url_for(endpoint, item=item_id).qs_set(
+            return stream.url_for(env, 'item', item=item_id).qs_set(
                 filter_form.get_data())
 
         try:
@@ -189,7 +188,7 @@ class PrepareItemHandler(web.WebHandler):
             flash(env, u'Действие «%s» недоступно для нового объекта' %
                   (self.action.title,),
                   'failure')
-            item_url = request.url_for(stream.module_name + '.item')(
+            item_url = stream.url_for(env, 'item')(
                 data.filter_form.get_data())
             return see_other(item_url)
         return self.next_handler(env, data)
@@ -235,8 +234,7 @@ class EditItemHandler(StreamAction):
         request = env.request
 
         initial = filter_form.defaults()
-        stream_endpoint = stream.stream_endpoint(env)
-        stream_url = env.url_for(stream_endpoint)
+        stream_url = stream.url_for(env)
         create_allowed = save_allowed = self.create_allowed(env)
         delete_allowed = False
         success = False
@@ -246,7 +244,7 @@ class EditItemHandler(StreamAction):
                 raise HTTPForbidden
             # We must pass initial data to allow creation of models with
             # inheritance.
-            item = stream.config.Model(**initial)
+            item = stream.get_model(env)(**initial)
             # Don't add it to session since we don't know yet whether it should
             # be saved (there can be errors in form).
         else:
@@ -272,9 +270,8 @@ class EditItemHandler(StreamAction):
                     if hasattr(self, 'post_create'):
                         self.post_create(item)
 
-                    item_url = env.url_for(stream.module_name +\
-                                           '.item',
-                                           item=item.id).qs_set(
+                    item_url = stream.url_for(env, 'item',
+                                              item=item.id).qs_set(
                                                filter_form.get_data()),
                     return env.json({'success': True,
                                      'item_id': item.id,
@@ -291,8 +288,7 @@ class EditItemHandler(StreamAction):
                              stream=stream,
                              stream_title=stream.config.title,
                              title=unicode(item),
-                             submit_url=env.url_for(stream.module_name +\
-                                                    '.item',
+                             submit_url=stream.url_for(env, 'item',
                                                     item=item.id).qs_set(
                                                         filter_form.get_data()),
 
@@ -352,13 +348,11 @@ class DeleteItemHandler(StreamAction):
 
         self.insure_is_available(env, item)
 
-        stream_url = env.url_for(stream.module_name).qs_set(
-            filter_form.get_data())
-        item_url = env.url_for(stream.module_name + '.item',
-                               item=item.id).qs_set(
+        stream_url = stream.url_for(env).qs_set(filter_form.get_data())
+        item_url = stream.url_for('item', item=item.id).qs_set(
                                    filter_form.get_data())
-        delete_url = env.url_for(stream.module_name + '.delete', item=item.id)\
-                        .qs_set(filter_form.get_data())
+        delete_url = stream.url_for('delete', item=item.id)\
+                           .qs_set(filter_form.get_data())
         if env.request.method == 'POST':
             env.db.delete(item)
             try:
