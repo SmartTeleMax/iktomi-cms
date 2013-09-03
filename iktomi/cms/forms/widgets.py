@@ -150,7 +150,7 @@ class PopupStreamSelect(Select):
                                          **dict(self.stream.template_data, **data))
 
     def item_row(self, item, row_cls=''):
-        url = self.env.url_for(self.stream_name + '.item', item=item.id)
+        url = self.stream.url_for(self.env, 'item', item=item.id)
         return self.render_row_template(stream=self.stream,
                                         item=item, list_fields=self.list_fields,
                                         url=url, row_cls=row_cls)
@@ -161,12 +161,12 @@ class PopupStreamSelect(Select):
 
     @cached_property
     def create_url(self):
-        return self.env.url_for(self.stream_name + '.item', item=None)\
-                       .qs_set(self.default_create_filters)
+        return self.stream.url_for(self.env, 'item', item=None)\
+                          .qs_set(self.default_create_filters)
 
     def js_config(self):
         data = {
-            'url': self.env.url_for(self.stream_name).qs_set(self.default_filters),
+            'url': self.stream.url_for(self.env).qs_set(self.default_filters),
             'title': self.stream.title,
             'container': self.id,
             'input_name': self.input_name,
