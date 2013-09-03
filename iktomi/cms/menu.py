@@ -114,11 +114,11 @@ class StreamMenu(Menu):
 
     @cached_property
     def url(self):
-        return self.env.url_for(self.stream_name).qs_set(self.filters)
+        return self.stream.url_for(self.env).qs_set(self.filters)
 
     @cached_property
     def create_url(self):
-        return self.env.url_for(self.stream_name + '.item', item=None)\
+        return self.stream.url_for(self.env, 'item', item=None)\
                                                 .qs_set(self.filters)
 
     @cached_property
@@ -142,9 +142,12 @@ class ActionMenu(Menu):
         return self.url == self.request.path
 
     @cached_property
+    def stream(self):
+        return self.env.streams[self.stream_name]
+
+    @cached_property
     def url(self):
-        return self.env.url_for(self.stream_name + '.action',
-                                action=self.action)(self.filters)
+        return self.stream.url_for(self.env, self.action)(self.filters)
 
 
 class LonerMenu(Menu):
