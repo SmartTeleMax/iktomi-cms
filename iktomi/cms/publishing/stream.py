@@ -224,7 +224,7 @@ class PublishStreamNoState(Stream):
         Stream.commit_item_transaction(self, env, item, **kwargs)
 
     def url_for(self, env, name=None, **kwargs):
-        kwargs.setdefault('version', getattr(env, 'version', None))
+        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
         return super(PublishStreamNoState, self).url_for(env, name, **kwargs)
 
 
