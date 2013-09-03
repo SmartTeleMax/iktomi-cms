@@ -216,6 +216,9 @@ class Stream(object):
         if self.list_edit_action:
             return self.list_edit_action.ListItemForm
 
+    def get_item_form_class(self, env):
+        return self.config.ItemForm
+
     @cached_property
     def stream_template_name(self):
         if hasattr(self.config, 'stream_template'):
@@ -280,11 +283,13 @@ class Stream(object):
         if not self.has_permission(env, permission):
             raise HTTPForbidden
 
-    def stream_endpoint(self, env):
-        return self.module_name
+    #def stream_endpoint(self, env):
+    #    return self.module_name
+    #def stream_url(self, request):
+    #    return request.url_for(self.stream_endpoint(request))
 
-    def stream_url(self, request):
-        return request.url_for(self.stream_endpoint(request))
+    def get_model(self, env):
+        return self.config.Model
 
     def __repr__(self):
         return '<%s.%s: %s>' % (self.__class__.__module__, self.__class__.__name__, self.module_name)

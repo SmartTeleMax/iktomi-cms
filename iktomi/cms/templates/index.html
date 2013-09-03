@@ -2,27 +2,23 @@
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 <table style="margin: auto; font-size: 16pt;" cellspacing="2em">
   <tbody>
-    {% for row in dashboard %}
+    {% for row in dashboard.items %}
     <tr>
-      {% for col in row %}
+      {% for col in row.items %}
       <td valign="top" style="padding: 1em;">
         <fieldset>
-          <legend style="font-weight: bold">{{ col[0] }}</legend>
+          <legend style="font-weight: bold">{{ col.title }}</legend>
           <table class='langs-streams'>
-          {% for streams in col[1:] %}
+          {% for menu in col.items %}
           <tr>
-            {% if streams is mapping %}
-              <td colspan="2">
-                <a href="{{ url_for(streams['endpoint']) }}">{{ streams['title'] }}</a>
-              </td>
-            {% elif streams is string %}
-              <td colspan="2">
-                <a href="{{ url_for(streams) }}">{{ get_stream_title(streams) }}</a>
+            {% if not menu.has_children %}
+              <td colspan="{{ max_childs(menu) }}">
+                <a href="{{ menu.url }}">{{ menu.title }}</a>
               </td>
             {% else %}
-              {% for stream in streams %}
+              {% for submenu in menu.items %}
                 <td>
-                  <a href="{{ url_for(stream) }}">{{ get_stream_title(stream) }}</a>
+                  <a href="{{ submenu.url }}">{{ menu.title }}</a>
                 </td>
               {% endfor %}
             {% endif %}
