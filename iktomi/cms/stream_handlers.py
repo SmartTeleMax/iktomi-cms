@@ -96,8 +96,7 @@ class StreamListHandler(StreamAction):
         # XXX Check permissions and return 403 if no access.
         # XXX Handle POST to edit/delete here.
         query = stream.item_query(env)
-        # filter_form_class = getattr(stream.config, 'FilterForm', FilterForm)
-        filter_form = stream.FilterForm(env)
+        filter_form = stream.get_filter_form(env)
 
         # Note: errors are displayed, but ignored in code.
         if request.method == 'POST':
@@ -167,7 +166,7 @@ class PrepareItemHandler(web.WebHandler):
         data.lock_message = ''
         stream.insure_has_permission(env, 'r')
 
-        data.filter_form = stream.FilterForm(env)
+        data.filter_form = stream.get_filter_form(env)
         # Note: errors are displayed, but ignored in code.
         data.filter_form.accept(request.GET)
 
@@ -236,6 +235,7 @@ class EditItemHandler(StreamAction):
 
         form_cls = stream.get_item_form_class(env)
         form = form_cls.load_initial(env, item, initial=initial, **form_kw)
+        form.model = self.stream.get_model(env)
         form.draft = draft
         if draft is not None:
             raw_data = MultiDict(draft.data)
@@ -253,7 +253,7 @@ class EditItemHandler(StreamAction):
         if hasattr(self, 'post_create'):
             self.post_create(item)
 
-        item_url = env.url_for(self.stream.module_name + '.item', item=item.id).qs_set(
+        item_url = self.stream.url_for(env, 'item', item=item.id).qs_set(
                                    filter_form.get_data())
         return item, item_url
 
@@ -519,7 +519,7 @@ class CleanFormFieldHandler(StreamAction):
         return web.match('/clean-form-field', 'clean_form_field') | self
 
     def clean_form_field_handler(self, env, data):
-        filter_form = self.stream.FilterForm(env)
+        filter_form = self.stream.get_filter_form(env)
 
         initial = filter_form.defaults()
         form = self.stream.config.ItemForm(env, initial)

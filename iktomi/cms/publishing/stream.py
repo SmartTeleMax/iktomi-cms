@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from iktomi import web
+from iktomi.forms import Form
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, DeleteItemHandler
-from iktomi.cms.stream import Stream, ListField
+from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.utils import cached_property
@@ -9,11 +10,14 @@ from iktomi.utils import cached_property
 
 class AdminEditItemHandler(EditItemHandler):
 
-
+    def save_allowed(self, env, item=None):
+        return env.version == 'admin' and \
+            EditItemHandler.save_allowed(self, env, item)
 
     def process_item_template_data(self, env, td):
         # Filter buttons
         #td['item_buttons'] = []#'unpublish']
+        td['version'] = env.version
         td['actions'] = [x for x in td['actions']
                          if not x.action in ('unpublish', 'front_publish')]
         return td
@@ -52,7 +56,8 @@ class AdminPublishAction(PostAction):
     def is_available(self, env, item):
         return item.id and (item.has_unpublished_changes or \
                 (hasattr(item, 'state') and item.state != item.PUBLIC)) and \
-                self.stream.has_permission(env, 'w')
+                self.stream.has_permission(env, 'w') and \
+                env.version == 'admin'
 
 
 class UnpublishAction(PostAction):
@@ -86,7 +91,8 @@ class UnpublishAction(PostAction):
 
     def is_available(self, env, item):
         return item.state == item.PUBLIC and \
-                self.stream.has_permission(env, 'w')
+                self.stream.has_permission(env, 'w') and \
+                env.version == 'admin'
 
 
 class RevertAction(PostAction):
@@ -124,7 +130,8 @@ class RevertAction(PostAction):
                 item.state not in (item.PUBLIC, item.UNPUBLISHED):
             return False
         return item.has_unpublished_changes and \
-                self.stream.has_permission(env, 'w')
+                self.stream.has_permission(env, 'w') and \
+                env.version == 'admin'
 
 
 class DeleteFlagHandler(DeleteItemHandler):
@@ -148,6 +155,10 @@ class DeleteFlagHandler(DeleteItemHandler):
         return env.json({'result': 'success',
                          'location': stream_url})
     __call__ = delete_flag_handler
+
+    def is_available(self, env, item):
+        return env.version == 'admin' and \
+            DeleteItemHandler.is_available(self, env, item)
 
 
 class HasChangesListField(ListField):
@@ -176,11 +187,25 @@ class PublishStreamNoState(Stream):
     versions_dict = dict(versions)
 
     def get_item_form_class(self, env):
-        Form = self.config.ItemForm(env.models)
-        # XXX
-        Form.__module__ = self.config.__name__
-        Form.model = self.get_model(env)
-        return Form
+        cls = self.config.ItemForm
+        # if the class is not subclass of Form, then it should be a class_factory.
+        # we call it with env.models to get the actual class bound to current models.
+        # XXX check is not obvious
+        if not (isinstance(cls, type) and issubclass(cls, Form)):
+            cls = cls(env.models)
+            cls.__module__ = self.config.__name__
+        return cls
+
+    def get_filter_form(self, env):
+        cls = getattr(self.config, 'FilterForm', FilterForm)
+        # if the class is not subclass of Form, then it should be a class_factory.
+        # we call it with env.models to get the actual class bound to current models.
+        # XXX check is not obvious
+        if not (isinstance(cls, type) and issubclass(cls, FilterForm)):
+            cls = cls(env.models)
+        form = cls(env)
+        form.model = self.get_model(env)
+        return form
 
     @property
     def prefix_handler(self):

@@ -10,7 +10,6 @@ from iktomi.utils.odict import OrderedDict
 from iktomi.utils.mdict import MultiDict
 from iktomi import web
 from iktomi.forms import Form
-from iktomi.forms.media import FormJSInline, FormJSRef
 from . import stream_handlers as handlers
 from .flashmessages import flash
 
@@ -84,8 +83,6 @@ class ItemLockListField(ListField):
 
 class FilterForm(Form):
 
-    media = [FormJSRef('filter_form.js')]
-
     fields = []
 
     def filter_by_scalar(self, query, field, value):
@@ -131,11 +128,6 @@ class FilterForm(Form):
     def __nonzero__(self):
         # We don't want to display form when there is no fields
         return bool(self.fields)
-
-    def get_media(self):
-        return [
-            FormJSInline('new FilterForm("%s");' % self.id),
-        ] + Form.get_media(self)
 
 
 class Stream(object):
@@ -246,9 +238,11 @@ class Stream(object):
     def title(self):
         return getattr(self.config, 'title', self.module_name)
 
-    @cached_property
-    def FilterForm(self):
-        return getattr(self.config, 'FilterForm', FilterForm)
+    def get_filter_form(self, env):
+        cls = getattr(self.config, 'FilterForm', FilterForm)
+        form = cls(env)
+        form.model = self.get_model(env)
+        return form
 
     def process_item_template_data(self, env, template_data):
         '''Preprocessor for template variables.

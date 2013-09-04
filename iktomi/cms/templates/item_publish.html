@@ -7,6 +7,6 @@
     {% set published_version_is_unpublished = form.item.state is defined and form.item.state != form.item.PUBLIC %}
     {{ version_switch(url_for(stream.module_name+'.item', version='front', item=item.id),
                       url_for(stream.module_name+'.item', version='admin', item=item.id),
-                      front_version, published_version_is_unpublished) }}
+                      version == 'front', published_version_is_unpublished) }}
 {% endif %}
 {% endblock %}
