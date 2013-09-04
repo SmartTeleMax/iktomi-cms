@@ -173,16 +173,9 @@ class Stream(object):
         apps = [action.app for action in self.actions]
         return web.cases(*apps)
 
-    def get_handler(self, from_ns=None):
+    def get_handler(self):
         """ Get web handler for routing.
-
-        from_ns -- passed in case we need relative handler,
-                   that later we will place inside existing namespace
         """
-        assert from_ns is None or self.module_name.startswith(from_ns), \
-            "from_ns should point out namespace that we are already in, "\
-            "that also part of curent stream module_name"
-
         return self.prefix_handler | self.app_handler
 
     def url_for(self, env, name=None, **kwargs):
@@ -295,8 +288,7 @@ class Stream(object):
         return '<%s.%s: %s>' % (self.__class__.__module__, self.__class__.__name__, self.module_name)
 
     def item_query(self, env):
-        query = env.db.query(self.config.Model)
-        return query
+        return env.db.query(self.get_model(env))
 
     # ========= Item actions ====
 
@@ -359,16 +351,20 @@ class Loner(object):
     def get_item_form_class(self, env):
         return self.config.ItemForm
 
+    def process_template_data(self, env, template_data):
+        return template_data
+
     def __call__(self, env, data):
         self.insure_has_permission(env, 'w') # XXX Allow read-only mode
         if not env.request.is_xhr:
             return env.render_to_response('layout.html', {})
 
         extra_filters = getattr(self.config, 'model_filters', {})
-        item = env.db.query(self.config.Model)\
+        Model = self.get_model(env)
+        item = env.db.query(Model)\
                     .filter_by(**extra_filters).scalar()
         if item is None:
-            item = self.config.Model(**extra_filters)
+            item = Model(**extra_filters)
 
         form = self.get_item_form(env, item)
 
@@ -383,13 +379,17 @@ class Loner(object):
                 return env.json({'success': True})
             else:
                 self.rollback_due_form_errors(env, item)
-        return env.json({'html': env.render_to_string(self.template_name, dict(
+        template_data = dict(
                         loner=self,
-                        title=self.config.title,
+                        title=self.title,
                         form=form,
                         roles=env.user.roles,
-                        menu=(env.namespace + '.' + env.current_url_name).rstrip('.'),
-                        ))})
+                        menu=env.current_location,
+                        )
+        template_data = self.process_template_data(env, template_data)
+        return env.json({
+            'html': env.render_to_string(self.template_name, template_data)
+            })
 
     def commit_item_transaction(self, env, item, silent=False):
         '''commits request.db and flashes success message'''
@@ -402,5 +402,10 @@ class Loner(object):
         if not silent:
             flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
                        'failure')
+
+    def url_for(self, env, name=None, **kwargs):
+        name = name and '%s.%s' % (self.module_name, name) or self.module_name
+        return env.url_for('loners.' + name, **kwargs)
+
 
 

@@ -2,10 +2,10 @@
 {% from "macros/version_switch.html" import version_switch %}
 
 {% macro publish_buttons() %}
-  {% if not front_version %}
+  {% if version == 'admin' %}
   <div class="buttons">
     {%- if form.item.has_unpublished_changes %}
-    <a href="{{ url_for('loners.' + loner.module_name + '.revert') }}"
+    <a href="{{ loner.url_for(env, 'revert', version='admin') }}"
        rel="post" class="button"
        data-item-lock="true">
       Восстановить из фронтальной
@@ -13,7 +13,7 @@
     {% endif %}
 
     {% if form.item.has_unpublished_changes or form.item.state is defined and form.item.state != form.item.PUBLIC %}
-    <a href="{{ url_for('loners.' + loner.module_name + '.publish') }}"
+    <a href="{{ loner.url_for(env, 'revert', version='admin') }}"
        rel="post" class="button"
        data-item-lock="true">
       Опубликовать
@@ -35,5 +35,7 @@
 {% block after_title %}
     {# TODO Should handle the unpublished state properly. #}
     {% set published_version_is_unpublished = form.item.state is defined and form.item.state != form.item.PUBLIC %}
-    {{ version_switch(url_for('loners.' + loner.module_name+'.published_version'), url_for('loners.' + loner.module_name), front_version, published_version_is_unpublished) }}
+    {{ version_switch(loner.url_for(env, version='front'),
+                      loner.url_for(env, version='admin'),
+                      version=='front', False) }}
 {% endblock %}

@@ -2,16 +2,31 @@
 from iktomi import web
 from iktomi.cms.stream import Loner
 from iktomi.utils import cached_property
-from webob.exc import HTTPNotFound
+from webob.exc import HTTPNotFound, HTTPMethodNotAllowed
 from iktomi.cms.flashmessages import flash
 
 class PublishLoner(Loner):
 
+    versions = (('admin', u'Редакторская версия'),
+                ('front', u'Фронтальная версия'),)
+    versions_dict = dict(versions)
+
     def get_handler(self):
-        return web.prefix('/'+self.module_name, name=self.module_name) | web.cases(
+        @web.request_filter
+        def set_models(env, data, nxt):
+            assert data.version in self.versions_dict.keys()
+            env.models = getattr(env.models, data.version)
+            env.version = data.version
+            return nxt(env, data)
+
+        version = '/<any("%s"):version>' % \
+                                     '","'.join(self.versions_dict.keys())
+        return web.prefix('/'+self.module_name+version, name=self.module_name) | \
+            set_models | \
+            web.cases(
                 web.match('', '') | self,
-                web.match('/published-version', 'published_version') | \
-                    self.published_version,
+                #web.match('/published-version', 'published_version') | \
+                #    self.published_version,
                 web.match('/publish', 'publish') | 
                     web.method('POST', strict=True) |
                     self.publish,
@@ -20,13 +35,17 @@ class PublishLoner(Loner):
                     self.revert,
             )
 
+    def url_for(self, env, name=None, **kwargs):
+        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
+        return Loner.url_for(self, env, name, **kwargs)
+
+    def get_model(self, env):
+        return getattr(env.models, self.config.Model)
+
     def get_item_form(self, env, item, **kwargs):
-        is_front = kwargs.pop('front', False)
-        form = self.config.ItemForm.load_initial(env, item, **kwargs)
-        if is_front:
-            form.model = self.config.Model._front_model
-        else:
-            form.model = self.config.Model
+        Form = self.config.ItemForm(env.models)
+        form = Form.load_initial(env, item, **kwargs)
+        form.model = self.get_model(env)
         return form
 
     @cached_property
@@ -42,30 +61,13 @@ class PublishLoner(Loner):
             item._create_front_object()
         Loner.commit_item_transaction(self, env, item)
 
-    def published_version(self, env, data):
-        self.insure_has_permission(env, 'r')
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
-
-        extra_filters = getattr(self.config, 'model_filters', {})
-        Model = self.config.Model._front_model
-        item = env.db.query(Model)\
-                    .filter_by(**extra_filters).scalar()
-        if item is None:
-            item = Model(**extra_filters)
-        form = self.get_item_form(env, item, front=True)
-
-        return env.json({'html': env.render_to_string(self.template_name, dict(
-                        title=self.config.title,
-                        form=form,
-                        loner=self,
-                        roles=env.user.roles,
-                        front_version=True,
-                        ))})
+    def process_template_data(self, env, template_data):
+        return dict(template_data,
+                    version=env.version)
 
     def _get_item_for_action(self, env):
         self.insure_has_permission(env, 'w')
-        Model = self.config.Model
+        Model = self.get_model(env)
         extra_filters = getattr(self.config, 'model_filters', {})
         item = env.db.query(Model)\
                     .filter_by(**extra_filters).scalar()
@@ -73,20 +75,28 @@ class PublishLoner(Loner):
             raise HTTPNotFound()
         return item
 
+    def __call__(self, env, data):
+        if env.version != 'admin' and env.request.method == 'POST':
+            raise HTTPMethodNotAllowed
+        return Loner.__call__(self, env, data)
+
     def publish(self, env, data):
+        if env.version != 'admin':
+            raise HTTPNotFound
         item = self._get_item_for_action(env)
         item.publish()
         env.db.commit()
         flash(env, u'Объект «%s» опубликован' % item, 'success')
         return env.json({'result': 'success',
-                         'location': env.url_for('loners.' + self.module_name)})
+                         'location': self.url_for(env)})
 
     def revert(self, env, data):
+        if env.version != 'admin':
+            raise HTTPNotFound
         item = self._get_item_for_action(env)
         item.revert_to_published()
         env.db.commit()
         flash(env, u'Объект «%s» восстановлен из фронтальной версии' % item, 'success')
         return env.json({'result': 'success',
-                         'location': env.url_for('loners.' + self.module_name)})
-
+                         'location': self.url_for(env)})
 

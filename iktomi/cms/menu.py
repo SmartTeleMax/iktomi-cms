@@ -173,7 +173,7 @@ class LonerMenu(Menu):
 
     @cached_property
     def url(self):
-        return self.env.url_for('loners.'+self.loner_name)
+        return self.loner.url_for(self.env)
 
     @cached_property
     def get_permissions(self):

@@ -177,6 +177,7 @@ class PublishStreamNoState(Stream):
 
     def get_item_form_class(self, env):
         Form = self.config.ItemForm(env.models)
+        # XXX
         Form.__module__ = self.config.__name__
         Form.model = self.get_model(env)
         return Form
@@ -225,7 +226,7 @@ class PublishStreamNoState(Stream):
 
     def url_for(self, env, name=None, **kwargs):
         kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
-        return super(PublishStreamNoState, self).url_for(env, name, **kwargs)
+        return Stream.url_for(self, env, name, **kwargs)
 
 
 class PublishStream(PublishStreamNoState):
