@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from iktomi import web
-from iktomi.cms.stream import Loner
+from iktomi.cms.loner import Loner
 from iktomi.utils import cached_property
 from webob.exc import HTTPNotFound, HTTPMethodNotAllowed
 from iktomi.cms.flashmessages import flash

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from importlib import import_module
-from iktomi.cms.stream import Stream, Loner
+from iktomi.cms.stream import Stream
+from iktomi.cms.loner import Loner
 from iktomi import web
 
 
