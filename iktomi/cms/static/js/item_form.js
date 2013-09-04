@@ -31,7 +31,7 @@
       }
     }
 
-    if (this.frm.dataset.autosave || 1){
+    if (this.frm.dataset.autosave){
       this.autoSaveInterval = window.setInterval(this.autoSaveHandler, 5000);
     }
   }

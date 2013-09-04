@@ -1,4 +1,5 @@
 {% macro main(item, stream_url, lock_timeout, lock_message, edit_session) %}
+<input type="hidden" name="edit_session" value="{{ edit_session }}"/>
 <div style="display: none" class="init-block item-lock" data-block-name="item-lock"
      data-update_lock_url="{{ url_for('update_lock', item_id=item_global_id, edit_session=edit_session) }}"
      data-force_lock_url="{{ url_for('force_lock', item_id=item_global_id) }}"

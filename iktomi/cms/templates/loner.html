@@ -1,11 +1,13 @@
 
 {% macro buttons() %}
   <div class="buttons">
+    {%- if save_allowed -%}
     <a href="#" class="button icon-apply" style="margin-left: 15px" rel="save"
        data-item-lock="true"
        data-item-form="true">
       Сохранить
     </a>
+    {%- endif -%}
   </div>
 {% endmacro %}
 
@@ -19,7 +21,14 @@
   </div>
 </div>
 
-  <form id="item-form" action="" method="post" enctype="multipart/form-data" class="init-block item-form" data-block-name="item-form">
+  <form id="item-form"
+        class="init-block item-form"
+        action="{{ loner.url_for(env) }}"
+        method="post"
+        enctype="multipart/form-data"
+        data-block-name="item-form"
+        {%- if autosave_allowed %} data-autosave="on"{% endif %}
+        {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
 
     <div class="content">
        <div class="header">
@@ -37,5 +46,9 @@
 
        {% block preview %}{% endblock %}
     </div>
+    {%- if form.item.id and item_lock -%}
+      {% from 'macros/item_lock.html' import main as item_lock with context %}
+      {{ item_lock(form.item, url_for('index'), lock_timeout, lock_message, edit_session) }}
+    {%- endif -%}
   </form>
 {% endblock %}

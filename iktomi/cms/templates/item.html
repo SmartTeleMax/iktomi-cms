@@ -65,8 +65,8 @@
       method="post"
       enctype="multipart/form-data"
       data-block-name="item-form"
+      {%- if autosave_allowed %} data-autosave="on"{% endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
-  <input type="hidden" name="edit_session" value="{{ edit_session }}"/>
   <div class="content">
     <div class="header">
       <h1>

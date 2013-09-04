@@ -15,7 +15,7 @@ from iktomi.web.url_converters import Integer as IntegerConv, \
 from iktomi.forms import convs
 
 
-from .item_lock import ItemLock, ModelLockError, ModelLockedByOther
+from .item_lock import lock_template_data, prepare_lock_data
 from .stream_actions import StreamAction
 from .flashmessages import flash
 
@@ -158,33 +158,17 @@ class PrepareItemHandler(web.WebHandler):
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
-        request = env.request
         stream = self.action.stream
-        data.edit_session = request.POST.get('edit_session',
-                                             request.GET.get('edit_session',
-                                                             ''))
-        data.lock_message = ''
         stream.insure_has_permission(env, 'r')
 
         data.filter_form = stream.get_filter_form(env)
         # Note: errors are displayed, but ignored in code.
-        data.filter_form.accept(request.GET)
+        data.filter_form.accept(env.request.GET)
 
-        data.owner_session = ''
         if data.item is not None:
             data.item = self.retrieve_item(env, data.item)
             if data.item is None:
                 raise HTTPNotFound
-            if self.action.item_lock:
-                try:
-                    data.edit_session = env.item_lock.update_or_create(
-                        data.item, data.
-                        edit_session)
-                except ModelLockedByOther, e:
-                    data.lock_message = unicode(e)
-                    data.owner_session = e.edit_session
-                except ModelLockError, e:
-                    data.lock_message = unicode(e)
         elif not self.action.allowed_for_new:
             flash(env, u'Действие «%s» недоступно для нового объекта' %
                   (self.action.title,),
@@ -192,6 +176,7 @@ class PrepareItemHandler(web.WebHandler):
             item_url = stream.url_for(env, 'item')(
                 data.filter_form.get_data())
             return see_other(item_url)
+        prepare_lock_data(env, data, data.item if self.action.item_lock else None)
         return self.next_handler(env, data)
     __call__ = prepare_item_handler
 
@@ -262,8 +247,8 @@ class EditItemHandler(StreamAction):
         if not env.request.is_xhr:
             return env.render_to_response('layout.html', {})
 
-        item, edit_session, lock_message, filter_form = \
-            data.item, data.edit_session, data.lock_message, data.filter_form
+        item, lock_message, filter_form = \
+            data.item, data.lock_message, data.filter_form
         stream = self.stream
         request = env.request
 
@@ -285,8 +270,9 @@ class EditItemHandler(StreamAction):
             save_allowed = self.save_allowed(env, item)
             delete_allowed = self.delete_allowed(env, item)
 
-        autosave_allowed = getattr(env, 'draft_form_model', None) and \
-                        self.stream.autosave
+        autosave_allowed = save_allowed and \
+                           getattr(env, 'draft_form_model', None) and \
+                           self.stream.autosave
         autosave = autosave_allowed and getattr(data, 'autosave', False)
         if autosave_allowed:
             DraftForm = env.draft_form_model
@@ -302,20 +288,21 @@ class EditItemHandler(StreamAction):
         if request.method == 'POST':
             if not save_allowed:
                 raise HTTPForbidden
-            if form.accept(request.POST):
-                if not lock_message:
-                    item, item_url = self.save_item(env, filter_form, form,
-                                                    item, draft, autosave)
-                    return env.json({'success': True,
-                                     'item_id': item.id,
-                                     'item_url': item_url})
-                elif autosave:
-                    stream.rollback_due_lock_lost(env, item)
-                    return env.json({'success': False,
-                                     'error': 'item_lock',
-                                     'lock_message': lock_message})
-                else:
-                    stream.rollback_due_lock_lost(env, item)
+
+            accepted = form.accept(request.POST)
+            if accepted and not lock_message:
+                item, item_url = self.save_item(env, filter_form, form,
+                                                item, draft, autosave)
+                return env.json({'success': True,
+                                 'item_id': item.id,
+                                 'item_url': item_url})
+            elif lock_message and autosave:
+                stream.rollback_due_lock_lost(env, item)
+                return env.json({'success': False,
+                                 'error': 'item_lock',
+                                 'lock_message': lock_message})
+            elif lock_message:
+                stream.rollback_due_lock_lost(env, item)
             elif autosave:
                 stream.rollback_due_form_errors(env, item, silent=True)
                 if draft is None:
@@ -358,12 +345,8 @@ class EditItemHandler(StreamAction):
                              delete_allowed=delete_allowed,
                              is_popup=('__popup' in request.GET))
         if self.item_lock:
-            template_data = dict(template_data,
-                             item_lock=self.item_lock,
-                             item_global_id=ItemLock.item_global_id(item),
-                             lock_message=lock_message,
-                             edit_session=edit_session or data.owner_session,
-                             lock_timeout=env.cfg.MODEL_LOCK_RENEW)
+            template_data.update(lock_template_data(env, data, item))
+
         template_data = stream.process_item_template_data(env, template_data)
         template_data = self.process_item_template_data(env, template_data)
 

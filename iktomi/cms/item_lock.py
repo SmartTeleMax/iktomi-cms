@@ -162,3 +162,28 @@ class ItemLock(object):
         value = cache.get(key)
         return value or None
 
+
+def prepare_lock_data(env, data, item):
+    request = env.request
+    data.edit_session = request.POST.get('edit_session',
+                                         request.GET.get('edit_session',
+                                                         ''))
+    data.owner_session = data.lock_message = ''
+    if item is not None and item.id is not None:
+        try:
+            data.edit_session = env.item_lock.update_or_create(
+                item, data.edit_session)
+        except ModelLockedByOther, e:
+            data.lock_message = unicode(e)
+            data.owner_session = e.edit_session
+        except ModelLockError, e:
+            data.lock_message = unicode(e)
+
+def lock_template_data(env, data, item):
+    if item is not None and item.id is not None:
+        return dict(item_lock=True,
+                    item_global_id=ItemLock.item_global_id(item),
+                    lock_message=data.lock_message,
+                    edit_session=data.edit_session or data.owner_session,
+                    lock_timeout=env.cfg.MODEL_LOCK_RENEW)
+    return {}
