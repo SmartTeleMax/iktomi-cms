@@ -276,7 +276,7 @@ class EditItemHandler(StreamAction):
         autosave = autosave_allowed and getattr(data, 'autosave', False)
         if autosave_allowed:
             DraftForm = env.draft_form_model
-            draft = DraftForm.get_for_item(env.db, stream.module_name,
+            draft = DraftForm.get_for_item(env.db, stream.uid(env),
                                            item, env.user)
         elif getattr(data, 'autosave', False):
             raise HTTPForbidden
@@ -306,7 +306,7 @@ class EditItemHandler(StreamAction):
             elif autosave:
                 stream.rollback_due_form_errors(env, item, silent=True)
                 if draft is None:
-                    draft = DraftForm(stream_name=stream.module_name,
+                    draft = DraftForm(stream_name=stream.uid(env),
                                       object_id=item.id)
                     env.db.add(draft)
                 draft.data = form.raw_data.items()

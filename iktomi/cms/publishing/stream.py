@@ -186,6 +186,9 @@ class PublishStreamNoState(Stream):
                 ('front', u'Фронтальная версия'),)
     versions_dict = dict(versions)
 
+    def uid(self, env):
+        return self.module_name + '.' + env.version
+
     def get_item_form_class(self, env):
         cls = self.config.ItemForm
         # if the class is not subclass of Form, then it should be a class_factory.
@@ -211,7 +214,7 @@ class PublishStreamNoState(Stream):
     def prefix_handler(self):
         @web.request_filter
         def set_models(env, data, nxt):
-            assert data.version in self.versions_dict.keys()
+            #assert data.version in self.versions_dict.keys()
             env.models = getattr(env.models, data.version)
             env.version = data.version
             return nxt(env, data)
@@ -270,3 +273,45 @@ class PublishStream(PublishStreamNoState):
         Model = self.get_model(env)
         return query.filter(Model.state != Model.DELETED)
 
+
+
+class I18nStreamMixin(object):
+
+    langs = (('ru', u'Русский'),
+             ('en', u'Английский'),)
+    langs_dict = dict(langs)
+
+    def uid(self, env):
+        return self.module_name + '.' + env.version + '.' + env.lang
+
+    @property
+    def prefix_handler(self):
+        @web.request_filter
+        def set_models(env, data, nxt):
+            #assert data.version in self.versions_dict.keys()
+            env.models = getattr(env.models, data.version)
+            env.models = getattr(env.models, data.lang)
+            env.version = data.version
+            env.lang = data.lang
+            return nxt(env, data)
+
+        version_prefix = web.prefix('/<any("%s"):version>' % \
+                                     ('","'.join(self.versions_dict.keys())))
+        lang_prefix = web.prefix('/<any("%s"):lang>' % \
+                                     ('","'.join(self.langs_dict.keys())))
+        #return version_prefix | set_models | \
+        return super(PublishStreamNoState, self).prefix_handler |\
+               version_prefix | lang_prefix | set_models
+
+    def url_for(self, env, name=None, **kwargs):
+        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
+        kwargs.setdefault('lang', getattr(env, 'lang', self.langs[0][0]))
+        return Stream.url_for(self, env, name, **kwargs)
+
+
+class I18nPublishStreamNoState(I18nStreamMixin, PublishStreamNoState):
+    pass
+
+
+class I18nPublishStream(I18nStreamMixin, PublishStream):
+    pass
