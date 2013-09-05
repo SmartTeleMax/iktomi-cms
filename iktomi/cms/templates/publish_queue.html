@@ -19,17 +19,17 @@
                        {%- if item.public %} published{% else %} unpublished{% endif -%}
                        {%- endif %}">
             <td class="field_id">
-              <a href="{{ url_for(stream.module_name+'.item', item=item.id) }}">
+              <a href="{{ stream.url_for(env, 'item', item=item.id) }}">
                 {{- item.id -}}
               </a>
             </td>
             <td class="field_id">
-              <a href="{{ url_for(stream.module_name+'.item', item=item.id) }}">
+              <a href="{{ stream.url_for(env, 'item', item=item.id) }}">
                 {{- stream.title -}}
               </a>
             </td>
             <td>
-              <a href="{{ url_for(stream.module_name+'.item', item=item.id) }}">
+              <a href="{{ stream.url_for(env, 'item', item=item.id) }}">
                 {%- if item.title is defined %}
                   {{- item.title -}}
                 {%- else -%}

@@ -11,6 +11,8 @@ class PublishQueue(WebHandler):
         if not env.request.is_xhr:
             return env.render_to_response('layout.html', {})
         # XXX
+        env.models = env.models.admin
+        env.version = 'admin'
         changed = []
         for stream in self.streams.values():
             if isinstance(stream, PublishStream):
