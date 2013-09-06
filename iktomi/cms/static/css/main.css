@@ -415,16 +415,17 @@ tr.even td.unpublished {
     width: 400px;
 }
 
-/*.lang-ru, .lang-en{
+.lang-ru, .lang-en{
     padding: 0 30px 0 0 !important;
     background: url(../images/languages/ru.png) transparent center right no-repeat;
 }
 .lang-en{
     background-image: url(../images/languages/en.png);
-}*/
+}
 
-.langs-streams {
-  /*width:100%;*/
+.langs-streams .lang-ru,
+.langs-streams .lang-en{
+  width:100%;
 }
 
 .langs-streams td {

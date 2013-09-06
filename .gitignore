@@ -3,6 +3,8 @@
 *~
 *.*.swp
 *.swo
+*.swn
+*.swm
 *.egg-info
 *.db
 *.orig
