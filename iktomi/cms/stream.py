@@ -6,7 +6,7 @@ from webob.exc import HTTPForbidden
 from jinja2 import Markup
 
 from iktomi.utils import cached_property
-from iktomi.utils.odict import OrderedDict
+from collections import OrderedDict
 from iktomi.utils.mdict import MultiDict
 from iktomi import web
 from iktomi.forms import Form
