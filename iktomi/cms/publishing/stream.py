@@ -113,14 +113,13 @@ class RevertAction(PostAction):
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
-        module_name = env.stream.module_name
 
         data.item.revert_to_published()
         flash(env, u'Объект «%s» восстановлен из фронтальной версии' 
                     % data.item, 'success')
         env.db.commit()
 
-        url = env.url_for(module_name + '.item', item=data.item.id)
+        url = self.stream.url_for(env, 'item', item=data.item.id)
         return env.json({'result': 'success',
                          'location': url})
     __call__ = revert
@@ -151,7 +150,7 @@ class DeleteFlagHandler(DeleteItemHandler):
         data.item.delete()
         env.db.commit()
 
-        stream_url = env.url_for(self.stream.module_name).qs_set(
+        stream_url = self.stream.url_for(env).qs_set(
                             data.filter_form.get_data())
 
         return env.json({'result': 'success',

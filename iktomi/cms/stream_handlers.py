@@ -399,9 +399,9 @@ class DeleteItemHandler(StreamAction):
         self.insure_is_available(env, item)
 
         stream_url = stream.url_for(env).qs_set(filter_form.get_data())
-        item_url = stream.url_for('item', item=item.id).qs_set(
+        item_url = stream.url_for(env, 'item', item=item.id).qs_set(
                                    filter_form.get_data())
-        delete_url = stream.url_for('delete', item=item.id)\
+        delete_url = stream.url_for(env, 'delete', item=item.id)\
                            .qs_set(filter_form.get_data())
         if env.request.method == 'POST':
             env.db.delete(item)
