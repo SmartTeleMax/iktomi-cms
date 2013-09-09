@@ -2,7 +2,7 @@
 from iktomi import web
 from iktomi.forms import Form
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, DeleteItemHandler
-from iktomi.cms.stream import Stream, ListField, FilterForm
+from iktomi.cms.stream import Stream, ListField, FilterForm, I18nLabel
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.utils import cached_property
@@ -126,8 +126,9 @@ class RevertAction(PostAction):
     __call__ = revert
 
     def is_available(self, env, item):
-        if hasattr(item, 'state') and \
-                item.state not in (item.PUBLIC, item.UNPUBLISHED):
+        if item.id is None or (
+                hasattr(item._front_item, 'state') and \
+                item._front_item.state not in (item.PUBLIC, item.PRIVATE)):
             return False
         return item.has_unpublished_changes and \
                 self.stream.has_permission(env, 'w') and \
@@ -245,11 +246,7 @@ class PublishStreamNoState(Stream):
 
     def commit_item_transaction(self, env, item, **kwargs):
         item.has_unpublished_changes = True
-        if not item._front_item:
-            env.db.flush()
-            # XXX it is better to do this automatically on before_insert or
-            #     after_insert
-            item._create_front_object()
+        item._create_versions()
         Stream.commit_item_transaction(self, env, item, **kwargs)
 
     def url_for(self, env, name=None, **kwargs):
@@ -271,7 +268,7 @@ class PublishStream(PublishStreamNoState):
     def item_query(self, env):
         query = super(PublishStream, self).item_query(env)
         Model = self.get_model(env)
-        return query.filter(Model.state != Model.DELETED)
+        return query.filter(Model.state.in_((Model.PRIVATE, Model.PUBLIC)))
 
 
 
@@ -280,6 +277,8 @@ class I18nStreamMixin(object):
     langs = (('ru', u'Русский'),
              ('en', u'Английский'),)
     langs_dict = dict(langs)
+
+    list_base_template = 'lang_publish_stream.html'
 
     def uid(self, env):
         return self.module_name + '.' + env.version + '.' + env.lang

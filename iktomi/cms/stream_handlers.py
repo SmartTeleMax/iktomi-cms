@@ -55,6 +55,10 @@ class StreamListHandler(StreamAction):
     def template_name(self):
         return self.stream.stream_template_name
 
+    @cached_property
+    def base_template(self):
+        return getattr(self.stream, 'list_base_template', 'stream_base.html')
+
     @property
     def app(self):
         return web.match() | self
@@ -80,7 +84,8 @@ class StreamListHandler(StreamAction):
                     no_layout=no_layout,
                     menu=stream.module_name,
                     item_row=item_row,
-                    live_search=stream.live_search)
+                    live_search=stream.live_search,
+                    base_template=self.base_template)
 
         html = env.render_to_string(self.template_name, data)
         return env.json({

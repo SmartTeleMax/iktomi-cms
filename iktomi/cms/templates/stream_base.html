@@ -4,6 +4,7 @@
   {% if not is_popup %}
     <h1 class="stream_title nowrap">
       {{- title }}
+      {% block after_title %}{% endblock %}
       <div class="stream_buttons">
         {% if allow_add %}
         <a href="{{ item_url() }}" class="button icon-add" id="create_button">
@@ -18,8 +19,6 @@
     <div class="filtr">
       <div class="line"></div>
       <div class="inside">
-
-
         <div class="list_tabs">
           <!-- TabSelect buttons will be injected here-->
         </div>
@@ -27,7 +26,6 @@
         <div class="fieldset_tabs">
          <!-- ButtonSelect buttons will be injected here -->
         </div>
-
       </div>
       <div style="clear:right;"></div>
     </div>
@@ -42,8 +40,7 @@
 
     <div class="line"></div>
 
-
-    <table  class="container">
+    <table class="container">
       <tr>
         <td style="vertical-align: top;" class="stream-items">
           {% block stream_items %}{% endblock %}

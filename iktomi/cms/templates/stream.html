@@ -1,5 +1,5 @@
 {% if not no_layout %}
-  {% extends "stream_base.html" %}
+  {% extends base_template if base_template is defined else "stream_base.html" %}
 {% endif %}
 
 {% macro paginate(paginator) %}

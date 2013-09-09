@@ -12,14 +12,14 @@ from datetime import datetime
 
 class WithState(object):
 
-    NEW = 0
-    PUBLIC = 1
-    DELETED = 2
-    UNPUBLISHED = 3
+    ABSENT = 0
+    PRIVATE = 1
+    PUBLIC = 2
+    DELETED = 3
 
     @declared_attr
     def state(self):
-        return Column(Integer, nullable=True, default=self.NEW)
+        return Column(Integer, nullable=True, default=self.ABSENT)
 
     @declared_attr
     def created_dt(self):
@@ -34,10 +34,12 @@ class WithState(object):
     def public(self):
         return self.state==self.PUBLIC
 
+
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.util import identity_key
 from iktomi.utils import cached_property, cached_class_property
 from iktomi.cms.item_lock import ItemLock
+
 
 class FrontReplicated(object):
 
@@ -71,6 +73,7 @@ class FrontReplicated(object):
 from sqlalchemy.orm.attributes import manager_of_class
 from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 from sqlalchemy import Boolean
+
 
 def _reflect(source, model):
     db = object_session(source)
@@ -175,11 +178,19 @@ class AdminFront(object):
     def _other_version(self):
         return self._front_item
 
+    def _create_versions(self):
+        # be careful! makes flush!
+        if not self._front_item:
+            object_session(self).flush()
+            # XXX it is better to do this automatically on before_insert or
+            #     after_insert
+            self._create_front_object()
+
     def _create_front_object(self):
         _replicate(self, self._front_model)
 
     def _copy_to_front(self):
-        target = _replicate(self, self._front_model)
+        _replicate(self, self._front_model)
 
     def _copy_from_front(self):
         _replicate_attributes(self._front_item, self)

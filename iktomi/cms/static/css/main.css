@@ -433,6 +433,25 @@ tr.even td.unpublished {
   padding: 5px;
 }
 
+.flags {
+  width: 150px;
+  display: inline-block;
+  padding-left: 20px;
+  }
+  a.stream-flag {
+    margin: 0 2px 0 2px;
+  }
+  a.stream-flag span {
+    border: 1px solid transparent;
+    }
+  a.stream-flag.selected span {
+    border-color: black;
+    }
+  a.stream-flag .lang-en,
+  a.stream-flag .lang-ru {
+    background-position: center center;
+    }
+
 .langversion-links {
   padding: 0px;
   margin: 0px;
