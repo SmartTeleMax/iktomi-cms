@@ -77,8 +77,10 @@ class ItemLockListField(ListField):
     def get_value(self, env, item, url, loop):
         lock = env.item_lock.check(item)
         if lock is not None:
-            return env.db.query(env.auth_model)\
-                         .get(lock['user_id'])
+            return dict(lock,
+                        guid=env.item_lock.item_global_id(item),
+                        user=env.db.query(env.auth_model)\
+                                   .get(lock['user_id']))
 
 
 class FilterForm(Form):

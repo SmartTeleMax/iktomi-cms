@@ -99,4 +99,10 @@
     new FilterForm(elem);
   });
   Blocks.register('live-search', liveSearch);
+  Blocks.register('locked-icon', function(el){
+    if(window.sessionStorage[el.dataset.guid] == el.dataset.editSession){
+      // Hide lock icon if the lock belongs to actual browser tab
+      el.destroy();
+    }
+  });
 })();

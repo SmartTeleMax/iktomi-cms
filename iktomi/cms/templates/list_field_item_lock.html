@@ -1,3 +1,3 @@
 {% if field_val %}
-<div class="locked" title="Заблокировано пользователем {{ field_val.name }}"></div>
+<div class="init-block locked" data-block-name="locked-icon" title="Заблокировано пользователем {{ field_val['user'].name }}" data-guid="{{ field_val['guid'] }}" data-edit-session="{{ field_val['edit_session'] }}"></div>
 {% endif %}
