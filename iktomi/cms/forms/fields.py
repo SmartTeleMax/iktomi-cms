@@ -8,13 +8,13 @@ from iktomi.unstable.forms.files import FileFieldSet
 
 class AjaxFileField(FileFieldSet):
 
-    template = 'widgets/ajax_fileinput'
+    widget = widgets.FieldSetWidget(template='widgets/ajax_fileinput')
     upload_endpoint = 'load_tmp_file'
 
 
 class AjaxImageField(AjaxFileField):
 
-    template = 'widgets/ajax_imageinput'
+    widget = widgets.FieldSetWidget(template='widgets/ajax_imageinput')
     #: used when file is uploaded
     thumb_size = None
     upload_endpoint = 'load_tmp_image'
