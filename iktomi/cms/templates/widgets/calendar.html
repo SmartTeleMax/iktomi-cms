@@ -1,4 +1,5 @@
 <input id="{{ widget.id }}" type="text" name="{{ widget.input_name }}" value="{{ value|escape }}"
        class="init-block {%- if widget.classname %} {{ widget.classname }}{% endif %}"
        {%- if widget.size %} size="{{ widget.size }}"{% endif %}
+       {%- if readonly %} readonly="readonly"{% endif %}
        data-block-name="calendar"/>

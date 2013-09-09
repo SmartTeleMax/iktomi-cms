@@ -470,14 +470,14 @@ tr.even td.unpublished {
     background-size: 30px 30px;
     }
     .items td.field_locked{
-        max-width: 30px;
+        width: 30px;
         padding: 0;
         }
 
 
 .items td.field_has_unpublished_changes {
     padding: 0;
-    max-width: 30px;
+    width: 30px;
     }
     .items td.field_has_unpublished_changes div{
         display: inline-block;
@@ -487,3 +487,6 @@ tr.even td.unpublished {
         background-image: url(../images/worker.svg);
         background-size: 30px 30px;
         }
+.items td.field_id {
+    width: 30px;
+    }

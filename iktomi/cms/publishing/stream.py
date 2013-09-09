@@ -127,6 +127,7 @@ class RevertAction(PostAction):
 
     def is_available(self, env, item):
         if item.id is None or (
+                env.version == 'admin' and \
                 hasattr(item._front_item, 'state') and \
                 item._front_item.state not in (item.PUBLIC, item.PRIVATE)):
             return False

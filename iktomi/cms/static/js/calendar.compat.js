@@ -21,6 +21,7 @@ var Calendar = new Class({
         onShowStart: Class.empty,
         onShowComplete: Class.empty,
         pad: 1, // padding between multiple calendars
+        container: null,
         tweak: {x: 0, y: 0} // tweak calendar positioning
     },
 
@@ -49,21 +50,12 @@ var Calendar = new Class({
         // create cal element with css styles required for proper cal functioning
         this.calendar = new Element('div', {
             'styles': { left: '-1000px', opacity: 0, position: 'absolute', top: '-1000px', zIndex: 1000 }
-        }).addClass(this.classes.calendar).injectInside(document.body);
-
-        // iex 6 needs a transparent iframe underneath the calendar in order to not allow select elements to render through
-        if (window.ie6) {
-            this.iframe = new Element('iframe', {
-                'styles': { left: '-1000px', position: 'absolute', top: '-1000px', zIndex: 999 }
-            }).injectInside(document.body);
-            this.iframe.style.filter = 'progid:DXImageTransform.Microsoft.Alpha(style=0,opacity=0)';
-        }
+        }).addClass(this.classes.calendar).injectInside(this.options.container || document.body);
 
         // initialize fade method
         this.fx = new Fx.Tween(this.calendar, {
             onStart: function() {
                 if (this.calendar.getStyle('opacity') == 0) { // show
-                    if (window.ie6) { this.iframe.setStyle('display', 'block'); }
                     this.calendar.setStyle('display', 'block');
                     this.fireEvent('onShowStart', this.element);
                 }
@@ -74,7 +66,6 @@ var Calendar = new Class({
             onComplete: function() {
                 if (this.calendar.getStyle('opacity') == 0) { // hidden
                     this.calendar.setStyle('display', 'none');
-                    if (window.ie6) { this.iframe.setStyle('display', 'none'); }
                     this.fireEvent('onHideComplete', this.element);
                 }
                 else { // shown
@@ -82,15 +73,6 @@ var Calendar = new Class({
                 }
             }.bind(this)
         });
-
-        // initialize drag method
-        if (window.Drag && this.options.draggable) {
-            this.drag = new Drag.Move(this.calendar, {
-                onDrag: function() {
-                    if (window.ie6) { this.iframe.setStyles({ left: this.calendar.style.left, top: this.calendar.style.top }); }
-                }.bind(this)
-            });
-        }
 
         // create calendars array
         this.calendars = [];
@@ -880,10 +862,6 @@ var Calendar = new Class({
 
             this.calendar.setStyles({ left: x + 'px', top: y + 'px' });
 
-            if (window.ie6) {
-                this.iframe.setStyles({ height: this.calendar.coord.height + 'px', left: x + 'px', top: y + 'px', width: this.calendar.coord.width + 'px' });
-            }
-
             this.display(cal);
 
             this.fx.start('opacity', 0, 1);
@@ -1114,31 +1092,33 @@ var Calendar = new Class({
 Calendar.implement(new Events, new Options);
 
 function init_ru_calendar(el) {
-    var id = $(el).id;
-    var cfg = {};
-    cfg[id] = 'd.m.Y';
-    //$(id).addEvent = $(id).addEvents = function(){console.warn(arguments)};
-    return new Calendar(cfg, {
-        'draggable': false,
-        'months': [
-            'Январь',
-            'Февраль',
-            'Март',
-            'Апрель',
-            'Май',
-            'Июнь',
-            'Июль',
-            'Август',
-            'Сентябрь',
-            'Октябрь',
-            'Ноябрь',
-            'Декабрь'
-        ],
-        'days': ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'],
-                'day_short':2,
-        'classes': ['calendar'],
-        'offset':1
-    });
+  if (el.get('readonly')) { return }
+  var id = el.id;
+  var cfg = {};
+  cfg[id] = 'd.m.Y';
+  //$(id).addEvent = $(id).addEvents = function(){console.warn(arguments)};
+  return new Calendar(cfg, {
+      'draggable': false,
+      'months': [
+          'Январь',
+          'Февраль',
+          'Март',
+          'Апрель',
+          'Май',
+          'Июнь',
+          'Июль',
+          'Август',
+          'Сентябрь',
+          'Октябрь',
+          'Ноябрь',
+          'Декабрь'
+      ],
+      'days': ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'],
+              'day_short':2,
+      'classes': ['calendar'],
+      'offset': 1,
+      'container': $('app-content')
+  });
 }
 
 Blocks.register('calendar', init_ru_calendar);
