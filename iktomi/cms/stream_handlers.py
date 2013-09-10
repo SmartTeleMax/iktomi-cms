@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+import inspect
 from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPSeeOther
 from sqlalchemy.exc import IntegrityError
-#from sqlalchemy.orm.properties import PropertyLoader
-#from sqlalchemy.orm.util import identity_key
-#from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm import class_mapper, PropertyLoader
+from sqlalchemy.orm.util import identity_key
 
 from iktomi.utils import cached_property
 from iktomi import web
@@ -373,6 +373,15 @@ class EditItemHandler(StreamAction):
         return template_data
 
 
+def _iter_subclasses(cls, _seen=None):
+    if _seen is None: _seen = set()
+    for sub in cls.__subclasses__():
+        if sub not in _seen:
+            _seen.add(sub)
+            yield sub
+            for sub in _iter_subclasses(sub, _seen):
+                yield sub
+
 class DeleteItemHandler(StreamAction):
 
     action = 'delete'
@@ -420,6 +429,8 @@ class DeleteItemHandler(StreamAction):
                     form_url=delete_url,
                     referers=self._list_referers(env, item),
                     title=u'Удаление объекта «%s»' % item,
+                    stream=stream,
+                    stream_url=stream_url,
                     menu=stream.module_name)
         html  = env.render_to_string('delete', data)
         return env.json({
@@ -440,21 +451,24 @@ class DeleteItemHandler(StreamAction):
                 for ref in query[:left]:
                     if ref == obj or ref in exclude or ref in result:
                         continue
-                    url = env.get_edit_url(ref)
-                    if url is None:
-                        indirect.append(ref)
+                    # XXX this is not optimal way to get edit url
+                    for stream in env.streams.values():
+                        url = stream.get_edit_url(env, ref)
+                        if url is not None:
+                            result[ref] = url
+                            break
                     else:
-                        result[ref] = url
+                        indirect.append(ref)
                 assert obj not in result
                 for ref in indirect:
                     left = limit - len(result)
                     if left <= 0:
                         return result
-                    inderect_exclude = exclude | set([obj]) | set(result) | \
+                    indirect_exclude = exclude | set([obj]) | set(result) | \
                         set(indirect)
                     indirect_referers = self._list_referers(
                         env, ref, limit=left,
-                        exclude=inderect_exclude)
+                        exclude=indirect_exclude)
                     # XXX The following creates false warnings for DocLink
                     # objects that are "private" to current doc.
                     #if not (exclude or indirect_referers):
@@ -466,32 +480,46 @@ class DeleteItemHandler(StreamAction):
                     assert obj not in result
         return result
 
+    def _get_all_classes(self, model):
+        metadata = model.metadata
+        models = [x for x in inspect.getmro(model)
+                  if hasattr(x, 'metadata') and x.metadata is metadata]
+        set_models = set(models)
+        base_models = set(models)
+        for m in models:
+            if set(m.__bases__) & set_models:
+                base_models.remove(m)
+
+        models = set()
+        for m in base_models:
+            models |= set([x for x in _iter_subclasses(m)
+                           if not x.__dict__.get('__abstract__', False)])
+        return models
+
     def _get_referers(self, env, item):
         '''Returns a dictionary mapping referer model class to query of all
         objects of this class refering to current object.'''
-        return {}
         # XXX not implemented
-        #cls, ident = identity_key(instance=item)
-        #metadata = cls.__table__.metadata
-        #result = {}
-        #for other_class in metadata._mapped_models:
-        #    queries = {}
-        #    for prop in class_mapper(other_class).iterate_properties:
-        #        if not (isinstance(prop, PropertyLoader) and \
-        #                issubclass(cls, prop.mapper.class_)):
-        #            continue
-        #        query = env.db.query(prop.parent)
-        #        comp = prop.comparator
-        #        if prop.uselist:
-        #            query = query.filter(comp.contains(item))
-        #        else:
-        #            query = query.filter(comp==item)
-        #        count = query.count()
-        #        if count:
-        #            queries[prop] = (count, query)
-        #    if queries:
-        #        result[other_class] = queries
-        #return result
+        cls, ident = identity_key(instance=item)
+        result = {}
+        for other_class in self._get_all_classes(cls):
+            queries = {}
+            for prop in class_mapper(other_class).iterate_properties:
+                if not (isinstance(prop, PropertyLoader) and \
+                        issubclass(cls, prop.mapper.class_)):
+                    continue
+                query = env.db.query(prop.parent)
+                comp = prop.comparator
+                if prop.uselist:
+                    query = query.filter(comp.contains(item))
+                else:
+                    query = query.filter(comp==item)
+                count = query.count()
+                if count:
+                    queries[prop] = (count, query)
+            if queries:
+                result[other_class] = queries
+        return result
 
 
 class CleanFormFieldHandler(StreamAction):

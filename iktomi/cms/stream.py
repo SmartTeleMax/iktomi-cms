@@ -2,6 +2,7 @@
 
 import logging, warnings
 
+from sqlalchemy.orm.util import identity_key
 from webob.exc import HTTPForbidden
 from jinja2 import Markup
 
@@ -175,6 +176,16 @@ class Stream(object):
     def url_for(self, env, name=None, **kwargs):
         name = name and '%s.%s' % (self.module_name, name) or self.module_name
         return env.url_for(name, **kwargs)
+
+    def get_edit_url(self, env, item):
+        '''
+        Checks if item belongs to the stream, and if it's true,
+        returns an url to item edit page
+        '''
+        if isinstance(item, self.get_model(env)):
+            cls, id = identity_key(instance=item)
+            if self.item_query(env).get(id):
+                return self.url_for(env, 'item', item=item.id)
 
     @cached_property
     def autosave(self):
