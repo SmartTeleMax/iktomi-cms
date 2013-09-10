@@ -35,6 +35,57 @@ class WithState(object):
         return self.state==self.PUBLIC
 
 
+class AdminWithLanguage(object):
+
+    _langs = ('ru', 'en')
+
+    def _create_versions(self):
+        # be careful! makes flush!
+        db = object_session(self)
+        modelname = self.__class__.__name__
+        for lang in self._langs:
+            if modelname.endswith(lang.title()):
+                modelname = modelname[:-len(lang)]
+                break
+
+        # The first language is default. It is used as id autoincrement
+        if self.models.lang != self._langs[0] and self.id is None:
+            # XXX self.models is not an interface!
+            ru = getattr(self.models, modelname + lang.title())()
+            # Flush ru model first to get autoincrement id.
+            # Do not flush english model yet, but return it to pending
+            # state after the flush
+            db.add(ru)
+            db.expunge(self)
+            db.flush()
+            db.add(self)
+            self.id = ru.id
+        elif self.id is None:
+            db.flush()
+
+        for lang in self._langs:
+            # create all en/ru admin/front versions
+            if lang == self.models.lang:
+                item = self
+            else:
+                model = getattr(self.models, modelname + lang.title())
+                item = db.query(model).get(self.id)
+                if item is None:
+                    item = model(id=self.id)
+                    db.add(item)
+
+            if not item._front_item:
+                # XXX it is better to do this automatically on before_insert or
+                #     after_insert
+                item._create_front_object()
+            # flush changes for each language separately
+            # to force queries in right order aloso on the front
+            db.flush()
+
+        if self.state is None or self.state == item.ABSENT:
+            self.state = self.PRIVATE
+
+
 from sqlalchemy.orm import object_session
 from sqlalchemy.orm.util import identity_key
 from iktomi.utils import cached_property, cached_class_property
@@ -185,6 +236,9 @@ class AdminFront(object):
             # XXX it is better to do this automatically on before_insert or
             #     after_insert
             self._create_front_object()
+        # the item is created, we set PRIVATE state as default
+        if self.state is None or self.state == self.ABSENT:
+            self.state = self.PRIVATE
 
     def _create_front_object(self):
         _replicate(self, self._front_model)
