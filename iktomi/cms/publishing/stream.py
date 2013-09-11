@@ -10,7 +10,7 @@ from iktomi.cms.publishing.model import _replicate_attributes
 from iktomi.utils import cached_property
 
 
-class AdminEditItemHandler(EditItemHandler):
+class PublishItemHandler(EditItemHandler):
 
     def save_allowed(self, env, item=None):
         return env.version == 'admin' and \
@@ -25,7 +25,7 @@ class AdminEditItemHandler(EditItemHandler):
         return td
 
 
-class AdminPublishAction(PostAction):
+class PublishAction(PostAction):
 
     action = 'publish'
     display = True
@@ -179,9 +179,9 @@ class PublishStreamNoState(Stream):
 
     core_actions = [x for x in Stream.core_actions
                     if x.action not in ('delete', 'item')] + [
-           AdminEditItemHandler(),
+           PublishItemHandler(),
            DeleteFlagHandler(),
-           AdminPublishAction(),
+           PublishAction(),
            RevertAction(),
         ]
 
@@ -260,45 +260,41 @@ class PublishStream(PublishStreamNoState):
 
     core_actions = [x for x in Stream.core_actions
                     if x.action not in ('delete', 'item')] + [
-           AdminEditItemHandler(),
+           PublishItemHandler(),
            DeleteFlagHandler(),
-           AdminPublishAction(),
+           PublishAction(),
            UnpublishAction(),
            RevertAction(),
         ]
 
     def item_query(self, env):
         query = PublishStreamNoState.item_query(self, env)
-        Model = self.get_model(env)
-        condition = Model.state.in_((Model.PRIVATE, Model.PUBLIC))
-        if getattr(env, 'absent_items', False): # XXX dirty hack
-            condition = ~condition
-        return query.filter(condition)
+        if not getattr(env, 'absent_items', False): # XXX dirty hack
+            Model = self.get_model(env)
+            condition = Model.state.in_((Model.PRIVATE, Model.PUBLIC))
+            return query.filter(condition)
+        return query
 
 
-class PrepareCreateVersionHandler(PrepareItemHandler):
+class PrepareI18nItemHandler(PrepareItemHandler):
 
     def __call__(self, env, data):
         # XXX Dirty hack to support object creation
         env.absent_items = True
-        if env.version != 'admin':
-            raise HTTPNotFound
         return PrepareItemHandler.__call__(self, env, data)
 
 
-class CreateVersionHandler(AdminEditItemHandler):
+class I18nItemHandler(PublishItemHandler):
 
     # XXX turn off autosave or make it save to DraftForm only?
 
-    action = 'create'
-    PrepareItemHandler = PrepareCreateVersionHandler
-
-    @property
-    def app_prefix(self):
-        return web.prefix('/%s/<int:item>' % self.action,
-                          name=self.action)
+    PrepareItemHandler = PrepareItemHandler
 
     def get_item_form(self, stream, env, item, initial, draft=None):
+        if item.state not in (item.ABSENT, item.DELETED):
+            return PublishItemHandler.get_item_form(
+                    self, stream, env, item, initial, draft)
+
         # XXX this method looks hacky
         # Get existing language version and fill the form with object reflection
         # to current language model
@@ -318,18 +314,17 @@ class CreateVersionHandler(AdminEditItemHandler):
         fake_item = item.__class__()
         # XXX do not replicate text fields, creation time, etc
         _replicate_attributes(source_item, fake_item)
-        form = AdminEditItemHandler.get_item_form(
+        form = PublishItemHandler.get_item_form(
                 self, stream, env, fake_item, initial, draft)
         # XXX hack!
         form.item = item
         return form
 
     def process_item_template_data(self, env, td):
-        td['title'] = u'Создание языковой версии объекта'
-        td['submit_url'] = env.stream.url_for(
-                env, 'create', item=td['item'].id).qs_set(
-                        td['filter_form'].get_data())
-        return td
+        item = td['item']
+        if item.state not in (item.ABSENT, item.DELETED):
+            td['title'] = u'Создание языковой версии объекта'
+        return PublishItemHandler.process_item_template_data(self, env, td)
 
 
 class I18nStreamMixin(object):
@@ -374,6 +369,7 @@ class I18nPublishStreamNoState(I18nStreamMixin, PublishStreamNoState):
 
 class I18nPublishStream(I18nStreamMixin, PublishStream):
 
-    core_actions = PublishStream.core_actions + [
-        CreateVersionHandler(),
+    core_actions = [x for x in PublishStream.core_actions 
+                    if x.action != 'item'] + [
+        I18nItemHandler(),
     ]
