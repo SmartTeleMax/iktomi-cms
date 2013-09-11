@@ -3,6 +3,7 @@
                       {%- if widget.multiple and widget.select_all_button %}-with-all{%- endif -%}"
      {%- if readonly %}data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
+  {%- if not readonly %}
   <div class="w-buttons">
     {% if widget.allow_select %}
     <a class="button hide" id="{{ widget.id }}-btn" href="#select">
@@ -15,6 +16,7 @@
       </a>
     {% endif %}
   </div>
+  {%- endif %}
   {% for v in options %}
     <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
   {% endfor %}

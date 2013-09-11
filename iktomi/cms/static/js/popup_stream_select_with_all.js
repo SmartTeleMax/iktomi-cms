@@ -38,6 +38,6 @@ var PopupStreamSelectWithAllMultiple = new Class({
 });
 
 Blocks.register('popup-stream-select-with-all', function(el){
-    new PopupStreamSelectWithAllMultiple(el.dataset.readonly && false,
-                                  JSON.parse(el.dataset.config));
+    new PopupStreamSelectWithAllMultiple(!!el.dataset.readonly,
+                                         JSON.parse(el.dataset.config));
 });

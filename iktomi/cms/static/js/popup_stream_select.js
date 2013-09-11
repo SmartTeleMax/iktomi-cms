@@ -516,7 +516,7 @@ Blocks.register('popup-stream-select', function(el){
     new PopupStreamSelectMultiple(!!el.dataset.readonly,
                                   JSON.parse(el.dataset.config));
   } else {
-    new PopupStreamSelect(el.dataset.readonly && false,
+    new PopupStreamSelect(!!el.dataset.readonly,
                           JSON.parse(el.dataset.config));
   }
 });
