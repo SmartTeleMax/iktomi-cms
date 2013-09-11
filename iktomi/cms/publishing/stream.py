@@ -3,7 +3,7 @@ from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.forms import Form
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, DeleteItemHandler
-from iktomi.cms.stream import Stream, ListField, FilterForm, I18nLabel
+from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.utils import cached_property
@@ -33,6 +33,7 @@ class PrepareCreateVersionHandler(PrepareItemHandler):
             raise HTTPNotFound
         return PrepareItemHandler.__call__(self, env, data)
 
+
 class CreateVersionHandler(AdminEditItemHandler):
 
     action = 'create'
@@ -42,6 +43,13 @@ class CreateVersionHandler(AdminEditItemHandler):
     def app_prefix(self):
         return web.prefix('/%s/<int:item>' % self.action,
                           name=self.action)
+
+    def process_item_template_data(self, env, td):
+        td['title'] = u'Создание языковой версии объекта'
+        td['submit_url'] = env.stream.url_for(
+                env, 'create', item=td['item'].id).qs_set(
+                        td['filter_form'].get_data())
+        return td
 
 
 class AdminPublishAction(PostAction):
@@ -293,7 +301,6 @@ class PublishStream(PublishStreamNoState):
         if getattr(env, 'absent_items', False): # XXX dirty hack
             condition = ~condition
         return query.filter(condition)
-
 
 
 class I18nStreamMixin(object):

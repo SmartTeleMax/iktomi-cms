@@ -75,8 +75,9 @@ class AdminWithLanguage(WithLanguage):
             db.add(ru)
             db.expunge(self)
             db.flush()
-            db.add(self)
             self.id = ru.id
+            db.add(self)
+            db.flush() # XXX is this needed?
         elif self.id is None:
             db.flush()
 
