@@ -3,7 +3,9 @@
     text-align:left;
     padding: 5px 0 5px 200px;
     border-bottom: 1px solid #eee;
+
     }
+    .form .form-row:after { clear:both; content:"."; display:block; height:0; visibility:hidden; }
     .form .form-row.full-width {
         padding-left: 5px;
         }
@@ -13,6 +15,12 @@
 .form .form-row .form-label{
   position: relative;
   }
+  .form .form-row .form-label:before{
+    content: "";
+    height: 16px;
+    float: left;
+    diaplay: block;
+    }
   .form .form-row .form-label label{
     position: absolute;
     display: inline-block;
