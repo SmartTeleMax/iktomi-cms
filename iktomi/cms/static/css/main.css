@@ -440,19 +440,36 @@ tr.even td.unpublished {
   }
   a.stream-flag {
     margin: 0 2px 0 2px;
+    padding: 3px;
   }
   a.stream-flag {
     border: 1px solid transparent;
     }
-  a.stream-flag.selected {
-    border-color: black;
-    }
+
   a.stream-flag .lang-en,
   a.stream-flag .lang-ru {
     background-position: center center;
     }
+  a.stream-flag span{
+    padding: 0 22px 0 0 !important;
+    }
+  a.stream-flag.public span,
+  a.stream-flag.private span{
+    box-shadow: 0 0 4px #fff;
+    }
   a.stream-flag.absent span{
     opacity: 0.4;
+    }
+  a.stream-flag.public {
+    background-color: hsl(120,80%,93%);
+    border-color: hsl(120,80%,80%);
+    }
+  a.stream-flag.private {
+    background-color: hsl(20,80%,93%);
+    border-color: hsl(20,80%,80%);
+    }
+  a.stream-flag.selected {
+    border-color: black;
     }
 
 .langversion-links {

@@ -20,45 +20,12 @@
     </td>
 {% endmacro %}
 
-{#% macro lang_version(item, lang, field_val) %}
-    {% set foreign_item = item|attr(lang) %}
-    {% if foreign_item is not none %}
-          <td {% if foreign_item.public is defined -%}
-                   class="{%- if foreign_item.public -%}
-                          published
-                          {%- else -%}
-                          unpublished
-                          {%- endif -%}
-               {%- endif %}">
-            {% if foreign_item is iterable %}
-            <ul class="langversion-links">
-                {% for fi in foreign_item %}
-                    <li>
-                        <a href="{{ url_for(field_val, item=fi.id ) }}" target="_blank">
-                          {{- fi.title -}}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-                    <a href="{{ url_for(field_val, item=foreign_item.id ) }}" target="_blank">
-                      {{- foreign_item.title -}}
-                    </a>
-            {% endif %}
-        </td> 
-    {% else %}
-        <td></td>
-    {% endif %}
-{% endmacro %#}
-
 <tr class="item {{ row_cls }}{% if item.public is defined -%}
 {%- if item.public %} published{% else %} unpublished{% endif -%}
 {%- endif %}">
   {% block list_fields %}
       {% for name, field in list_fields.items() %}
-          {#% if name == 'en' or name == 'ru' %}{{ lang_version(item, name, field.transform(item[name])) }}{% else %#}
-          {{ list_field(name, field, item, url, loop) }}
-          {#% endif %#}
+        {{ list_field(name, field, item, url, loop) }}
       {% endfor %}  
   {% endblock %}
   {% block item_form %}
