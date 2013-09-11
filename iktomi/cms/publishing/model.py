@@ -152,6 +152,8 @@ def _reflect(source, model):
 
 def _replicate_attributes(source, target):
     '''Replicates common SA attributes from source to target'''
+    # Important! Do no any db.add(), db.merge(), etc. here!
+    #            The function is used also for objects that are not commited
     target_manager = manager_of_class(type(target))
     for attr in manager_of_class(type(source)).attributes:
         if attr.key not in target_manager:

@@ -6,6 +6,7 @@ from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, Dele
 from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
+from iktomi.cms.publishing.model import _replicate_attributes
 from iktomi.utils import cached_property
 
 
@@ -19,36 +20,8 @@ class AdminEditItemHandler(EditItemHandler):
         # Filter buttons
         #td['item_buttons'] = []#'unpublish']
         td['version'] = env.version
-        td['actions'] = [x for x in td['actions']
-                         if not x.action in ('unpublish', 'front_publish')]
-        return td
-
-
-class PrepareCreateVersionHandler(PrepareItemHandler):
-
-    def __call__(self, env, data):
-        # XXX Dirty hack to support object creation
-        env.absent_items = True
-        if env.version != 'admin':
-            raise HTTPNotFound
-        return PrepareItemHandler.__call__(self, env, data)
-
-
-class CreateVersionHandler(AdminEditItemHandler):
-
-    action = 'create'
-    PrepareItemHandler = PrepareCreateVersionHandler
-
-    @property
-    def app_prefix(self):
-        return web.prefix('/%s/<int:item>' % self.action,
-                          name=self.action)
-
-    def process_item_template_data(self, env, td):
-        td['title'] = u'Создание языковой версии объекта'
-        td['submit_url'] = env.stream.url_for(
-                env, 'create', item=td['item'].id).qs_set(
-                        td['filter_form'].get_data())
+        #td['actions'] = [x for x in td['actions']
+        #                 if not x.action in ('unpublish', 'front_publish')]
         return td
 
 
@@ -83,8 +56,9 @@ class AdminPublishAction(PostAction):
     __call__ = admin_publish
 
     def is_available(self, env, item):
-        return item.id and (item.has_unpublished_changes or \
-                (hasattr(item, 'state') and item.state != item.PUBLIC)) and \
+        return item.id and item.state in (item.PRIVATE, item.PUBLIC) and \
+            (item.has_unpublished_changes or \
+                (hasattr(item, 'state') and item.state == item.PRIVATE)) and \
                 self.stream.has_permission(env, 'w') and \
                 env.version == 'admin'
 
@@ -107,13 +81,12 @@ class UnpublishAction(PostAction):
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
-        module_name = env.stream.module_name
 
         data.item.unpublish()
         flash(env, u'Объект «%s» снят с публикации' % data.item, 'success')
         env.db.commit()
 
-        url = env.url_for(module_name + '.item', item=data.item.id)
+        url = self.stream.url_for(env, 'item', item=data.item.id)
         return env.json({'result': 'success',
                          'location': url})
     __call__ = unpublish
@@ -171,7 +144,6 @@ class DeleteFlagHandler(DeleteItemHandler):
             return env.render_to_response('layout.html', {})
 
         if env.request.method != 'POST':
-            data.item._get_referers = lambda x:[]
             return DeleteItemHandler.__call__(self, env, data)
 
         self.stream.insure_has_permission(env, 'd')
@@ -188,7 +160,8 @@ class DeleteFlagHandler(DeleteItemHandler):
 
     def is_available(self, env, item):
         return env.version == 'admin' and \
-            DeleteItemHandler.is_available(self, env, item)
+            DeleteItemHandler.is_available(self, env, item) and \
+            item.state not in (item.ABSENT, item.DELETED)
 
 
 class HasChangesListField(ListField):
@@ -301,6 +274,62 @@ class PublishStream(PublishStreamNoState):
         if getattr(env, 'absent_items', False): # XXX dirty hack
             condition = ~condition
         return query.filter(condition)
+
+
+class PrepareCreateVersionHandler(PrepareItemHandler):
+
+    def __call__(self, env, data):
+        # XXX Dirty hack to support object creation
+        env.absent_items = True
+        if env.version != 'admin':
+            raise HTTPNotFound
+        return PrepareItemHandler.__call__(self, env, data)
+
+
+class CreateVersionHandler(AdminEditItemHandler):
+
+    # XXX turn off autosave or make it save to DraftForm only?
+
+    action = 'create'
+    PrepareItemHandler = PrepareCreateVersionHandler
+
+    @property
+    def app_prefix(self):
+        return web.prefix('/%s/<int:item>' % self.action,
+                          name=self.action)
+
+    def get_item_form(self, stream, env, item, initial, draft=None):
+        # XXX this method looks hacky
+        # Get existing language version and fill the form with object reflection
+        # to current language model
+        for lang in item._langs:
+            # XXX item.models is not an interface
+            if lang == item.models.lang:
+                continue
+            source_item = item._item_version('admin', lang)
+            if source_item and \
+                    source_item.state not in (item.ABSENT, item.DELETED):
+                break
+        else:
+            # The item has been deleted on all language versions, creation is
+            # not allowed
+            raise HTTPNotFound
+        # make object reflection, do not add it to db
+        fake_item = item.__class__()
+        # XXX do not replicate text fields, creation time, etc
+        _replicate_attributes(source_item, fake_item)
+        form = AdminEditItemHandler.get_item_form(
+                self, stream, env, fake_item, initial, draft)
+        # XXX hack!
+        form.item = item
+        return form
+
+    def process_item_template_data(self, env, td):
+        td['title'] = u'Создание языковой версии объекта'
+        td['submit_url'] = env.stream.url_for(
+                env, 'create', item=td['item'].id).qs_set(
+                        td['filter_form'].get_data())
+        return td
 
 
 class I18nStreamMixin(object):
