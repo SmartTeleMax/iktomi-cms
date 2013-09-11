@@ -193,14 +193,18 @@ class EditItemHandler(StreamAction):
     allowed_for_new = True
     display = False
     title = u'Редактировать/создать'
+    PrepareItemHandler = PrepareItemHandler
 
     @property
-    def app(self):
+    def app_prefix(self):
         return web.prefix('/<noneint:item>', name='item',
-                          convs={'noneint': NoneIntConv}) | \
-            PrepareItemHandler(self) | web.cases(
+                          convs={'noneint': NoneIntConv})
+    @property
+    def app(self):
+        return self.app_prefix | self.PrepareItemHandler(self) | web.cases(
                 web.match('', '') | self,
-                web.match('/autosave', 'autosave') | web.method('POST', strict=True) | self.autosave
+                web.match('/autosave', 'autosave') | \
+                        web.method('POST', strict=True) | self.autosave
             )
 
     def create_allowed(self, env):

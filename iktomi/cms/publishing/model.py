@@ -35,23 +35,40 @@ class WithState(object):
         return self.state==self.PUBLIC
 
 
-class AdminWithLanguage(object):
+def _get_model_name(item):
+    modelname = item.__class__.__name__
+    for lang in item._langs:
+        if modelname.endswith(lang.title()):
+            return modelname[:-len(lang)]
+
+
+class WithLanguage(object):
 
     _langs = ('ru', 'en')
+
+    def _item_version(self, version, lang):
+        # XXX hacky
+        models = getattr(AdminFront, version)
+        models = getattr(models, lang)
+        modelname = _get_model_name(self)
+        model = getattr(models, modelname)
+        db = object_session(self)
+        ident = identity_key(instance=self)[1]
+        assert ident is not None
+        return db.query(model).get(ident)
+
+
+class AdminWithLanguage(WithLanguage):
 
     def _create_versions(self):
         # be careful! makes flush!
         db = object_session(self)
-        modelname = self.__class__.__name__
-        for lang in self._langs:
-            if modelname.endswith(lang.title()):
-                modelname = modelname[:-len(lang)]
-                break
+        modelname = _get_model_name(self)
 
         # The first language is default. It is used as id autoincrement
         if self.models.lang != self._langs[0] and self.id is None:
             # XXX self.models is not an interface!
-            ru = getattr(self.models, modelname + lang.title())()
+            ru = getattr(self.models, modelname + self._langs[0].title())()
             # Flush ru model first to get autoincrement id.
             # Do not flush english model yet, but return it to pending
             # state after the flush
@@ -269,13 +286,6 @@ class AdminFront(object):
 
 
 # ======================================================================
-
-def common_attrs(__locals, *attrs):
-    def wrap(func):
-        func(__locals, *attrs)
-        return staticmethod(func)
-    return wrap
-
 
 class ReplicatedHandlersMixin(object):
 

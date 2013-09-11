@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.forms import Form
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, DeleteItemHandler
@@ -21,6 +22,26 @@ class AdminEditItemHandler(EditItemHandler):
         td['actions'] = [x for x in td['actions']
                          if not x.action in ('unpublish', 'front_publish')]
         return td
+
+
+class PrepareCreateVersionHandler(PrepareItemHandler):
+
+    def __call__(self, env, data):
+        # XXX Dirty hack to support object creation
+        env.absent_items = True
+        if env.version != 'admin':
+            raise HTTPNotFound
+        return PrepareItemHandler.__call__(self, env, data)
+
+class CreateVersionHandler(AdminEditItemHandler):
+
+    action = 'create'
+    PrepareItemHandler = PrepareCreateVersionHandler
+
+    @property
+    def app_prefix(self):
+        return web.prefix('/%s/<int:item>' % self.action,
+                          name=self.action)
 
 
 class AdminPublishAction(PostAction):
@@ -266,9 +287,12 @@ class PublishStream(PublishStreamNoState):
         ]
 
     def item_query(self, env):
-        query = super(PublishStream, self).item_query(env)
+        query = PublishStreamNoState.item_query(self, env)
         Model = self.get_model(env)
-        return query.filter(Model.state.in_((Model.PRIVATE, Model.PUBLIC)))
+        condition = Model.state.in_((Model.PRIVATE, Model.PUBLIC))
+        if getattr(env, 'absent_items', False): # XXX dirty hack
+            condition = ~condition
+        return query.filter(condition)
 
 
 
@@ -313,4 +337,7 @@ class I18nPublishStreamNoState(I18nStreamMixin, PublishStreamNoState):
 
 
 class I18nPublishStream(I18nStreamMixin, PublishStream):
-    pass
+
+    core_actions = PublishStream.core_actions + [
+        CreateVersionHandler(),
+    ]

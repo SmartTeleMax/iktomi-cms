@@ -1,18 +1,18 @@
 {% extends "stream_base.html" %}
 
-{% block after_title %}
+{% block after_title -%}
 <div class="flags">
-  {% for version, version_name in stream.versions %}
-    {% for lang, lang_name in stream.langs %}
-    <a class="stream-flag{% if lang == env.lang and version == env.version %} selected{% endif %}"
-       href="{{ stream.url_for(env, version=version, lang=lang) }}">
-          <span class="lang-{{ lang }}"></span>
-    </a>
+  {%- for version, version_name in stream.versions %}
+    {%- for lang, lang_name in stream.langs -%}
+      <a class="stream-flag{% if lang == env.lang and version == env.version %} selected{% endif %}"
+         href="{{ stream.url_for(env, version=version, lang=lang) }}">
+        <span class="lang-{{ lang }}"></span>
+      </a>
     {% endfor %}
 
-    {% if not loop.last %}
+    {%- if not loop.last %}
       <span>»</span>
     {% endif %}
-  {% endfor %}
+  {%- endfor %}
 </div>
-{% endblock %}
+{%- endblock %}
