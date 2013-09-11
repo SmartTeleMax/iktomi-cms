@@ -288,7 +288,7 @@ class I18nItemHandler(PublishItemHandler):
 
     # XXX turn off autosave or make it save to DraftForm only?
 
-    PrepareItemHandler = PrepareItemHandler
+    PrepareItemHandler = PrepareI18nItemHandler
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         if item.state not in (item.ABSENT, item.DELETED):
