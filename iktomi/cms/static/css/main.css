@@ -489,17 +489,17 @@ tr.even td.unpublished {
     background-image: url(../images/lock.svg);
     background-size: 30px 30px;
     }
-    .items td.field_locked{
+    td.field_locked{
         width: 30px;
         padding: 0;
         }
 
 
-.items td.field_has_unpublished_changes {
+td.field_has_unpublished_changes {
     padding: 0;
     width: 30px;
     }
-    .items td.field_has_unpublished_changes div{
+    td.field_has_unpublished_changes div{
         display: inline-block;
         width: 30px;
         height: 30px;
@@ -507,6 +507,6 @@ tr.even td.unpublished {
         background-image: url(../images/worker.svg);
         background-size: 30px 30px;
         }
-.items td.field_id {
-    width: 30px;
+td.field_id {
+    width: 10px;
     }

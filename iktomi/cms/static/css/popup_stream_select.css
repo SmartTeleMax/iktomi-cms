@@ -32,53 +32,64 @@
   float: left;
 }
 
-.w-popup-stream-select .w-popup-stream-select-items {
+.w-popup-stream-select-items {
   margin: 5px 0 0 0;
   border-collapse: collapse;
   border: 1px solid #dddddd;
 }
 
-.w-popup-stream-select .w-popup-stream-select-items .item td,
-.w-popup-stream-select .w-popup-stream-select-items .item th {
-  padding: 2px 6px !important;
-}
+  .w-popup-stream-select-items td,
+  .w-popup-stream-select-items th {
+    padding: 2px 6px;
+  }
 
-.w-popup-stream-select .w-popup-stream-select-items .item .w-control-cell {
-  text-align: center;
-}
+  .w-popup-stream-select-items .w-control-cell {
+    text-align: center;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items .item .w-control-cell .up-btn,
-.w-popup-stream-select .w-popup-stream-select-items .item .w-control-cell .down-btn {
-  cursor: pointer;
-  font-size: 130%;
-  text-decoration: none;
-}
+    .w-popup-stream-select-items .up-btn,
+    .w-popup-stream-select-items .down-btn {
+      cursor: pointer;
+      font-size: 130%;
+      text-decoration: none;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items .item .w-control-cell .up-btn:hover,
-.w-popup-stream-select .w-popup-stream-select-items .item .w-control-cell .down-btn:hover {
-  background: #fefeb0;
-}
+    .w-popup-stream-select-items .up-btn:hover,
+    .w-popup-stream-select-items .down-btn:hover {
+      background: #fefeb0;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items .item .w-control-cell .up-btn {
-  margin-right: 5px;
-}
+    .w-popup-stream-select-items .up-btn {
+      margin-right: 5px;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items .item:last-child .w-control-cell .down-btn {
-  display: none;
-}
+    .w-popup-stream-select-items .item:last-child .down-btn {
+      display: none;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items .item:first-child .w-control-cell .up-btn {
-  display: none;
-}
+    .w-popup-stream-select-items .item:first-child .up-btn {
+      display: none;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items a.remove {
-  background: url(../images/reset.gif) no-repeat left;
-  padding-left: 12px;
-  color: #990000;
-  text-decoration: none;
-  cursor: pointer;
-}
+    .w-popup-stream-select-items a.remove {
+      background: url(../images/reset.gif) no-repeat left;
+      padding-left: 12px;
+      color: #990000;
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-.w-popup-stream-select .w-popup-stream-select-items .hide-in-popup-stream-select {
-  display: none;
-}
+  .w-popup-stream-select-items .hide-in-popup-stream-select {
+    display: none;
+  }
+  .w-popup-stream-select-items .field_locked,
+  .w-popup-stream-select-items .field_has_unpublished_changes{
+    width: 16px;
+    padding: 0;
+    }
+  .w-popup-stream-select-items .field_locked div,
+  .w-popup-stream-select-items .field_has_unpublished_changes div {
+    width: 16px;
+    height: 16px;
+    background-size: 16px 16px;
+    }
