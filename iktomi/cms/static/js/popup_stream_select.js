@@ -31,6 +31,7 @@ var PopupStreamSelect = new Class({
     url: null,
     create_url: null,
     input_name: null,
+    sortable: true,
     unshift: false
   },
 
@@ -177,33 +178,38 @@ var PopupStreamSelect = new Class({
 
     this.attachContentEvents();
     this.markSelectedItems();
+    this.addSelectAllButtons()
     this.popup.show();
 
+  },
 
-    //var redirect_url = $('redirect_url');
+  addSelectAllButtons: function(html, scripts, redirect) {
+    var selectButton = new Element('a', {'href':'javascript:void(0)', 
+                                         'text':'выбрать все',
+                                         'class':'button'});
+    var deselectButton = new Element('a', {'href':'javascript:void(0)', 
+                                         'text':'убрать выбор текущих',
+                                         'class':'button'});
 
-    //if(redirect && redirect_url){
-    //  XXX what is this?!
-    //  var items = this.popup.contentEl.getElements('.item');
-    //  items.each(function(item){
+    selectButton.addEvent('click', function(e) {
+        this.popup.contentEl.getElements('.item').each(function(item) {
+            var id = item.getElement('a').getProperty('rel').match(/^id:(.*)+/)[1];
+            if (this._selected_items.indexOf(id) == -1) {
+                this.add(item, id);
+            }
+        }.bind(this));
+    }.bind(this));
 
-    //    var id = item.getElement('a[rel]').get('rel').replace(/^(id:)/, '');
-    //    var click = true;
-    //    for(var i in this._selected_items){
-    //      if(this._selected_items[i]==id){
-    //        click = false;
-    //      }
-    //    }
-    //    if(click){
-    //      this.onItemClicked(item, id)
-    //    }
-    //  }.bind(this));
-    //  if(redirect_url){
-    //    this.load(redirect_url.get('value'));
-    //  }
-    //  return
-    //}
+    deselectButton.addEvent('click', function(e) {
+        this.popup.contentEl.getElements('.item').each(function(item) {
+            var id = item.getElement('a').getProperty('rel').match(/^id:(.*)+/)[1];
+            if (this._selected_items.indexOf(id) != -1) {
+                this.remove(id);
+            }
+        }.bind(this));
+    }.bind(this));
 
+    this.popup.contentEl.adopt(selectButton, deselectButton);
   },
 
   markSelectedItems: function() {
@@ -220,7 +226,6 @@ var PopupStreamSelect = new Class({
   },
 
   submitItemForm: function(frm){
-      console.log('submit frm', frm)
     this.popup.show_loader();
     var url = frm.get('action');
     url = add_url_params(url, {'__popup':'', '__multiple':this._multiple, '__ajax': ''});
@@ -374,36 +379,38 @@ var PopupStreamSelectMultiple = new Class({
         return;
       }
 
-      var
-      sortTd = new Element('td', {'class': 'w-control-cell'}),
-      upBtn = new Element('a', {'class': 'up-btn', html: '&uarr;', href: '#up'}),
-      downBtn = new Element('a', {'class': 'down-btn', html: '&darr;', href: '#down'});
+      if (this.options.sortable){
+        var
+        sortTd = new Element('td', {'class': 'w-control-cell'}),
+        upBtn = new Element('a', {'class': 'up-btn', html: '&uarr;', href: '#up'}),
+        downBtn = new Element('a', {'class': 'down-btn', html: '&darr;', href: '#down'});
 
-      upBtn.addEvent('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        with (row) {
-          if (getPrevious()) {
-            inject(getPrevious(), 'before');
+        upBtn.addEvent('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          with (row) {
+            if (getPrevious()) {
+              inject(getPrevious(), 'before');
+            }
           }
-        }
-        this.fireEvent('reorder', row);
-      }.bind(this));
+          this.fireEvent('reorder', row);
+        }.bind(this));
 
-      downBtn.addEvent('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        with (row) {
-          if (getNext()) {
-            inject(getNext(), 'after');
+        downBtn.addEvent('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          with (row) {
+            if (getNext()) {
+              inject(getNext(), 'after');
 
+            }
           }
-        }
-        this.fireEvent('reorder', row);
-      }.bind(this));
+          this.fireEvent('reorder', row);
+        }.bind(this));
 
-      sortTd.adopt(upBtn, downBtn);
-      row.adopt(sortTd);
+        sortTd.adopt(upBtn, downBtn);
+        row.adopt(sortTd);
+      }
 
       var removeBtn = new Element('td', {'class': 'w-control-cell'});
       removeBtn.adopt(new Element('a', {'class': 'remove'}));
@@ -520,3 +527,4 @@ Blocks.register('popup-stream-select', function(el){
                           JSON.parse(el.dataset.config));
   }
 });
+

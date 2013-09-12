@@ -133,6 +133,7 @@ class PopupStreamSelect(Select):
     allow_create = False
     allow_select = True
     allow_delete = True
+    sortable = True
     select_all_button = True
     unshift = False
     default_filters = {}
@@ -171,6 +172,7 @@ class PopupStreamSelect(Select):
             'container': self.id,
             'input_name': self.input_name,
             'allow_delete': self.allow_delete,
+            'sortable': self.sortable,
             'unshift': self.unshift,
         }
         if self.allow_create:

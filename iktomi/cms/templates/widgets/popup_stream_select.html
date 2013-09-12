@@ -1,7 +1,7 @@
 <div class="init-block w-popup-stream-select" id="{{ widget.id }}"
-     data-block-name="popup-stream-select
-                      {%- if widget.multiple and widget.select_all_button %}-with-all{%- endif -%}"
-     {%- if readonly %}data-readonly="true"{% endif %}
+     data-block-name="popup-stream-select"
+     {%- if widget.multiple %} data-multiple="multiple"{%- endif -%}
+     {%- if readonly %} data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
   {%- if not readonly %}
   <div class="w-buttons">
