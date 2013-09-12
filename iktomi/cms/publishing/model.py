@@ -37,14 +37,13 @@ class WithState(object):
 
 def _get_model_name(item):
     modelname = item.__class__.__name__
-    for lang in item._langs:
+    # XXX item.models is not an interface
+    for lang in item.models.langs:
         if modelname.endswith(lang.title()):
             return modelname[:-len(lang)]
 
 
 class WithLanguage(object):
-
-    _langs = ('ru', 'en')
 
     def _item_version(self, version, lang):
         # XXX hacky
@@ -66,9 +65,10 @@ class AdminWithLanguage(WithLanguage):
         modelname = _get_model_name(self)
 
         # The first language is default. It is used as id autoincrement
-        if self.models.lang != self._langs[0] and self.id is None:
+        if self.models.lang != self.models.main_lang and self.id is None:
             # XXX self.models is not an interface!
-            ru = getattr(self.models, modelname + self._langs[0].title())()
+            ru = getattr(self.models,
+                         modelname + self.models.main_lang.title())()
             # Flush ru model first to get autoincrement id.
             # Do not flush english model yet, but return it to pending
             # state after the flush
@@ -81,7 +81,7 @@ class AdminWithLanguage(WithLanguage):
         elif self.id is None:
             db.flush()
 
-        for lang in self._langs:
+        for lang in self.models.langs:
             # create all en/ru admin/front versions
             if lang == self.models.lang:
                 item = self
