@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy import Column, Integer, DateTime, Boolean
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm.collections import collection_adapter
-from sqlalchemy.orm.attributes import instance_state, instance_dict
 from iktomi.unstable.db.sqla.files import FileProperty, FileEventHandlers
 from iktomi.unstable.db.sqla.images import ImageProperty, ImageEventHandlers
+from iktomi.unstable.db.sqla.replication import replicate, replicate_attributes
 
 from datetime import datetime
 
@@ -137,83 +136,6 @@ class FrontReplicated(object):
     def item_global_id(self):
         return ItemLock.item_global_id(self._admin_item)
 
-# ======================================================================
-
-from sqlalchemy.orm.attributes import manager_of_class
-from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
-from sqlalchemy import Boolean
-
-
-def _reflect(source, model):
-    db = object_session(source)
-    ident = identity_key(instance=source)[1]
-    assert ident is not None
-    return db.query(model).get(ident)
-
-def _replicate_attributes(source, target):
-    '''Replicates common SA attributes from source to target'''
-    # Important! Do no any db.add(), db.merge(), etc. here!
-    #            The function is used also for objects that are not commited
-    target_manager = manager_of_class(type(target))
-    for attr in manager_of_class(type(source)).attributes:
-        if attr.key not in target_manager:
-            # It's not common attribute
-            continue
-        target_attr = target_manager[attr.key]
-        if isinstance(attr.property, ColumnProperty):
-            assert isinstance(target_attr.property, ColumnProperty)
-            setattr(target, attr.key, getattr(source, attr.key))
-        elif isinstance(attr.property, RelationshipProperty):
-            assert isinstance(target_attr.property, RelationshipProperty)
-            target_attr_model = target_attr.property.argument
-            value = getattr(source, attr.key)
-            if attr.property.cascade.delete_orphan:
-                # Private, replicate
-                if attr.property.uselist:
-                    adapter = collection_adapter(value)
-                    if adapter:
-                        # Convert any collection to flat iterable
-                        value = adapter.adapt_like_to_iterable(value)
-                    reflection = _replicate_filter(value, target_attr_model)
-                    impl = instance_state(target).get_impl(attr.key)
-                    # Set any collection value from flat list
-                    impl._set_iterable(instance_state(target),
-                                       instance_dict(target),
-                                       reflection)
-                else:
-                    reflection = target_attr_model()
-                    _replicate_attributes(value, reflection)
-                    setattr(target, attr.key, reflection)
-            elif attr.property.secondary is not None:
-                # Many-to-many, reflect
-                reflection = _reflect_filter(value, target_attr_model)
-                setattr(target, attr.key, reflection)
-
-def _replicate(source, model):
-    '''Replicates an object to other model class and returns its reflection'''
-    target = model()
-    _replicate_attributes(source, target)
-    db = object_session(source)
-    return db.merge(target)
-
-def _replicate_filter(sources, model):
-    '''Replicates list of objects to other model class and returns their
-    reflection'''
-    targets = []
-    for source in sources:
-        assert filter(None, identity_key(instance=source))
-        target = model()
-        _replicate_attributes(source, target)
-        targets.append(target)
-    return targets
-
-def _reflect_filter(sources, model):
-    '''Returns reflection of list of objects to other model class'''
-    targets = [_reflect(source, model) for source in sources]
-    # Some objects may not be available in target DB (not published), so we
-    # have to exclude None from the list.
-    return [target for target in targets if target is not None]
-
 
 class AdminFront(object):
     '''Model that is replicated (published) to front. You always have two
@@ -261,13 +183,13 @@ class AdminFront(object):
             self.state = self.PRIVATE
 
     def _create_front_object(self):
-        _replicate(self, self._front_model)
+        replicate(self, self._front_model)
 
     def _copy_to_front(self):
-        _replicate(self, self._front_model)
+        replicate(self, self._front_model)
 
     def _copy_from_front(self):
-        _replicate_attributes(self._front_item, self)
+        replicate_attributes(self._front_item, self)
 
     @declared_attr
     def has_unpublished_changes(self):

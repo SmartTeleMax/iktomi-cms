@@ -6,7 +6,7 @@ from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, Dele
 from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
-from iktomi.cms.publishing.model import _replicate_attributes
+from iktomi.unstable.db.sqla.replication import replicate_attributes
 from iktomi.utils import cached_property
 
 
@@ -298,7 +298,7 @@ class I18nItemHandler(PublishItemHandler):
         # XXX this method looks hacky
         # Get existing language version and fill the form with object reflection
         # to current language model
-        for lang in item._langs:
+        for lang in item.models.langs:
             # XXX item.models is not an interface
             if lang == item.models.lang:
                 continue
@@ -313,7 +313,7 @@ class I18nItemHandler(PublishItemHandler):
         # make object reflection, do not add it to db
         fake_item = item.__class__()
         # XXX do not replicate text fields, creation time, etc
-        _replicate_attributes(source_item, fake_item)
+        replicate_attributes(source_item, fake_item)
         form = PublishItemHandler.get_item_form(
                 self, stream, env, fake_item, initial, draft)
         # XXX hack!
