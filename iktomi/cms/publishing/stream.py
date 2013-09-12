@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from iktomi import web
 from iktomi.forms import Form
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler, DeleteItemHandler
