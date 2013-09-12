@@ -39,6 +39,7 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
   top: 38px;
   left: 0;
   box-sizing: border-box;
+  -moz-box-sizing: border-box;
   width: 100%;
   background: white;
   padding: 20px 20px 10px 20px;
@@ -70,6 +71,7 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
     display: inline-block;
     overflow: hidden;
     height: 30px;
+    vertical-align: top;
   }
   .buttons__save-actions:hover{
     height: 60px;
@@ -349,7 +351,8 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 
 .form {
   box-sizing: border-box;
-    width:100%;
+  -moz-box-sizing: border-box;
+  width:100%;
 }
 
 .item img {
@@ -508,5 +511,5 @@ td.field_has_unpublished_changes {
         background-size: 30px 30px;
         }
 td.field_id {
-    width: 10px;
+    width: 30px;
     }

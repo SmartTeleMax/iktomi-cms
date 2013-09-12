@@ -127,6 +127,7 @@
     }
 
 .form-controls .button{
+  vertical-align: top;
     margin-left: 15px;
     }
 .button.action-delete{
