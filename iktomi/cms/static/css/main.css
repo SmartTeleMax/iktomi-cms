@@ -64,7 +64,11 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
     margin-right: 20px;
     }
   .header .buttons{
-    float: right;
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 26px;
+    z-index: 10;
     }
   .header .line { background-color: #e3e6e8; }
   .buttons__save-actions{
@@ -79,13 +83,13 @@ INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
   .buttons__save-hidden{
     position: absolute;
     background: #fff;
-    top: 55px;
-    right: 25px;
+    top: 45px;
+    right: 0px;
     visibility: hidden;
     white-space: nowrap;
     opacity: 0;
     transition: opacity .4s, visibility .1s linear .4s;
-    padding: 0 15px 15px 15px;
+    padding: 0 0 15px 15px;
     }
   .buttons__save-actions:hover .buttons__save-hidden{
     visibility: visible;
@@ -324,8 +328,8 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
     border-bottom: none;
 }
 
-.form .error-row * {
-    color: red;
+.error-row * {
+    color: #990;
 }
 
 .overlay {

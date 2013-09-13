@@ -112,6 +112,7 @@
     new Request.JSON({
       url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       onSuccess: function(result){
+        $$('.autosave-errors').removeClass('autosave-errors');
         if (result.success || result.error == 'draft'){
           this.frm.store('savedData', newData);
         }
@@ -120,6 +121,21 @@
           if(!this.is_popup){
             history.replaceState(null, null, result.item_url);
           }
+          this.frm.getElements('.error').destroy();
+        } else if (result.error == 'draft') {
+          var errors = result.errors;
+
+          for (var key in errors) if (errors.hasOwnProperty(key)){
+            var field = $(this.frm.id + '-' + key);
+            if (field){
+              field.getParent('.form-row').addClass('autosave-errors');
+            }
+          }
+          this.frm.getElements('.error').each(function(el){
+            if (! el.getParent('.form-row').hasClass('autosave-errors')){
+              el.destroy();
+            }
+          });
         }
       }.bind(this)
     }).post(this.frm); 

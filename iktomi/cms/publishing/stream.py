@@ -6,6 +6,7 @@ from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.utils import cached_property
+from jinja2 import Markup
 
 
 class PublishItemHandler(EditItemHandler):
@@ -66,7 +67,7 @@ class UnpublishAction(PostAction):
     allowed_for_new = False
     accepts_item_form = False
     action = 'unpublish'
-    title = u'Снять с публикации'
+    title = Markup(u'Снять<br/> с публикации')
 
     @property
     def app(self):
@@ -100,7 +101,7 @@ class RevertAction(PostAction):
     allowed_for_new = False
     accepts_item_form = False
     action = 'revert'
-    title = u'Восстановить из фронтальной'
+    title = Markup(u'Восстановить<br/> из фронтальной')
 
     @property
     def app(self):
