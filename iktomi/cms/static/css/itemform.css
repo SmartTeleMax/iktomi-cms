@@ -46,3 +46,30 @@ textarea.bigtext{
 .autosave-errors{
   background-color: #fff4e8;
   }
+
+.autosave-status{
+  position: absolute;
+  right: 0;
+  top: 5px;
+  margin-right: 25px;
+  }
+  .autosave-status>*{
+    display: none;
+    color: #bbb;
+    }
+  .autosave-status[data-status="no-changes"] .autosave-status__no-changes,
+  .autosave-status[data-status="changed"] .autosave-status__changed,
+  .autosave-status[data-status="saving"] .autosave-status__saving,
+  .autosave-status[data-status="lock"] .autosave-status__lock,
+  .autosave-status[data-status="error"] .autosave-status__error,
+  .autosave-status[data-status="draft"] .autosave-status__draft,
+  .autosave-status[data-status="saved"] .autosave-status__saved{
+    display: block;
+    }
+  .autosave-status__draft,
+  .autosave-status__error{
+    color: #f98;
+    }
+  .autosave-status__saved{
+    color: #9f8;
+    }

@@ -9,6 +9,7 @@
     this.container = frm.getParent('.popup-body') || $('app-content');
     this.is_popup = !!frm.getParent('.popup-body');
     this.popup = frm.getParent('.popup');
+    this.statusElement = this.frm.getElement('.autosave-status');
 
     this.bindEventHandlers();
     this.addEvents();
@@ -108,6 +109,8 @@
       return;
     }
 
+    this.statusElement.setAttribute('data-status', 'saving');
+
     var url = this.frm.getAttribute('action') + '/autosave';
     new Request.JSON({
       url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
@@ -117,12 +120,14 @@
           this.frm.store('savedData', newData);
         }
         if (result.success){
+          this.statusElement.setAttribute('data-status', 'saved');
           this.frm.setAttribute('action', result.item_url);
           if(!this.is_popup){
             history.replaceState(null, null, result.item_url);
           }
           this.frm.getElements('.error').destroy();
         } else if (result.error == 'draft') {
+          this.statusElement.setAttribute('data-status', 'draft');
           var errors = result.errors;
 
           for (var key in errors) if (errors.hasOwnProperty(key)){
@@ -137,6 +142,9 @@
             }
           });
         }
+      }.bind(this),
+      onFailure: function(){
+        this.statusElement.setAttribute('data-status', 'error');
       }.bind(this)
     }).post(this.frm); 
   }

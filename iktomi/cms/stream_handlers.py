@@ -336,6 +336,7 @@ class EditItemHandler(StreamAction):
                              form=form,
                              roles=env.user.roles,
                              item=item,
+                             draft=draft,
                              stream=stream,
                              stream_title=stream.config.title,
                              title=unicode(item),

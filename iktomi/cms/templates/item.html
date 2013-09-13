@@ -78,6 +78,19 @@
       </h1>
       {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}
+      {%- if autosave_allowed -%}
+        {% set autosave_status='no-changes' %}
+        {% if draft %}{% set autosave_status='draft' %}{% endif %}
+        <div class="autosave-status" data-status="{{ autosave_status }}">
+          <div class="autosave-status__no-changes">нет изменений</div>
+          <div class="autosave-status__changed">изменено</div>
+          <div class="autosave-status__saving">сохранение</div>
+          <div class="autosave-status__lock">блокировка утеряна</div>
+          <div class="autosave-status__draft">сохранен черновик</div>
+          <div class="autosave-status__error">ошибки при сохранении</div>
+          <div class="autosave-status__saved">сохранено</div>
+        </div>
+      {%- endif -%}
     </div>
     <div class="text">
       <div class="line"></div>
