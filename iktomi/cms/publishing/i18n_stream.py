@@ -54,7 +54,7 @@ class I18nItemHandler(PublishItemHandler):
 
     def process_item_template_data(self, env, td):
         item = td['item']
-        if item.state not in (item.ABSENT, item.DELETED):
+        if item.state in (item.ABSENT, item.DELETED):
             td['title'] = u'Создание языковой версии объекта'
         return PublishItemHandler.process_item_template_data(self, env, td)
 
