@@ -55,7 +55,9 @@ class PublishAction(PostAction):
     __call__ = admin_publish
 
     def is_available(self, env, item):
-        return item.id and item.state in (item.PRIVATE, item.PUBLIC) and \
+        return item.id and \
+            (not hasattr(item, 'state') or 
+                 item.state in (item.PRIVATE, item.PUBLIC)) and \
             (item.has_unpublished_changes or \
                 (hasattr(item, 'state') and item.state == item.PRIVATE)) and \
                 self.stream.has_permission(env, 'w') and \

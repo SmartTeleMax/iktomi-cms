@@ -179,7 +179,9 @@ class AdminFront(object):
             #     after_insert
             self._create_front_object()
         # the item is created, we set PRIVATE state as default
-        if self.state is None or self.state == self.ABSENT:
+        # XXX hasattr looks hacky
+        if hasattr(self, 'state') and (
+                self.state is None or self.state == self.ABSENT):
             self.state = self.PRIVATE
 
     def _create_front_object(self):
