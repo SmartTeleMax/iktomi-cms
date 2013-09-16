@@ -1,5 +1,3 @@
-<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
-<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
 {% macro buttons(is_popup=False) %}
 <div class="buttons form-controls">
@@ -53,11 +51,8 @@
 
 
 {% block content %}
-<div id="loader-overlay" class="loader-overlay overlay">
-  <div>
-    Идет загрузка
-  </div>
-</div>
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
 <form id="{{ form.id }}"
       class="init-block item-form{% if is_popup %} popup-form{% endif %}"
@@ -74,23 +69,13 @@
           {{- stream_title }}
         {%- else -%}
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
-        {%- endif %}
+        {%- endif -%}
       </h1>
       {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}
-      {%- if autosave_allowed -%}
-        {% set autosave_status='no-changes' %}
-        {% if draft %}{% set autosave_status='draft' %}{% endif %}
-        <div class="autosave-status" data-status="{{ autosave_status }}">
-          <div class="autosave-status__no-changes">нет изменений</div>
-          <div class="autosave-status__changed">изменено</div>
-          <div class="autosave-status__saving">сохранение</div>
-          <div class="autosave-status__lock">блокировка утеряна</div>
-          <div class="autosave-status__draft">сохранен черновик</div>
-          <div class="autosave-status__error">ошибки при сохранении</div>
-          <div class="autosave-status__saved">сохранено</div>
-        </div>
-      {%- endif -%}
+
+      {% from "macros/autosave_status.html" import autosave_status %}
+      {{ autosave_status(autosave_allowed, draft) }}
     </div>
     <div class="text">
       <div class="line"></div>
@@ -105,6 +90,4 @@
     {{ item_lock(item, stream_url.qs_set(filter_form.get_data()), lock_timeout, lock_message, edit_session) }}
   {%- endif -%}
 </form>
-
-
 {% endblock %}

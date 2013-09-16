@@ -68,8 +68,8 @@ textarea.bigtext{
     }
   .autosave-status__draft,
   .autosave-status__error{
-    color: #f98;
+    color: #d88;
     }
   .autosave-status__saved{
-    color: #9f8;
+    color: #9d8;
     }

@@ -15,40 +15,37 @@
 {% block content %}
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-<div id="loader-overlay" class="loader-overlay overlay">
-  <div>
-    Идет загрузка
-  </div>
-</div>
 
-  <form id="item-form"
-        class="init-block item-form"
-        action="{{ loner.url_for(env) }}"
-        method="post"
-        enctype="multipart/form-data"
-        data-block-name="item-form"
-        {%- if autosave_allowed %} data-autosave="on"{% endif %}
-        {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
+<form id="item-form"
+      class="init-block item-form"
+      action="{{ loner.url_for(env) }}"
+      method="post"
+      enctype="multipart/form-data"
+      data-block-name="item-form"
+      {%- if autosave_allowed %} data-autosave="on"{% endif %}
+      {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
 
-    <div class="content">
-       <div class="header">
-         <h1>{{ title }}
-         </h1>
-         {% block after_title %}{% endblock -%}
-         {% block buttons_top %}{{ buttons() }}{% endblock %}
-       </div>
-       <div class="text">
-         <div class="line"></div>
-         <div class="form">
-             {{ form.render() }}
-         </div>
-       </div>
-
-       {% block preview %}{% endblock %}
+  <div class="content">
+    <div class="header">
+      <h1>{{ title }}</h1>
+      {% block after_title %}{% endblock -%}
+      {% block buttons_top %}{{ buttons() }}{% endblock %}
+       {% from "macros/autosave_status.html" import autosave_status %}
+       {{ autosave_status(autosave_allowed, draft) }}
     </div>
-    {%- if form.item.id and item_lock -%}
-      {% from 'macros/item_lock.html' import main as item_lock with context %}
-      {{ item_lock(form.item, url_for('index'), lock_timeout, lock_message, edit_session) }}
-    {%- endif -%}
-  </form>
+
+    <div class="text">
+      <div class="line"></div>
+      <div class="form">
+          {{ form.render() }}
+      </div>
+    </div>
+
+    {% block preview %}{% endblock %}
+  </div>
+  {%- if form.item.id and item_lock -%}
+    {% from 'macros/item_lock.html' import main as item_lock with context %}
+    {{ item_lock(form.item, url_for('index'), lock_timeout, lock_message, edit_session) }}
+  {%- endif -%}
+</form>
 {% endblock %}

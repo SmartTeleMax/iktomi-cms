@@ -15,7 +15,6 @@
     this.addEvents();
     this.attachHooks();
     window.scrollTo(window.scrollX, window.scrollY+1);
-    $('loader-overlay').setStyle('display', 'none');
   }
 
   ItemForm.prototype.attachHooks = function(){
@@ -42,7 +41,8 @@
     this.postHandler = this.postHandler.bind(this);
     this.saveHandler = this.saveHandler.bind(this);
     this.autoSaveHandler = this.autoSaveHandler.bind(this);
-    this.saveAndContinueHadler = this.saveAndContinueHadler.bind(this);
+    this.saveAndContinueHandler = this.saveAndContinueHandler.bind(this);
+    this.changeHandler = this.changeHandler.bind(this);
   }
 
   ItemForm.prototype.addEvents = function(){
@@ -50,12 +50,21 @@
     this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
     this.frm.getElements('.buttons a[rel="post"]').addEvent('click', this.postHandler);
     this.frm.getElements('.buttons a[rel="save"]').addEvent('click', this.saveHandler);
-    this.frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', this.saveAndContinueHadler);
+    this.frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', this.saveAndContinueHandler);
     this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
+    this.frm.addEvent('change', this.changeHandler);
+    //this.frm.addEvent('keydown', this.changeHandler);
   }
 
   ItemForm.prototype.load = function(url){
     loadPage(url, true, this.container);
+  }
+
+  ItemForm.prototype.changeHandler = function(e){
+    var newData = this.formHash(); // XXX works only on blur, have to check form hash each time
+    if(this.frm.retrieve('savedData') != newData){
+      this.statusElement.setAttribute('data-status', 'changed');
+    }
   }
 
   ItemForm.prototype.redirectHandler = function(e){
@@ -149,7 +158,7 @@
     }).post(this.frm); 
   }
 
-  ItemForm.prototype.saveAndContinueHadler = function(e) {
+  ItemForm.prototype.saveAndContinueHandler = function(e) {
     e.preventDefault(); e.stopPropagation();
     this.submit(e.target, function(result){
       this.load(result.item_url, true, this.container);
