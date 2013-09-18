@@ -11,6 +11,7 @@ tab_select
 wysihtml5
 calendar
 popup_stream_select
+popup_filtered_select
 fieldlist
 fieldset-line
 tabbed_fieldset

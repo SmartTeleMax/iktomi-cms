@@ -23,6 +23,7 @@ dragupload
 progressbar
 calendar.compat
 popup_stream_select
+popup_filtered_select
 fieldlist
 tabbed_fieldset
 label_select
