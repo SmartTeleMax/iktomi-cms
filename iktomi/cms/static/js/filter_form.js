@@ -39,7 +39,7 @@
         var link = e.target.tagName == 'A'? e.target: e.target.getParent('a');
         if (link && e.target.getParent('.pages')){
           this.submit(link.getAttribute('href'));
-          e.stop();
+          e.preventDefault(); e.stopPropagation();
         }
       }.bind(this), false);
     }

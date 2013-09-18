@@ -1,7 +1,3 @@
-{#<div class="init-block widget" data-block-name="ajax-fileinput" data-config="{{ widget.js_config() }}">
-  <input id="{{ widget.id }}" type="file" name="{{ widget.input_name|escape }}"
-	 {%- if widget.classname %} class="{{ widget.classname }}"{% endif %} />
-</div>#}
 <div class="init-block filedropwidget"
      data-input-name="{{ field.input_name }}"
      id='id_{{field.input_name}}'
