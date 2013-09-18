@@ -160,6 +160,8 @@ class DeleteFlagHandler(DeleteItemHandler):
     __call__ = delete_flag_handler
 
     def is_available(self, env, item):
+        if not hasattr(item, 'state'):
+            return False
         return env.version == 'admin' and \
             DeleteItemHandler.is_available(self, env, item) and \
             item.state not in (item.ABSENT, item.DELETED)
