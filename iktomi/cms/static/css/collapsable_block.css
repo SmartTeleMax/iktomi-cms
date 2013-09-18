@@ -13,10 +13,12 @@
 }
 
 .collapsable h2.block_title{
-    padding: 0 0 0 20px;
+    display: inline-block;
+    padding: 0 10px 0 20px;
     margin: 0;
     font-size: 16px;
     background: url(../images/group-expand-sprite.gif) no-repeat scroll 3px -47px;
+    white-space: nowrap;
 }
 
 .collapsable.closed h2.block_title{
