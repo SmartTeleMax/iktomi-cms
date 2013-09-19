@@ -3,11 +3,6 @@ fieldset {
     border-radius: 5px;
     border: 1px solid #ccc;
 }
-
-fieldset div {
-    margin: 5px 0;
-}
-
 legend {
     border: 1px solid #ccc;
     border-radius: 5px;

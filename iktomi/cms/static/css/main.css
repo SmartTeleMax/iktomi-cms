@@ -423,7 +423,7 @@ tr.even td.unpublished {
 }
 
 .lang-ru, .lang-en{
-    padding: 0 30px 0 0 !important;
+    padding: 0 30px 0 0;
     background: url(../images/languages/ru.png) transparent center right no-repeat;
 }
 .lang-en{
@@ -434,6 +434,7 @@ tr.even td.unpublished {
 .langs-streams .lang-en{
   width:100%;
 }
+
 
 .langs-streams td {
   /*width:50%;*/
@@ -451,6 +452,7 @@ tr.even td.unpublished {
   }
   a.stream-flag {
     border: 1px solid transparent;
+    display: inline-block;
     }
 
   a.stream-flag .lang-en,
@@ -458,7 +460,7 @@ tr.even td.unpublished {
     background-position: center center;
     }
   a.stream-flag span{
-    padding: 0 22px 0 0 !important;
+    padding: 0 22px 0 0;
     }
   a.stream-flag.public span,
   a.stream-flag.private span{
@@ -477,6 +479,36 @@ tr.even td.unpublished {
     }
   a.stream-flag.selected {
     border-color: black;
+    }
+  a.stream-flag.has-changes{
+    position:relative;
+    }
+    a.stream-flag.has-changes:after{
+      content: "";
+      width: 15px;
+      height: 15px;
+      background-image: url(../images/worker.svg);
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: 15px;
+      position:absolute;
+      top: -15px;
+      right: 0px;
+      }
+
+a.stream-flag .version-admin{
+    background-image: url(../images/worker.svg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 23px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    }
+a.stream-flag .version-front {
+    background-image: url(../images/eye.svg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 23px;
     }
 
 .langversion-links {

@@ -5,34 +5,45 @@
 {% if item.id and stream.langs is defined %}
 <div class="flags">
   {% for version, version_name in stream.versions %}
-    {% for lang, lang_name in stream.langs %}
-      {% set lang_item = item._item_version(version, lang) %}
+    {% set lang_item = item._item_version(version, env.lang) %}
+    {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (item.ABSENT, item.DELETED)) %}
+    {%- set private = not absent and lang_item.state is defined and lang_item.state == item.PRIVATE %}
+    {%- set public = not absent and lang_item.state is defined and lang_item.state == item.PUBLIC %}
+    <a class="stream-flag
+              {%- if version == env.version %} selected{% endif %}
+              {%- if absent %} absent{% endif %}
+              {%- if private %} private{% endif %}
+              {%- if public %} public{% endif %}"
+       {%- if version == 'admin' %} title="Редакторская версия"{% endif %}
+       {%- if version == 'front' %} title="Опубликованная версия"{% endif %}
+       {%- if not absent %} href="{{ stream.url_for(env, 'item', version=version, item=item.id) }}"
+       {%- endif %}>
+      <span class="version-{{ version }}"></span>
+    </a>
+  {% endfor -%}
+
+  {%- if stream.langs is defined -%}
+    <span style="padding-left: 20px;">&nbsp;</span>
+    {%- for lang, lang_name in stream.langs %}
+      {% set lang_item = item._item_version(env.version, lang) %}
       {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (item.ABSENT, item.DELETED)) %}
       {%- set private = not absent and lang_item.state is defined and lang_item.state == item.PRIVATE %}
       {%- set public = not absent and lang_item.state is defined and lang_item.state == item.PUBLIC %}
+      {%- set has_changes = not absent and lang_item.has_unpublished_changes %}
       <a class="stream-flag
-                {%- if lang == env.lang and version == env.version %} selected{% endif %}
+                {%- if lang == env.lang %} selected{% endif %}
                 {%- if absent %} absent{% endif %}
                 {%- if private %} private{% endif %}
-                {%- if public %} public{% endif %}"
-         {% if not absent or version == 'admin' -%}
-         href="{{ stream.url_for(env, 'item', version=version, lang=lang, item=item.id) }}"
-         {%- endif %}>
+                {%- if public %} public{% endif %}
+                {%- if has_changes %} has-changes{% endif %}"
+         {% if lang != env.lang %}
+         href="{{ stream.url_for(env, 'item', version='admin', lang=lang, item=item.id) }}"
+         {%- endif %} >
         <span class="lang-{{ lang }}"></span>
       </a>
     {% endfor %}
-
-    {% if not loop.last %}
-      <span>»</span>
-    {% endif %}
-  {% endfor %}
+  {% endif %}
 </div>
-{% elif item.id and (item.state is not defined or item.state in [item.PUBLIC, item.PRIVATE]) %}
-    {# TODO Should handle the unpublished state properly. #}
-    {% set published_version_is_unpublished = form.item.state is defined and form.item.state != form.item.PUBLIC %}
-    {{ version_switch(url_for(stream.module_name+'.item', version='front', item=item.id),
-                      url_for(stream.module_name+'.item', version='admin', item=item.id),
-                      version == 'front', published_version_is_unpublished) }}
 {% endif %}
 
 {% endblock %}
