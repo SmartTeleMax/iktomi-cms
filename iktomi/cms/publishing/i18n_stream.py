@@ -43,13 +43,22 @@ class I18nItemHandler(PublishItemHandler):
             # not allowed
             raise HTTPNotFound
         # make object reflection, do not add it to db
-        fake_item = item.__class__()
-        # XXX do not replicate text fields, creation time, etc
-        replicate_attributes(source_item, fake_item)
-        form = PublishItemHandler.get_item_form(
-                self, stream, env, fake_item, initial, draft)
+        #fake_item = item.__class__()
+        ## XXX do not replicate text fields, creation time, etc
+        #replicate_attributes(source_item, fake_item)
+        #form = PublishItemHandler.get_item_form(
+        #        self, stream, env, fake_item, initial, draft)
         # XXX hack!
-        form.item = item
+        #form.item = item
+
+        # hack do get initial value for form from source item
+        source_form = PublishItemHandler.get_item_form(
+                    self, stream, env, source_item, initial, draft)
+        form = PublishItemHandler.get_item_form(
+                self, stream, env, item, initial, draft)
+        form.accept(source_form.raw_data)
+        form.errors = {}
+
         return form
 
     def process_item_template_data(self, env, td):
