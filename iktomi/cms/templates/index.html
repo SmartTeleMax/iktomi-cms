@@ -15,6 +15,19 @@
               <td colspan="{{ max_childs(menu) }}">
                 <a href="{{ menu.url }}">{{ menu.title }}</a>
               </td>
+            {% elif menu.is_i18n is defined and menu.is_i18n %}
+              <td colspan="{{ max_childs(menu) - 1 }}">
+                <a href="{{ menu.items[0].url }}">{{ menu.items[0].title }}</a>
+              </td>
+              <td>
+                <div class="flags">
+                  {% for submenu in menu.items %}
+                    <a class="stream-flag" href="{{ submenu.url }}">
+                      <span class="lang-{{ submenu.lang }}"></span>
+                    </a>
+                  {% endfor %}
+                </div>
+              </td>
             {% else %}
               {% for submenu in menu.items %}
                 <td>
