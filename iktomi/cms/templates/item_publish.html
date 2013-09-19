@@ -10,7 +10,7 @@
     <a class="stream-flag
               {%- if version == env.version %} selected{% endif %}
               {%- if absent %} absent{% endif %}"
-       {%- if version == 'admin' %} title="Редакторская версия"{% endif %}
+       {%- if version == 'admin' %} title="Рабочая версия"{% endif %}
        {%- if version == 'front' %} title="Опубликованная версия"{% endif %}
        {%- if not absent %} href="{{ stream.url_for(env, 'item', version=version, item=item.id) }}"
        {%- endif %}>

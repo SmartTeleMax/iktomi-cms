@@ -470,11 +470,11 @@ tr.even td.unpublished {
     opacity: 0.4;
     }
   a.stream-flag.public {
-    background-color: hsl(120,80%,93%);
+    background-color: hsl(120,80%,85%);
     border-color: hsl(120,80%,80%);
     }
   a.stream-flag.private {
-    background-color: hsl(20,80%,93%);
+    background-color: hsl(20,80%,85%);
     border-color: hsl(20,80%,80%);
     }
   a.stream-flag.selected {
