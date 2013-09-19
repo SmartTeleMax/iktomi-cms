@@ -75,7 +75,7 @@ var PopupStreamSelect = new Class({
   postSetup: function() {
     if (this.getItemsDiv().getFirst()) {
       if (! this.readonly ){
-        this.addRemoveButton();
+        this.addControls();
       }
       this.makeLinksExternal(this.getItemsDiv().getFirst());
     }
@@ -90,7 +90,7 @@ var PopupStreamSelect = new Class({
     }
   },
 
-  addRemoveButton: function() {
+  addControls: function() {
     var row = this.getItemsDiv().getFirst();
     if (row) {
       if (row.getLast() && row.getLast().hasClass('w-control-cell')) {
@@ -283,7 +283,7 @@ var PopupStreamSelect = new Class({
     this.makeLinksExternal(clone);
     this.getItemsDiv().empty().adopt(clone);
     this.popup.hide();
-    this.addRemoveButton();
+    this.addControls();
 
     this.fireEvent('change', this.container);
 
@@ -330,7 +330,7 @@ var PopupStreamSelectMultiple = new Class({
       i++;
     }
     if (!this.readonly) {
-      this.addRemoveButton();
+      this.addControls();
     }
 
     this.addEvent('reorder', this.redrawOrderClasses);
@@ -372,56 +372,70 @@ var PopupStreamSelectMultiple = new Class({
     return this._selected_items.indexOf(v) != -1;
   },
 
-  addRemoveButton: function() {
-    this.getItemsDiv().getChildren().each(function(row) {
+  _createOrderButtons: function(row) {
+    var sortTd = new Element('td', {'class': 'w-control-cell'});
+    var upBtn = new Element('a', {'class': 'up-btn', html: '&uarr;', href: '#up'});
+    var downBtn = new Element('a', {'class': 'down-btn', html: '&darr;', href: '#down'});
+
+    upBtn.addEvent('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      with (row) {
+        if (getPrevious()) {
+          inject(getPrevious(), 'before');
+        }
+      }
+      this.fireEvent('reorder', row);
+    }.bind(this));
+
+    downBtn.addEvent('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      with (row) {
+        if (getNext()) {
+          inject(getNext(), 'after');
+
+        }
+      }
+      this.fireEvent('reorder', row);
+    }.bind(this));
+
+    sortTd.adopt(upBtn, downBtn);
+    return sortTd;
+  },
+
+  _addOrderButtons: function(row) {
+    if (this.options.sortable){
+      row.adopt(this._createOrderButtons(row));
+    }
+  },
+
+  _createRemoveButton: function(row) {
+    var removeBtn = new Element('td', {'class': 'w-control-cell'});
+    removeBtn.adopt(new Element('a', {'class': 'remove'}));
+    var id = this._selected_items[this._rows.indexOf(row)];
+    removeBtn.getFirst().addEvent('click', function(e) {
+      this.remove(id);
+    }.bind(this));
+    return removeBtn;
+  },
+
+  _addRemoveButton: function(row) {
+      row.adopt(this._createRemoveButton(row));
+  },
+
+  _addControls: function(row) {
 
       if (row.getLast() && row.getLast().hasClass('w-control-cell')) {
         return;
       }
 
-      if (this.options.sortable){
-        var
-        sortTd = new Element('td', {'class': 'w-control-cell'}),
-        upBtn = new Element('a', {'class': 'up-btn', html: '&uarr;', href: '#up'}),
-        downBtn = new Element('a', {'class': 'down-btn', html: '&darr;', href: '#down'});
+      this._addOrderButtons(row);
+      this._addRemoveButton(row);
+  },
 
-        upBtn.addEvent('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          with (row) {
-            if (getPrevious()) {
-              inject(getPrevious(), 'before');
-            }
-          }
-          this.fireEvent('reorder', row);
-        }.bind(this));
-
-        downBtn.addEvent('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          with (row) {
-            if (getNext()) {
-              inject(getNext(), 'after');
-
-            }
-          }
-          this.fireEvent('reorder', row);
-        }.bind(this));
-
-        sortTd.adopt(upBtn, downBtn);
-        row.adopt(sortTd);
-      }
-
-      var removeBtn = new Element('td', {'class': 'w-control-cell'});
-      removeBtn.adopt(new Element('a', {'class': 'remove'}));
-      var id = this._selected_items[this._rows.indexOf(row)];
-      removeBtn.getFirst().addEvent('click', function(e) {
-        this.remove(id);
-      }.bind(this));
-
-      row.adopt(removeBtn);
-
-    }.bind(this));
+  addControls: function() {
+    this.getItemsDiv().getChildren().each(this._addControls.bind(this));
   },
 
   reset: function() {
@@ -471,7 +485,7 @@ var PopupStreamSelectMultiple = new Class({
       this.getItemsDiv().adopt(row);
     }
 
-    this.addRemoveButton();
+    this.addControls();
     item.addClass('selected');
 
     this.fireEvent('change', this.container);

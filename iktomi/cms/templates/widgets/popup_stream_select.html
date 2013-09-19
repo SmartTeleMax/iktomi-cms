@@ -1,5 +1,5 @@
 <div class="init-block w-popup-stream-select" id="{{ widget.id }}"
-     data-block-name="popup-stream-select"
+     {%- block block_name %} data-block-name="popup-stream-select"{% endblock %}
      {%- if widget.multiple %} data-multiple="multiple"{%- endif -%}
      {%- if readonly %} data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
