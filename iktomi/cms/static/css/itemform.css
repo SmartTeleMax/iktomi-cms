@@ -56,6 +56,7 @@ textarea.bigtext{
   .autosave-status>*{
     display: none;
     color: #bbb;
+    text-align: right;
     }
   .autosave-status[data-status="no-changes"] .autosave-status__no-changes,
   .autosave-status[data-status="changed"] .autosave-status__changed,
@@ -63,13 +64,15 @@ textarea.bigtext{
   .autosave-status[data-status="lock"] .autosave-status__lock,
   .autosave-status[data-status="error"] .autosave-status__error,
   .autosave-status[data-status="draft"] .autosave-status__draft,
-  .autosave-status[data-status="saved"] .autosave-status__saved{
-    display: block;
+  .autosave-status[data-status="saved"] .autosave-status__saved,
+  .autosave-status[data-autosave-off="true"] .autosave-status__off{
+    display: inline;
+    padding-left: 20px;
     }
   .autosave-status__draft,
   .autosave-status__error{
-    color: #d88;
+    color: #d44;
     }
   .autosave-status__saved{
-    color: #9d8;
+    color: #5b4;
     }

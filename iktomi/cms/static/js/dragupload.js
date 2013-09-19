@@ -420,6 +420,13 @@ Blocks.register('dropfile', function(el){
   var fm = new FileManagerSingle(el, options);
 
   var frm = el.getParent('.item-form');
+
+  fm.uploader.addEvent('addfile', function(){
+    if (frm.dataset.autosave){
+      frm.retrieve('ItemForm').stopAutosave();
+    }
+  });
+
   var widgets = frm.retrieve('file_widgets');
   if (!widgets){
     widgets = [fm];

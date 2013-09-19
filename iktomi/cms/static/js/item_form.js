@@ -232,6 +232,12 @@
     hooks.apply(button);
   }
 
+  ItemForm.prototype.stopAutosave = function(){
+    console.log('AUTOSAVE off')
+    window.clearInterval(this.autoSaveInterval);
+    this.statusElement.dataset.autosaveOff = 'true';
+  }
+
   ItemForm.prototype.formHash = function(){
     /*
      * pseudo-qs formatting for form content
