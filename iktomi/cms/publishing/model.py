@@ -2,23 +2,23 @@
 from sqlalchemy import Column, Integer, DateTime, Boolean
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from iktomi.unstable.db.sqla.files import FileProperty, FileEventHandlers
-from iktomi.unstable.db.sqla.images import ImageProperty, ImageEventHandlers
+from sqlalchemy.orm import object_session
+from sqlalchemy.orm.util import identity_key
+
 from iktomi.unstable.db.sqla.replication import replicate, replicate_attributes
+from iktomi.utils import cached_property, cached_class_property
+from iktomi.cms.item_lock import ItemLock
 
 from datetime import datetime
 
 
-class WithState(object):
+class _WithState(object):
 
     ABSENT = 0
     PRIVATE = 1
     PUBLIC = 2
     DELETED = 3
 
-    @declared_attr
-    def state(self):
-        return Column(Integer, nullable=True, default=self.ABSENT)
 
     @declared_attr
     def created_dt(self):
@@ -34,6 +34,38 @@ class WithState(object):
         return self.state==self.PUBLIC
 
 
+class WithState(_WithState):
+
+    @declared_attr
+    def state(self):
+        return Column(Integer, nullable=True, default=self.ABSENT)
+
+
+class _AdminWithStateMixIn(object):
+
+    def publish(self):
+        self.state = self.PUBLIC
+        AdminReplicated.publish(self)
+
+    def unpublish(self):
+        '''Make the object invisible on front site.'''
+        self._front_item.state = self.state = self.PRIVATE
+
+    def delete(self):
+        '''Mark the object as deleted (make it invisible on front and move to
+        trash on admin site).'''
+        self._front_item.state = self.state = self.DELETED
+
+
+class _AdminWithState(_AdminWithStateMixIn, _WithState):
+    pass
+
+
+class AdminWithState(_AdminWithStateMixIn, WithState):
+
+    pass
+
+
 def _get_model_name(item):
     modelname = item.__class__.__name__
     # XXX item.models is not an interface
@@ -46,7 +78,7 @@ class WithLanguage(object):
 
     def _item_version(self, version, lang):
         # XXX hacky
-        models = getattr(AdminFront, version)
+        models = getattr(AdminReplicated, version)
         models = getattr(models, lang)
         modelname = _get_model_name(self)
         model = getattr(models, modelname)
@@ -103,22 +135,16 @@ class AdminWithLanguage(WithLanguage):
             self.state = self.PRIVATE
 
 
-from sqlalchemy.orm import object_session
-from sqlalchemy.orm.util import identity_key
-from iktomi.utils import cached_property, cached_class_property
-from iktomi.cms.item_lock import ItemLock
+# ==============   Repicated models
 
 
-class FrontReplicated(object):
+class _FrontReplicated(object):
 
-    @cached_property
-    def has_unpublished_changes(self):
-        return self._admin_item.has_unpublished_changes
 
     @cached_class_property
     def _admin_model(cls):
         # XXX
-        return getattr(AdminFront.admin, cls.__name__)
+        return getattr(AdminReplicated.admin, cls.__name__)
 
     @cached_property
     def _admin_item(self):
@@ -137,7 +163,14 @@ class FrontReplicated(object):
         return ItemLock.item_global_id(self._admin_item)
 
 
-class AdminFront(object):
+class FrontReplicated(_FrontReplicated):
+
+    @cached_property
+    def has_unpublished_changes(self):
+        return self._admin_item.has_unpublished_changes
+
+
+class _AdminReplicated(object):
     '''Model that is replicated (published) to front. You always have two
     versions: current and published.
     Don't use it for secondary table models that are not replicated directly
@@ -157,7 +190,7 @@ class AdminFront(object):
 
     @cached_class_property
     def _front_model(cls):
-        return getattr(AdminFront.front, cls.__name__)
+        return getattr(AdminReplicated.front, cls.__name__)
 
     @cached_property
     def _front_item(self):
@@ -193,12 +226,6 @@ class AdminFront(object):
     def _copy_from_front(self):
         replicate_attributes(self._front_item, self)
 
-    @declared_attr
-    def has_unpublished_changes(self):
-        '''Was the object updated after publishing? Does it differ from
-        published version?'''
-        return Column(Boolean, nullable=False, default=True, onupdate=True)
-
     def publish(self):
         '''Publish current version: copy to front and change auxiliary fields
         appropriately.'''
@@ -212,27 +239,11 @@ class AdminFront(object):
         self.has_unpublished_changes = False
 
 
-# ======================================================================
+class AdminReplicated(_AdminReplicated):
 
-class ReplicatedHandlersMixin(object):
+    @declared_attr
+    def has_unpublished_changes(self):
+        '''Was the object updated after publishing? Does it differ from
+        published version?'''
+        return Column(Boolean, nullable=False, default=True, onupdate=True)
 
-    def _get_file_name_to_delete(self, target, changes):
-        if changes and changes.deleted:
-            old_name = changes.deleted[0]
-            if old_name != getattr(target._other_version, self.prop.column.key):
-                return old_name
-
-class ReplicatedImageEventHandlers(ReplicatedHandlersMixin, ImageEventHandlers):
-    pass
-
-class ReplicatedFileEventHandlers(ReplicatedHandlersMixin, FileEventHandlers):
-    pass
-
-
-# XXX name of class in too long
-class ReplicatedFileProperty(FileProperty):
-    event_cls = ReplicatedFileEventHandlers
-
-
-class ReplicatedImageProperty(ImageProperty):
-    event_cls = ReplicatedImageEventHandlers
