@@ -158,7 +158,6 @@ class _FrontReplicated(object):
     def _other_version(self):
         return self._admin_item
 
-    @cached_property
     def item_global_id(self):
         return ItemLock.item_global_id(self._admin_item)
 

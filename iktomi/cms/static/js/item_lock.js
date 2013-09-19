@@ -25,7 +25,7 @@ ItemLock.prototype = {
       this.edit_session_field = this.el.getParent('form').getElement('[name="edit_session"]');
 
       var lock_id = sessionStorage[this.options.global_id];
-      console.log('LOCK', lock_id, this.options.edit_session);
+      console.log('LOCK', this.options.global_id, lock_id, this.options.edit_session);
       if(this.options.lock_message != '' && (!lock_id || lock_id != this.options.edit_session)){
         this.show_dialog(this.options.lock_message, this.lock_actions.slice(1));
       } else {

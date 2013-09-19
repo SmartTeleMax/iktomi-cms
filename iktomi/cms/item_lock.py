@@ -44,7 +44,7 @@ class ItemLock(object):
     @staticmethod
     def item_global_id(obj):
         if hasattr(obj, 'item_global_id'):
-            return obj.item_global_id
+            return obj.item_global_id()
         cls, ident = sqlalchemy.orm.util.identity_key(instance=obj)
         ident = '-'.join(map(str, ident))
         return '%s.%s:%s' % (cls.__module__, cls.__name__, ident)
