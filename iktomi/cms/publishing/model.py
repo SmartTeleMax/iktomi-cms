@@ -45,7 +45,7 @@ class _AdminWithStateMixIn(object):
 
     def publish(self):
         self.state = self.PUBLIC
-        AdminReplicated.publish(self)
+        _AdminReplicated.publish(self)
 
     def unpublish(self):
         '''Make the object invisible on front site.'''
