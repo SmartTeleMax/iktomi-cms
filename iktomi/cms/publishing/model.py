@@ -244,5 +244,5 @@ class AdminReplicated(_AdminReplicated):
     def has_unpublished_changes(self):
         '''Was the object updated after publishing? Does it differ from
         published version?'''
-        return Column(Boolean, nullable=False, default=True, onupdate=True)
+        return Column(Boolean, nullable=False, default=True)#, onupdate=True)
 
