@@ -1,0 +1,150 @@
+.stream{
+    padding: 0;
+    margin: 0;
+    border-collapse:collapse;
+    vertical-align: top;
+    background-color:#F0F1F2;
+  }
+  .stream table {
+      border-collapse: collapse;
+  }
+  
+.stream .line { background-color: #dedede; }
+.stream TH, .stream thead td { 
+    background-color: #F0F1F2;
+    color: #000000;
+    text-align: left;
+    }
+
+.stream-items.with-sidefilter {
+  margin-right: 350px;
+  }
+
+  .sidefilter {
+    width:320px;
+    float: right;
+    background-color:#F0F1F2;
+    padding:0px 10px 0px 20px;
+    }
+  
+  .sidefilter fieldset {
+      border: 1px solid #ccc;
+      margin: 5px 0;
+      -moz-border-radius: 5px;
+      -webkit-border-radius: 5px;
+  }
+  
+  .sidefilter legend {
+      padding: 2px 4px;
+      border: 1px solid #ccc;
+      -moz-border-radius: 5px;
+      -webkit-border-radius: 5px;
+  }
+  
+  .sidefilter .form-row {
+      border-bottom:1px solid #ccc;
+  }
+  
+  .sidefilter .form-row.last {
+      border-bottom:none;
+  }
+  
+  .sidefilter .form-row.hidden {
+      display: none;
+  }
+  
+  .sidefilter input, .sidefilter select {
+      width: 75%;
+  }
+  
+  .sidefilter .form-row input[type=checkbox] {
+    width:15px;
+  }
+  
+  .sidefilter__submit {
+      margin: 10px 0;
+      float:right;
+  }
+  .sidefilter th {
+      vertical-align:top;
+  }
+  .sidefilter th label{
+    display:block;
+    margin:10px 0px 5px 0px ;
+  }
+  
+  .sidefilter select{
+    width:200px;
+    border: 1px solid #ccc;
+  }
+  
+  /*.sidefilter .go {
+    margin:10px 0px;
+    }*/
+
+.filter-form>fieldset>.form-row{
+    padding: 5px 0 5px 20px;
+    }
+    .filter-form>fieldset>.form-row.full-width{
+      padding-left: 0;
+      }
+    .filter-form label{
+      font-size: 13px;
+      padding-right: 10px;
+      color: #333;
+      }
+    .filter-form>fieldset>.form-row>.form-label{
+      font-weight: bold;
+      font-size: 13px;
+      padding-bottom: 3px;
+      margin-left: -20px;
+      }
+
+
+
+.itemlist {
+  padding: 0 20px;
+}
+
+
+.items {
+  width:100%;
+  }
+  .items td, .items th{
+    padding: 10px;
+    margin: 0px;
+    font-size:100%;
+    }
+    .items th.no-title{
+      padding: 0;
+      }
+
+
+.items .odd td {
+    background: #E2E4E6;
+}
+.items .even td {
+    background: #F0F1F2;
+}
+
+.id-field button{
+  display: inline-block;
+  margin-left: 5px;
+  /* Arrow Right designed by P.J. Onori from The Noun Project */
+  background: url(../images/go.svg) center center no-repeat;
+  width: 20px;
+  height: 20px;
+  background-size: 20px;
+  border: none;
+  vertical-align: middle;
+  cursor: pointer;
+  }
+
+.pages { white-space: nowrap; padding: 5px 0; height: 22px; background: #fff;}
+.pages A { cursor: pointer; cursor: hand; text-decoration: none; }
+.pages DIV { padding: 0.2em 0.6em; font: bold 1em Arial, sans-serif; color: #4a5761; background-color: #fbfbfb; border: 1px solid #ebebeb; margin-right: 10px; float: left; }
+.pages .active { background-color: #c1c1c1; color: #ffffff; border: 1px solid #c1c1c1; }
+
+
+
+
