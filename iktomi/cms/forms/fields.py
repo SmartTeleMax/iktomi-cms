@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
+from sqlalchemy import desc
 
 from iktomi.forms.fields import *
 from iktomi.cms.forms import convs, widgets
@@ -93,3 +94,30 @@ def IdField(name='id', conv=convs.Int):
                                           classname="small"),
                  label=u'Идентификатор',
                  )
+
+
+class SortField(Field):
+
+    conv = convs.EnumChoice
+    widget = widgets.Select(classname='js-sort-field', render_type="hidden")
+    # (db column, list_field name)
+    choices = (('id', 'id'),)
+
+    def __init__(self, *args, **kwargs):
+        Field.__init__(self, *args, **kwargs)
+        choices = sum([[(k, v), ('-'+k, '-'+v)]
+                       for k, v in self.choices], [])
+        self.conv = self.conv(choices=choices)
+
+    def filter_query(self, query, field, value):
+        is_desc = value.startswith('-')
+        value = value.lstrip('-')
+        method = getattr(self, 'order_by__' + value, self.order_by_default)
+        return method(query, value, is_desc)
+
+    def order_by_default(self, query, value, is_desc):
+        if is_desc:
+            value = desc(value)
+        return query.order_by(value)
+
+

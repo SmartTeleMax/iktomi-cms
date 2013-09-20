@@ -11,6 +11,7 @@
     this.paginator();
     this.$events = {};
     this.change_url = !this.form.getParent('.popup');
+    form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
   }
  
   FilterForm.prototype = {
@@ -26,7 +27,7 @@
           if (this.change_url){
             window.current_url = url;
           }
-          var container = form.getParent('.container').getElement('.stream-items');
+          var container = form.getParent('.stream').getElement('.stream-items');
           renderPage(result, container);
           this.fireEvent('load');
         }.bind(this)//,
@@ -37,18 +38,23 @@
     },
 
     'paginator': function(){
-      this.form.getParent('.container').addEventListener('click', function(e){
+      this.form.getParent('.stream').addEventListener('click', function(e){
         var link = e.target.tagName == 'A'? e.target: e.target.getParent('a');
         if (link && e.target.getParent('.pages')){
           this.submit(link.getAttribute('href'));
           e.preventDefault(); e.stopPropagation();
         }
       }.bind(this), false);
+    },
+
+    onSubmitClick: function(e){
+      e.preventDefault();
+      this.form.retrieve('submitFilter')();
     }
   }
 
   function liveSearch(input){
-    var items = input.getParent('.streamcontainer').getElement('.items').getElements('.item');
+    var items = input.getParent('.stream').getElement('.items').getElements('.item');
     items.each(function(item) {
       var texts = [];
       item.getElements('*').each(function(el) {

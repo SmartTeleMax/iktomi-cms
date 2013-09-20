@@ -6,6 +6,7 @@ flash
 main
 
 itemform
+stream
 collapsable_block
 tab_select
 wysihtml5

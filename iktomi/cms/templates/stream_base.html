@@ -1,6 +1,6 @@
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-<div class="content streamcontainer itemlist">
+<div class="content itemlist">
   {% if not is_popup %}
     <h1 class="stream_title nowrap">
       {{- title }}
@@ -32,38 +32,34 @@
   {% endif %}
 
 
-  <div class="table">
+  <div>
     {% if live_search %}
       {% set search_input_id = filter_form.id + '-livesearch' %}
       Поиск: <input type="text" class="init-block stream_search" id="{{ search_input_id }}" data-block-name="live-search"/>
     {% endif %}
 
-    <div class="line"></div>
 
-    <table class="container">
-      <tr>
-        <td style="vertical-align: top;" class="stream-items">
-          {% block stream_items %}{% endblock %}
-        </td>
-        {% if filter_form %}
-        <td class="sidefilter" style="vertical-align: top;" id="sidefilter">
-          <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}" class="filter-form init-block" data-block-name="filter-form">
-            <fieldset>
-              <legend>Фильтры</legend>
-              {{ filter_form.render() }}
+    <div class="stream">
+      <div class="line"></div>
+      {% if filter_form %}
+      <div class="sidefilter">
+        <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}" class="filter-form init-block" data-block-name="filter-form">
+          <fieldset>
+            <legend>Фильтры</legend>
+            {{ filter_form.render() }}
 
-              <input type="submit" value="Применить" style="display: none;">
-              <a class="button" style="float: right;" onclick="this.getParent('form').retrieve('submitFilter')(); return false;">
-                Применить
-              </a>
-            </fieldset>
-          {% if stream.list_edit_action %}
-          </form>
-          {% endif %}
-        </td>
+            <button type="submit" class="button sidefilter__submit">
+              Применить
+            </button>
+          </fieldset>
+        </form>
+      </div>
 
-        {% endif %}
-      </tr>
+      {% endif %}
+      <div class="stream-items{% if filter_form %} with-sidefilter{% endif %}">
+        {% block stream_items %}{% endblock %}
+      </div>
+      <div class="line"></div>
     </table>
   </div>
 </div>

@@ -10,10 +10,26 @@
   }
   
 .stream .line { background-color: #dedede; }
-.stream TH, .stream thead td { 
+.stream th, .stream thead td { 
     background-color: #F0F1F2;
     color: #000000;
     text-align: left;
+    }
+.stream th.sortable{
+  cursor: pointer;
+  background-image: url(../images/sort-icons.png);
+  background-position: 4px 14px;
+  background-repeat: no-repeat;
+  padding-left: 22px;
+  }
+  .stream th.sortable-asc{
+    background-position: 4px -17px;
+    }
+  .stream th.sortable-desc{
+    background-position: 4px -48px;
+    }
+  .stream th.sortable:hover{
+    background-color: #F7F8F9;
     }
 
 .stream-items.with-sidefilter {

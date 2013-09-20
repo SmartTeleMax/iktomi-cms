@@ -30,10 +30,11 @@
           class="init-block" data-block-name="stream-sortable" data-selector=".item">
     {% endif %}
     <table class="items">
-      <thead>
+      <thead class="init-block" data-block-name="sort-fields">
         <tr>
           {% for field in list_fields.values() %}
-            <th style="width: {{ field.width }};"{% if not field.title %}class="no-title"{% endif %}>
+            <th style="width: {{ field.width }};" class="field_{{ field.name }}"
+                {%- if not field.title %} class="no-title"{% endif %}>
               {{- field.title -}}
             </th>
           {% endfor %}
@@ -46,18 +47,18 @@
           {% endif %}
         </tr>
       </thead>
-      <tfoot>
-        <tr>
-        <td colspan="{{ list_fields|length }}"></td>
-        {% if list_item_form is defined %}
-        <td>
-          <button type="submit" class="button icon-apply submit-list-edit">
-            Сохранить
-          </button>
-        </td>
-        {% endif %}
-        </tr>
-      </tfoot>
+      {% if list_item_form is defined %}
+        <tfoot>
+          <tr>
+          <td colspan="{{ list_fields|length - 1 }}"></td>
+          <td>
+            <button type="button" class="button icon-apply submit-list-edit">
+              Сохранить
+            </button>
+          </td>
+          </tr>
+        </tfoot>
+      {% endif %}
 
       <tbody>
         {% block item_rows %}
