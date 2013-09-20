@@ -4,6 +4,8 @@
 <div class="flags">
   {%- for version, version_name in stream.versions %}
     <a class="stream-flag{% if version == env.version %} selected{% endif %}"
+       {%- if version == 'admin' %} title="Рабочая версия"{% endif %}
+       {%- if version == 'front' %} title="Опубликованная версия"{% endif %}
        href="{{ stream.url_for(env, version=version) }}">
       <span class="version-{{ version }}"></span>
     </a>
