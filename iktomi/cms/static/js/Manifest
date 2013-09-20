@@ -28,4 +28,5 @@ fieldlist
 tabbed_fieldset
 label_select
 version_switcher
+id_field
 

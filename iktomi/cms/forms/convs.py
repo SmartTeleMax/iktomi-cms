@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 from iktomi.unstable.forms.convs import *
 from sqlalchemy.orm import Query
+from datetime import date
 
 
 def DBUnique(model=None, message=u'An object with such value already exists'):
@@ -18,3 +20,14 @@ def DBUnique(model=None, message=u'An object with such value already exists'):
                 return False
         return True
     return to_python
+
+
+class DateIntervalConv(Converter):
+
+    def to_python(self, value):
+        if type(value['since']) is date \
+                and type(value['till']) is date \
+                and value['since'] > value['till']:
+            raise ValidationError(
+                        u'дата начала не может быть больше даты завершения')
+        return value

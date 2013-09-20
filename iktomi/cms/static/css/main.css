@@ -10,11 +10,11 @@ H1 { color: #000000; font: normal 1.4em Arial, sans-serif; margin: 1.8em 0em 0.2
 .gray { color: #93a0ab; }
 .blue { color: #0066cc; }
 .line DIV, DIV.line { font-size: 1px; height: 3px; _height: 4px; margin: 0px; padding: 0px; display: block; border-bottom: 1px solid #ffffff; }
-INPUT, SELECT { vertical-align: middle; font: normal 1em Arial, sans-serif; }
-INPUT.mini { width: 2em; }
-INPUT.small { width: 4em; }
-INPUT.medium { width: 15em; }
-INPUT.big { width: 30em; }
+input, SELECT { vertical-align: middle; font: normal 1em Arial, sans-serif; }
+input.mini { width: 2em !important; }
+input.small { width: 4em !important; }
+input.medium { width: 15em !important; }
+input.big { width: 30em !important; }
 /*TEXTAREA { width: 100%; }*/
 textarea {
     width: 600px;
@@ -25,14 +25,14 @@ input {
     padding: 3px;
     border: 1px solid #ccc;
 }
-SELECT.big { width: 15.1em; }
-SELECT.date { width: 12em; }
-INPUT.date { width: 10em; }
-INPUT.infilter { width: 10em; }
+select.big { width: 15.1em; }
+select.date { width: 12em; }
+input.date { width: 10em; }
+input.infilter { width: 10em; }
 
-INPUT.red { background-color: #990000; color: #ffffff; font-weight: bold; border-left: 1px solid #d60000; border-top: 1px solid #d60000; border-right: 1px solid #550000; border-bottom: 1px solid #550000; }
-INPUT.green { background-color: #006600; color: #ffffff; font-weight: bold; border-left: 1px solid #54c033; border-top: 1px solid #54c033; border-right: 1px solid #084003; border-bottom: 1px solid #084003; }
-INPUT.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; border-left: 1px solid #d1dce3; border-top: 1px solid #d1dce3; border-right: 1px solid #274157; border-bottom: 1px solid #274157; }
+input.red { background-color: #990000; color: #ffffff; font-weight: bold; border-left: 1px solid #d60000; border-top: 1px solid #d60000; border-right: 1px solid #550000; border-bottom: 1px solid #550000; }
+input.green { background-color: #006600; color: #ffffff; font-weight: bold; border-left: 1px solid #54c033; border-top: 1px solid #54c033; border-right: 1px solid #084003; border-bottom: 1px solid #084003; }
+input.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; border-left: 1px solid #d1dce3; border-top: 1px solid #d1dce3; border-right: 1px solid #274157; border-bottom: 1px solid #274157; }
 
 .header {
   position: fixed;
@@ -254,7 +254,7 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
     display: none;
 }
 
-.sidefilter .form-row input, .sidefilter .form-row select {
+.sidefilter input, .sidefilter select {
     width: 75%;
 }
 

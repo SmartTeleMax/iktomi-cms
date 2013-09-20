@@ -1,7 +1,9 @@
-from datetime import datetime
+# -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 
 from iktomi.forms.fields import *
 from iktomi.cms.forms import convs, widgets
+from iktomi.cms.publishing.model import WithState
 from iktomi.forms import fields
 from iktomi.unstable.forms.files import FileFieldSet
 
@@ -45,3 +47,49 @@ def SplitDateTimeField(name, label, required=True,
 class FieldBlock(fields.FieldBlock):
 
     widget = widgets.FieldBlockWidget
+
+
+class DateFromTo(FieldSet):
+
+    conv=convs.DateIntervalConv
+    label=u'Дата'
+
+    fields = [
+        Field('since',
+              conv=convs.Date(required=False),
+              widget=widgets.Calendar,
+              label=u'с'),
+        Field('till',
+              conv=convs.Date(required=False),
+              widget=widgets.Calendar,
+              label=u'по'),
+    ]
+
+    def filter_query(self, query, field, value):
+        model = self.form.model
+        if value['since'] is not None:
+            query = query.filter(getattr(model, self.name)>=value['since'])
+        if value['till'] is not None:
+            next_day = value['till'] + timedelta(days=1)
+            query = query.filter(getattr(model, self.name)<next_day)
+        return query
+
+
+_state_choices = ((WithState.PRIVATE, u'Скрытое'),
+                  (WithState.PUBLIC, u'Опубликованное'))
+
+def StateSelectField():
+    return Field('state',
+              conv=convs.EnumChoice(choices=_state_choices,
+                                    conv=convs.Int()),
+              widget=widgets.LabelSelect(render_type='full-width',
+                                         null_label=u'Все'),
+              )
+
+def IdField(name='id', conv=convs.Int):
+    return Field(name,
+                 conv=convs.Int(required=False),
+                 widget=widgets.TextInput(template="widgets/id_field",
+                                          classname="small"),
+                 label=u'Идентификатор',
+                 )
