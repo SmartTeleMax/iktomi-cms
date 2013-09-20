@@ -3,7 +3,9 @@
     this.form = form;
     form.store('filterForm', this);
     form.store('submitFilter', function(){
-      var url = form.getProperty('action') + '?' + form.toQueryString();
+      var qs = form.toQueryString();
+      qs = qs.replace(/[^&]+=\.?(?:&|$)/g, '').replace(/&$/, '');
+      var url = form.getProperty('action') + '?' + qs;
       this.submit(url);
     }.bind(this));
     this.paginator();
