@@ -62,6 +62,7 @@ input.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
     padding: 0;
     margin: 0;
     margin-right: 20px;
+    vertical-align: top;
     }
   .header .buttons{
     display: block;

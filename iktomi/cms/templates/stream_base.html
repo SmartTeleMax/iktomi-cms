@@ -2,17 +2,19 @@
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 <div class="content itemlist">
   {% if not is_popup %}
+  <div class="header">
     <h1 class="stream_title nowrap">
       {{- title }}
-      {% block after_title %}{% endblock %}
-      <div class="stream_buttons">
-        {% if allow_add %}
-        <a href="{{ item_url() }}" class="button icon-add" id="create_button">
-          Создать
-        </a>
-        {% endif %}
-      </div>
     </h1>
+    {% block after_title %}{% endblock %}
+    <div class="stream_buttons">
+      {% if allow_add %}
+      <a href="{{ item_url() }}" class="button icon-add" id="create_button">
+        Создать
+      </a>
+      {% endif %}
+    </div>
+  </div>
   {% endif %}
 
   {% if filter_form.show_tabs|default(False) %}
