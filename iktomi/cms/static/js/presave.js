@@ -61,9 +61,12 @@ var PreSaveHook = new Class({
     this.id = this.get_id();
 
     this.frm = frm;
-    this.widget = this.get_widget(frm);
-
-    this.confirm_rule();
+    window.setTimeout(function(){
+      // XXX hack to initialize after all widgets
+      //     May be, place init-block on the bottom of the form?
+      this.widget = this.get_widget(frm);
+      this.confirm_rule();
+    }.bind(this), 1);
   },
 
   get_id: function(){
