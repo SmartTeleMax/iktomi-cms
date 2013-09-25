@@ -24,7 +24,7 @@
     }.bind(this));
     this.frm.store('hooks', hooks);
 
-    if (this.frm.dataset.dataPresavehooks){
+    if (this.frm.dataset.presavehooks){
       var hooks_list = this.frm.dataset.presavehooks.split(' ');
       for (var i=0; i<hooks_list.length; i++){
         hooks.append(window[hooks_list[i]]);
@@ -111,8 +111,6 @@
     }
 
     var newData = this.formHash();
-    //console.log(newData);
-    //console.log(this.frm.retrieve('savedData'));
     if(this.frm.retrieve('savedData') == newData){
       console.log('AUTOSAVE no changes');
       return;
