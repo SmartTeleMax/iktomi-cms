@@ -128,6 +128,7 @@ class SortField(Field):
         return method(query, value, is_desc)
 
     def order_by_default(self, query, value, is_desc):
+        value = getattr(self.form.model, value)
         if is_desc:
             value = desc(value)
         return query.order_by(value)
