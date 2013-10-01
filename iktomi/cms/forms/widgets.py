@@ -127,6 +127,8 @@ class WysiHtml5(Widget):
 
 class PopupStreamSelect(Select):
 
+    _obsolete = Select._obsolete | frozenset(['reorderable'])
+
     template = 'widgets/popup_stream_select'
     open_btn_text = u'Выбрать'
     create_btn_text = u'Создать'
