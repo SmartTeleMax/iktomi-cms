@@ -195,23 +195,23 @@ class PublishStreamNoState(Stream):
     def uid(self, env):
         return self.module_name + '.' + env.version
 
-    def get_item_form_class(self, env):
-        cls = self.config.ItemForm
-        # if the class is not subclass of Form, then it should be a class_factory.
-        # we call it with env.models to get the actual class bound to current models.
-        # XXX check is not obvious
-        if not (isinstance(cls, type) and issubclass(cls, Form)):
-            cls = cls(env.models)
-            cls.__module__ = self.config.__name__
-        return cls
+    #def get_item_form_class(self, env):
+    #    cls = self.config.ItemForm
+    #    # if the class is not subclass of Form, then it should be a class_factory.
+    #    # we call it with env.models to get the actual class bound to current models.
+    #    # XXX check is not obvious
+    #    if not (isinstance(cls, type) and issubclass(cls, Form)):
+    #        cls = cls(env.models)
+    #        cls.__module__ = self.config.__name__
+    #    return cls
 
     def get_filter_form(self, env):
         cls = getattr(self.config, 'FilterForm', FilterForm)
         # if the class is not subclass of Form, then it should be a class_factory.
         # we call it with env.models to get the actual class bound to current models.
         # XXX check is not obvious
-        if not (isinstance(cls, type) and issubclass(cls, FilterForm)):
-            cls = cls(env.models)
+        #if not (isinstance(cls, type) and issubclass(cls, FilterForm)):
+        #    cls = cls(env.models)
         form = cls(env)
         form.model = self.get_model(env)
         return form
