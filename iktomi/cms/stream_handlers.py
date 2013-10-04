@@ -262,7 +262,7 @@ class EditItemHandler(StreamAction):
         request = env.request
 
         initial = filter_form.defaults()
-        stream_url = stream.url_for(env)
+        stream_url = stream.url_for(env).qs_set(filter_form.get_data())
         create_allowed = save_allowed = self.create_allowed(env)
         delete_allowed = False
         success = False

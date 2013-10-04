@@ -60,7 +60,9 @@
       method="post"
       enctype="multipart/form-data"
       data-block-name="item-form"
-      {%- if autosave_allowed %} data-autosave="on"{% endif %}
+      {%- if autosave_allowed %}
+      data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id) }}"
+      {%- endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
   <div class="content">
     <div class="header">
@@ -87,7 +89,7 @@
 
   {%- if item.id and item_lock -%}
     {% from 'macros/item_lock.html' import main as item_lock with context %}
-    {{ item_lock(item, stream_url.qs_set(filter_form.get_data()), lock_timeout, lock_message, edit_session) }}
+    {{ item_lock(item, stream_url, lock_timeout, lock_message, edit_session) }}
   {%- endif -%}
 </form>
 {% endblock %}
