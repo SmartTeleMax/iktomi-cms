@@ -375,7 +375,7 @@ var FileManagerSingle = new Class({
       name: oldfi.name
     }).inject(oldfi, 'after');
     this.uploader.bindfile(this.fileinput);
-    oldfi.dispose();
+    oldfi.destroy();
   },
 
   onError: function(e){

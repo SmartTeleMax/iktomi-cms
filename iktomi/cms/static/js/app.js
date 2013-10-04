@@ -72,7 +72,7 @@
     }
 
     if (result.html){
-      content.innerHTML = result.html;
+      content.set('html', result.html);
     }
 
     Blocks.init(content);
@@ -107,28 +107,29 @@
   // default implementation generate tons of garbage in memory if element is not removed by
   // Element.destroy()
   // And also this will not work at least in old IEs
-  Element.prototype.store = function(k, v){
-    this._storage = this._storage || {};
-    this._storage[k] = v;
-    return this;
-  }
-  Element.prototype.retrieve = function(k){
-    return (this._storage || {})[k];
-  }
-  Element.prototype.eliminate = function(k){
-    if(this._storage) { delete this._storage[k] }
-    return this;    
-  }
-  Element.prototype.addEvent = function(ev, callback){
-    //console.warn('DEPRECATED: addEvent');
-    this.addEventListener(ev, callback, false);
-    return this;
-  }
-  Element.prototype.removeEvent = function(ev, callback){
-    //console.warn('DEPRECATED: removeEvent');
-    this.removeEventListener(ev, callback);
-    return this;
-  }
+  //
+  //Element.prototype.store = function(k, v){
+  //  this._storage = this._storage || {};
+  //  this._storage[k] = v;
+  //  return this;
+  //}
+  //Element.prototype.retrieve = function(k){
+  //  return (this._storage || {})[k];
+  //}
+  //Element.prototype.eliminate = function(k){
+  //  if(this._storage) { delete this._storage[k] }
+  //  return this;    
+  //}
+  //Element.prototype.addEvent = function(ev, callback){
+  //  //console.warn('DEPRECATED: addEvent');
+  //  this.addEventListener(ev, callback, false);
+  //  return this;
+  //}
+  //Element.prototype.removeEvent = function(ev, callback){
+  //  //console.warn('DEPRECATED: removeEvent');
+  //  this.removeEventListener(ev, callback);
+  //  return this;
+  //}
 
   var tempFailure = Request.prototype.onFailure;
   Request.prototype.onFailure = function(){

@@ -268,7 +268,7 @@ var PopupStreamSelect = new Class({
   },
 
   reset: function() {
-    this.getInput().dispose();
+    this.getInput().destroy();
     this.getItemsDiv().empty();
     delete this._input;
     delete this._items_div;
@@ -439,7 +439,7 @@ var PopupStreamSelectMultiple = new Class({
   },
 
   reset: function() {
-    new Elements(this._inputs).dispose();
+    new Elements(this._inputs).destroy();
     this._inputs = [];
     this._map = {};
     this._rows = [];
@@ -497,8 +497,8 @@ var PopupStreamSelectMultiple = new Class({
     link, item,
     index = this._map[id],
     remove = (function() {
-      this.getInput(index).dispose();
-      this._rows[index].dispose();
+      this.getInput(index).destroy();
+      this._rows[index].destroy();
       delete this._inputs[index];
       delete this._selected_items[index];
       delete this._rows[index];

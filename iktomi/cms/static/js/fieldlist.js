@@ -30,7 +30,7 @@ var FieldList = new Class({
   btn: function(href, classname, caption, callback) {
     var el = new Element('a', {href: href, 'class': classname});
     if(caption){
-      el.set({html: caption})
+      el.set('html', caption);
     }
     el.addEvent('click', callback ? callback : $empty);
     return el
@@ -54,11 +54,11 @@ var FieldList = new Class({
       wrap.adopt(this.btn('#remove', 'remove', null, function(e){
         e.stopPropagation(); e.preventDefault();
         if(tr.getPrevious('.fieldlist-spacer')){
-          tr.getPrevious('.fieldlist-spacer').dispose();
+          tr.getPrevious('.fieldlist-spacer').destroy();
         } else if(tr.getNext('.fieldlist-spacer')) {
-          tr.getNext('.fieldlist-spacer').dispose();
+          tr.getNext('.fieldlist-spacer').destroy();
         }
-        tr.dispose();
+        tr.destroy();
         this.current_count--;
         if(this.limit>0 && this.current_count<this.limit){
           this.addBtn.removeClass('hide');
