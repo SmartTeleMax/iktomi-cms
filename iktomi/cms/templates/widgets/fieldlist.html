@@ -1,4 +1,5 @@
-<table class="fieldlist init-block" id="{{ field.input_name }}"
+<table class="fieldlist init-block" id="{{ field.id }}"
+       data-input-name="{{ field.input_name }}"
        data-block-name="fieldlist"
        data-template="{{ field.get_field_template()|forceescape }}"
        {%- if field.order %} data-order="true"{% endif %}
