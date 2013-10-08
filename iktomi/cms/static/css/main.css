@@ -190,21 +190,7 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
     margin-bottom: 5px;
 }
 
-.form .form-row>td {
-    padding: 20px 0;
-    border-bottom: 1px solid #eee;
-}
 
-.form .form-row>th {
-    font-weight: normal;
-    font-size: 80%;
-    padding-right: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.form .form-row.last>th, .form .form-row.last>td {
-    border-bottom: none;
-}
 
 .error-row * {
     color: #990;

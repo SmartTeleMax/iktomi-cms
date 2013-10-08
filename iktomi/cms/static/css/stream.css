@@ -16,17 +16,22 @@
     text-align: left;
     }
 .stream th.sortable{
+  padding-left: 22px;
   cursor: pointer;
+  }
+.stream th.sortable:before{
+  content: "";
   background-image: url(../images/sort-icons.png);
-  background-position: 4px 14px;
+  background-position: 4px 4px;
   background-repeat: no-repeat;
   padding-left: 22px;
+  margin-left: -22px;
   }
-  .stream th.sortable-asc{
-    background-position: 4px -17px;
+  .stream th.sortable-asc:before{
+    background-position: 4px -27px;
     }
-  .stream th.sortable-desc{
-    background-position: 4px -48px;
+  .stream th.sortable-desc:before{
+    background-position: 4px -58px;
     }
   .stream th.sortable:hover{
     background-color: #F7F8F9;

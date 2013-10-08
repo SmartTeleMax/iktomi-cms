@@ -30,10 +30,24 @@
     height: 100%;
   }
 
-.form .form-row>th{
-  vertical-align: top;
-  padding-top: 20px;
+.form .form-row>td {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
   }
+
+.form .form-row>th {
+  font-weight: normal;
+  font-size: 80%;
+  padding-right: 10px;
+  border-bottom: 1px solid #eee;
+  }
+  .form .form-row>th{
+    vertical-align: top;
+    padding-top: 14px;
+    }
+  .form .form-row.last>th, .form .form-row.last>td {
+    border-bottom: none;
+    }
 .popup .item-form h1{
   margin-top: 0;
   }
