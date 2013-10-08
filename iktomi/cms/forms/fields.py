@@ -105,6 +105,14 @@ class SortConverter(convs.EnumChoice):
                                  self.from_python(value))
         return value
 
+    # this does not work well, but default sort value is redundant in raw_data
+    # and accordingly in query string. We need other way to do that.
+    #def from_python(self, value):
+    #    value = convs.EnumChoice.from_python(self, value)
+    #    if value == self.field.get_initial():
+    #        return ''
+    #    return value
+
 
 class SortField(Field):
 
