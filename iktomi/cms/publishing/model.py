@@ -172,8 +172,9 @@ class FrontReplicated(_FrontReplicated):
 class _AdminReplicated(object):
     '''Model that is replicated (published) to front. You always have two
     versions: current and published.
-    Don't use it for secondary table models that are not replicated directly
-    (use AdminModel instead).'''
+    Don't use it for secondary table models, models of in-place editable relations
+    and other models that are not replicated directly
+    (use base model without mixins instead).'''
 
     @cached_class_property
     def front(cls):
