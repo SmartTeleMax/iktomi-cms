@@ -51,9 +51,12 @@ class WysiHtml5(Widget):
         ('aside', 'aside'),
     )
 
+    stylesheets = ("/static/css/wysihtml5-content.css",)
+
     @cached_property
     def js_config(self):
-        return json.dumps({'parserRules': self.parser_rules})
+        return json.dumps({'parserRules': self.parser_rules,
+                           'stylesheets': self.stylesheets})
 
     @cached_property
     def parser_rules(self):

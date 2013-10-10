@@ -3,7 +3,7 @@
     el = $(el);
     var config = JSON.parse(el.dataset.config);
     var editor = new wysihtml5.Editor(el.id, { // id of textarea element
-      stylesheets: ["/static/css/wysihtml5-content.css"],
+      stylesheets: config.stylesheets,
       useLineBreaks: false,
       toolbar: el.id + '-toolbar', // id of toolbar element
       //parser: function(elementOrHtml, rules, context, cleanUp) {
@@ -87,20 +87,21 @@
       var id = composer.textarea.element.id + '-' + this.propertyName;
       var sel = document.getElementById(id);
       if (!sel.retrieve('widget')){
-        var stream_select = new PopupStreamSelect(false, {"readonly": false, 
+        var streamUrl = sel.dataset.streamUrl || ("/"+this.streamName)
+        var streamSelect = new PopupStreamSelect(false, {"readonly": false, 
                   "allow_create": true, 
                   "container": id, 
                   "reorderable": false, 
                   "title": "\u0424\u0430\u0439\u043b\u044b", 
-                  "url": "/"+this.streamName, 
+                  "url": streamUrl, 
                   "input_name": '__'+this.streamName, 
-                  "create_url": "/"+this.stream_name+"/+", 
+                  "create_url": streamUrl+"/+", 
                   "unshift": false});
-        stream_select.addEvent('change', function(e){
+        streamSelect.addEvent('change', function(e){
           //this.restoreSelection();
           //if (this.isFileLinksEnabled()){
 
-            var value = stream_select.getInput().value;
+            var value = streamSelect.getInput().value;
             composer.commands.exec(this.commandName, value)
 
           //}
@@ -114,13 +115,13 @@
 
     exec: function(composer, command, value) {
       var dropdown = this._init(composer);
-      var stream_select = dropdown.retrieve('widget');
+      var streamSelect = dropdown.retrieve('widget');
       if (!value){
         dropdown.setStyle('display', dropdown.style.display == 'none'? '': 'none');
       } else if(value == 'select'){
-        stream_select.show();
+        streamSelect.show();
       } else if(value == 'create'){
-        stream_select.load(stream_select.options.create_url);
+        streamSelect.load(streamSelect.options.create_url);
       } else if(value == 'delete'){
         var abbrs = this.state(composer, command);
         if (abbrs){
@@ -149,7 +150,7 @@
   /*
    * Usage:
    *
-   * wysihtml5.commands.fileLink = Object.merge(Object.create(PopupStreamSelectPlugin), {
+   * wysihtml5.commands.fileLink = Object.append(Object.create(PopupStreamSelectPlugin), {
    *   propertyName: 'filelink',
    *   commandName:  'fileLink',
    *   streamName:   'files'
