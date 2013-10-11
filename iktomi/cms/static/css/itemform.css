@@ -92,3 +92,24 @@ textarea.bigtext{
     }
 
 
+.hint{
+  display: block;
+  color: #aaa;
+  font-size: 12px;
+  margin: 10px 0;
+  }
+  .hint:before{
+    content: "?";
+    display: inline-block;
+    background-color: #aaa;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    color: #fff;
+    margin-right: 5px;
+    text-align: center;
+    font-weight: bold;
+    }
+  .full-width .hint{
+    margin-left: 180px;
+  }
