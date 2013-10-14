@@ -47,15 +47,15 @@ class PublishLoner(Loner):
     def get_model(self, env):
         return getattr(env.models, self.config.Model)
 
-    def get_item_form_class(self, env):
-        # if the class is not subclass of Form, then it should be a class_factory.
-        # we call it with env.models to get the actual class bound to current models.
-        # XXX check is not obvious
-        cls = self.config.ItemForm
-        if not (isinstance(cls, type) and issubclass(cls, Form)):
-            cls = cls(env.models)
-            cls.__module__ = self.config.__name__
-        return cls
+    #def get_item_form_class(self, env):
+    #    # if the class is not subclass of Form, then it should be a class_factory.
+    #    # we call it with env.models to get the actual class bound to current models.
+    #    # XXX check is not obvious
+    #    cls = self.config.ItemForm
+    #    if not (isinstance(cls, type) and issubclass(cls, Form)):
+    #        cls = cls(env.models)
+    #        cls.__module__ = self.config.__name__
+    #    return cls
 
     @cached_property
     def template_name(self):
