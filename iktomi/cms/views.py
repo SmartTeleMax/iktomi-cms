@@ -4,6 +4,7 @@ import logging
 
 from webob.exc import HTTPMethodNotAllowed
 from iktomi import web
+from iktomi.cms.stream_handlers import ensure_is_xhr
 from .item_lock import ModelLockError
 
 logger = logging.getLogger(__name__)
@@ -14,21 +15,17 @@ class IndexHandler(web.WebHandler):
         self.dashboard = dashboard
 
     def index(self, env, data):
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
+        ensure_is_xhr(env)
 
         def max_childs(menu):
             return reduce(max, [len(x.items) for x in menu.items], 1)
 
-        html = env.render_to_string('index', dict(
+        return env.render_to_response('index', dict(
             title=u'Редакторский интерфейс сайта',
             menu='index',
             dashboard=self.dashboard(env),
             max_childs=max_childs,
         ))
-        return env.json({
-            'html': html,
-        })
     __call__ = index
 
 

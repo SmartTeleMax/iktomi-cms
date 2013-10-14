@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .stream import PublishStream
 from iktomi.web import WebHandler
+from iktomi.cms.stream_handlers import ensure_is_xhr
 
 class PublishQueue(WebHandler):
 
@@ -8,8 +9,7 @@ class PublishQueue(WebHandler):
         self.streams = streams
 
     def publish_queue(self, env, data):
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
+        ensure_is_xhr(env)
         # XXX
         env.models = env.models.admin
         env.version = 'admin'
@@ -23,10 +23,9 @@ class PublishQueue(WebHandler):
                 items = items.all()
                 changed += [(stream, item) for item in items]
         #changed.sort(key=lambda x: x.date_changed)
-        html = env.render_to_string('publish_queue', dict(
+        return env.render_to_response('publish_queue', dict(
             changed = changed,
             menu = env.current_location,
             title = u'Очередь публикации',
         ))
-        return env.json({'html': html})
     __call__ = publish_queue

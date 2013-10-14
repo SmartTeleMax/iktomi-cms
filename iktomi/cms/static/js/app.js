@@ -47,7 +47,7 @@
     }
     if (isMain) { currentUrl = url; }
 
-    new Request.JSON({
+    new Request({
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       'onSuccess': function(result){
@@ -63,24 +63,27 @@
   }, false);
 
   function renderPage(result, contentBlock, callback){
-    var content = contentBlock || $('app-content');
-    content.setStyle('height', content.getHeight());
+    try {
+      if (typeof result == 'string') {
+        result = JSON.decode(result);
+      }
+    } catch (e){
+      var content = contentBlock || $('app-content');
+      content.setStyle('height', content.getHeight());
+      content.set('html', result);
+      Blocks.init(content);
+      window.setTimeout(function(){content.setStyle('height', '');}, 2);
+
+      var bodyClass = contentBlock.getElement('[data-body-class]');
+      document.body.set('class', 
+          bodyClass ? bodyClass.dataset.bodyClass : null);
+      return;
+    }
+
 
     if (result.location){
         loadPage(result.location, true);
-        return;
     }
-
-    if (result.html){
-      content.set('html', result.html);
-    }
-
-    Blocks.init(content);
-
-    var bodyClass = contentBlock.getElement('[data-body-class]');
-    document.body.set('class', bodyClass ? bodyClass.dataset.bodyClass : null);
-
-    window.setTimeout(function(){content.setStyle('height', '');}, 0);
   }
 
   function generalFormSubmit(form){

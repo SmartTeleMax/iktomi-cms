@@ -2,6 +2,7 @@
 from datetime import datetime
 from iktomi.utils import cached_property
 from iktomi.cms.item_lock import lock_template_data, prepare_lock_data
+from iktomi.cms.stream_handlers import ensure_is_xhr
 from iktomi import web
 from iktomi.utils.mdict import MultiDict
 from webob.exc import HTTPForbidden
@@ -75,8 +76,7 @@ class Loner(object):
 
     def __call__(self, env, data):
         self.insure_has_permission(env, 'r') # XXX Allow read-only mode
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
+        ensure_is_xhr(env)
 
         save_allowed = self.save_allowed(env)
         extra_filters = getattr(self.config, 'model_filters', {})
@@ -154,9 +154,7 @@ class Loner(object):
             template_data.update(lock_template_data(env, data, item))
 
         template_data = self.process_template_data(env, template_data)
-        return env.json({
-            'html': env.render_to_string(self.template_name, template_data)
-            })
+        return env.render_to_response(self.template_name, template_data)
 
     def autosave(self, env, data):
         data.autosave = True

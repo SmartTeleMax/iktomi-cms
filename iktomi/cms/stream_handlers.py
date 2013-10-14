@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import inspect
+import json
 from datetime import datetime
-from webob.exc import HTTPNotFound, HTTPForbidden, HTTPSeeOther
+from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, PropertyLoader
 from sqlalchemy.orm.util import identity_key
@@ -21,7 +22,12 @@ from .flashmessages import flash
 
 
 def see_other(location):
-    return HTTPSeeOther(location=str(location))
+    return web.Response(json.dumps({'location': location}),
+                        content_type="application/json")
+
+def ensure_is_xhr(env):
+    if not env.request.is_xhr:
+        raise HTTPOk(body=env.render_to_string('layout.html', {}))
 
 
 class NoneIntConv(IntegerConv):
@@ -64,8 +70,7 @@ class StreamListHandler(StreamAction):
         return web.match() | self
 
     def list_handler(self, env, data):
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
+        ensure_is_xhr(env)
 
         stream = self.stream
         stream.insure_has_permission(env, 'x')
@@ -87,10 +92,7 @@ class StreamListHandler(StreamAction):
                     live_search=stream.live_search,
                     base_template=self.base_template)
 
-        html = env.render_to_string(self.template_name, data)
-        return env.json({
-            'html': html,
-        })
+        return env.render_to_response(self.template_name, data)
     __call__ = list_handler
 
     def prepare_data(self, env, data):
@@ -253,8 +255,7 @@ class EditItemHandler(StreamAction):
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
+        ensure_is_xhr(env)
 
         item, lock_message, filter_form = \
             data.item, data.lock_message, data.filter_form
@@ -360,11 +361,8 @@ class EditItemHandler(StreamAction):
         template_data = stream.process_item_template_data(env, template_data)
         template_data = self.process_item_template_data(env, template_data)
 
-        html = env.render_to_string(self.get_item_template(env, item), template_data)
-
-        return env.json({
-            'html': html,
-        })
+        return env.render_to_response(self.get_item_template(env, item),
+                                      template_data)
     __call__ = edit_item_handler
 
 
@@ -404,8 +402,7 @@ class DeleteItemHandler(StreamAction):
                 self.stream.has_permission(env, 'd')
 
     def delete_item_handler(self, env, data):
-        if not env.request.is_xhr:
-            return env.render_to_response('layout.html', {})
+        ensure_is_xhr(env)
         item, edit_session, lock_message, filter_form = \
             data.item, data.edit_session, data.lock_message, data.filter_form
         stream = self.stream
@@ -428,7 +425,7 @@ class DeleteItemHandler(StreamAction):
                       'failure')
                 return env.json({'result': 'failure'})
             return env.json({'result': 'success',
-                             'redirect_to': stream_url})
+                             'location': stream_url})
         data = dict(item=item,
                     item_url=item_url,
                     form_url=delete_url,
@@ -437,10 +434,7 @@ class DeleteItemHandler(StreamAction):
                     stream=stream,
                     stream_url=stream_url,
                     menu=stream.module_name)
-        html  = env.render_to_string('delete', data)
-        return env.json({
-            'html': html,
-        })
+        return env.render_to_response('delete', data)
     __call__ = delete_item_handler
 
     def _list_referers(self, env, obj, limit=50, exclude=None):
