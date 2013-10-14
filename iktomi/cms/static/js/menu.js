@@ -10,7 +10,7 @@
   }
 
   function title(elem){
-    document.querySelector('title').innerHTML = elem.dataset.title;
+    document.querySelector('title').set('html', elem.dataset.title);
     elem.destroy();
   }
 

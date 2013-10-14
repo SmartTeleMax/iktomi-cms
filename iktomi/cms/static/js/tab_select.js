@@ -1,4 +1,3 @@
-(function() {
   var TabSelect = new Class ({
 
     Implements: Options,
@@ -53,4 +52,3 @@
   Blocks.register('tab-select', function(el){
     new TabSelect(el.getElement('select'), JSON.parse(el.dataset.config));
   });
-})();

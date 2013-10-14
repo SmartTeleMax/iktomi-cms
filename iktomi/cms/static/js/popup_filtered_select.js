@@ -56,7 +56,7 @@ var PopupFilteredSelect = new Class({
             }.bind(this));
           } else {
             opt.getNext('label').addClass('right_round');
-            opt.getNext('span').dispose();
+            opt.getNext('span').destroy();
           }
         }.bind(this));
         if(this.selected_options.getLength()>0){

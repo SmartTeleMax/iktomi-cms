@@ -1,26 +1,26 @@
 var FieldList = new Class({
   Implements: [Events],
 
-  initialize: function(input_name, template, order, allow_create, allow_delete, limit) {
-    this.container = $(input_name);
+  initialize: function(container, template, order, allowCreate, allowDelete, limit) {
+    this.container = $(container);
     this.template = template;
-    this.input_name = this.container.id;
+    this.inputName = this.container.dataset.inputName;
     this.order = order;
     this.container.store('widget', this);
     this.limit = limit;
-    this.current_count = this.len();
+    this.currentCount = this.len();
     this.addBtn = this.btn('#add', 'button', 'Добавить', this.add.bind(this));
-    if (allow_create){
+    if (allowCreate){
         this.addBtn.inject(this.container, 'after');
     }
-    this.allow_delete = allow_delete;
+    this.allowDelete = allowDelete;
 
     this.setup();
 
     this.fireEvent('ready', this);
   },
   len: function() {
-    return this.container.getElements('[name=' + this.input_name + '-indeces]').length;
+    return this.container.getElements('[name=' + this.inputName + '-indeces]').length;
   },
   items: function() {
     return this.container.getLast().getChildren().filter(function(c) {
@@ -30,13 +30,13 @@ var FieldList = new Class({
   btn: function(href, classname, caption, callback) {
     var el = new Element('a', {href: href, 'class': classname});
     if(caption){
-      el.set({html: caption})
+      el.set('html', caption);
     }
     el.addEvent('click', callback ? callback : $empty);
     return el
   },
   setup: function() {
-    if(this.current_count >= this.limit){
+    if(this.currentCount >= this.limit){
       this.addBtn.addClass('hide');
     }
 
@@ -50,17 +50,17 @@ var FieldList = new Class({
   },
 
   installDeleteBtn: function(wrap, tr) {
-    if(this.allow_delete && !wrap.getElement('a.remove')){
+    if(this.allowDelete && !wrap.getElement('a.remove')){
       wrap.adopt(this.btn('#remove', 'remove', null, function(e){
         e.stopPropagation(); e.preventDefault();
         if(tr.getPrevious('.fieldlist-spacer')){
-          tr.getPrevious('.fieldlist-spacer').dispose();
+          tr.getPrevious('.fieldlist-spacer').destroy();
         } else if(tr.getNext('.fieldlist-spacer')) {
-          tr.getNext('.fieldlist-spacer').dispose();
+          tr.getNext('.fieldlist-spacer').destroy();
         }
-        tr.dispose();
-        this.current_count--;
-        if(this.limit>0 && this.current_count<this.limit){
+        tr.destroy();
+        this.currentCount--;
+        if(this.limit>0 && this.currentCount<this.limit){
           this.addBtn.removeClass('hide');
         }
         this.fireEvent('delete', tr);
@@ -99,40 +99,38 @@ var FieldList = new Class({
 
   add: function(e) {
     e.stopPropagation(); e.preventDefault();
-    this.current_count++;
+    this.currentCount++;
     if(this.limit>0){
-      if(this.current_count > this.limit)
+      if(this.currentCount > this.limit)
         return
-      if(this.current_count == this.limit)
+      if(this.currentCount == this.limit)
         this.addBtn.addClass('hide');
     }
     var next = 0;
-    this.container.getElements('[name=' + this.input_name + '-indeces]').each(function(input){
+    this.container.getElements('[name=' + this.inputName + '-indeces]').each(function(input){
       var value = parseInt(input.value);
       if (value >= next) {
         next = value;
       }
     });
     next++;
-    
+
     var t = this.template;
-    console.log(t.substr(0,300));
-    var marker = '%' + this.input_name + '-index' + '%';
+    var marker = '%' + this.inputName + '-index' + '%';
     while(t.test(marker)){
       t = t.replace(marker, next);
     }
-    
+
     var line = new Element('tr', {'class':'fieldlist-item'});
-    var field_td = new Element('td', {html: t}).inject(line);
-    
-    
+    var fieldTd = new Element('td', {html: t}).inject(line);
+
     if (this.order) {
-      var sort_btn_td = new Element('td', {'class':'fieldlist-btns'}).inject(line);
-      this.installSortBtns(sort_btn_td, line);
+      var sortBtnTd = new Element('td', {'class':'fieldlist-btns'}).inject(line);
+      this.installSortBtns(sortBtnTd, line);
     }
-    var delete_btn_td = new Element('td', {'class':'fieldlist-btns'}).inject(line);
-    this.installDeleteBtn(delete_btn_td, line);
-    field_td.adopt(new Element('input', {'type': 'hidden', name: this.input_name + '-indeces', value: next}));
+    var deleteBtnTd = new Element('td', {'class':'fieldlist-btns'}).inject(line);
+    this.installDeleteBtn(deleteBtnTd, line);
+    fieldTd.adopt(new Element('input', {'type': 'hidden', name: this.inputName + '-indeces', value: next}));
 
     /*spacer line*/
     var spacer = new Element('tr', {'class':'fieldlist-spacer'});
@@ -146,12 +144,12 @@ var FieldList = new Class({
     this.container.getFirst().adopt(line);
     line.highlight('#fefeb0', '#fafafa');
 
-    Blocks.init(field_td);
+    Blocks.init(fieldTd);
 
     this.fireEvent('add', line);
   }
 });
 
 Blocks.register('fieldlist', function(el){
-        new FieldList(el, el.dataset.template, el.dataset.order, true, true, el.dataset.max_length);
+        new FieldList(el, el.dataset.template, el.dataset.order, true, true, el.dataset.maxLength);
 })

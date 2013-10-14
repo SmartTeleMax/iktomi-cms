@@ -3,10 +3,6 @@ table.fieldlist {
   border-collapse: collapse;
 }
 
-table.fieldlist td {
-  padding: 0;
-}
-
 table.fieldlist td a.remove {
   background: url(../images/reset.gif) no-repeat left;
   padding-left: 12px;
@@ -31,15 +27,15 @@ table.fieldlist tr:last-child>td>a.sort-down {
 }
 
 table.fieldlist table {
-  margin-left: 10px;
   margin-right: 10px;
 }
 
-table.fieldlist .fieldlist-btns {
+.fieldlist-btns {
   background: #d1dec7;
   width: 1%;
 }
 
-table.fieldlist tr.fieldlist-item>td {
+tr.fieldlist-item>td {
   border: 1px solid #d1dec7;
+  padding: 0;
 }

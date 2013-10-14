@@ -93,3 +93,8 @@
     height: 16px;
     background-size: 16px 16px;
     }
+
+.w-popup-stream-select-items .field_has_unpublished_changes,
+.w-popup-stream-select-items .field_locked {
+    display: none;
+    }

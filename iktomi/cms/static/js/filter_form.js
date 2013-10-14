@@ -10,30 +10,33 @@
     }.bind(this));
     this.paginator();
     this.$events = {};
-    this.change_url = !this.form.getParent('.popup');
+    this.changeUrl = !this.form.getParent('.popup');
     form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
   }
  
   FilterForm.prototype = {
     'submit': function(url){
       console.log('SUBMIT')
-      if (this.change_url){
+      if (this.changeUrl){
         history.pushState(null, null, url);
       }
       var form = this.form;
       new Request.JSON({
         'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax&__no_layout',
         'onSuccess': function(result){
-          if (this.change_url){
-            window.current_url = url;
-          }
+          //if (this.changeUrl){
+          //  window.current_url = url;
+          //}
           var container = form.getParent('.stream').getElement('.stream-items');
           renderPage(result, container);
           this.fireEvent('load');
-        }.bind(this)//,
-        //'onFailure': function(e){
-        //  flash('Ошибка при загрузке страницы: '+e.status, 'failure', 10*1000)
-        //}
+          var addButton = this.form.getParent('.content').getElement('.js-button-add');
+          if(addButton){
+            var qs = url.split('?')[1];
+            var href = addButton.get('href').split('?')[0] + (qs? '?' + qs: '');
+            addButton.set('href', href);
+          }
+        }.bind(this)
       }).get();
     },
 

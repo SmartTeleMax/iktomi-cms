@@ -9,7 +9,7 @@
     this.container = frm.getParent('.popup-body') || $('app-content');
     this.is_popup = !!frm.getParent('.popup-body');
     this.popup = frm.getParent('.popup');
-    this.statusElement = this.frm.getElement('.autosave-status');
+    this.statusElement = this.frm.getElement('.autosave-status') || new Element('div');
 
     this.bindEventHandlers();
     this.addEvents();
@@ -118,7 +118,7 @@
 
     this.statusElement.setAttribute('data-status', 'saving');
 
-    var url = this.frm.getAttribute('action') + '/autosave';
+    var url = this.frm.dataset.autosave;
     new Request.JSON({
       url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       onSuccess: function(result){

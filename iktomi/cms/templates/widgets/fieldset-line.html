@@ -1,23 +1,26 @@
 <table class="fieldset fieldset-line">
-    <tr class="error-row">
-        {% for subfield in field.fields %}
-            {% if subfield.error %}
-                <td class="invalid">
-                    <span class="error">{{ subfield.error }}</span>
-                </td>
-            {% else %}
-                <td class="empty">&nbsp;</td>
-            {% endif %}
-        {% endfor %}
-    </tr>
-    <tr class="subfields">
-        {% for subfield in field.fields %}
-            <td{% if subfield.error %} class="invalid"{% endif %}>
-                {% if subfield.label %}
-                    <label for="{{ subfield.id }}">{{ subfield.label }}</label>
-                {% endif %}
-                {{ subfield.render() }}
-            </td>
-        {% endfor %}
-    </tr>
+  <tr class="error-row">
+    {% for subfield in field.fields %}
+      {% if subfield.error %}
+        <td class="invalid">
+          <span class="error">{{ subfield.error }}</span>
+        </td>
+      {% else %}
+        <td class="empty">&nbsp;</td>
+      {% endif %}
+    {% endfor %}
+  </tr>
+  <tr class="subfields">
+      {% for subfield in field.fields %}
+        <td{% if subfield.error %} class="invalid"{% endif %}>
+          {% if subfield.label %}
+            <label for="{{ subfield.id }}">{{ subfield.label }}</label>
+          {% endif %}
+          {{ subfield.render() }}
+          {%- if field.hint %}
+            <span class="hint">{{ field.hint }}</span>
+          {%- endif -%}
+        </td>
+      {% endfor %}
+  </tr>
 </table>

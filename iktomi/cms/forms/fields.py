@@ -96,9 +96,27 @@ def IdField(name='id', conv=convs.Int):
                  )
 
 
+class SortConverter(convs.EnumChoice):
+
+    def to_python(self, value):
+        value = convs.EnumChoice.to_python(self, value)
+        value = value or self.field.get_initial()
+        self.field.set_raw_value(self.field.form.raw_data,
+                                 self.from_python(value))
+        return value
+
+    # this does not work well, but default sort value is redundant in raw_data
+    # and accordingly in query string. We need other way to do that.
+    #def from_python(self, value):
+    #    value = convs.EnumChoice.from_python(self, value)
+    #    if value == self.field.get_initial():
+    #        return ''
+    #    return value
+
+
 class SortField(Field):
 
-    conv = convs.EnumChoice
+    conv = SortConverter
     widget = widgets.Select(classname='js-sort-field', render_type="hidden")
     # (db column, list_field name)
     choices = (('id', 'id'),)
@@ -107,15 +125,18 @@ class SortField(Field):
         Field.__init__(self, *args, **kwargs)
         choices = sum([[(k, v), ('-'+k, '-'+v)]
                        for k, v in self.choices], [])
-        self.conv = self.conv(choices=choices)
+        self.conv = self.conv(choices=choices, required=True)
 
     def filter_query(self, query, field, value):
         is_desc = value.startswith('-')
         value = value.lstrip('-')
-        method = getattr(self, 'order_by__' + value, self.order_by_default)
+        method = getattr(self.form, 'order_by__' + value,
+                         getattr(self, 'order_by__' + value,
+                             self.order_by_default))
         return method(query, value, is_desc)
 
     def order_by_default(self, query, value, is_desc):
+        value = getattr(self.form.model, value)
         if is_desc:
             value = desc(value)
         return query.order_by(value)

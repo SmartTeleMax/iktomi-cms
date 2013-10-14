@@ -11,33 +11,58 @@ function flash(text, className, timeout){
   timeout = timeout || 3000;
   if (!$('flashmessages')) {
     new Element ('div', {id: "flashmessages"}).inject(document.body);
+    $('flashmessages').addEvent('click', function(e){
+      if (e.target.tagName == 'BUTTON' && e.target.hasClass('close')){
+        var tooltip = e.target.getParent('.flashmessage');
+        var timeouts = JSON.parse(tooltip.dataset.timeouts);
+        for (var i=timeouts.length; i--;){
+          window.clearTimeout(timeouts[i]);
+        }
+        tooltip.destroy();
+      }
+    });
   }
 
-  var tooltip = new Element('<div>', {
-    'class': 'flashmessage '+ className,
-    'text': text
-  }).inject('flashmessages');
+  var tooltip = $('flashmessages').getElements('.flashmessage.show').filter(function(el){
+    return el.get('text') == text;
+  })[0];
 
-  var timeouts = [
-    window.setTimeout(function(){
-      tooltip.addClass('show'); // animate
-    }, 1),
+  if (tooltip){
+    var oldTimeouts = JSON.parse(tooltip.dataset.timeouts);
+    for (var i=oldTimeouts.length; i--;){
+      window.clearTimeout(oldTimeouts[i]);
+    }
+    var timeouts = [];
+  } else {
+    tooltip = new Element('<div>', {
+      'class': 'flashmessage '+ className,
+      'text': text
+    }).inject('flashmessages');
+
+    if (timeout > 5000){
+      new Element('button', {'class': 'close'}).inject(tooltip, 'top');
+    }
+
+    var timeouts = [
+      window.setTimeout(function(){
+        tooltip.addClass('show'); // animate
+      }, 1)
+    ]
+  }
+
+  timeouts.push(
     window.setTimeout(function(){
       tooltip.removeClass('show'); // reverse animate
-    }, timeout-300),
+    }, timeout-300)
+  );
+  timeouts.push(
     window.setTimeout(function(){
       tooltip.destroy();
     }, timeout)
-  ];
+  );
 
-  if (timeout > 5000){
-    new Element('button', {'class': 'close'}).addEvent('click', function(){
-      for (var i=timeouts.length; i--;){
-        window.clearTimeout(timeouts[i]);
-      }
-      tooltip.destroy();
-    }).inject(tooltip, 'top');
-  }
+  tooltip.dataset.timeouts = JSON.stringify(timeouts);
+
 }
 
 function flashAll(){
@@ -60,7 +85,7 @@ function flashAll(){
       }
 	    
       for (var j=0; j<data.length; j++){
-        flash(data[j][0], data[j][1]);
+        flash(data[j][0], data[j][1], data[j][1]=='failure'?6000:undefined);
       }
     }
   }

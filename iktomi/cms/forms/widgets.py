@@ -51,9 +51,12 @@ class WysiHtml5(Widget):
         ('aside', 'aside'),
     )
 
+    stylesheets = ("/static/css/wysihtml5-content.css",)
+
     @cached_property
     def js_config(self):
-        return json.dumps({'parserRules': self.parser_rules})
+        return json.dumps({'parserRules': self.parser_rules,
+                           'stylesheets': self.stylesheets})
 
     @cached_property
     def parser_rules(self):
@@ -126,6 +129,8 @@ class WysiHtml5(Widget):
 
 
 class PopupStreamSelect(Select):
+
+    _obsolete = Select._obsolete | frozenset(['reorderable'])
 
     template = 'widgets/popup_stream_select'
     open_btn_text = u'Выбрать'

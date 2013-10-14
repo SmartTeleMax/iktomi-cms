@@ -64,7 +64,7 @@ var Popup = new Class({
 
   disableClose: function() {
     this.overlay.removeEvent('mousedown', this._hide);
-    $('stream_popup-close-btn').dispose();
+    $('stream_popup-close-btn').destroy();
     return this;
   },
 
@@ -117,7 +117,7 @@ var Popup = new Class({
   },
 
   setContent: function(html) {
-    this.contentEl.innerHTML = html;
+    this.contentEl.set('html', html);
     return this;
   },
 

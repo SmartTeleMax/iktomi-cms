@@ -97,10 +97,12 @@
         for(var i=anchors.length; i--;){
           anchors[i].setAttribute('href', value)
         }
+        $$('.wysihtml5-dialog').setStyle('display', 'none');
       } else {
         // Create links
         value = typeof(value) === "object" ? value : { href: value };
         _format(composer, value);
+        $$('.wysihtml5-dialog').setStyle('display', 'none');
       }
     },
 
@@ -110,10 +112,12 @@
   };
 
   wysihtml5.commands.unlink = {
+    createCommand: wysihtml5.commands.createLink,
     exec: function(composer, command, value) {
-      var anchors = wysihtml5.commands.createLink.state(composer, command);
+      var anchors = this.createCommand.state(composer, command);
       composer.selection.executeAndRestore(function() {
         _removeFormat(composer, anchors);
+        $$('.wysihtml5-dialog').setStyle('display', 'none');
       });
     }
   }
