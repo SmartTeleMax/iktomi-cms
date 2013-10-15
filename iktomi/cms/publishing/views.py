@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .stream import PublishStream
 from iktomi.web import WebHandler
-from iktomi.cms.stream_handlers import ensure_is_xhr
+from iktomi.cms.stream_handlers import insure_is_xhr
 
 class PublishQueue(WebHandler):
 
@@ -9,7 +9,7 @@ class PublishQueue(WebHandler):
         self.streams = streams
 
     def publish_queue(self, env, data):
-        ensure_is_xhr(env)
+        insure_is_xhr(env)
         # XXX
         env.models = env.models.admin
         env.version = 'admin'

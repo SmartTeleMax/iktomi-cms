@@ -25,7 +25,7 @@ def see_other(location):
     return web.Response(json.dumps({'location': location}),
                         content_type="application/json")
 
-def ensure_is_xhr(env):
+def insure_is_xhr(env):
     if not env.request.is_xhr:
         raise HTTPOk(body=env.render_to_string('layout.html', {}))
 
@@ -70,7 +70,7 @@ class StreamListHandler(StreamAction):
         return web.match() | self
 
     def list_handler(self, env, data):
-        ensure_is_xhr(env)
+        insure_is_xhr(env)
 
         stream = self.stream
         stream.insure_has_permission(env, 'x')
@@ -255,7 +255,7 @@ class EditItemHandler(StreamAction):
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
-        ensure_is_xhr(env)
+        insure_is_xhr(env)
 
         item, lock_message, filter_form = \
             data.item, data.lock_message, data.filter_form
@@ -402,7 +402,7 @@ class DeleteItemHandler(StreamAction):
                 self.stream.has_permission(env, 'd')
 
     def delete_item_handler(self, env, data):
-        ensure_is_xhr(env)
+        insure_is_xhr(env)
         item, edit_session, lock_message, filter_form = \
             data.item, data.edit_session, data.lock_message, data.filter_form
         stream = self.stream
