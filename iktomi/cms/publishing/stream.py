@@ -33,6 +33,8 @@ class PublishAction(PostAction):
     allowed_for_new = False
     accepts_item_form = False
     title = u'Опубликовать'
+    hint = u'Перенести изменения из редакторской версии на опубликованную ' \
+           u'и сделать её доступной для просмотра на сайте'
 
     @property
     def app(self):
@@ -71,6 +73,8 @@ class UnpublishAction(PostAction):
     accepts_item_form = False
     action = 'unpublish'
     title = Markup(u'Снять<br/> с публикации')
+    hint = u'Перенести изменения из редакторской версии на опубликованную ' \
+           u'и сделать её доступной для просмотра на сайте'
 
     @property
     def app(self):
@@ -105,6 +109,7 @@ class RevertAction(PostAction):
     accepts_item_form = False
     action = 'revert'
     title = Markup(u'Восстановить<br/> из фронтальной')
+    hint = u'Отменить изменения, сделанные после публикации'
 
     @property
     def app(self):

@@ -11,6 +11,7 @@ class StreamAction(web.WebHandler):
     action = title = cls = None
     allowed_for_new = False
     display = True
+    hint = None
 
     def is_available(self, env, item=None):
         """ Rewrite this method to add condition when action is avalible
@@ -38,6 +39,7 @@ class StreamAction(web.WebHandler):
         self.cls = kw.get('cls', self.cls)
         self.allowed_for_new = kw.get('allowed_for_new', self.allowed_for_new)
         self.display = kw.get('display', self.display)
+        self.hint = kw.get('hint', self.hint)
 
     def bind(self, stream):
         return self.__class__(stream=stream, **self.init_kwargs)
