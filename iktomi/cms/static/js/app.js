@@ -7,6 +7,10 @@
                       e.target: 
                       e.target.getParent('a[href]'));
       if (link){
+        if (link.get('target') == '_blank' || link.get('rel') == 'external'){
+          window.open(link.href);
+          return;
+        }
         // XXX cleanup
         var url = link.getAttribute('href');
         if (url.indexOf('://') != -1 || url.indexOf('javascript:') == 0){
