@@ -1,4 +1,5 @@
-from ...forms import Form, FieldBlock
+from ...forms import Form
+from .fields import FieldBlock
 
 
 class ModelForm(Form):
