@@ -156,7 +156,7 @@ var PopupStreamSelect = new Class({
 
   onContentRecieved: function(result, redirect) {
     this.popup.hide_loader();
-    this.popup.setContent(result.html);
+    this.popup.setContent(result);
     Blocks.init(this.popup.contentEl);
     var frm = this.popup.contentEl.getElement('.item-form');
     if (frm) {
