@@ -5,6 +5,7 @@ import logging
 from webob.exc import HTTPMethodNotAllowed
 from iktomi import web
 from iktomi.cms.stream_handlers import insure_is_xhr
+from iktomi.auth import SqlaModelAuth
 from .item_lock import ModelLockError
 
 logger = logging.getLogger(__name__)
@@ -59,4 +60,15 @@ def release_lock(env, data):
         raise HTTPMethodNotAllowed()
     env.item_lock.remove(data.item_id, data.edit_session)
     return env.json({'status':'ok'})
+
+
+class AdminAuth(SqlaModelAuth):
+
+    def get_query(self, env, login):
+        return SqlaModelAuth.get_query(self, env, login).filter_by(active=True)
+
+    def identify_user(self, env, user_identity):
+        user = SqlaModelAuth.identify_user(self, env, user_identity)
+        if user.active:
+            return user
 

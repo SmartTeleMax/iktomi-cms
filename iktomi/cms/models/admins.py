@@ -19,7 +19,7 @@ def AdminUser(models):
     password = Column(String(250), nullable=False)
     creation_time = Column(DateTime, default=datetime.now, nullable=False)
     roles = Column(StringList(250), nullable=False, default=[])
-    disabled = Column(Boolean, default=False)
+    active = Column(Boolean, default=True)
 
     def __unicode__(self):
         if self.id is None:
