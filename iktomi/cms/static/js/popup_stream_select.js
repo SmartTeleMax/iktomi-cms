@@ -48,16 +48,15 @@ var PopupStreamSelect = new Class({
     this.container.store('widget', this);
     this.readonly = readonly;
     this.btn = $(this.options.container + '-btn');
+    this.createBtn = $(this.options.container + '-create');
     // XXX disabled
-    if (this.options.create_url) {
-      this.createBtn = $(this.options.container + '-create');
+    if (this.options.create_url && this.createBtn) {
       this.createBtn.addEvent('click', function(e){
         e.preventDefault();
         e.stopPropagation();
         this.load(this.options.create_url);
         return false;
       }.bind(this))
-
     } else {
       this.createBtn = null;
     }
