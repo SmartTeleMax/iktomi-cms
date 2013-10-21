@@ -3,47 +3,7 @@
 <table style="margin: auto; font-size: 16pt;" cellspacing="2em">
   <tbody>
     {% for row in dashboard.items %}
-    <tr>
-      {% for col in row.items %}
-      <td valign="top" style="padding: 1em;">
-        <fieldset>
-          <legend style="font-weight: bold">{{ col.title }}</legend>
-          <table class='langs-streams'>
-          {% for menu in col.items %}
-          <tr>
-            {% if not menu.has_children %}
-              <td colspan="{{ max_childs(menu) }}">
-                <a href="{{ menu.url }}">{{ menu.title }}</a>
-              </td>
-            {% elif menu.is_i18n is defined and menu.is_i18n %}
-              <td colspan="{{ max_childs(menu) - 1 }}">
-                <a href="{{ menu.items[0].url }}">{{ menu.items[0].title }}</a>
-              </td>
-              <td>
-                <div class="flags">
-                  {% for submenu in menu.items %}
-                    <a class="stream-flag" href="{{ submenu.url }}">
-                      <span class="lang-{{ submenu.lang }}"></span>
-                    </a>
-                  {% endfor %}
-                </div>
-              </td>
-            {% else %}
-              {% for submenu in menu.items %}
-                <td>
-                  <a href="{{ submenu.url }}">{{ submenu.title }}</a>
-                </td>
-              {% endfor %}
-            {% endif %}
-          </tr>
-          {% endfor %}
-          </table>
-        </fieldset>
-      </td>
-      {% endfor %}
-    </tr>
+      {{ row.render() }}
     {% endfor %}
-    <tr>
-    </tr>
   </tbody>
 </table>

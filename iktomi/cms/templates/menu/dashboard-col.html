@@ -1,0 +1,10 @@
+<td valign="top" style="padding: 1em;">
+  <fieldset>
+    <legend style="font-weight: bold">{{ menu.title }}</legend>
+    <table class='langs-streams'>
+    {%- for m in menu.items -%}
+      {{ m.render() }}
+    {%- endfor -%}
+    </table>
+  </fieldset>
+</td>

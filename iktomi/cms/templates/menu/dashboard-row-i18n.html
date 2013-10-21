@@ -1,0 +1,14 @@
+<tr>
+<td colspan="{{ menu.max_childs() - 1 }}">
+  <a href="{{ menu.items[0].url }}">{{ menu.items[0].title }}</a>
+</td>
+<td>
+  <div class="flags">
+    {% for submenu in menu.items %}
+      <a class="stream-flag" href="{{ submenu.url }}">
+        <span class="lang-{{ submenu.lang }}"></span>
+      </a>
+    {% endfor %}
+  </div>
+</td>
+</tr>

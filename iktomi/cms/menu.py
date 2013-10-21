@@ -1,11 +1,12 @@
 from iktomi.utils import cached_property, weakproxy
+from iktomi.utils.storage import VersionedStorage
 
 class Menu(object):
 
     template = 'menu/menu'
 
     def __init__(self, title, link=None, endpoint=None, params=None,
-                 items=None, env=None, template_vars={},
+                 items=None, env=None, template_vars={}, template=None,
                  permissions= {'*': 'rwxcd'}):
         self.parent = None
         self.title = title
@@ -14,6 +15,7 @@ class Menu(object):
         self.params = params or {}
         self.items = items or []
         self._env = env
+        self.template = template or self.template
         self.template_vars = template_vars
         self.perms = {'wheel': 'rwxcd'}
         self.perms.update(permissions)
@@ -30,6 +32,8 @@ class Menu(object):
 
     @cached_property
     def get_permissions(self):
+        if self.url is None and not self.has_children:
+            return ''
         perms = set(self.perms.get('*', ''))
         if self.env is None:
             return perms
@@ -74,6 +78,9 @@ class Menu(object):
             menu=self, url=self.url, active=self.active,
             title=self.title, **self.template_vars))
 
+    def max_childs(self):
+        return reduce(max, [len(x.items) for x in self.items], 1)
+
 
 class StreamMenu(Menu):
 
@@ -81,13 +88,14 @@ class StreamMenu(Menu):
 
     def __init__(self, stream_name, title=None, create=True,
                  filters=None, items=None, template_vars={},
-                 env=None):
+                 env=None, template=None):
         self.stream_name = stream_name
         if title is not None:
             self.title = title
         self.create = create
         self.filters = filters or {}
         self.items = items or []
+        self.template = template or self.template
         self.template_vars = template_vars
         self._env = env
         for item in self.items:
@@ -182,4 +190,50 @@ class LonerMenu(Menu):
     @cached_property
     def endpoint_name(self):
         return 'loners.'+self.loner_name
+
+
+
+class DashCol(Menu):
+
+    template = 'menu/dashboard-col'
+
+
+class MenuGroup(Menu):
+
+    def __init__(self, items, env=None, template=None):
+        Menu.__init__(self, None, items=items, env=env, template=template)
+
+
+class LangStreamMenu(StreamMenu):
+
+    def __init__(self, *args, **kwargs):
+        self.lang = kwargs.pop('lang')
+        StreamMenu.__init__(self, *args, **kwargs)
+
+    @cached_property
+    def env(self):
+        # XXX hack
+        env = super(LangStreamMenu, self).env
+        vs = VersionedStorage(lang=self.lang)
+        vs._storage._parent_storage = env
+        return vs
+
+
+class DashRow(MenuGroup):
+
+    template = 'menu/dashboard'
+
+
+def DashI18nStream(*args, **kwargs):
+    return MenuGroup([LangStreamMenu(*args, **dict(kwargs, lang=lang))
+                      for lang in ('ru', 'en')],
+                      template="menu/dashboard-row-i18n")
+
+def DashStream(*args, **kwargs):
+    kwargs.setdefault('template', 'menu/dashboard-row')
+    return StreamMenu(*args, **kwargs)
+
+def DashMenu(*args, **kwargs):
+    kwargs.setdefault('template', 'menu/dashboard-row')
+    return Menu(*args, **kwargs)
 
