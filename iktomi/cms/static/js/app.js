@@ -1,6 +1,7 @@
 (function(){
   var currentUrl = null;
   window.addEvent('domready', function(){
+    Blocks.init(document.body);
 
     document.querySelector('body').addEventListener('click', function(e){
       var link = (e.target.tagName == 'A' && e.target.getAttribute('href')?

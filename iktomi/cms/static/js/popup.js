@@ -11,7 +11,9 @@ var Popup = new Class({
   
   options: {
     'close_button_on': true,
-    'clickable_overlay': true
+    'clickable_overlay': true,
+    'empty_on_hide': true,
+    'injectTo': 'app-content'
   },
 
   onHide: $empty,
@@ -25,7 +27,7 @@ var Popup = new Class({
     this.el = new Element('div', {'class': 'popup'});
     this.el.store('popup', this);
 
-    var injectTo = $('app-content');
+    var injectTo = $(this.options.injectTo);
 
     this.overlay =  new Element('div', {'id':this.id+'-overlay', 'class':'overlay'}).inject(injectTo);
     this.loader = new Element('div', {'id':this.id+'-stream_loader', 'class':'loader hide'}).inject(injectTo);
@@ -221,7 +223,9 @@ var Popup = new Class({
       top: 0,
       left: 0
     });
-    this.empty();
+    if(this.options.empty_on_hide){
+      this.empty();
+    }
     this.overlay.setStyles({height: 0, opacity: 0});
     window.removeEvent('resize', this._onWindowResize);
     window.removeEvent('scroll', this._onWindowResize);

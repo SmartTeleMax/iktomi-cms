@@ -2,11 +2,13 @@
 # Common admin views
 import logging
 
-from webob.exc import HTTPMethodNotAllowed
+from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPBadRequest
 from iktomi import web
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth
 from .item_lock import ModelLockError
+from iktomi.cms.forms import Form, convs
+from iktomi.forms.fields import Field
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +20,10 @@ class IndexHandler(web.WebHandler):
     def index(self, env, data):
         insure_is_xhr(env)
 
-        def max_childs(menu):
-            return reduce(max, [len(x.items) for x in menu.items], 1)
-
         return env.render_to_response('index', dict(
             title=u'Редакторский интерфейс сайта',
             menu='index',
             dashboard=self.dashboard(env),
-            max_childs=max_childs,
         ))
     __call__ = index
 
@@ -71,4 +69,165 @@ class AdminAuth(SqlaModelAuth):
         user = SqlaModelAuth.identify_user(self, env, user_identity)
         if user.active:
             return user
+
+
+object_ref_fields = [
+    Field('stream_name',
+          conv=convs.Char(convs.limit(0, 50), required=True)),
+    Field('object_id',
+          conv=convs.Char(convs.limit(0, 50), required=True)),
+    ]
+
+class PostNote(web.WebHandler):
+
+    def __init__(self, model):
+        self.model = model
+        class EditorNoteForm(Form):
+
+            fields = object_ref_fields + [
+                Field('body',
+                      conv=convs.Char(required=True)),
+            ]
+        self.EditorNoteForm = EditorNoteForm
+
+    def post_note(self, env, data):
+        form = self.EditorNoteForm(env)
+        if not form.accept(env.request.POST):
+            return env.json({'success': False})
+        note = self.model(editor=env.user,
+                          **form.python_data)
+        env.db.add(note)
+        env.db.commit()
+        return env.json({'success': True})
+    __call__ = post_note
+
+
+
+class TrayView(web.WebHandler):
+
+    def __init__(self, Tray, ObjectTray, AdminUser):
+        self.Tray = Tray
+        self.ObjectTray = ObjectTray
+
+        class MyTrayObjectForm(Form):
+
+            fields = object_ref_fields + [
+                Field('comment',
+                      conv=convs.Char(required=False)),
+            ]
+
+        class TrayObjectForm(Form):
+
+            fields = MyTrayObjectForm.fields + [
+                Field('tray',
+                      conv=convs.ModelChoice(model=Tray, required=True)),
+            ]
+
+        class UserTrayObjectForm(Form):
+
+            fields = MyTrayObjectForm.fields + [
+                Field('user',
+                      conv=convs.ModelChoice(model=AdminUser,
+                                             condition=AdminUser.active==True,
+                                             required=True)),
+            ]
+
+        self.TrayObjectForm = TrayObjectForm
+        self.MyTrayObjectForm = MyTrayObjectForm
+        self.UserTrayObjectForm = UserTrayObjectForm
+
+
+    def put_to_tray(self, env, data):
+        form = self.TrayObjectForm(env)
+        if not form.accept(env.request.POST):
+            return env.json({'success': False,
+                             'errors': form.errors})
+        return self._put_to_tray(env, **form.python_data)
+
+    def put_to_my_tray(self, env, data):
+        form = self.MyTrayObjectForm(env)
+        if not form.accept(env.request.POST):
+            return env.json({'success': False,
+                             'errors': form.errors})
+        return self._put_to_user_tray(env, env.user, form)
+
+    def put_to_user_tray(self, env, data):
+        form = self.UserTrayObjectForm(env)
+        if not form.accept(env.request.POST):
+            return env.json({'success': False,
+                             'errors': form.errors})
+        return self._put_to_user_tray(env, form.python_data['user'], form)
+
+    def _put_to_user_tray(self, env, user, form):
+        tray = env.db.query(self.Tray).filter_by(editor=user).first()
+        if tray is None:
+            tray = self.Tray(editor=user,
+                             title=user.name or user.login)
+            env.db.add(tray)
+            env.db.flush()
+        return self._put_to_tray(env, tray=tray, **form.python_data)
+
+    def _put_to_tray(self, env, stream_name=None, object_id=None,
+                     tray=None, comment=None, user=None):
+        filter_args = dict(stream_name=stream_name,
+                           object_id=object_id,
+                           tray=tray)
+        object_tray = env.db.query(self.ObjectTray)\
+                            .filter_by(**filter_args).first()
+        if object_tray is None:
+            object_tray = self.ObjectTray(**filter_args)
+            env.db.add(object_tray)
+        object_tray.comment = comment
+        env.db.commit()
+        return env.json({'success': True,
+                         'id': object_tray.id,
+                         'tray_id': tray.id,
+                         'title': tray.title})
+
+    def delete_from_tray(self, env, data):
+        try:
+            id = int(env.request.POST.get('id', ''))
+        except ValueError:
+            raise HTTPBadRequest()
+        tray = env.db.query(self.ObjectTray).get(id)
+        if tray is None:
+            raise HTTPBadRequest()
+        env.db.delete(tray)
+        env.db.commit()
+        return env.json({'success': True})
+
+    def tray(self, env, data):
+        insure_is_xhr(env)
+        env.models = env.models.admin
+        env.version = 'admin'
+        tray = env.db.query(self.Tray).get(data.tray)
+        if tray is None:
+            raise HTTPNotFound()
+        objects = env.db.query(self.ObjectTray).filter_by(tray=tray).all()
+        items = []
+        for obj in objects:
+            if ':' in obj.stream_name:
+                stream_name = obj.stream_name.split(':', 1)[0]
+                params = dict([x.split('=', 1) for x in
+                               obj.stream_name.split(':')[1:]
+                               if '=' in x])
+            else:
+                stream_name = obj.stream_name
+                params = {}
+            if 'lang' in params:
+                env.models = getattr(env.models, params['lang'])
+                env.lang = params['lang']
+            if stream_name not in env.streams:
+                continue
+            stream = env.streams[stream_name]
+            url = stream.url_for(env, 'item', item=obj.object_id, **params)
+            item = stream.item_query(env).first()
+            items.append((url, stream, item))
+        #changed.sort(key=lambda x: x.date_changed)
+        return env.render_to_response('tray', dict(
+            tray = tray,
+            items = items,
+            menu = env.current_location,
+            title = tray.title,
+        ))
 

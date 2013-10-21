@@ -1,0 +1,18 @@
+{% if field.form.item and field.form.item.id is not none %}
+<div class="init-block editor-notes" data-block-name="editor-notes"
+     data-url="{{ field.submit_url }}"
+     data-object-id="{{ field.form.item.id }}"
+     data-stream-name="{{ env.stream.uid(env, version=False) }}">
+  {% for note in field.get_data() %}
+  <div class="editor-notes__item">
+    <p class="editor-notes__author">{{ note.editor.name }}, {{ note.creation_time.strftime('%d.%m.%Y %H:%M') }}</p>
+    <p class="editor-notes__body">{{ note.body }}</p>
+  </div>
+  {% endfor %}
+  <div class="editor-notes__dropdown">
+    <textarea></textarea>
+    <button class="button editor-notes__submit" type="button">Отправить</button>
+  </div>
+  <button class="button editor-notes__add" type="button">Добавить пометку</button>
+</div>
+{% endif %}

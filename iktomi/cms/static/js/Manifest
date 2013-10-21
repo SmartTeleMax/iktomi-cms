@@ -30,4 +30,5 @@ label_select
 version_switcher
 id_field
 sort_field
-
+editor_notes
+tray

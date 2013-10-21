@@ -40,6 +40,6 @@ class ModelForm(Form):
         for field in fields:
             if isinstance(field, FieldBlock):
                 initial.update(cls._load_initial(item, initial, field.fields))
-            else:
+            elif field.name:
                 initial[field.name] = getattr(item, field.name)
         return initial

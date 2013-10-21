@@ -1,0 +1,30 @@
+.editor-notes__dropdown{
+  height: 0;
+  overflow: hidden;
+  -webkit-transition: height .2s;
+  -moz-transition: height .2s;
+  -o-transition: height .2s;
+  transition: height .2s;
+  }
+  .editor-notes__dropdown textarea{
+    height: 100px;
+    margin-bottom: -6px;
+    }
+  .editor-notes__dropdown.show{
+    height: 100px;
+    }
+  .editor-notes__submit{
+    display: inline-block;
+    }
+  .editor-notes__item{
+    margin-bottom: 10px;
+    }
+    .editor-notes__author{
+      color: #274157;
+      font-weight: bold;
+      margin: 0; padding: 0;
+      }
+    .editor-notes__body{
+      color: #900;
+      margin: 0; padding: 0;
+      }

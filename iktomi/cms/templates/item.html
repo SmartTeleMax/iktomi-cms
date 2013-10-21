@@ -74,8 +74,35 @@
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
         {%- endif -%}
       </h1>
+
       {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}
+
+      {%- if context.item_trays is defined -%}
+      <div class="trays init-block" data-block-name="item-trays"
+           data-delete-url="{{ env.url_for('delete_from_tray') }}"
+           data-stream-name="{{ stream.uid(env, version=False) }}"
+           data-object-id="{{ item.id }}">
+        <div class="trays__dropdown">
+          <div class="trays__list">
+          {%- for object_tray in context.item_trays(stream, item) -%}
+          <div class="trays__tray" data-id="{{ object_tray.id }}">
+            <a href="{{ url_for('tray', tray=object_tray.tray.id) }}">
+              {{- object_tray.tray.title -}}
+            </a>
+            {%- if object_tray.comment -%}
+              <div class="trays__comment-hellip">
+                <div class="trays__comment">{{ object_tray.comment }}</div>
+              </div>
+            {%- endif -%}
+            <button type="button" class="trays__tray__remove">&times;</button>
+          </div>
+          {%- endfor -%}
+          </div>
+        </div>
+        <button type="button" class="trays__add">+</button>
+      </div>
+      {%- endif -%}
 
       {% from "macros/autosave_status.html" import autosave_status %}
       {{ autosave_status(autosave_allowed, draft) }}

@@ -76,8 +76,14 @@ class I18nStreamMixin(object):
 
     list_base_template = 'lang_publish_stream.html'
 
-    def uid(self, env):
-        return self.module_name + '.' + env.version + '.' + env.lang
+    def uid(self, env, version=True):
+        # Attention! Be careful!
+        # Do not change format of uid unless you are sure it will not 
+        # brake tray views, where stream_name and language are parsed out
+        # from the uid
+        if version:
+            return self.module_name + ':version=' + env.version + ':lang=' + env.lang
+        return self.module_name + ':lang=' + env.lang
 
     @property
     def prefix_handler(self):

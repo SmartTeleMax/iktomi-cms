@@ -251,7 +251,7 @@ class Stream(object):
     def title(self):
         return getattr(self.config, 'title', self.module_name)
 
-    def uid(self, env):
+    def uid(self, env, version=None):
         return self.module_name
 
     def get_filter_form(self, env):

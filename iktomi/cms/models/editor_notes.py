@@ -21,8 +21,8 @@ def EditorNote(models):
     body = Column(Text, nullable=False)
 
     @classmethod
-    def get_for_item(cls, db, stream_name, item, user):
+    def get_for_item(cls, db, stream_name, item):
         query = db.query(cls).filter_by(stream_name=stream_name)
-        return query.filter(cls.object_id == str(item.id)).first()
+        return query.filter(cls.object_id == str(item.id)).all()
 
     Index('draft_index', stream_name, object_id)

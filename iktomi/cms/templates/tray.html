@@ -1,0 +1,50 @@
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+<div class="content itemlist">
+  <div class="stream">
+    <div class="header">
+      <h1>Лоток {% if tray.editor %}пользователя {% endif %}{{ tray.title }}</h1>
+    </div>
+    <div class="stream-items">
+      {% if not items %}
+        <p>Лоток пуст.</p>
+      {% endif %}
+
+      <div class="table">
+        <div class="line"></div>
+        <table class="container"><tbody><tr><td>
+          <table class="items">
+            <tbody>
+            {% for url, stream, item in items %}
+              <tr class="item {{ loop.cycle('odd', 'even') }}
+                         {%- if item.public is defined -%}
+                           {%- if item.public %} published{% else %} unpublished{% endif -%}
+                           {%- endif %}">
+                <td class="field_id">
+                  <a href="{{ url }}">
+                    {{- item.id -}}
+                  </a>
+                </td>
+                <td class="field_id">
+                  <a href="{{ url }}">
+                    {{- stream.title -}}
+                  </a>
+                </td>
+                <td>
+                  <a href="{{ url }}">
+                    {%- if item.title is defined %}
+                      {{- item.title -}}
+                    {%- else -%}
+                      {{- item -}}
+                    {%- endif -%}
+                  <a>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>

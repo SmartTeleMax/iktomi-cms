@@ -197,8 +197,10 @@ class PublishStreamNoState(Stream):
                 ('front', u'Фронтальная версия'),)
     versions_dict = dict(versions)
 
-    def uid(self, env):
-        return self.module_name + '.' + env.version
+    def uid(self, env, version=True):
+        if version:
+            return self.module_name
+        return self.module_name + ':version=' + env.version
 
     def get_filter_form(self, env):
         cls = getattr(self.config, 'FilterForm', FilterForm)

@@ -1,0 +1,88 @@
+.trays{
+  display: inline-block;
+  position: relative;
+  height: 20px;
+  width: 20px;
+  /* Lock designed by Diego Naive from The Noun Project, published under CC-BY */
+  background-image: url(../images/tags.svg);
+  background-size: 20px 20px;
+  vertical-align: middle;
+  margin-left: 20px;
+  }
+  .trays__dropdown{
+    position: absolute;
+    top: 20px;
+    left: -10px;
+    min-width: 300px;
+    background: #fff;
+    display: none;
+    padding: 10px;
+    }
+  .trays__add{
+    margin-left: 23px;
+    background: none;
+    outline: none;
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    display: none;
+    cursor: pointer
+    }
+  .trays:hover .trays__dropdown{
+    display: block;
+    }
+  .trays:hover .trays__add{
+    display: inline-block;
+    }
+  .trays__tray{
+    display: inline-block;
+    position: relative;
+    color: #fff;
+    background-color: #5aa;
+    padding-left: 5px;
+    cursor: default;
+    line-height: 1em;
+    border-radius: 3px 10px 10px 3px;
+    margin-bottom: 4px;
+    margin-right: 10px;
+    }
+    .trays__tray a{
+      color: inherit;
+      text-decoration: none;
+      }
+  .trays__tray__remove{
+    background: none;
+    outline: none;
+    border: none;
+    border-left: 1px solid #fff;
+    cursor: pointer;
+    color: #fff;
+    padding: 0 4px;
+    margin-left: 4px;
+    line-height: 1em;
+    }
+  .trays__comment{
+    position: absolute;
+    display: none;
+    top: 24px;
+    left: 0px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #555;
+    min-width: 200px;
+    padding: 4px;
+    z-index: 5;
+    }
+    .trays__comment-hellip:hover .trays__comment{
+      display: block;
+      }
+    .trays__comment-hellip{
+      display: inline-block;
+      border-left: 1px solid #fff;
+      padding: 0 0 0 4px;
+      margin-left: 4px;
+      cursor: help;
+      }
+    .trays__comment-hellip:before{
+      content: "?";
+      }
+
