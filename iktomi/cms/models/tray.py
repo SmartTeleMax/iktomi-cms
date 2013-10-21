@@ -18,6 +18,7 @@ def ObjectTray(models):
     tray_id = Column(Integer, ForeignKey('Tray.id'))
     tray = relationship('Tray')
     comment = Column(Text, nullable=False, default='')
+    created_dt = Column(DateTime, default=datetime.now, nullable=False)
 
     Index('draft_index', stream_name, object_id)
 

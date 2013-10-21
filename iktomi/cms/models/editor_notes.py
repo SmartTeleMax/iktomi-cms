@@ -15,7 +15,7 @@ def EditorNote(models):
     stream_name = Column(String(50), nullable=False, default='')
     # object id can be string, so we use string here
     object_id = Column(String(50), nullable=True)
-    creation_time = Column(DateTime, default=datetime.now, nullable=False)
+    created_dt = Column(DateTime, default=datetime.now, nullable=False)
     editor_id = Column(Integer, ForeignKey(models.AdminUser.id), nullable=False)
     editor = relationship(models.AdminUser)
     body = Column(Text, nullable=False)
