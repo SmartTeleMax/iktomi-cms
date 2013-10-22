@@ -11,6 +11,10 @@
     color:#3764A0;
     text-align:left;
 }
+.collapsable>.hint{
+  float: right;
+  margin-right: 20px;
+  }
 
 .collapsable h2.block_title{
     display: inline-block;

@@ -17,7 +17,7 @@
             <label for="{{ subfield.id }}">{{ subfield.label }}</label>
           {% endif %}
           {{ subfield.render() }}
-          {%- if field.hint %}
+          {%- if field.hint and not field.widget.renders_hint %}
             <span class="hint">{{ field.hint }}</span>
           {%- endif -%}
         </td>

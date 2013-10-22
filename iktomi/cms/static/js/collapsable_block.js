@@ -2,7 +2,7 @@ var CollapsableForm = new Class({
   initialize: function(block){
     //var has_errors = block.getParent('form').getElement('.error');
 
-    block.getFirst().addEvent('mousedown', function(e){
+    block.getChildren('h2').addEvent('mousedown', function(e){
       e.stopPropagation(); e.preventDefault();
       block.toggleClass('closed');
     });

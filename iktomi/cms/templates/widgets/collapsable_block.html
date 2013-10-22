@@ -1,4 +1,7 @@
 <div class="border form text init-block {{ widget.classname }}" data-block-name="collapsable-block">
+  {%- if field.hint -%}
+    <div class="hint hint-right">{{ field.hint }}</div>
+  {%- endif -%}
   <h2 class="block_title">{{ field.title }}</h2>
   {% set form = field %}
   <div class="collapsable-content">

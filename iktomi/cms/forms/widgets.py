@@ -276,4 +276,5 @@ class FieldBlockWidget(widgets.FieldBlockWidget):
 
     classname = 'collapsable'
     template = 'widgets/collapsable_block'
+    renders_hint = True
 

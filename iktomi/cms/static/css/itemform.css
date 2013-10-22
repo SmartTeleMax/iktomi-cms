@@ -98,6 +98,9 @@ textarea.bigtext{
   font-size: 12px;
   margin: 10px 0;
   }
+  .hint-right{
+    text-align: right;
+    }
   .hint:before{
     content: "?";
     display: inline-block;
@@ -110,6 +113,11 @@ textarea.bigtext{
     text-align: center;
     font-weight: bold;
     }
+  /*.hint-right:before{
+    float: right;
+    margin-right: 0px;
+    margin-left: 5px;
+    }*/
   .full-width .hint{
     margin-left: 180px;
   }
