@@ -85,4 +85,11 @@
     .trays__comment-hellip:before{
       content: "?";
       }
+.tray__remove{
+  background: /* fixed */ url(../images/reset.gif) no-repeat left;
+  padding-left: 12px;
+  color: #990000;
+  text-decoration: none;
+  cursor: pointer;
+  }
 

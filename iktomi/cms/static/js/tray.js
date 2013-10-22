@@ -5,7 +5,7 @@ Blocks.register('item-trays', function(el){
       url: el.dataset.deleteUrl,
       onSuccess: function(result){
         if (result.success){
-          tray.remove();
+          tray.destroy();
         } else {
           console.warn(result.errors);
           flash('Не удалось удалить из лотка', 'failure');
@@ -24,6 +24,25 @@ Blocks.register('item-trays', function(el){
   });
 
 });
+
+Blocks.register('tray', function(el){
+  el.addEvent('click:relay(.tray__remove)', function(){
+    new Request.JSON({
+      url: el.dataset.deleteUrl,
+      onSuccess: function(result){
+        if (result.success){
+          this.getParent('tr').destroy();
+        } else {
+          console.warn(result.errors);
+          flash('Не удалось удалить из лотка', 'failure');
+        }
+      }.bind(this)
+    }).post({'id': this.dataset.id});
+  });
+
+});
+
+
 
 
 Blocks.register('tray-popup', function(el){
@@ -56,8 +75,8 @@ Blocks.register('tray-popup', function(el){
                                  'html': '&times'}).inject(div);
           div.inject(trays.getElement('.trays__list'));
         } else {
-          console.warn(result.errors);
-          flash('Не удалось положить в лоток', 'failure');
+          console.warn(result.errors || result.error);
+          flash(result.error || 'Не удалось положить в лоток', 'failure');
         }
       }.bind(this)
     }).post(data);

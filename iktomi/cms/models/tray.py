@@ -15,8 +15,13 @@ def ObjectTray(models):
     stream_name = Column(String(50), nullable=False, default='')
     # object id can be string, so we use string here
     object_id = Column(String(50), nullable=True)
+
     tray_id = Column(Integer, ForeignKey('Tray.id'))
     tray = relationship('Tray')
+    sender_id = Column(Integer, ForeignKey(models.AdminUser.id),
+                       nullable=True)
+    sender = relationship(models.AdminUser)
+
     comment = Column(Text, nullable=False, default='')
     created_dt = Column(DateTime, default=datetime.now, nullable=False)
 

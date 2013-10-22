@@ -6,16 +6,17 @@
       <h1>Лоток {% if tray.editor %}пользователя {% endif %}{{ tray.title }}</h1>
     </div>
     <div class="stream-items">
-
-
       <div class="table">
         <div class="line"></div>
-        <table class="container" style="width: 100%"><tbody><tr><td>
+        <table class="container init-block"style="width: 100%"
+               data-block-name="tray" 
+               data-delete-url="{{ url_for("delete_from_tray") }}"><tbody><tr><td>
           <table class="items">
             <thead>
               <th>ID</th>
               <th>Тип</th>
               <th>Название</th>
+              <th>Отправитель</th>
               <th>Комментарий</th>
               <th>Дата отправки</th>
             </thead>
@@ -23,7 +24,7 @@
             {% if not items %}
               <td colspan="5">Лоток пуст</td>
             {% endif %}
-            {% for url, stream, item in items %}
+            {% for url, stream_title, stream, obj, item in items %}
               <tr class="item {{ loop.cycle('odd', 'even') }}
                          {%- if item.public is defined -%}
                            {%- if item.public %} published{% else %} unpublished{% endif -%}
@@ -32,7 +33,7 @@
                   {{- item.id -}}
                 </a></td>
                 <td class="field_id"><a href="{{ url }}">
-                  {{- stream.title -}}
+                  {{- stream_title -}}
                 </a></td>
                 <td><a href="{{ url }}">
                     {%- if item.title is defined %}
@@ -40,15 +41,19 @@
                     {%- else -%}
                       {{- item -}}
                     {%- endif -%}
-                <a></td>
+                </a></td>
                 <td><a href="{{ url }}">
-                  {{- item.comment -}}
-                <a></td>
+                    {% if obj.sender %}{{- obj.sender.name or obj.sender.login -}}{% endif %}
+                </a></td>
                 <td><a href="{{ url }}">
-                  {%- if item.created_dt -%}
-                    {{- item.created_dt.strftime('%d.%m.%Y %H:%M') -}}
+                  {{- obj.comment -}}
+                </a></td>
+                <td style="white-space: nowrap"><a href="{{ url }}">
+                  {%- if obj.created_dt -%}
+                    {{- obj.created_dt.strftime('%d.%m.%Y %H:%M') -}}
                   {%- endif -%}
-                <a></td>
+                </a></td>
+                <td><a class="tray__remove" data-id="{{ obj.id }}"></a></td>
               </tr>
             {% endfor %}
             </tbody>

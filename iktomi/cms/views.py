@@ -8,6 +8,7 @@ from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth
 from .item_lock import ModelLockError
 from iktomi.cms.forms import Form, convs
+from iktomi.cms.stream import I18nLabel
 from iktomi.forms.fields import Field
 
 logger = logging.getLogger(__name__)
@@ -174,10 +175,13 @@ class TrayView(web.WebHandler):
                            tray=tray)
         object_tray = env.db.query(self.ObjectTray)\
                             .filter_by(**filter_args).first()
-        if object_tray is None:
-            object_tray = self.ObjectTray(**filter_args)
-            env.db.add(object_tray)
+        if object_tray is not None:
+            return env.json({'success': False,
+                             'error': u'Объект уже находится в лотке'})
+        object_tray = self.ObjectTray(**filter_args)
+        env.db.add(object_tray)
         object_tray.comment = comment
+        object_tray.sender = env.user
         env.db.commit()
         return env.json({'success': True,
                          'id': object_tray.id,
@@ -215,14 +219,19 @@ class TrayView(web.WebHandler):
                 stream_name = obj.stream_name
                 params = {}
             if 'lang' in params:
+                # XXX Bug! make new env
                 env.models = getattr(env.models, params['lang'])
                 env.lang = params['lang']
             if stream_name not in env.streams:
                 continue
             stream = env.streams[stream_name]
-            url = stream.url_for(env, 'item', item=obj.object_id, **params)
-            item = stream.item_query(env).first()
-            items.append((url, stream, item))
+            item = stream.item_query(env).filter_by(id=obj.object_id).first()
+            if item is not None:
+                stream_title = stream.title
+                if 'lang' in params:
+                    stream_title = I18nLabel(stream_title, params['lang'])
+                url = stream.url_for(env, 'item', item=obj.object_id, **params)
+                items.append((url, stream_title, stream, obj, item))
         #changed.sort(key=lambda x: x.date_changed)
         return env.render_to_response('tray', dict(
             tray = tray,
