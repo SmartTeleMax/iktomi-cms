@@ -2,7 +2,7 @@
 # Common admin views
 import logging
 
-from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPBadRequest
+from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPBadRequest, HTTPForbidden
 from iktomi import web
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth
@@ -193,10 +193,12 @@ class TrayView(web.WebHandler):
             id = int(env.request.POST.get('id', ''))
         except ValueError:
             raise HTTPBadRequest()
-        tray = env.db.query(self.ObjectTray).get(id)
-        if tray is None:
+        obj = env.db.query(self.ObjectTray).get(id)
+        if obj is None:
             raise HTTPBadRequest()
-        env.db.delete(tray)
+        if not obj.can_delete(env.user):
+            raise HTTPForbidden()
+        env.db.delete(obj)
         env.db.commit()
         return env.json({'success': True})
 

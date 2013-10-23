@@ -27,6 +27,11 @@ def ObjectTray(models):
 
     Index('draft_index', stream_name, object_id)
 
+    def can_delete(self, user):
+        if self.tray.editor is not None:
+            return user in (self.tray.editor, self.sender)
+        return True
+
 
 @register_model('BaseModel')
 def Tray(models):

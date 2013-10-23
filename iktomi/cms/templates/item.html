@@ -86,7 +86,7 @@
         <div class="trays__dropdown">
           <div class="trays__list">
           {%- for object_tray in context.item_trays(stream, item) -%}
-          <div class="trays__tray" data-id="{{ object_tray.id }}">
+          <div class="trays__tray tray{{ object_tray.tray.id % 24 }}" data-id="{{ object_tray.id }}">
             <a href="{{ url_for('tray', tray=object_tray.tray.id) }}">
               {{- object_tray.tray.title -}}
             </a>
@@ -95,7 +95,9 @@
                 <div class="trays__comment">{{ object_tray.comment }}</div>
               </div>
             {%- endif -%}
-            <button type="button" class="trays__tray__remove">&times;</button>
+            {%- if object_tray.can_delete(env.user) -%}
+              <button type="button" class="trays__tray__remove">&times;</button>
+            {%- endif -%}
           </div>
           {%- endfor -%}
           </div>
