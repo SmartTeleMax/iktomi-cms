@@ -39,11 +39,11 @@
     min-width:250px;
 }
 
-.popup-filters{
+/*.popup-filters{
     float:right;
     max-width:240px;
     overflow:auto
-}
+}*/
 
 .with_filters{
     margin-right:250px

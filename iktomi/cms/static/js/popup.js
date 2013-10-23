@@ -35,12 +35,14 @@ var Popup = new Class({
     this.contentEl = new Element('div', {'class': 'popup-body', 'id':this.id+'-popup-body'});
     this.fixedContent = new Element('div', {'class': 'popup-body-fixed', 'id': this.id+'-popup-body-fixed'});
     this.titleEl = new Element('div', {'class': 'popup-title', 'id': this.id+'-popup-title'});
-    this.filters = new Element('div', {'class': 'popup-filters sidefilter', 'id':this.id+'-popup-filters'});
+    //this.filters = new Element('div', {'class': 'popup-filters sidefilter', 'id':this.id+'-popup-filters'});
     // this.paginator_top = new Element('div', {'class': 'popup-pagination', 'id':this.id+'-popup-pagination-top'});
     // this.paginator_bottom = new Element('div', {'class': 'popup-pagination', 'id':this.id+'-popup-pagination-bottom'});
 
     this.el.adopt(
-      new Element('div', {'class': 'popup-content'}).adopt(this.titleEl, this.fixedContent, this.filters, this.contentEl)
+      new Element('div', {'class': 'popup-content'}).adopt(this.titleEl, this.fixedContent,
+                                                           //this.filters,
+                                                           this.contentEl)
     ).inject(injectTo);
 
     this.empty();
@@ -74,7 +76,7 @@ var Popup = new Class({
     this.contentEl.empty();
     this.fixedContent.empty();
     this.titleEl.empty();
-    this.filters.empty();
+    //this.filters.empty();
     // this.paginator_top.empty();
     // this.paginator_bottom.empty();
     this.contentEl.className = 'popup-body';
@@ -143,13 +145,13 @@ var Popup = new Class({
     return this;
   },
 
-  setFilters: function() {
-    this.filters.adopt(arguments);
-    this.contentEl.addClass('with_filters');
-    // this.paginator_top.addClass('with_filters');
-    // this.paginator_bottom.addClass('with_filters');
-    return this;
-  },
+  //setFilters: function() {
+  //  this.filters.adopt(arguments);
+  //  this.contentEl.addClass('with_filters');
+  //  // this.paginator_top.addClass('with_filters');
+  //  // this.paginator_bottom.addClass('with_filters');
+  //  return this;
+  //},
 
   addPage: function(page) {
     var bottom_page = page.clone();
