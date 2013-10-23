@@ -21,7 +21,7 @@
         history.pushState(null, null, url);
       }
       var form = this.form;
-      new Request.JSON({
+      new Request({
         'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax&__no_layout',
         'onSuccess': function(result){
           //if (this.changeUrl){
