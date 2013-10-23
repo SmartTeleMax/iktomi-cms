@@ -160,7 +160,6 @@ var PopupStreamSelect = new Class({
     var frm = this.popup.contentEl.getElement('.item-form');
     if (frm) {
       frm.retrieve('ItemForm')._callback_hook = function(result, callback) {
-        debugger;
         /* вызывается при успешном сохранении нового объекта */
         if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
           this._select_items.push(result.item_id);
