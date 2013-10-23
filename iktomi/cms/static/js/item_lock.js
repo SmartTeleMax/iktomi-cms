@@ -171,10 +171,10 @@ ItemLock.prototype = {
     this.popup.adopt(new Element('div', {'class':'buttons'}).adopt(
       new Element('a', {'class': 'button'}).adopt(
         new Element('span', {'text':'закрыть и продолжить работу'})
-      ).addEventListener('click', function(){
+      ).addEvent('click', function(){
         this.popup.hide();
         this.start();
-      }.bind(this), false)
+      }.bind(this))
     ));
     this.popup.show();
 
