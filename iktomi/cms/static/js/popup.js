@@ -104,8 +104,8 @@ var Popup = new Class({
     window.addEvent('scroll', this._onWindowResize);
     window.addEvent('mousewheel', this._onMouseWheel);
     this.overlay.setStyles({
-      'top': -window.getScroll().y,
-      'height': window.getScrollSize().y + window.getScroll().y,
+      //'top': -window.getScroll().y,
+      //'height': window.getScrollSize().y + window.getScroll().y,
       'display': 'block',
       'opacity': 0.3
     });
@@ -196,7 +196,7 @@ var Popup = new Class({
       'top': top
     });
 
-    this.overlay.setStyle('width', document.body.scrollWidth);
+    //this.overlay.setStyle('width', document.body.scrollWidth);
   },
 
   hide: function() {
@@ -226,7 +226,7 @@ var Popup = new Class({
     if(this.options.empty_on_hide){
       this.empty();
     }
-    this.overlay.setStyles({height: 0, opacity: 0});
+    this.overlay.setStyles({opacity: 0, display: 'none'});
     window.removeEvent('resize', this._onWindowResize);
     window.removeEvent('scroll', this._onWindowResize);
     window.removeEvent('mousewheel', this._onMouseWheel);
@@ -244,8 +244,8 @@ var Popup = new Class({
     this.setZindex();
     this.visible = true;
     this.overlay.setStyles({
-      top: -window.getScroll().y,
-      height: window.getScrollSize().y + window.getScroll().y,
+      //top: -window.getScroll().y,
+      //height: window.getScrollSize().y + window.getScroll().y,
       display: 'block',
       opacity: 0.3
     });

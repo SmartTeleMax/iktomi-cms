@@ -174,14 +174,15 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 
 .overlay {
     background:#000000 none repeat scroll 0% 0%;
-    display:none;
+    display: none;
     left:0px;
     opacity:0.5;
-    position:absolute;
+    position:fixed;
     top:0px;
+    right: 0;
+    bottom: 0;
     z-index:200;
-    width:100%;
-}
+    }
 
 .error {
     font-size:12pt;

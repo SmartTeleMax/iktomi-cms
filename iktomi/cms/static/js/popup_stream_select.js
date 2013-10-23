@@ -142,7 +142,7 @@ var PopupStreamSelect = new Class({
   load: function(url, callback) {
     this.popup.show_loader();
     url = add_url_params(url, {'__popup':'', '__multiple':this._multiple});
-    new Request.JSON({
+    new Request({
       'url': url,
       'onSuccess': function(result) {
         this.onContentRecieved(result);
@@ -160,6 +160,7 @@ var PopupStreamSelect = new Class({
     var frm = this.popup.contentEl.getElement('.item-form');
     if (frm) {
       frm.retrieve('ItemForm')._callback_hook = function(result, callback) {
+        debugger;
         /* вызывается при успешном сохранении нового объекта */
         if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
           this._select_items.push(result.item_id);

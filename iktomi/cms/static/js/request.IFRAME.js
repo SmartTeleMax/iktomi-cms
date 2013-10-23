@@ -21,16 +21,16 @@ Request.IFRAME = new Class({
 
             frame.onload = function() {
                 try {
-		  var loaded_data = this.processScripts(frame.contentDocument.body.innerHTML);
-		  this.fireEvent('complete', loaded_data).fireEvent('success', loaded_data).callChain();
+                  var loaded_data = this.processScripts(frame.contentDocument.body.innerHTML);
+                  this.fireEvent('complete', loaded_data).fireEvent('success', loaded_data).callChain();
                 } catch(e) {
                   var w = window.open('','Request.IFRAME error report', 'width='+screen.availWidth/2+', scrollbars=yes, top=0, left='+screen.availWidth/2, false);
                   w.document.body.innerHTML='<h3>'+e.name+': '+e.message+'</h3>'
-		    +'<dl><dt>filename</dt><dd> '+e.fileName+'</dd></dl>'
-		    +'<dl><dt>linenumber</dt><dd> '+e.lineNumber+'</dd></dl>'
-		    +'<dl><dt>stack</dt><dd> '+e.stack+'</dd></dl>';
+                      +'<dl><dt>filename</dt><dd> '+e.fileName+'</dd></dl>'
+                      +'<dl><dt>linenumber</dt><dd> '+e.lineNumber+'</dd></dl>'
+                      +'<dl><dt>stack</dt><dd> '+e.stack+'</dd></dl>';
                 }
-	      
+
                 setTimeout(function(){
                     frame.destroy()
                 }, 100);
@@ -52,17 +52,18 @@ Request.IFRAME = new Class({
             var frame = this.createFrame();
             frame.src = this.options.url+querystr;
             frame.onload = function() {
-	      try {
-		  var loaded_data = this.processScripts(frame.contentDocument.body.innerHTML);
-		  this.fireEvent('complete', loaded_data).fireEvent('success', loaded_data).callChain();
+            try {
+              var loaded_data = this.processScripts(frame.contentDocument.body.innerHTML);
+              this.fireEvent('complete', loaded_data).fireEvent('success', loaded_data).callChain();
               } catch(e) {
-                var w = window.open('','Request.IFRAME error report', 'width='+screen.availWidth/2+', scrollbars=yes, top=0, left='+screen.availWidth/2, false);
+                var w = window.open('','Request.IFRAME error report',
+                                    'width='+screen.availWidth/2+', scrollbars=yes, top=0, left='+
+                                             screen.availWidth/2, false);
                 w.document.body.innerHTML='<h3>'+e.name+': '+e.message+'</h3>'
-		  +'<dl><dt>filename</dt><dd> '+e.fileName+'</dd></dl>'
-		  +'<dl><dt>linenumber</dt><dd> '+e.lineNumber+'</dd></dl>'
-		  +'<dl><dt>stack</dt><dd> '+e.stack+'</dd></dl>';
+                        +'<dl><dt>filename</dt><dd> '+e.fileName+'</dd></dl>'
+                        +'<dl><dt>linenumber</dt><dd> '+e.lineNumber+'</dd></dl>'
+                        +'<dl><dt>stack</dt><dd> '+e.stack+'</dd></dl>';
               }
-	      
               setTimeout(function(){
                 frame.destroy();
               }, 100);

@@ -84,9 +84,9 @@ class StaticPacker(WebHandler):
                 files = [x + '.css' for x in files]
             for name in files:
                 data = self.get_css_contents(base_url, root, path.join(root, name))
-                content.append(data)
+                content.append('/* '+ name +' */\n\n'+data)
 
-        content = u'\n'.join(content)
+        content = u'\n\n'.join(content)
         self._cached_css = content
         return self.response_with_etag(env.request, content, mimetype='text/css')
 
