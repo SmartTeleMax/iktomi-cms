@@ -10,7 +10,7 @@ from iktomi.utils import cached_property
 from collections import OrderedDict
 from iktomi.utils.mdict import MultiDict
 from iktomi import web
-from iktomi.forms import Form
+from iktomi.cms.forms import Form
 from . import stream_handlers as handlers
 from .flashmessages import flash
 
