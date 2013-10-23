@@ -87,7 +87,7 @@ textarea.wysihtml5{
   background-image: url(../images/redactor_2x.png);
   background-repeat: no-repeat;
   background-position: 0;
-  background-size: 1250;
+  background-size: 1250px;
   }
 
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="bold"] { background-position: -50px; }
