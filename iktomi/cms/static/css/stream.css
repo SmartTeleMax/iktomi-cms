@@ -1,3 +1,17 @@
+.filtr .block { float: left; margin-right: 10px; font-weight: bold; margin-bottom: 10px; }
+.filtr .block DIV { margin-top: 0.2em; }
+.filtr .block DIV DIV { padding-right: 0.2em; width: 1.8em; text-align: right; display: block; float: left; vertical-align: middle; }
+.filtr INPUT { vertical-align: middle; }
+.filtr .go { clear: both; float: right; padding: 0px 10px 0px 0px; }
+.filtr .range { margin-top: -2px;  }
+.filtr SPAN { padding: 0em 0.4em 0em 0.6em; }
+.filtr .color { background-color: #fbfdf9; padding: 2px 2px; }
+.filtr .nocolor { padding: 2px 2px; }
+.filtr:after{
+    content: '';
+    clear: right;
+    }
+
 .stream{
     padding: 0;
     margin: 0;
@@ -166,6 +180,10 @@
 .pages DIV { padding: 0.2em 0.6em; font: bold 1em Arial, sans-serif; color: #4a5761; background-color: #fbfbfb; border: 1px solid #ebebeb; margin-right: 10px; float: left; }
 .pages .active { background-color: #c1c1c1; color: #ffffff; border: 1px solid #c1c1c1; }
 
+.livesearch{
+    padding: 2px 5px;
+    display: inline-block;
+    }
 
 
 

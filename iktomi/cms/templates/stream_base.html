@@ -17,31 +17,23 @@
   </div>
   {% endif %}
 
-  {% if filter_form.show_tabs|default(False) %}
-    <div class="filtr">
-      <div class="line"></div>
-      <div class="inside">
-        <div class="list_tabs">
-          <!-- TabSelect buttons will be injected here-->
-        </div>
-
-        <div class="fieldset_tabs">
-         <!-- ButtonSelect buttons will be injected here -->
-        </div>
-      </div>
-      <div style="clear:right;"></div>
+  <div class="filtr">
+    <div class="list_tabs">
+      <!-- TabSelect buttons will be injected here-->
     </div>
-  {% endif %}
 
+    <div class="fieldset_tabs">
+     <!-- ButtonSelect buttons will be injected here -->
+    </div>
+  </div>
 
   <div>
-
-
-
     <div class="stream">
       {%- if live_search -%}
+      <label class="livesearch">
         {% set search_input_id = filter_form.id + '-livesearch' -%}
         Поиск: <input type="text" class="init-block stream_search" id="{{ search_input_id }}" data-block-name="live-search"/>
+      </label>
       {%- endif %}
       <div class="line"></div>
       {% if filter_form %}

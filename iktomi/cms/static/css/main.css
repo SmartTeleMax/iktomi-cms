@@ -142,26 +142,7 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 .form TD { padding: 0em 0.8em 1.2em 0em; }
 .form .cover, .form .composition DIV { margin-bottom: 0.8em; }
 
-/*.filtr { background-color: #ebf4e3;}*/
-/*.filtr .line { background-color: #c4dfaa; }*/
-/*.filtr .inside { padding: 0.4em 0.8em 0em 1.6em; }*/
-.filtr .block { float: left; margin-right: 10px; font-weight: bold; margin-bottom: 10px; }
-.filtr .block DIV { margin-top: 0.2em; }
-.filtr .block DIV DIV { padding-right: 0.2em; width: 1.8em; text-align: right; display: block; float: left; vertical-align: middle; }
-.filtr INPUT { vertical-align: middle; }
-.filtr .go { clear: both; float: right; padding: 0px 10px 0px 0px; }
-.filtr .range { margin-top: -2px;  }
-.filtr SPAN { padding: 0em 0.4em 0em 0.6em; }
-.filtr .color { background-color: #fbfdf9; padding: 2px 2px; }
-.filtr .nocolor { padding: 2px 2px; }
 
-/*.table {clear: both;}*/
-/*.table TH.sorting { background-color: #eaeaea; }
-.table TH.sorting IMG { vertical-align: middle; margin-right: 4px; }
-.table TH A { text-decoration: none; }
-.table TD { background-color: #fefefe; color: #000000; border-bottom: 1px solid #d3d3d3; }
-.table TD.sorting { background-color: #fbfbfb; }
-.table TD SPAN { padding-left: 1em; }*/
 
 .info TD { padding: 0em 1em 1.2em 0em; } 
 .info .composition A { color: #53626c; }
@@ -177,11 +158,6 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 .tab DIV { padding: 0.6em 1em; background-color: #fafafa; margin-left: 3px; }
 .tab DIV.active { color: #006600; font-weight: bold; background-color: #e3e6e8; }
 .tab DIV.active A { color: #006600; text-decoration: none; }
-
-/*.create { background-color: #fafafa; }
-.create .line { background-color: #e3e6e8; }
-.create .inside { padding: 1em 5px 0em 5px; text-align: center; }
-.create TD { padding: 0px 5px; }*/
 
 .form .textinput {
     width: 300px;
