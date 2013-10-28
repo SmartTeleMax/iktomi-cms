@@ -28,6 +28,7 @@ class PublishItemHandler(EditItemHandler):
 class PublishAction(PostAction):
 
     action = 'publish'
+    cls = 'publish'
     display = True
     for_item = True
     allowed_for_new = False
@@ -72,6 +73,7 @@ class UnpublishAction(PostAction):
     allowed_for_new = False
     accepts_item_form = False
     action = 'unpublish'
+    cls = 'unpublish'
     title = Markup(u'Снять<br/> с публикации')
     hint = u'Перенести изменения из редакторской версии на опубликованную ' \
            u'и сделать её доступной для просмотра на сайте'

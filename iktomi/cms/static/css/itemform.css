@@ -99,6 +99,7 @@ textarea.bigtext{
   margin: 10px 0;
   }
   .hint-right{
+    margin-top: 4px;
     text-align: right;
     }
   .hint:before{

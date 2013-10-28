@@ -275,4 +275,37 @@
   Blocks.register('item-form', function(el){
     new ItemForm(el);
   });
+
+  Blocks.register('compact-buttons', function(el){
+    var clsRe = /(?:^|\s)icon-(^\s)+/;
+    var buttons = el.getElements('buttons').map(function(el){
+      var match = el.className.match(clsRe);
+      return cls_re && clsRe[1];
+    }).filter(function(a){return a});
+
+    if (el.dataset.compactName) {
+      buttons.push(el.dataset.compactName);
+    }
+
+    var isCompact = buttons.filter(function(cls){
+      return window.localStorage['compact:'+cls];
+    }).length;
+    if(isCompact){
+      el.addClass('compact');
+    }
+    el.getElement('.compact-toggle').addEvent('click', function(){
+      isCompact = !isCompact;
+      if (isCompact){
+        el.addClass('compact');
+        buttons.each(function(cls){
+          window.localStorage['compact:'+cls]="1";
+        });
+      } else {
+        el.removeClass('compact');
+        buttons.each(function(cls){
+          delete window.localStorage['compact:'+cls];
+        });
+      }
+    });
+  });
 })();

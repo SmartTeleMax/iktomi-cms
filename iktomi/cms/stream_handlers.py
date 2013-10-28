@@ -385,6 +385,7 @@ def _iter_subclasses(cls, _seen=None):
             for sub in _iter_subclasses(sub, _seen):
                 yield sub
 
+
 class DeleteItemHandler(StreamAction):
 
     action = 'delete'

@@ -50,14 +50,9 @@ var FieldList = new Class({
   },
 
   installDeleteBtn: function(wrap, tr) {
-    if(this.allowDelete && !wrap.getElement('a.remove')){
-      wrap.adopt(this.btn('#remove', 'remove', null, function(e){
+    if(this.allowDelete && !wrap.getElement('a.icon-delete')){
+      wrap.adopt(this.btn('#remove', 'button button-tiny icon-delete', null, function(e){
         e.stopPropagation(); e.preventDefault();
-        if(tr.getPrevious('.fieldlist-spacer')){
-          tr.getPrevious('.fieldlist-spacer').destroy();
-        } else if(tr.getNext('.fieldlist-spacer')) {
-          tr.getNext('.fieldlist-spacer').destroy();
-        }
         tr.destroy();
         this.currentCount--;
         if(this.limit>0 && this.currentCount<this.limit){
@@ -72,25 +67,17 @@ var FieldList = new Class({
     if(!wrap.getElement('a.sort')){
       wrap.adopt(this.btn('#up', 'sort sort-up', '&uarr;', function(e){
         e.stopPropagation(); e.preventDefault();
-        if (tr.getPrevious('.fieldlist-item')) {
-              var spacer = tr.getPrevious('.fieldlist-spacer');
-              if(spacer){
-                spacer.inject(tr.getPrevious('.fieldlist-item'), 'before');
-                tr.inject(spacer, 'before');
-              }
-              tr.highlight('#fefeb0', '#fafafa');
+        var prev = tr.getPrevious('.fieldlist-item');
+        if(prev){
+          tr.inject(prev, 'before').highlight('#fefeb0', '#fafafa');
         }
         this.fireEvent('reorder', this.items.bind(this));
       }.bind(this)));
       wrap.adopt(this.btn('#down', 'sort sort-down', '&darr;', function(e){
         e.stopPropagation(); e.preventDefault();
-        if (tr.getNext('.fieldlist-item')) {
-              var spacer = tr.getNext('.fieldlist-spacer');
-              if(spacer){
-                spacer.inject(tr.getNext('.fieldlist-item'), 'after');
-                tr.inject(spacer, 'after');
-              }
-              tr.highlight('#fefeb0', '#fafafa');
+        var next = tr.getNext('.fieldlist-item');
+        if(next){
+          tr.inject(next, 'after').highlight('#fefeb0', '#fafafa');
         }
         this.fireEvent('reorder', this.items.bind(this));
       }.bind(this)));
@@ -132,15 +119,6 @@ var FieldList = new Class({
     this.installDeleteBtn(deleteBtnTd, line);
     fieldTd.adopt(new Element('input', {'type': 'hidden', name: this.inputName + '-indeces', value: next}));
 
-    /*spacer line*/
-    var spacer = new Element('tr', {'class':'fieldlist-spacer'});
-    if(this.order){
-      spacer.adopt(new Element('td', {'colspan':3}));
-    } else {
-      spacer.adopt(new Element('td', {'colspan':2}));
-    }
-    if(this.container.getFirst().getLast())
-      this.container.getFirst().adopt(spacer);
     this.container.getFirst().adopt(line);
     line.highlight('#fefeb0', '#fafafa');
 

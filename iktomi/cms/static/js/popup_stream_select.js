@@ -95,8 +95,9 @@ var PopupStreamSelect = new Class({
       if (row.getLast() && row.getLast().hasClass('w-control-cell')) {
         return;
       }
-      var removeBtn = new Element('td').adopt(new Element('a', {'class': 'remove'}));
-      removeBtn.getFirst().addEvent('click', this.reset.bind(this));
+      var removeBtn = new Element('td').adopt(
+        new Element('a', {'class': 'icon-tiny icon-delete'}).addEvent('click', this.reset.bind(this))
+      );
       row.adopt(removeBtn);
     }
   },
@@ -411,7 +412,7 @@ var PopupStreamSelectMultiple = new Class({
 
   _createRemoveButton: function(row) {
     var removeBtn = new Element('td', {'class': 'w-control-cell'});
-    removeBtn.adopt(new Element('a', {'class': 'remove'}));
+    removeBtn.adopt(new Element('button', {'type': 'button', 'class': 'button button-tiny icon-delete'}));
     var id = this._selected_items[this._rows.indexOf(row)];
     removeBtn.getFirst().addEvent('click', function(e) {
       this.remove(id);

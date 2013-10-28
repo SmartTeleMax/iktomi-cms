@@ -3,6 +3,18 @@
      {%- if widget.multiple %} data-multiple="multiple"{%- endif -%}
      {%- if readonly %} data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
+  {% for v in options %}
+    <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
+  {% endfor %}
+  <div>
+    <table class="w-popup-stream-select-items">
+      <tbody id="{{ widget.id }}-div">
+        {% for v in options %}
+          {{ widget.item_row(v, loop.cycle('odd', 'even')) }}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {%- if not readonly %}
   <div class="w-buttons">
     {% if widget.allow_select %}
@@ -17,16 +29,4 @@
     {% endif %}
   </div>
   {%- endif %}
-  {% for v in options %}
-    <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
-  {% endfor %}
-  <div>
-    <table class="w-popup-stream-select-items">
-      <tbody id="{{ widget.id }}-div">
-        {% for v in options %}
-          {{ widget.item_row(v, loop.cycle('odd', 'even')) }}
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
 </div>

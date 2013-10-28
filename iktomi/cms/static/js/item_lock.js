@@ -169,9 +169,9 @@ ItemLock.prototype = {
 
     this.popup.setContent(response.responseText);
     this.popup.adopt(new Element('div', {'class':'buttons'}).adopt(
-      new Element('a', {'class': 'button'}).adopt(
-        new Element('span', {'text':'закрыть и продолжить работу'})
-      ).addEvent('click', function(){
+      new Element('a', {'class': 'button', 
+                        'text':'закрыть и продолжить работу'
+      }).addEvent('click', function(){
         this.popup.hide();
         this.start();
       }.bind(this))
@@ -188,8 +188,7 @@ ItemLock.prototype = {
       var handler = buttons[i][1];
       var tooltip = buttons[i][2] || '';
       buttons_pane.adopt(
-        new Element('a', {'class': 'button', 'title': tooltip}).adopt(
-          new Element('span', {'text':label})
+        new Element('a', {'class': 'button', 'title': tooltip, 'text':label}
         ).addEvent('click', handler.bind(this), false)
       )
     };

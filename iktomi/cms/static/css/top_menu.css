@@ -4,7 +4,7 @@
     position: fixed;
     height: 38px;
     width: 100%;
-    z-index: 3;
+    z-index: 4;
     top: 0;
     }
 
@@ -29,12 +29,21 @@
   bottom: 0px;
 }
 
-.navigation .menu li {
-  float: left;
-  padding: 10px;
+.navigation>.menu>li {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 8px 10px;
   margin: 0 2px;
+  }
+  .navigation .menu li {
+  line-height: 22px;
   background: #717b83;
-}
+  }
+
+.navigation .menu li .stream-flag{
+  padding-top: 0;
+  padding-bottom: 0;
+  }
 
 .navigation .menu li:first-of-type {
   margin-left: 50px;
@@ -42,10 +51,6 @@
 
 .navigation .menu li.active {
   background: #65a12b;
-}
-
-.navigation .menu li.active > .create {
-  color: #65a12b;
 }
 
 .navigation .menu .menu {
@@ -101,9 +106,12 @@
 }
 
 .navigation .menu .create {
-  background: url(../images/actions/add_small.png) no-repeat 50% 50%;
-  padding-right: 20px !important;
-  color: #717b83;
+  padding: 0 5px;
+  font-size: 14px;
+  color: #fff;
+  font-weight: bold;
+  vertical-align: middle;
+  text-decoration: none;
 }
 
 .navigation li:hover .menu {

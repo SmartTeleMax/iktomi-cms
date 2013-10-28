@@ -11,8 +11,10 @@ __all__ = ['DraftForm', 'DraftFormAdminUser']
 @register_model('BaseModel')
 def DraftFormAdminUser(models):
 
-    admin_id  = Column(ForeignKey(models.AdminUser.id), primary_key=True)
-    draft_id  = Column(Integer, ForeignKey('DraftForm.id'), primary_key=True)
+    admin_id  = Column(ForeignKey(models.AdminUser.id, ondelete="CASCADE"),
+                       primary_key=True)
+    draft_id  = Column(Integer, ForeignKey('DraftForm.id', ondelete="CASCADE"),
+                       primary_key=True)
 
 
 @register_model('BaseModel')

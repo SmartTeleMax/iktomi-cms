@@ -14,7 +14,7 @@ input, SELECT { vertical-align: middle; font: normal 1em Arial, sans-serif; }
 input.mini { width: 2em !important; }
 input.small { width: 4em !important; }
 input.medium { width: 15em !important; }
-input.big { width: 30em !important; }
+input.big { width: 600px !important; }
 /*TEXTAREA { width: 100%; }*/
 textarea {
     width: 600px;
@@ -84,13 +84,16 @@ input.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
   .buttons__save-hidden{
     position: absolute;
     background: #fff;
-    top: 45px;
+    top: 27px;
     right: 0px;
     visibility: hidden;
-    white-space: nowrap;
     opacity: 0;
     transition: opacity .4s, visibility .1s linear .4s;
     padding: 0 0 15px 15px;
+    }
+  .buttons__save-hidden .button{
+    display: block;
+    margin-top: 10px;
     }
   .buttons__save-actions:hover .buttons__save-hidden{
     visibility: visible;
@@ -386,3 +389,15 @@ td.field_has_unpublished_changes {
 td.field_id {
     width: 30px;
     }
+
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
+}

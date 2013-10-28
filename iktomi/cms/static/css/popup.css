@@ -37,7 +37,10 @@
     padding-top: 10px;
     overflow: auto;
     min-width:250px;
-}
+  }
+  .popup-body>h3:first-child{
+    margin-top: 0;
+    }
 
 /*.popup-filters{
     float:right;

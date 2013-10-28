@@ -27,6 +27,9 @@
 .w-popup-stream-select .w-buttons {
   overflow: hidden;
 }
+.w-popup-stream-select>div {
+    display: inline-block;
+    }
 
 .w-popup-stream-select .w-buttons .button {
   float: left;
@@ -71,13 +74,13 @@
       display: none;
     }
 
-    .w-popup-stream-select-items a.remove {
+    /*.w-popup-stream-select-items a.remove {
       background: url(../images/reset.gif) no-repeat left;
       padding-left: 12px;
       color: #990000;
       text-decoration: none;
       cursor: pointer;
-    }
+    }*/
 
   .w-popup-stream-select-items .hide-in-popup-stream-select {
     display: none;

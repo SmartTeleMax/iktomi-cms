@@ -19,13 +19,10 @@
                 {{ f.render() }}
             </td>
             {% if field.order %}
-            <td class="fieldlist-order fieldlist-btns">&nbsp;</td>
+            <td class="fieldlist-order fieldlist-btns"></td>
             {% endif %}
-            <td class="fieldlist-delete fieldlist-btns">&nbsp;</td>
+            <td class="fieldlist-delete fieldlist-btns"></td>
         </tr>
-        {% if not loop.last %}
-          <tr class="fieldlist-spacer"><td colspan="{% if field.order %}3{% else %}2{% endif %}"></td></tr>
-        {% endif %}
     {% endfor %}
     </tbody>
 </table>

@@ -1,6 +1,7 @@
 
 {% macro buttons(is_popup=False) %}
-<div class="buttons form-controls">
+<div class="buttons form-controls init-block" data-block-name="compact-buttons" data-compact-name="form-controls">
+  <a class="compact-toggle" title="Компактный вид"></a>
   {% if not is_popup %}
     {% for action in actions %}
       {%- set action_url = stream.url_for(env, action.action, item=item.id) -%}
@@ -78,7 +79,7 @@
       {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}
 
-      {%- if context.item_trays is defined -%}
+      {%- if context.item_trays is defined and item and item.id -%}
       <div class="trays init-block" data-block-name="item-trays"
            data-delete-url="{{ env.url_for('delete_from_tray') }}"
            data-stream-name="{{ stream.uid(env, version=False) }}"

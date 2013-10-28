@@ -1,4 +1,5 @@
-aqua
+#aqua
+buttons-flat
 popup
 dashboard
 top_menu
@@ -9,6 +10,7 @@ itemform
 stream
 collapsable_block
 tab_select
+button_select
 wysihtml5
 calendar
 popup_stream_select

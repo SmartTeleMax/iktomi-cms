@@ -48,9 +48,9 @@ class StaticPacker(WebHandler):
     def fix_url(self, base_url, match):
         url = match.group(1).strip('"\'')
         if is_absolute(url):
-            return '/* absolute */ url(%s)' % url
+            return 'url(%s)' % url
         url = base_url + url
-        return '/* fixed */ url(%s)' % url
+        return 'url(%s)' % url
 
     def get_css_contents(self, base_url, base_path, filename):
         with open(filename) as f:

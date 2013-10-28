@@ -1,6 +1,7 @@
 table.fieldlist {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: none;
+  border-spacing: 0 10px;
 }
 
 table.fieldlist td a.remove {
@@ -13,7 +14,7 @@ table.fieldlist td a.remove {
 table.fieldlist td a.sort {
   text-decoration: none;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 18px;
   padding: 0 4px;
 }
 

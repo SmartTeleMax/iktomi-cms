@@ -1,0 +1,14 @@
+<li {% if itemclass is defined -%}class="{{ itemclass }}" {% endif -%}
+    {% if menu.endpoint_name %}data-endpoint="{{ menu.endpoint_name }}"{% endif %}>
+
+  <a href="{{ menu.items[0].url }}">{{ menu.items[0].title }}</a>
+
+  {% for submenu in menu.items %}
+    <a class="stream-flag" href="{{ submenu.url }}">
+      <span class="lang-{{ submenu.lang }}"></span>
+    </a>
+    {% if submenu.create %}
+      <a class="create" href="{{ submenu.create_url }}">+</a>
+    {% endif %}
+  {% endfor %}
+</li>
