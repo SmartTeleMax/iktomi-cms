@@ -129,10 +129,14 @@
         if (result.success){
           this.statusElement.setAttribute('data-status', 'saved');
           this.frm.setAttribute('action', result.item_url);
+          this.frm.dataset.autosave = result.autosave_url;
           if(!this.is_popup){
             history.replaceState(null, null, result.item_url);
           }
           this.frm.getElements('.error').destroy();
+          if (result.edit_session){
+            this.frm.getElement('.item-lock').retrieve('item-lock').handleForceLock(result);
+          }
         } else if (result.error == 'draft') {
           this.statusElement.setAttribute('data-status', 'draft');
           var errors = result.errors;

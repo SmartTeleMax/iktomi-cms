@@ -7,161 +7,171 @@ function ItemLock(el){
 ItemLock.prototype = {
 
   options: {
-    'max_failed_attempts': 3,
+    'maxFailedAttempts': 3,
     'timeout': 60
   },
 
   initialize: function(el, options){
       this.el = el;
       this.options = Object.merge({}, this.options, options)
-      console.log(this, this.options)
       this.failed_attempts = 0;
-      this.update_timer = this.check_timer = null;
+      this.updateTimer = this.checkTimer = null;
       this.options.timeout = Math.round((this.options.timeout/3)*1000);
       this.popup = new Popup(_popup_id(), {'close_button_on':false, 'clickable_overlay':false});
-      this.update_request = null;
-      this.force_lock_request = null;
-      this.lock_actions = this.get_actions();
-      this.edit_session_field = this.el.getParent('form').getElement('[name="edit_session"]');
+      this.updateRequest = null;
+      this.forceLockRequest = null;
+      this.lockActions = this.getActions();
+      this.editSessionField = this.el.getParent('form').getElement('[name="edit_session"]');
 
-      var lock_id = sessionStorage[this.options.global_id];
-      console.log('LOCK', this.options.global_id, lock_id, this.options.edit_session);
-      if(this.options.lock_message != '' && (!lock_id || lock_id != this.options.edit_session)){
-        this.show_dialog(this.options.lock_message, this.lock_actions.slice(1));
+      var lockId = sessionStorage[this.options.globalId];
+      console.log('LOCK init', this.options.globalId, lockId, this.options.editSession);
+      if(this.options.lockMessage != '' && (!lockId || lockId != this.options.editSession)){
+        this.showDialog(this.options.lockMessage, this.lockActions.slice(1));
       } else {
-        sessionStorage[this.options.global_id] = this.options.edit_session;
-        this.edit_session_field.value = this.options.edit_session;
-        this.start();
+        sessionStorage[this.options.globalId] = this.options.editSession;
+        this.editSessionField.value = this.options.editSession;
+        if (!this.options.noStart){
+          this.start();
+        }
       }
   },
 
-  get_actions: function(){
+  getActions: function(){
     return [
-        ['Захватить блокировку', this.force_lock, 'Изменения, внесённые другим редактором, будут потеряны при сохранении'],
-        ['Захватить блокировку с перезагрузкой', this.force_lock_with_reload, 'Внесённые вами изменения будут потеряны'],
-        ['Перейти к списку', this.go_to_list, 'Переход на страницу со списком объектов']
+        ['Захватить блокировку', this.forceLock, 'Изменения, внесённые другим редактором, будут потеряны при сохранении'],
+        ['Захватить блокировку с перезагрузкой', this.forceLockWithReload, 'Внесённые вами изменения будут потеряны'],
+        ['Перейти к списку', this.goToList, 'Переход на страницу со списком объектов']
     ];
   },
 
   start: function(){
-    if(this.update_timer == null) {
-      this.update_timer = setInterval(this.update_lock.bind(this), this.options.timeout);
+    if(this.updateTimer == null) {
+      this.updateTimer = setInterval(this.updateLock.bind(this), this.options.timeout);
     }
-    if(this.check_timer == null) {
-      this.check_timer = setInterval(this.check_release_lock.bind(this), 1000);
+    if(this.checkTimer == null) {
+      this.checkTimer = setInterval(this.checkReleaseLock.bind(this), 1000);
     }
   },
 
   stop: function(){
     console.log('LOCK stop')
-    clearInterval(this.update_timer);
-    clearInterval(this.check_timer);
-    this.update_timer = this.check_timer = null;
-  },
-  
-  go_to_list: function(){
-      window.location.href = this.options.list_url;
+    clearInterval(this.updateTimer);
+    clearInterval(this.checkTimer);
+    this.updateTimer = this.checkTimer = null;
   },
 
-  no_json_handler: function(request){
+  goToList: function(){
+      window.location.href = this.options.listUrl;
+  },
+
+  noJsonHandler: function(request){
     //there should auth handler
     //alert('Требуется авторизация');
   },
 
-  check_lock: function(){
+  checkLock: function(){
     // XXX Do not check while requests are in progress
     var locks = $$('.item-lock');
     for (var i=locks.length; i--;){
       var data = locks[i].dataset;
-      if (data.global_id == this.options.global_id &&
-          data.edit_session == this.options.edit_session){
+      if (data.global_id == this.options.globalId &&
+          data.edit_session == this.options.editSession){
         return true;
       }
     }
     return false;
   },
-  check_release_lock: function(){
+  checkReleaseLock: function(){
     if (!this.el || !this.el.getParent('body')){
       this.stop();
-      if(!this.check_lock()){
+      if(!this.checkLock()){
         console.log('LOCK is detached')
-        this.release_lock();
+        this.releaseLock();
       }
     }
   },
 
-  update_lock: function(){
-    this.update_request = new Request.JSON({
-      'url':this.options.update_lock_url,
-      'onSuccess': this.handle_update.bind(this),
-      'onFailure': this.handle_error.bind(this)
+  getUrl: function(url){
+    return url.replace('GLOBAL_ID', this.options.globalId).replace('EDIT_SESSION', this.options.editSession);
+  },
+
+  updateLock: function(){
+    var url = this.getUrl(this.options.updateLockUrl);
+    this.updateRequest = new Request.JSON({
+      'url': url,
+      'onSuccess': this.handleUpdate.bind(this),
+      'onFailure': this.handleError.bind(this)
     }).send();
   },
 
-  handle_update: function(response){
+  handleUpdate: function(response){
       if(response == null){
-        this.no_json_handler(this.update_request);
+        this.noJsonHandler(this.updateRequest);
       } else if(response.status == 'fail'){
         this.stop();
-        this.show_dialog(response.message, this.lock_actions)
+        this.showDialog(response.message, this.lockActions)
       } else {
         this.failed_attempts = 0;
         this.popup.hide();
       }
   },
 
-  force_lock: function(e, success_handler){
-    success_handler = success_handler|| this.handle_force_lock.bind(this);
-    this.force_lock_request = new Request.JSON({
-      'url':this.options.force_lock_url,
+  forceLock: function(e, success_handler){
+    success_handler = success_handler|| this.handleForceLock.bind(this);
+
+    var url = this.getUrl(this.options.forceLockUrl)
+    this.forceLockRequest = new Request.JSON({
+      'url': url,
       'onSuccess': success_handler,
-      'onFailure': this.handle_error.bind(this)
+      'onFailure': this.handleError.bind(this)
     }).send();
   },
 
-  force_lock_with_reload: function(e){
-    this.force_lock(e, this.handle_force_lock_with_reload.bind(this));
+  forceLockWithReload: function(e){
+    this.forceLock(e, this.handleForceLockWithReload.bind(this));
   },
 
-  handle_force_lock: function(response){
+  handleForceLock: function(response){
     if(response == null){
-      this.no_json_handler(this.force_lock_request);
+      this.noJsonHandler(this.forceLockRequest);
     } else if(response.status == 'captured') {
 
       this.stop();
-      this.options.update_lock_url = response.update_lock_url;
-      this.options.release_lock_url = response.release_lock_url;
       this.start();
-      sessionStorage[this.options.global_id] = response.edit_session;
-      this.edit_session_field.value = response.edit_session;
+      if (this.options.globalId !== undefined){
+        this.options.globalId = response.global_id;
+      }
+      sessionStorage[this.options.globalId] = 
+          this.options.editSession =
+          this.editSessionField.value = response.edit_session;
       this.popup.hide();
     } else if(response.status == 'fail'){
       this.stop();
-      this.show_dialog(response.message, this.lock_actions)
+      this.showDialog(response.message, this.lockActions)
     }
   },
 
-  handle_force_lock_with_reload: function(response){  
+  handleForceLockWithReload: function(response){  
     if(response == null){
-      this.no_json_handler(this.force_lock_request);
+      this.noJsonHandler(this.forceLockRequest);
     } else if(response.status == 'captured') {
-      sessionStorage[this.options.global_id] = response.edit_session;
-      this.release_lock = function(){}; // To not release the lock
+      sessionStorage[this.options.globalId] = response.edit_session;
+      this.releaseLock = function(){}; // To not release the lock
       window.location.reload(); // XXX should work without reload
     } else if(response.status == 'fail'){
       this.stop();
-      this.show_dialog(response.message, this.lock_actions)
+      this.showDialog(response.message, this.lockActions)
     }
   },
-  
 
-  release_lock: function(){
-      new Request({'url':this.options.release_lock_url}).send()
+  releaseLock: function(){
+    var url = this.getUrl(this.options.releaseLockUrl);
+    new Request({'url': url}).send()
   },
 
-  handle_error: function(response){
+  handleError: function(response){
     this.failed_attempts++;
-    if(this.failed_attempts >= this.options.max_failed_attempts){
+    if(this.failed_attempts >= this.options.maxFailedAttempts){
       this.stop();
     }
     this.popup.hide();
@@ -180,8 +190,8 @@ ItemLock.prototype = {
 
   },
 
-  show_dialog: function(text, buttons){
-    text = text.replace('__OBJ__', this.options.item_title);
+  showDialog: function(text, buttons){
+    text = text.replace('__OBJ__', this.options.itemTitle);
     var buttons_pane = new Element('div', {'class':'buttons'});
     for (var i=0, l=buttons.length; i < l; i++){
       var label = buttons[i][0];
@@ -198,13 +208,12 @@ ItemLock.prototype = {
     );
     this.popup.show();
   }//,
-  
   //releasing_link: function(elem){
   //  elem = document.id(elem);
   //  var _t = this;
   //  elem.addEvent('click', function(e){
   //    if(!e.control && !e.shift && e.event.button == 0){
-  //      _t.release_lock();
+  //      _t.releaseLock();
   //      (function(){
   //        window.location = elem.get('href');
   //      }).delay(300);
@@ -223,7 +232,7 @@ Blocks.register('item-lock', function(el){
 //  var locks = $$('.item-lock').filter(function(frm){
 //    var lock = frm.retrieve('item-lock');
 //    if(lock) {
-//        lock.release_lock();
+//        lock.releaseLock();
 //    }
 //    return !!lock;
 //  });

@@ -47,12 +47,7 @@ def force_lock(env, data):
         return env.json({'status': 'fail', 'message': unicode(e)})
 
     return env.json({'status':'captured',
-                    'edit_session': edit_session,
-                    'update_lock_url': env.url_for('update_lock', item_id=data.item_id,
-                                                   edit_session=edit_session),
-                    'release_lock_url': env.url_for('release_lock', item_id=data.item_id,
-                                                    edit_session=edit_session),
-                    })
+                    'edit_session': edit_session})
 
 def release_lock(env, data):
     if env.request.method != "POST":

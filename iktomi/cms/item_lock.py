@@ -180,10 +180,11 @@ def prepare_lock_data(env, data, item):
             data.lock_message = unicode(e)
 
 def lock_template_data(env, data, item):
+    d = dict(item_lock=True,
+             lock_timeout=env.cfg.MODEL_LOCK_RENEW)
     if item is not None and item.id is not None:
-        return dict(item_lock=True,
+        return dict(d,
                     item_global_id=ItemLock.item_global_id(item),
                     lock_message=data.lock_message,
-                    edit_session=data.edit_session or data.owner_session,
-                    lock_timeout=env.cfg.MODEL_LOCK_RENEW)
-    return {}
+                    edit_session=data.edit_session or data.owner_session)
+    return d

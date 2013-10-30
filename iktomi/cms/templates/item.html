@@ -118,7 +118,7 @@
     </div>
   </div>
 
-  {%- if item.id and item_lock -%}
+  {%- if item_lock -%}
     {% from 'macros/item_lock.html' import main as item_lock with context %}
     {{ item_lock(item, stream_url, lock_timeout, lock_message, edit_session) }}
   {%- endif -%}

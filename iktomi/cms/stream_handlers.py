@@ -17,6 +17,7 @@ from iktomi.forms import convs
 
 
 from .item_lock import lock_template_data, prepare_lock_data
+from .item_lock import ModelLockError, ItemLock
 from .stream_actions import StreamAction
 from .flashmessages import flash
 
@@ -26,7 +27,7 @@ def see_other(location):
                         content_type="application/json")
 
 def insure_is_xhr(env):
-    if not env.request.is_xhr:
+    if not env.request.is_xhr and not '__ajax' in env.request.GET:
         raise HTTPOk(body=env.render_to_string('layout.html', {}))
 
 
@@ -249,9 +250,11 @@ class EditItemHandler(StreamAction):
         if hasattr(self, 'post_create'):
             self.post_create(item)
 
-        item_url = self.stream.url_for(env, 'item', item=item.id).qs_set(
-                                   filter_form.get_data())
-        return item, item_url
+        item_url = self.stream.url_for(env, 'item', item=item.id)\
+                              .qs_set(filter_form.get_data())
+        autosave_url = self.stream.url_for(env, 'item.autosave', item=item.id)\
+                                  .qs_set(filter_form.get_data())
+        return item, item_url, autosave_url
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
@@ -301,11 +304,26 @@ class EditItemHandler(StreamAction):
 
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
-                item, item_url = self.save_item(env, filter_form, form,
-                                                item, draft, autosave)
-                return env.json({'success': True,
-                                 'item_id': item.id,
-                                 'item_url': item_url})
+                need_lock = item.id is None and self.item_lock and autosave
+                item, item_url, autosave_url = \
+                        self.save_item(env, filter_form, form,
+                                       item, draft, autosave)
+                result = {'success': True,
+                          'item_id': item.id,
+                          'autosave_url': autosave_url,
+                          'item_url': item_url}
+                if need_lock:
+                    try:
+                        gid = ItemLock.item_global_id(item)
+                        lock = env.item_lock.create(gid)
+                    except ModelLockError, e:
+                        flash(env, unicode(e))
+                    else:
+                        result = dict(result,
+                            edit_session=lock,
+                            status='captured',
+                            global_id=gid)
+                return env.json(result)
             elif lock_message and autosave:
                 stream.rollback_due_lock_lost(env, item)
                 return env.json({'success': False,
