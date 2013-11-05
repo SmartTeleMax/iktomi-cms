@@ -70,8 +70,21 @@
   ItemForm.prototype.redirectHandler = function(e){
       e.preventDefault(); e.stopPropagation();
       this.submit(e.target, function(result, button){
+        if (e.target.dataset.itemLock){
+          // the action, we are redirecting to, needs a lock, do not release it
+          this.holdLock();
+        }
         this.load(button.getProperty('href'));
       }.bind(this));
+  }
+
+  ItemForm.prototype.holdLock = function(){
+    /* 
+     * Call before page re-rendering if you do not want to release a lock
+     */
+    // stop ItemLock,
+    // otherwise the lock is released when form is dropped from the DOM
+    this.frm.getElement('.item-lock').retrieve('item-lock').stop();
   }
 
   ItemForm.prototype.postHandler = function(e){
@@ -135,6 +148,8 @@
           }
           this.frm.getElements('.error').destroy();
           if (result.edit_session){
+            // take a lock for new item saved first time (before save item
+            // didn't have an id, and the lock couldn't be taken)
             this.frm.getElement('.item-lock').retrieve('item-lock').handleForceLock(result);
           }
         } else if (result.error == 'draft') {
@@ -163,6 +178,8 @@
   ItemForm.prototype.saveAndContinueHandler = function(e) {
     e.preventDefault(); e.stopPropagation();
     this.submit(e.target, function(result){
+      // After save we render the same page, do not release the lock
+      this.holdLock();
       this.load(result.item_url, true, this.container);
     }.bind(this));
   }
