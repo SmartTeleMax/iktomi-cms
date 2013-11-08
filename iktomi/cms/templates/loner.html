@@ -1,8 +1,9 @@
 
 {% macro buttons() %}
-  <div class="buttons">
+  <div class="buttons form-controls init-block" data-block-name="compact-buttons" data-compact-name="form-controls">
+    <a class="compact-toggle" title="Компактный вид"></a>
     {%- if save_allowed -%}
-    <a href="#" class="button icon-apply" style="margin-left: 15px" rel="save-and-continue"
+    <a href="" class="button icon-apply" style="margin-left: 15px" rel="save-and-continue"
        data-item-lock="true"
        data-item-form="true">
       Сохранить
@@ -22,7 +23,7 @@
       method="post"
       enctype="multipart/form-data"
       data-block-name="item-form"
-      {%- if autosave_allowed %} data-autosave="on"{% endif %}
+      {%- if autosave_allowed %} data-autosave="{{ loner.url_for(env, 'autosave') }}"{% endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
 
   <div class="content">

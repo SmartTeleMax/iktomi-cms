@@ -110,6 +110,7 @@ class RevertAction(PostAction):
     allowed_for_new = False
     accepts_item_form = False
     action = 'revert'
+    cls = 'revert'
     title = Markup(u'Восстановить<br/> из фронтальной')
     hint = u'Отменить изменения, сделанные после публикации'
 

@@ -25,6 +25,13 @@
   transition: 0.25s;
   -webkit-backface-visibility: hidden;
 }
+.no-animation,
+.no-animation *{
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+  }
 .button:after{
     content: "";
     height: 2px;
@@ -201,6 +208,7 @@
     line-height: 16px;
     content: "◂";
     }
+  .button.icon-revert,
   .button.icon-delete{
     padding-left: 25px;
     }
@@ -213,8 +221,11 @@
     top: 0px;left: -1px;
     width: 12px; height: 12px; line-height: 12px;
     font-size: 11px;
-    content: "✕";
     font-weight: bold;
+    }
+  .button.icon-revert:before{
+    content: "↶";
+    left: 1px; top:6px;
     }
 
  .button.icon-apply_preview:before{
@@ -282,8 +293,12 @@
     width: 0px;
     height: 16px;
     overflow: hidden;
-    font-size: 0;
+    /*font-size: 0;*/
     padding-right: 2px;
+    text-indent: 3px;
+    }
+.compact .button[class*="icon"]:before{
+    text-indent: 3px;
     }
 
 

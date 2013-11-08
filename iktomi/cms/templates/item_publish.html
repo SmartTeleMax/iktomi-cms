@@ -2,7 +2,7 @@
 {% from "macros/version_switch.html" import version_switch %}
 
 {% block after_title %}
-{% if item.id and stream.langs is defined %}
+{% if item.id %}
 <div class="flags">
   {% for version, version_name in stream.versions %}
     {% set lang_item = item._item_version(version, env.lang) %}

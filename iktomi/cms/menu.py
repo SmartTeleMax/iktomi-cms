@@ -219,6 +219,24 @@ class LangStreamMenu(StreamMenu):
         return vs
 
 
+class LangLonerMenu(LonerMenu):
+    # XXX DRY
+
+    def __init__(self, *args, **kwargs):
+        self.lang = kwargs.pop('lang')
+        LonerMenu.__init__(self, *args, **kwargs)
+
+    @cached_property
+    def env(self):
+        # XXX hack
+        env = super(LangLonerMenu, self).env
+        vs = VersionedStorage(lang=self.lang)
+        vs._storage._parent_storage = env
+        return vs
+
+
+
+
 class DashRow(MenuGroup):
 
     template = 'menu/dashboard'
@@ -226,6 +244,11 @@ class DashRow(MenuGroup):
 
 def DashI18nStream(*args, **kwargs):
     return MenuGroup([LangStreamMenu(*args, **dict(kwargs, lang=lang))
+                      for lang in ('ru', 'en')],
+                      template="menu/dashboard-row-i18n")
+
+def DashI18nLoner(*args, **kwargs):
+    return MenuGroup([LangLonerMenu(*args, **dict(kwargs, lang=lang))
                       for lang in ('ru', 'en')],
                       template="menu/dashboard-row-i18n")
 
@@ -237,3 +260,6 @@ def DashMenu(*args, **kwargs):
     kwargs.setdefault('template', 'menu/dashboard-row')
     return Menu(*args, **kwargs)
 
+def DashLoner(*args, **kwargs):
+    kwargs.setdefault('template', 'menu/dashboard-row')
+    return LonerMenu(*args, **kwargs)

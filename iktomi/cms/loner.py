@@ -18,11 +18,25 @@ class Loner(object):
         self.config = config
         self.module_name = module_name
 
-    def get_handler(self):
-        return  web.prefix('/'+self.module_name, name=self.module_name) | web.cases(
+    def get_prefix_handler(self):
+        return web.prefix('/'+self.module_name, name=self.module_name)
+
+    def get_app_handler(self):
+        return web.cases(
             web.match() | self,
             web.match('/autosave', 'autosave') | self.autosave,
             )
+
+    def get_handler(self):
+        return self.get_prefix_handler() | self.get_app_handler()
+
+    def uid(self, env, version=True):
+        # Attention! Be careful!
+        # Do not change format of uid unless you are sure it will not 
+        # brake tray views, where stream_name and language are parsed out
+        # from the uid
+        return 'loners.' + self.module_name
+
 
     @property
     def title(self):
@@ -94,7 +108,7 @@ class Loner(object):
         autosave = autosave_allowed and getattr(data, 'autosave', False)
         if autosave_allowed:
             DraftForm = env.draft_form_model
-            draft = DraftForm.get_for_item(env.db, 'loners.' + self.module_name,
+            draft = DraftForm.get_for_item(env.db, self.uid(env),
                                            item, env.user)
         elif getattr(data, 'autosave', False):
             raise HTTPForbidden

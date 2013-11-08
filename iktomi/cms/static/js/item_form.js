@@ -298,21 +298,26 @@
   });
 
   Blocks.register('compact-buttons', function(el){
-    var clsRe = /(?:^|\s)icon-(^\s)+/;
-    var buttons = el.getElements('buttons').map(function(el){
+    var clsRe = /(?:^|\s)icon-([^\s]+)/;
+    var buttons = el.getElements('.button').map(function(el){
       var match = el.className.match(clsRe);
-      return cls_re && clsRe[1];
+      if (match && !el.get('title')){
+        el.set('title', el.get('text').trim());
+      }
+      return match && match[1];
     }).filter(function(a){return a});
 
     if (el.dataset.compactName) {
       buttons.push(el.dataset.compactName);
     }
 
-    var isCompact = buttons.filter(function(cls){
-      return window.localStorage['compact:'+cls];
+    var isCompact = !buttons.filter(function(cls){
+      return !window.localStorage['compact:'+cls];
     }).length;
+
     if(isCompact){
-      el.addClass('compact');
+      el.addClass('compact').addClass('no-animation');
+      window.setTimeout(function(){ el.removeClass('no-animation') }, 100)
     }
     el.getElement('.compact-toggle').addEvent('click', function(){
       isCompact = !isCompact;

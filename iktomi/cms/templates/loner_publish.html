@@ -3,24 +3,33 @@
 
 {% macro publish_buttons() %}
   {% if version == 'admin' %}
-  <div class="buttons">
+  <div class="buttons form-controls init-block" data-block-name="compact-buttons" data-compact-name="form-controls">
+    <a class="compact-toggle" title="Компактный вид"></a>
     {%- if form.item.has_unpublished_changes %}
     <a href="{{ loner.url_for(env, 'revert', version='admin') }}"
-       rel="post" class="button"
+       rel="post" class="button icon-revert"
        data-item-lock="true">
       Восстановить из фронтальной
     </a>
     {% endif %}
 
     {% if form.item.has_unpublished_changes or form.item.state is defined and form.item.state != form.item.PUBLIC %}
-    <a href="{{ loner.url_for(env, 'revert', version='admin') }}"
-       rel="post" class="button"
+    <a href="{{ loner.url_for(env, 'publish', version='admin') }}"
+       rel="post" class="button icon-publish"
        data-item-lock="true">
       Опубликовать
     </a>
     {% endif %}
 
-    <a href="#" class="button icon-apply" rel="save-and-continue"
+    {% if loner.with_state and form.item.state == form.item.PUBLIC %}
+    <a href="{{ loner.url_for(env, 'unpublish', version='admin') }}"
+       rel="post" class="button icon-unpublish"
+       data-item-lock="true">
+      Снять с публикации
+    </a>
+    {% endif %}
+
+    <a href="" class="button icon-apply" rel="save-and-continue"
        data-item-lock="true"
        data-item-form="true">
       Сохранить
@@ -33,9 +42,41 @@
 
 
 {% block after_title %}
-    {# TODO Should handle the unpublished state properly. #}
-    {% set published_version_is_unpublished = form.item.state is defined and form.item.state != form.item.PUBLIC %}
-    {{ version_switch(loner.url_for(env, version='front'),
-                      loner.url_for(env, version='admin'),
-                      version=='front', False) }}
+<div class="flags">
+  {% for version, version_name in loner.versions %}
+    {% set lang_item = form.item._item_version(version, env.lang) %}
+    {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (form.item.ABSENT, form.item.DELETED)) %}
+    <a class="stream-flag
+              {%- if version == env.version %} selected{% endif %}
+              {%- if absent %} absent{% endif %}"
+       {%- if version == 'admin' %} title="Рабочая версия"{% endif %}
+       {%- if version == 'front' %} title="Опубликованная версия"{% endif %}
+       {%- if not absent %} href="{{ loner.url_for(env, version=version) }}"
+       {%- endif %}>
+      <span class="version-{{ version }}"></span>
+    </a>
+  {% endfor -%}
+
+  {%- if loner.langs is defined -%}
+    <span style="padding-left: 20px;">&nbsp;</span>
+    {%- for lang, lang_name in loner.langs %}
+      {% set lang_item = form.item._item_version(env.version, lang) %}
+      {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (form.item.ABSENT, form.item.DELETED)) %}
+      {%- set private = not absent and lang_item.state is defined and lang_item.state == form.item.PRIVATE %}
+      {%- set public = not absent and lang_item.state is defined and lang_item.state == form.item.PUBLIC %}
+      {%- set has_changes = not absent and lang_item.has_unpublished_changes %}
+      <a class="stream-flag
+                {%- if lang == env.lang %} selected{% endif %}
+                {%- if absent %} absent{% endif %}
+                {%- if private %} private{% endif %}
+                {%- if public %} public{% endif %}
+                {%- if has_changes %} has-changes{% endif %}"
+         {% if lang != env.lang %}
+         href="{{ loner.url_for(env, version='admin', lang=lang) }}"
+         {%- endif %} >
+        <span class="lang-{{ lang }}"></span>
+      </a>
+    {% endfor %}
+  {% endif %}
+</div>
 {% endblock %}
