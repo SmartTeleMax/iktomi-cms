@@ -92,7 +92,6 @@
                   "allow_create": true, 
                   "container": id, 
                   "reorderable": false, 
-                  "title": "\u0424\u0430\u0439\u043b\u044b", 
                   "url": streamUrl, 
                   "input_name": '__'+this.streamName, 
                   "create_url": streamUrl+"/+", 
@@ -130,15 +129,23 @@
           }.bind(this));
         }
       } else {
-        var abbr = new Element(this.tagName, {'title': this.propertyName + ":" + value})
+        var abbr = this.createElement(value);
 
         composer.selection.getRange().nativeRange.wrapInlineSelection(abbr, composer.element);
       }
     },
 
+    createElement: function(value){
+      return new Element(this.tagName, {'title': this.propertyName + ":" + value});
+    },
+
+    elementMatches: function(el){
+      return el.title.substr(0, this.propertyName.length+1) == this.propertyName+':'
+    },
+
     state: function(composer, command) {
       var state = wysihtml5.commands.formatInline.state(composer, command, this.tagName);
-      if (state && state[0].title.substr(0, this.propertyName.length+1) != this.propertyName+':'){
+      if (state && !this.elementMatches(state[0])){
         state = false;
       }
       return state;
@@ -265,5 +272,23 @@
     cmd: 'outdent'
   });
 
+})(wysihtml5);
+
+(function(wysihtml5) {
+  wysihtml5.views.Composer.prototype.withNoHistory = function(callback){
+    this.undoManager.transact();
+    var position = this.undoManager.position;
+    callback.call(this);
+    this.undoManager.transact();
+    var newPosition = this.undoManager.position;
+    if (newPosition > position){
+      // history nothing actually changed, but history has two entries
+      // we have to remove previous entry
+      this.undoManager.historyStr.splice(position-1, 1);
+      this.undoManager.historyDom.splice(position-1, 1);
+      this.undoManager.position -= 1;
+      this.undoManager.version -= 1;
+    }
+  }
 })(wysihtml5);
 
