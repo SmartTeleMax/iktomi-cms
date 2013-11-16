@@ -3,11 +3,12 @@
      id='id_{{field.input_name}}'
      data-block-name="dropfile"
      data-url="{{ url_for(field.upload_endpoint) }}"
+     {% if readonly %} data-disabled="disabled"{% endif %}
      {% block extra_js_options %}{% endblock %}>
 
   {% set value = field.clean_value %}
 
-  {% if value and not field.conv.required %}
+  {% if not readonly and value and not field.conv.required %}
     <button type="button" class="button ajax-file-delete">удалить</button>
     <br/>
   {% endif %}
@@ -20,7 +21,7 @@
       {% if value %}
         <a target="_blank" href="{{ value.url }}">
           {% if value.mode == 'existing' %}
-              Прикреплённый файл
+              Прикреплённый файл{% if value.ext %} ({{ value.ext }}){% endif %}
           {% else %}
               Временный загруженный файл
           {% endif %}
