@@ -74,8 +74,8 @@ ItemLock.prototype = {
     var locks = $$('.item-lock');
     for (var i=locks.length; i--;){
       var data = locks[i].dataset;
-      if (data.global_id == this.options.globalId &&
-          data.edit_session == this.options.editSession){
+      if (data.globalId == this.options.globalId &&
+          data.editSession == this.options.editSession){
         return true;
       }
     }

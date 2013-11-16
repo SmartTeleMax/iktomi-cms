@@ -241,6 +241,7 @@ class EditItemHandler(StreamAction):
 
     def save_item(self, env, filter_form, form, item, draft, autosave):
         form.update_instance(item)
+
         if item not in env.db:
             env.db.add(item)
         if draft is not None:

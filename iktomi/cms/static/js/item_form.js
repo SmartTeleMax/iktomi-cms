@@ -70,22 +70,22 @@
   ItemForm.prototype.redirectHandler = function(e){
       e.preventDefault(); e.stopPropagation();
       this.submit(e.target, function(result, button){
-        if (e.target.dataset.itemLock){
+        //if (e.target.dataset.itemLock){
           // the action, we are redirecting to, needs a lock, do not release it
-          this.holdLock();
-        }
+        //  this.holdLock();
+        //}
         this.load(button.getProperty('href'));
       }.bind(this));
   }
 
-  ItemForm.prototype.holdLock = function(){
-    /* 
-     * Call before page re-rendering if you do not want to release a lock
-     */
-    // stop ItemLock,
-    // otherwise the lock is released when form is dropped from the DOM
-    this.frm.getElement('.item-lock').retrieve('item-lock').stop();
-  }
+  //ItemForm.prototype.holdLock = function(){
+  //  /* 
+  //   * Call before page re-rendering if you do not want to release a lock
+  //   */
+  //  // stop ItemLock,
+  //  // otherwise the lock is released when form is dropped from the DOM
+  //  this.frm.getElement('.item-lock').retrieve('item-lock').stop();
+  //}
 
   ItemForm.prototype.postHandler = function(e){
     e.preventDefault(); e.stopPropagation();
@@ -179,7 +179,7 @@
     e.preventDefault(); e.stopPropagation();
     this.submit(e.target, function(result){
       // After save we render the same page, do not release the lock
-      this.holdLock();
+      //this.holdLock();
       this.load(result.item_url, true, this.container);
     }.bind(this));
   }
@@ -228,7 +228,7 @@
   ItemForm.prototype.submit = function(button, callback, url) {
     url = url || this.frm.getAttribute('action');
     this.do_submit = function(){
-      new Request.JSON({
+      new Request({
         url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
         onSuccess: function(result){
           if (result.success){

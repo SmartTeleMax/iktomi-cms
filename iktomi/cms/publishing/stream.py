@@ -75,8 +75,6 @@ class UnpublishAction(PostAction):
     action = 'unpublish'
     cls = 'unpublish'
     title = Markup(u'Снять<br/> с публикации')
-    hint = u'Перенести изменения из редакторской версии на опубликованную ' \
-           u'и сделать её доступной для просмотра на сайте'
 
     @property
     def app(self):
