@@ -254,11 +254,14 @@
   top: 7px;
   left: 7px;
   }
+ .button.icon-unpublish{
+    padding-left: 27px;
+    }
  .button.icon-unpublish:before{
   background-image: url(../images/unpublish-white.svg);
   background-position-y: center;
   height: 100%;
-  background-size: 22px;
+  background-size: 16px;
   top: 0px;
   left: 7px;
   }
