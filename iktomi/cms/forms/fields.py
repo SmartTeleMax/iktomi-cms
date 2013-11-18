@@ -14,6 +14,13 @@ class AjaxFileField(FileFieldSet):
     widget = widgets.FieldSetWidget(template='widgets/ajax_fileinput')
     upload_endpoint = 'load_tmp_file'
 
+    def __init__(self, *args, **kwargs):
+        required = kwargs.pop('required', None)
+        if required is not None:
+            conv = kwargs.get('conv', self.conv)
+            kwargs['conv'] = conv(required=required)
+        FileFieldSet.__init__(self, *args, **kwargs)
+
 
 class AjaxImageField(AjaxFileField):
 
