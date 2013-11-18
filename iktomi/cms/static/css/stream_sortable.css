@@ -1,0 +1,48 @@
+.inject-after>td{
+  border-bottom: 50px solid #ffc;
+}
+
+.inject-before>td{
+  border-top: 50px solid #ffc;
+}
+
+.sort-btn {
+  padding: 3px 4px;
+  cursor: pointer;
+}
+
+a.sort-btn:hover {
+  background-color: #FFFFCC;
+}
+
+tr.item:first-child .sort-up {
+  display: none;
+}
+
+tr.item:last-child .sort-down {
+  display: none;
+}
+
+.item[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: move;
+}
+
+.submit-list-edit {
+  display: none;
+}
+
+.list-edit-item .fieldset{
+  display: none;
+}
+
+.list-edit-item {
+  text-align: right;
+}
+
+.items-group {
+  border-bottom: 20px solid #F0F1F2 ;
+}

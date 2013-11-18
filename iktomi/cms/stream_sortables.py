@@ -12,35 +12,39 @@ from .flashmessages import flash
 
 #BR = '\n'
 
+class ListItemModelChoice(convs.ModelChoice):
 
-def getListItemForm(Model):
+    @property
+    def model(self):
+        return self.env.stream.get_model(self.env)
 
-    class ListItemForm(Form):
-        fields = [
-            FieldList(
-                'items', 
-                template='list_item_form',
-                field=FieldSet(
-                    'item', 
-                    fields=[
-                        Field('item',
-                              conv=convs.ModelChoice(model=Model,
-                                                     required=False),
-                              label=u'item'),
-                        Field('order',
-                              conv=convs.Int(),
-                              label=u'Порядок'),
-                    ]
-                ),
+
+class ListItemForm(Form):
+    fields = [
+        FieldList(
+            'items', 
+            widget=FieldList.widget(
+                template='list_item_form'),
+            field=FieldSet(
+                'item', 
+                fields=[
+                    Field('item',
+                          conv=ListItemModelChoice(required=False),
+                          label=u'item'),
+                    Field('order',
+                          conv=convs.Int(),
+                          label=u'Порядок'),
+                ]
             ),
-        ]
-        @classmethod
-        def for_items(cls, env, items):
-            initial = {'items': [{'item': item, 'order': item.order}
-                                 for item in items]}
-            return cls(env, initial=initial)
+        ),
+    ]
 
-    return ListItemForm
+    @classmethod
+    def for_items(cls, env, items):
+        initial = {'items': [{'item': item, 'order': item.order}
+                             for item in items]}
+        return cls(env, initial=initial)
+
 
 #def getGroupedListItemForm(Model, init_js='stream_sortable_grouped_init.js'):
 #    # FieldSet('group', ...) added to avoid custom stream row template
@@ -83,7 +87,7 @@ class ListEditAction(StreamAction):
 
     @cached_property
     def ListItemForm(self):
-        return getattr(self.stream.config, 'ListItemForm')
+        return getattr(self.stream.config, 'ListItemForm', ListItemForm)
 
     def __call__(self, env, data):
         list_item_form = self.ListItemForm(env)
@@ -118,12 +122,13 @@ class ListEditAction(StreamAction):
                           'success')
                     [env.item_lock.remove(item, data.edit_session)
                      for item, data.edit_session in edit_sessions.items()]
+                return env.json({'success': True })
             else:
                 flash(env,
                     u'Изменения не были сохранены из-за ошибок в форме:\n%s' %
                     '\n'.join(list_item_form.errors), 'failure')
 
-        return see_other(env.url_for(self.stream.module_name))
+        return env.json({'success': False})
 
     @property
     def app(self):
