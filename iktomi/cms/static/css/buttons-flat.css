@@ -300,9 +300,6 @@
     padding-right: 2px;
     text-indent: 3px;
     }
-.compact .button[class*="icon"]:before{
-    text-indent: 3px;
-    }
 
 
 .compact-toggle{
