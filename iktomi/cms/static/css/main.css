@@ -177,15 +177,26 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 
 .overlay {
     background:#000000 none repeat scroll 0% 0%;
-    display: none;
+    visibility: hidden;
     left:0px;
-    opacity:0.5;
+    opacity:0;
     position:fixed;
     top:0px;
     right: 0;
     bottom: 0;
     z-index:200;
     }
+    .loading #overlay{
+      -webkit-transition: opacity 2s;
+      -moz-transition: opacity 2s;
+      transition: opacity 2s;
+      visibility: visible;
+      opacity: 0.4;
+      }
+    .overlay.show{
+      visibility: visible;
+      opacity: 0.3;
+      }
 
 .error {
     font-size:12pt;

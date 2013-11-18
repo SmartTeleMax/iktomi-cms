@@ -52,6 +52,7 @@
     }
     if (isMain) { currentUrl = url; }
 
+    document.body.addClass('loading');
     new Request({
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
@@ -80,14 +81,17 @@
       window.setTimeout(function(){content.setStyle('height', '');}, 2);
 
       var bodyClass = contentBlock.getElement('[data-body-class]');
-      document.body.set('class', 
+      document.body.set('class',
           bodyClass ? bodyClass.dataset.bodyClass : null);
+      //document.body.removeClass('loading');
       return;
     }
 
 
     if (result.location){
-        loadPage(result.location, true);
+      loadPage(result.location, true);
+    } else {
+      document.body.removeClass('loading');
     }
   }
 
@@ -153,5 +157,6 @@
     }
     flash(text, 'failure', 10*1000)
     tempFailure.apply(this, arguments);
+    document.body.removeClass('loading');
   }
 })();

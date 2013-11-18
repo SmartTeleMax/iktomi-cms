@@ -58,9 +58,9 @@ var Popup = new Class({
       this.el.getElement('.popup-content').adopt(this.close_btn);
       this.close_btn.addEvent('mousedown', this._hide);
     }
-    if(this.options.clickable_overlay)
+    if(this.options.clickable_overlay){
       this.overlay.addEvent('mousedown', this._hide);
-    this.overlay.setStyle('opacity', 0);
+    }
     this.onWindowResize()
     this._onWindowResize = this.onWindowResize.bind(this);
     this._onMouseWheel = this.onMouseWheel.bind(this);
@@ -105,12 +105,13 @@ var Popup = new Class({
     window.addEvent('resize', this._onWindowResize);
     window.addEvent('scroll', this._onWindowResize);
     window.addEvent('mousewheel', this._onMouseWheel);
-    this.overlay.setStyles({
+    this.overlay.addClass('show');
+    //setStyles({
       //'top': -window.getScroll().y,
       //'height': window.getScrollSize().y + window.getScroll().y,
-      'display': 'block',
-      'opacity': 0.3
-    });
+    //  'display': 'block',
+    //  'opacity': 0.3
+    //});
 
     if (Browser.Engine.trident) {
       $$('select').setStyle('visibility', 'hidden');
@@ -228,7 +229,7 @@ var Popup = new Class({
     if(this.options.empty_on_hide){
       this.empty();
     }
-    this.overlay.setStyles({opacity: 0, display: 'none'});
+    this.overlay.removeClass('show');
     window.removeEvent('resize', this._onWindowResize);
     window.removeEvent('scroll', this._onWindowResize);
     window.removeEvent('mousewheel', this._onMouseWheel);
@@ -245,12 +246,7 @@ var Popup = new Class({
   show_loader: function() {
     this.setZindex();
     this.visible = true;
-    this.overlay.setStyles({
-      //top: -window.getScroll().y,
-      //height: window.getScrollSize().y + window.getScroll().y,
-      display: 'block',
-      opacity: 0.3
-    });
+    this.overlay.addClass('show');
     this.loader.setStyles({
       left: Math.ceil((this.overlay.getWidth() - this.loader.getWidth()) / 2),
       top: Math.ceil((window.getSize().y - this.loader.getHeight()) / 2) + window.getScroll().y
