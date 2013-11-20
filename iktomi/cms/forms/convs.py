@@ -9,6 +9,15 @@ _all2 = locals().keys()
 
 
 def DBUnique(model=None, message=u'An object with such value already exists'):
+    '''
+      Checks if an object with the same value does not exist in db,
+      except the current object.
+
+      Be careful with unique indexes in published models. They are not actually
+      deleted from database on delete action, but their state is changed
+      to DELETED. So they may exist in index, but be ignored by DBUnique, 
+      and you will get an exception.
+    '''
 
     @validator(message)
     def to_python(conv, value):
