@@ -6,10 +6,16 @@ from sqlalchemy.orm import object_session
 from sqlalchemy.orm.util import identity_key
 
 from iktomi.unstable.db.sqla.replication import replicate, replicate_attributes
+from iktomi.unstable.db.sqla.public_query import PublicQuery
 from iktomi.utils import cached_property, cached_class_property
 from iktomi.cms.item_lock import ItemLock
 
 from datetime import datetime
+
+
+class AdminPublicQuery(PublicQuery):
+
+    property_name = 'existing'
 
 
 class _WithState(object):
@@ -32,6 +38,15 @@ class _WithState(object):
     @hybrid_property
     def public(self):
         return self.state==self.PUBLIC
+
+    # public condition for preview on andmin site
+    @hybrid_property
+    def existing(self):
+        return self.state in [self.PUBLIC. self.PRIVATE]
+
+    @existing.expression
+    def existing(cls):
+        return cls.state.in_([cls.PUBLIC, cls.PRIVATE])
 
 
 class WithState(_WithState):
