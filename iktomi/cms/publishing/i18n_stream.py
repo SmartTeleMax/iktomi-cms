@@ -2,7 +2,7 @@
 from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.cms.stream_handlers import PrepareItemHandler
-from iktomi.unstable.db.sqla.replication import replicate_attributes
+#from iktomi.unstable.db.sqla.replication import replicate_attributes
 from iktomi.cms.publishing.stream import PublishItemHandler, \
         PublishStreamNoState, PublishStream
 from iktomi.cms.stream import Stream

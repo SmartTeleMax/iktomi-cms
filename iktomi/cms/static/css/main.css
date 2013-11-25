@@ -210,49 +210,6 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
   width:100%;
 }
 
-.item img {
-  border: none;
-}
-
-/***** update from main site *****/
-.items .odd td {
-    background: hsl(0,0%,91%);
-}
-.items .even td {
-    background: hsl(0,0%,93%);
-}
-
-/* Стили для родительских tr */
-tr.odd.published td {
-    background-color: hsl(120,80%,91%);
-    }
-tr.even.published td {
-    background-color: hsl(120,80%,93%);
-    }
-
-tr.odd.unpublished td {
-    background-color: hsl(20,80%,91%);
-    }
-tr.even.unpublished td {
-    background-color: hsl(20,80%,93%);
-    }
-
-/* Стили для td-исключений */
-tr.odd td.published {
-    background-color: hsl(120,80%,91%);
-    }
-tr.even td.published {
-    background-color: hsl(120,80%,93%);
-    }
-
-tr.odd td.unpublished {
-    background-color: hsl(20,80%,91%);
-    }
-tr.even td.unpublished {
-    background-color: hsl(20,80%,93%);
-    }
-
-/***** end of update from main site *****/
 
 .hide {
     display:none !important;

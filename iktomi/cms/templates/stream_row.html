@@ -20,31 +20,38 @@
     </td>
 {% endmacro %}
 
-<tr class="item {{ row_cls }}{% if item.public is defined -%}
-{%- if item.public %} published{% else %} unpublished{% endif -%}
-{%- endif %}">
-  {% block list_fields %}
-      {% for name, field in list_fields.items() %}
+<tr class="item {{ row_cls }}
+  {%- if item.public is defined -%}
+    {%- if item.public %} published{% else %} unpublished{% endif -%}
+  {%- endif %}
+  {%- if item.state is defined %}
+    {%- if item.state == item.DELETED %} deleted{% endif %}
+    {%- if item.state == item.ABSENT %} absent{% endif %}
+  {%- endif %}">
+
+  {%- block list_fields %}
+    {%- for name, field in list_fields.items() %}
+      {%- if item.state is not defined or item.state not in (item.ABSENT, item.DELETED) or name == 'id' %}
         {{ list_field(name, field, item, url, loop) }}
-      {% endfor %}  
-  {% endblock %}
-  {% block item_form %}
-  {% if list_item_form is defined and list_item_form is not none %}
+      {% else -%}
+        <td class="field_{{ name }}" title="Deleted"></td>
+      {%- endif %}
+    {%- endfor %}  
+  {%- endblock %}
 
-  {% set items_fieldlist = list_item_form.get_field('items') %}
-  <td class="list-edit-item" style="width:1%">
-    {% set index = row_index|string %}{# reqired to provide index as name, name MUST be string #}
-    <input type="hidden" name="{{ items_fieldlist.indeces_input_name }}" value="{{ index }}" />
-    {% set f = items_fieldlist.field(name=index) %}
-    {% if f.error %}
-    <div>
-      <span class="error">{{ f.error }}</span>
-    </div>
+  {%- block item_form %}
+    {%- if list_item_form is defined and list_item_form is not none %}
+
+    {%- set items_fieldlist = list_item_form.get_field('items') -%}
+    <td class="list-edit-item" style="width:1%">
+      {%- set index = row_index|string %}{# reqired to provide index as name, name MUST be string #}
+      <input type="hidden" name="{{ items_fieldlist.indeces_input_name }}" value="{{ index }}" />
+      {%- set f = items_fieldlist.field(name=index) -%}
+      {%- if f.error %}
+        <div><span class="error">{{ f.error }}</span></div>
+      {%- endif %}
+      {{- f.render() -}}
+    </td>
     {% endif %}
-    {{ f.render() }}
-    {#{ f.render(roles=roles) }#}
-  </td>
-
-  {% endif %}
   {% endblock %}
 </tr>
