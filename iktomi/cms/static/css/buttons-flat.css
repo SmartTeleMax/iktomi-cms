@@ -213,12 +213,13 @@
     padding-left: 25px;
     }
   .button.icon-delete:before{
-    left: 3px;
+    left: 1px;
     font-size: 15px;
     content: "✕";
     }
   .button-tiny.icon-delete:before{
-    top: 0px;left: -1px;
+    top: 0px;
+    left: -1px;
     width: 12px; height: 12px; line-height: 12px;
     font-size: 11px;
     font-weight: bold;
@@ -253,6 +254,11 @@
   background-size: 19px;
   top: 7px;
   left: 7px;
+  }
+ .button.icon-preview:before{
+  background-image: url(../images/preview-white.svg);
+  background-position-y: 1px;
+  background-size: 17px;
   }
  .button.icon-unpublish{
     padding-left: 27px;
