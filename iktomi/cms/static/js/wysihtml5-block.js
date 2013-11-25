@@ -257,8 +257,9 @@
     },
     indentable: function(composer, command){
       var range = composer.selection.getRange().nativeRange;
-      var lis = wysihtml5.commands.formatBlock.state(composer, command, 'UL');
-      return !!lis;
+      var ul = wysihtml5.commands.formatBlock.state(composer, command, 'UL');
+      var ol = wysihtml5.commands.formatBlock.state(composer, command, 'OL');
+      return !!(ul || ol);
     },
     state: function(composer, command) {
 
