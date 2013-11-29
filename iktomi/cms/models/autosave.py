@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
+import json
 
 from sqlalchemy import Column, ForeignKey, Integer, PickleType, DateTime, \
         Index, String
+from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from .base import register_model
 
 __all__ = ['DraftForm', 'DraftFormAdminUser']
+
+
+# XXX MySQL-specific type. How to resulve this?
+class MediumPickleType(PickleType):
+
+    impl = MEDIUMBLOB
+
 
 @register_model('BaseModel')
 def DraftFormAdminUser(models):
@@ -24,7 +33,7 @@ def DraftForm(models):
     stream_name = Column(String(50), nullable=False, default='')
     # object id can be string, so we use string here
     object_id = Column(String(50), nullable=True)
-    data = Column(PickleType, default=[])
+    data = Column(MediumPickleType, default=[])
     creation_time = Column(DateTime, default=datetime.now, nullable=False)
     update_time = Column(DateTime, default=datetime.now, nullable=False)
 

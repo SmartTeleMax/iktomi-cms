@@ -339,6 +339,7 @@ class EditItemHandler(StreamAction):
                                       object_id=item.id)
                     env.db.add(draft)
                 draft.data = form.raw_data.items()
+
                 if not env.user in draft.admins:
                     draft.admins.append(env.user)
                 draft.update_time = datetime.now()

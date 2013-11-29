@@ -42,7 +42,7 @@ class _WithState(object):
     # public condition for preview on andmin site
     @hybrid_property
     def existing(self):
-        return self.state in [self.PUBLIC. self.PRIVATE]
+        return self.state in [self.PUBLIC, self.PRIVATE]
 
     @existing.expression
     def existing(cls):
@@ -70,6 +70,8 @@ class _AdminWithStateMixIn(object):
         '''Mark the object as deleted (make it invisible on front and move to
         trash on admin site).'''
         self._front_item.state = self.state = self.DELETED
+
+
 
 
 class _AdminWithState(_AdminWithStateMixIn, _WithState):
