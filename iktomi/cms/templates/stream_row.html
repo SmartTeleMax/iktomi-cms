@@ -9,13 +9,11 @@
 
     <td class="field_{{ name }}{% if field.classname is defined %} {{ field.classname }}{% endif %}">
       {%- if field.link_to_item -%}
-          <a rel="id:{{ item.id }}" href="{{ url }}">
-      {%- endif -%}
-
-      {% include field.template %}
-
-      {%- if field.link_to_item -%}
+        <a rel="id:{{ item.id }}"{% if read_allowed %} href="{{ url }}"{% endif %}>
+          {% include field.template %}
         </a>
+      {%- else -%}
+        {% include field.template %}
       {%- endif -%}
     </td>
 {% endmacro %}

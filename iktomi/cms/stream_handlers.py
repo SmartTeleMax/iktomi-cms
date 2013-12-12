@@ -75,15 +75,19 @@ class StreamListHandler(StreamAction):
 
         stream = self.stream
         stream.insure_has_permission(env, 'x')
+        read_allowed = stream.has_permission(env, 'r')
         template_name = stream.row_template_name
         template_data = stream.template_data
         no_layout = ('__no_layout' in env.request.GET)
 
         def item_row(item, list_fields=None, url='#', row_cls='', **kw):
-            return env.render_to_string(template_name,
-                                        dict(template_data, item=item,
+            return env.render_to_string(template_name, dict(template_data,
+                                             item=item,
                                              list_fields=list_fields,
-                                        url=url, row_cls=row_cls, **kw))
+                                             url=url,
+                                             row_cls=row_cls,
+                                             read_allowed=read_allowed,
+                                             **kw))
 
         data = dict(self.prepare_data(env, data),
                     is_popup=('__popup' in env.request.GET),
