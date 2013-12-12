@@ -91,6 +91,13 @@ textarea.bigtext{
     color: #5b4;
     }
 
+.autosave-authors{
+  position: absolute;
+  bottom: 0px;
+  right: 25px;
+  color: #ccc;
+  }
+
 
 .hint{
   display: block;

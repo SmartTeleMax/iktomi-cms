@@ -20,15 +20,16 @@
         <form action="{{ url_for('logout') }}" method="POST">
           <span class="links__link user">Привет, 
             <b>
-            {% if context.user_tray is defined and context.user_tray %}
-              <a href="{{ url_for("tray", tray=context.user_tray.id) }}">{{ user.name }}</a>
-            {% else %}
               {{ user.name }}
-            {% endif %}
+            {%- if context.user_tray is defined and context.user_tray %}
+              <a href="{{ url_for("tray", tray=context.user_tray.id) }}" class="tray-count" title="Лоток пользователя">
+                {{ context.user_tray.object_count }}
+              </a>
+            {%- endif -%}
             </b>
 
           </span>
-          <span class="links__link quit"><a onclick="this.getParent('form').submit();return false" href="">Завершить сеанс</a></span>
+          <a class="quit" onclick="this.getParent('form').submit();return false" href="" title="Завершить сеанс">Завершить сеанс</a>
         </form>
         {% else %}
           <div>

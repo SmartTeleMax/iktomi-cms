@@ -125,3 +125,17 @@
 .tray21 { background-color: rgb(22, 167, 101); color: rgb(255, 255, 255);}
 .tray22 { background-color: rgb(179, 239, 211); color: rgb(11, 79, 48);}
 .tray23 { background-color: rgb(152, 215, 228); color: rgb(13, 59, 68);}
+
+a.tray-count,
+.tray-count{
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  margin-left: 5px;
+  background: #fff;
+  color: #7F8C8D;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  }

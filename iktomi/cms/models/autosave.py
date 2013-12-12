@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-
 from sqlalchemy import Column, ForeignKey, Integer, PickleType, DateTime, \
         Index, String
 from sqlalchemy.dialects.mysql import MEDIUMBLOB

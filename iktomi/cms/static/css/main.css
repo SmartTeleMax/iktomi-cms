@@ -125,6 +125,18 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 .top .links { float: right; padding-right: 50px; }
 .top .links DIV { float: left; padding: 0.6em 0em 0.6em 2em; }
 .top .user A { font-weight: bold; }
+.quit {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  /* Exit by SuperAtic LABS from The Noun Project, published under CC-BY */
+  background-image: url(../images/exit.svg);
+  background-size: 16px 16px;
+  font-size: 0px;
+  vertical-align: top;
+  margin-left: 20px;
+  cursor: pointer;
+  }
 
 .navline { padding: 1.2em 50px; font-weight: bold; }
 .navline DIV { float: left; padding-right: 0.4em; }

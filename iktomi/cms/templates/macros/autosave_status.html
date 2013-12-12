@@ -11,4 +11,11 @@
     <div class="autosave-status__error">ошибки при сохранении</div>
     <div class="autosave-status__saved">сохранено</div>
   </div>
+  {%- if draft -%}
+  <div class="autosave-authors">авторы черновика:
+    {% for author in draft.admins %}
+      {{- author.name }}{% if not loop.last %}, {% endif %}
+    {%- endfor -%}
+  </div>
+  {%- endif -%}
 {% endmacro %}

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from iktomi.utils import cached_property
 from sqlalchemy import Column, ForeignKey, Integer, DateTime, \
         Index, String, Text
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, object_session
+from sqlalchemy import func
 from datetime import datetime
 from .base import register_model
 
@@ -42,4 +44,11 @@ def Tray(models):
                        nullable=True, unique=True)
     editor = relationship(models.AdminUser)
 
+    @cached_property
+    def object_count(self):
+        session = object_session(self)
+        ObjectTray = self.models.ObjectTray
+        return session.query(func.count(ObjectTray.id))\
+                      .filter(ObjectTray.tray==self)\
+                      .scalar()
 
