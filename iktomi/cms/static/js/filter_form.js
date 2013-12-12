@@ -17,13 +17,14 @@
   FilterForm.prototype = {
     'submit': function(url){
       console.log('SUBMIT')
-      if (this.changeUrl){
-        history.pushState(null, null, url);
-      }
+
       var form = this.form;
       new Request({
         'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax&__no_layout',
         'onSuccess': function(result){
+          if (this.changeUrl){
+            history.pushState(null, null, url);
+          }
           //if (this.changeUrl){
           //  window.current_url = url;
           //}

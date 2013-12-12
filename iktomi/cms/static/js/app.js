@@ -39,24 +39,23 @@
     console.log('loadPage');
     contentBlock = contentBlock || $('app-content');
     var isMain = contentBlock == $('app-content');
-    if (url){
-      if (isMain) {
-        history.pushState(null, null, url);
-      }
-    } else {
+    if (!url){
       url = window.location.pathname + window.location.search;
     }
     if (isMain && !force && url == currentUrl){
       console.log('Skipping URL (already loaded): ' + url);
       return;
     }
-    if (isMain) { currentUrl = url; }
 
     document.body.addClass('loading');
     new Request({
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       'onSuccess': function(result){
+        if (isMain) {
+          history.pushState(null, null, url);
+          currentUrl = url;
+        }
         console.log('loadPage success', url);
         renderPage(result, contentBlock);
       }
