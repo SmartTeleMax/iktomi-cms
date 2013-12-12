@@ -71,6 +71,10 @@
               }
             } catch (e){}
 
+            if (result.lost_lock) {
+              this.frm.getElement('.item-lock').retrieve('item-lock').updateLock();
+            }
+
             if (result.success){
               if (this._callback_hook) {
                 this._callback_hook(result, function(){

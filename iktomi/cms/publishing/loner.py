@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import json
 from iktomi import web
 from iktomi.cms.loner import Loner
 from iktomi.utils import cached_property
-from webob.exc import HTTPNotFound, HTTPMethodNotAllowed
-from iktomi.cms.flashmessages import flash
+from webob.exc import HTTPNotFound, HTTPMethodNotAllowed, HTTPOk
+from iktomi.cms.item_lock import prepare_lock_data
+from iktomi.cms.flashmessages import flash, set_flash_cookies
 
 class PublishLoner(Loner):
 
@@ -80,7 +82,7 @@ class PublishLoner(Loner):
         return dict(template_data,
                     version=env.version)
 
-    def _get_item_for_action(self, env):
+    def _get_item_for_action(self, env, data):
         self.insure_has_permission(env, 'w')
         Model = self.get_model(env)
         extra_filters = getattr(self.config, 'model_filters', {})
@@ -88,6 +90,14 @@ class PublishLoner(Loner):
                     .filter_by(**extra_filters).scalar()
         if item is None:
             raise HTTPNotFound()
+
+        prepare_lock_data(env, data, item if self.item_lock else None)
+        if data.lock_message:
+            self.rollback_due_lock_lost(env, item)
+            raise set_flash_cookies(env, HTTPOk(body=json.dumps({
+                'lost_lock': True
+            }))) # XXX Add lost_lock everywhere
+
         return item
 
     def __call__(self, env, data):
@@ -99,7 +109,8 @@ class PublishLoner(Loner):
         if env.version != 'admin':
             raise HTTPNotFound
         self.insure_has_permission(env, 'w')
-        item = self._get_item_for_action(env)
+        item = self._get_item_for_action(env, data)
+
         item.publish()
         env.db.commit()
         flash(env, u'Объект «%s» опубликован' % item, 'success')
@@ -110,7 +121,8 @@ class PublishLoner(Loner):
         if env.version != 'admin':
             raise HTTPNotFound
         self.insure_has_permission(env, 'w')
-        item = self._get_item_for_action(env)
+        item = self._get_item_for_action(env, data)
+
         item.revert_to_published()
         env.db.commit()
         flash(env, u'Объект «%s» восстановлен из фронтальной версии' % item, 'success')
@@ -121,10 +133,7 @@ class PublishLoner(Loner):
         if env.version != 'admin':
             raise HTTPNotFound
         self.insure_has_permission(env, 'w')
-        item = self._get_item_for_action(env)
-        #if data.lock_message:
-        #    self.stream.rollback_due_lock_lost(env, data.item)
-        #    return env.json({})
+        item = self._get_item_for_action(env, data)
 
         item.unpublish()
         env.db.commit()
