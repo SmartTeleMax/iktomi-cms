@@ -96,7 +96,9 @@ var PopupStreamSelect = new Class({
         return;
       }
       var removeBtn = new Element('td').adopt(
-        new Element('a', {'class': 'icon-tiny icon-delete'}).addEvent('click', this.reset.bind(this))
+        new Element('button', {
+          'class': 'button button-tiny icon-delete'
+        }).addEvent('click', this.reset.bind(this))
       );
       row.adopt(removeBtn);
     }
