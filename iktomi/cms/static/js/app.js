@@ -77,7 +77,12 @@
       content.setStyle('height', content.getHeight());
       content.set('html', result);
       Blocks.init(content);
-      window.setTimeout(function(){content.setStyle('height', '');}, 2);
+      window.setTimeout(function(){
+        content.setStyle('height', '');
+        if (content.id == 'app-content'){
+          window.scrollTo(window.scrollX, 0);
+        }
+      }, 2);
 
       var bodyClass = contentBlock.getElement('[data-body-class]');
       document.body.set('class',
