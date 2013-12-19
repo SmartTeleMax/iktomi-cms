@@ -12,6 +12,8 @@
 
 {% for field in form.fields %}
 <div class="form-row
+            {%- if field.form.changed_fields is defined and 
+                   field.input_name in field.form.changed_fields %} changed-after-publication{% endif %}
             {%- if field.error %} with-error{% endif %}
             {%- if field.render_type == 'full-width' %} full-width{% endif %}
             {%- if field.classname %} {{ field.classname }}{% endif %}"

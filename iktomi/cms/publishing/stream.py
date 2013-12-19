@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from webob.multidict import MultiDict
 from iktomi import web
-from iktomi.forms import Form
+from iktomi.forms import FieldBlock
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler,\
         DeleteItemHandler, insure_is_xhr
 from iktomi.cms.stream import Stream, ListField, FilterForm
@@ -18,11 +19,54 @@ class PublishItemHandler(EditItemHandler):
 
     def process_item_template_data(self, env, td):
         # Filter buttons
-        #td['item_buttons'] = []#'unpublish']
         td['version'] = env.version
-        #td['actions'] = [x for x in td['actions']
-        #                 if not x.action in ('unpublish', 'front_publish')]
+        changes = self.changed_fields(env, td['item'], td['form'])
+        td['form'].changed_fields = changes
         return td
+
+    def get_front_item_form(self, env, item):
+        #front_env = VersionedStorage()
+        #front_env._storage._parent_storage = env
+
+        form_cls = self.stream.get_item_form_class(env)
+        form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
+        form.model = self.stream.get_model(env)
+        return form
+
+    def get_field_data(self, form, field_name):
+        md = MultiDict()
+        field = form.get_field(field_name)
+        rv = field.from_python(form.python_data[field.name])
+        field.set_raw_value(md, rv)
+        return md
+
+    def changed_fields(self, env, item, admin_form):
+        if env.version == 'front' or \
+           not item.has_unpublished_changes or \
+           not admin_form.is_valid:
+                #(not item.has_unpublished_changes and \
+                # getattr(admin_form, 'draft', None) is None):
+            return []
+
+        front_form = self.get_front_item_form(env, item)
+        field_names = sum([[x.name] if not isinstance(x, FieldBlock) else
+                           x.field_names
+                           for x in admin_form.fields], [])
+        field_names = filter(None, field_names)
+
+        changed_fields = []
+        for field_name in field_names:
+            #admin_field = admin_form.get_field(field_name)
+            #if admin_field.error:
+            #    # XXX ?
+            #    changed_fields.append(field_name)
+            #    continue
+            admin_data = self.get_field_data(admin_form, field_name)
+            front_data = self.get_field_data(front_form, field_name)
+            if admin_data != front_data:
+                changed_fields.append(field_name)
+
+        return changed_fields
 
 
 class PublishAction(PostAction):
@@ -182,6 +226,8 @@ class HasChangesListField(ListField):
         kwargs.setdefault('transform', lambda x: x)
         kwargs.setdefault('width', '0%')
         return ListField.__init__(self, name, title, **kwargs)
+
+
 
 
 class PublishStreamNoState(Stream):
