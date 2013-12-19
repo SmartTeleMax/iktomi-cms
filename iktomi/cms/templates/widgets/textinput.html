@@ -1,0 +1,4 @@
+<input id="{{ widget.id }}" type="text" name="{{ widget.input_name|escape }}" value="{{ value|forceescape }}"
+       {%- if readonly %} readonly="readonly"{% endif %}
+       class="init-block{% if widget.classname %} {{ widget.classname }}{% endif %}"
+       data-block-name="textinput" />

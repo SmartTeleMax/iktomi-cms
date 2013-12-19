@@ -5,7 +5,7 @@
     var editor = new wysihtml5.Editor(el.id, { // id of textarea element
       stylesheets: config.stylesheets,
       useLineBreaks: false,
-      toolbar: el.id + '-toolbar', // id of toolbar element
+      toolbar: $(el.id + '-toolbar'), // id of toolbar element
       //parser: function(elementOrHtml, rules, context, cleanUp) {
       //  // XXX Temporary disabled html cleanup. 
       //  //     To enable, remove parser from config and define parserRules
@@ -30,9 +30,18 @@
 
     el.store('widget', editor);
 
-    $(el.id + '-toolbar').getElements('.btn').each(function(btn){
-      btn.set('title', btn.get('text'));
-    });
+    var toolbar = $(el.id + '-toolbar');
+    if (toolbar) {
+      toolbar.getElements('.btn').each(function(btn){
+        btn.set('title', btn.get('text'));
+      });
+    }
+
+    if (window.LongPress){
+      window.setTimeout(function(){
+        LongPress(editor.composer.element);
+      }, 500); // XXX delay is not good solution here
+    }
   }
 
   Blocks.register('wysihtml5', window.wysihtml5Init);

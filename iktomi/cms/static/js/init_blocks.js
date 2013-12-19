@@ -25,3 +25,18 @@
 
   window.Blocks = new BlocksCls;
 })();
+
+// XXX move from here?
+Blocks.register('textarea', function(el){
+  // XXX change events?
+  if (window.LongPress){
+    LongPress(el);
+  }
+});
+
+Blocks.register('textinput', function(el){
+  // XXX change events?
+  if (window.LongPress){
+    LongPress(el);
+  }
+});
