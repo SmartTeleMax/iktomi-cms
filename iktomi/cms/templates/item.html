@@ -10,7 +10,10 @@
          {%- if action.hint %} title="{{ action.hint }}"{% endif %}
          {%- if action.item_lock %} data-item-lock="true"{% endif %}
          {%- if action.accepts_item_form %} data-item-form="true"{% endif %}
-         class="button action-{{ action.action }}{% if action.cls %} icon-{{ action.cls}}{% endif %}">
+         {%- if action.js_block %} data-block-name="{{ action.js_block }}"{% endif %}
+         class="button action-{{ action.action }}
+                {%- if action.js_block %} init-block{% endif %}
+                {%- if action.cls %} icon-{{ action.cls}}{% endif %}">
         {{- action.title -}}
       </a>
     {% endfor -%}

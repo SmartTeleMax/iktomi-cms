@@ -8,7 +8,7 @@ class StreamAction(web.WebHandler):
     item_lock = True
     accepts_item_form = True
     for_item = True
-    action = title = cls = None
+    action = title = cls = js_block = None
     allowed_for_new = False
     display = True
     hint = None
