@@ -20,11 +20,13 @@ var PopupFilteredSelect = new Class({
         this.popup = new Popup();
 
         this.filter_by = '';
-        this.listbutton.addEvent('click', function(){
-            this.draw_list(this.popup);
-            this.popup.show();
-            $(this.field_id+'-search').focus();
-        }.bind(this));
+        if (this.listbutton) {
+            this.listbutton.addEvent('click', function(){
+                this.draw_list(this.popup);
+                this.popup.show();
+                $(this.field_id+'-search').focus();
+            }.bind(this));
+        }
 
         this.values.getElements('input').each(function(opt){
           this.options.set(opt.value, {'value':opt.value,

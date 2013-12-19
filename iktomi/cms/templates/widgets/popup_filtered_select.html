@@ -22,11 +22,13 @@
     {%- endfor %}
   </ul>
   </td>
+  {%- if not readonly -%}
   <td class="controls">
   <a class="button" id="{{ widget.id }}-listbutton">
     <span>{{ widget.open_btn_text }}</span>
   </a>
   </td>
+  {%- endif -%}
 </tr>
 
 

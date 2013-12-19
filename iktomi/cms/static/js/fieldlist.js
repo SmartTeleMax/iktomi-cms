@@ -129,5 +129,5 @@ var FieldList = new Class({
 });
 
 Blocks.register('fieldlist', function(el){
-        new FieldList(el, el.dataset.template, el.dataset.order, true, true, el.dataset.maxLength);
+        new FieldList(el, el.dataset.template, el.dataset.order, !el.dataset.readonly, !el.dataset.readonly, el.dataset.maxLength);
 })

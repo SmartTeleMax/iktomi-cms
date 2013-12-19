@@ -21,10 +21,16 @@ textarea {
     padding: 5px;
     border: 1px solid #ccc;
 }
+
 input {
     padding: 3px;
     border: 1px solid #ccc;
 }
+input[readonly],
+textarea[readonly] {
+    border: none;
+    outline: none;
+    }
 select.big { width: 15.1em; }
 select.date { width: 12em; }
 input.date { width: 10em; }
@@ -362,7 +368,6 @@ td.field_has_unpublished_changes {
         display: inline-block;
         width: 30px;
         height: 30px;
-        /* Lock designed by Ben Johnson from The Noun Project, published under CC-BY */
         background-image: url(../images/worker.svg);
         background-size: 30px 30px;
         }

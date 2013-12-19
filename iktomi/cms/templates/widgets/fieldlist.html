@@ -2,6 +2,7 @@
        data-input-name="{{ field.input_name }}"
        data-block-name="fieldlist"
        data-template="{{ field.get_field_template()|forceescape }}"
+       {%- if readonly %} data-readonly="readonly"{% endif %}
        {%- if field.order %} data-order="true"{% endif %}
        {%- if field.max_length %} data-max-length="{{ field.max_length }}"{% endif -%}
        >

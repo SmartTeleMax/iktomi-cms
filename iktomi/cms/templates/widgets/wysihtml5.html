@@ -1,4 +1,5 @@
 <div class="wysihtml5-widget {% if widget.classname %} {{ widget.classname }}{% endif %}">
+  {%- if not readonly %}
   <div id="{{ widget.id }}-toolbar" class="wysihtml5-toolbar" style="display: none;">
     {%- for buttons in widget.real_buttons -%}
       <span class="separator"></span>
@@ -8,9 +9,11 @@
     {% endfor %}
     <div style="clear: both"></div>
   </div>
-  
+  {%- endif %}
+
   <textarea id="{{ widget.id }}"  name="{{ widget.input_name }}"
     class="init-block wysihtml5"
+    {%- if readonly %} readonly="readonly"{% endif %}
     data-block-name="wysihtml5" data-config="{{ widget.js_config|forceescape }}">
     {{- value|forceescape }}
   </textarea>
