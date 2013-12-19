@@ -169,6 +169,14 @@ class RevertAction(PostAction):
             return env.json({})
 
         data.item.revert_to_published()
+        DraftForm = getattr(env, 'draft_form_model', None)
+        if DraftForm is not None:
+            draft = DraftForm.get_for_item(env.db,
+                                           self.stream.uid(env),
+                                           data.item, env.user)
+            if draft is not None:
+                env.db.delete(draft)
+
         flash(env, u'Объект «%s» восстановлен из фронтальной версии' 
                     % data.item, 'success')
         env.db.commit()

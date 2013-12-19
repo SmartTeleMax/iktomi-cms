@@ -40,6 +40,10 @@ def DraftForm(models):
 
     @classmethod
     def get_for_item(cls, db, stream_name, item, user):
+        '''Get DraftForm instance related to given item and stream.
+           If the item is None, then DraftForm instances are filtered
+           also by users
+        '''
         query = db.query(cls).filter_by(stream_name=stream_name)
         if item is None or item.id is None:
             return query.filter(cls.admins.contains(user) &
