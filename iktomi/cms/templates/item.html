@@ -66,7 +66,7 @@
       enctype="multipart/form-data"
       data-block-name="item-form"
       {%- if autosave_allowed %}
-      data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id) }}"
+      data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id).qs_set(filter_form.get_data()) }}"
       {%- endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
   <div class="content">
