@@ -86,7 +86,7 @@ class AdminWithState(_AdminWithStateMixIn, WithState):
 def _get_model_name(item):
     modelname = item.__class__.__name__
     # XXX item.models is not an interface
-    for lang in item.models.langs:
+    for lang in item._iktomi_langs:
         if modelname.endswith(lang.title()):
             return modelname[:-len(lang)]
 
@@ -94,6 +94,8 @@ def _get_model_name(item):
 class WithLanguage(object):
 
     def _item_version(self, version, lang):
+        if not lang in self._iktomi_langs:
+            return None
         # XXX hacky
         models = getattr(AdminReplicated, version)
         models = getattr(models, lang)
@@ -112,11 +114,15 @@ class AdminWithLanguage(WithLanguage):
         db = object_session(self)
         modelname = _get_model_name(self)
 
+        main_lang = self.models.main_lang
+        if not main_lang in self._iktomi_langs:
+            main_lang = self._iktomi_langs[0]
+
         # The first language is default. It is used as id autoincrement
-        if self.models.lang != self.models.main_lang and self.id is None:
+        if self.models.lang != main_lang and self.id is None:
             # XXX self.models is not an interface!
             ru = getattr(self.models,
-                         modelname + self.models.main_lang.title())()
+                         modelname + main_lang.title())()
             # Flush ru model first to get autoincrement id.
             # Do not flush english model yet, but return it to pending
             # state after the flush
@@ -129,7 +135,7 @@ class AdminWithLanguage(WithLanguage):
         elif self.id is None:
             db.flush()
 
-        for lang in self.models.langs:
+        for lang in self._iktomi_langs:
             # create all en/ru admin/front versions
             if lang == self.models.lang:
                 item = self

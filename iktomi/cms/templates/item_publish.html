@@ -21,23 +21,25 @@
   {%- if stream.langs is defined -%}
     <span style="padding-left: 20px;">&nbsp;</span>
     {%- for lang, lang_name in stream.langs %}
-      {% set lang_item = item._item_version(env.version, lang) %}
-      {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (item.ABSENT, item.DELETED)) %}
-      {%- set private = not absent and lang_item.state is defined and lang_item.state == item.PRIVATE %}
-      {%- set public = not absent and lang_item.state is defined and lang_item.state == item.PUBLIC %}
-      {%- set has_changes = not absent and lang_item.has_unpublished_changes %}
-      <a class="stream-flag
-                {%- if lang == env.lang %} selected{% endif %}
-                {%- if absent %} absent{% endif %}
-                {%- if private %} private{% endif %}
-                {%- if public %} public{% endif %}
-                {%- if has_changes %} has-changes{% endif %}"
-         {% if lang != env.lang %}
-         href="{{ stream.url_for(env, 'item', version='admin', lang=lang, item=item.id) }}"
-         {%- endif %} >
-        <span class="lang-{{ lang }}"></span>
-      </a>
-    {% endfor %}
+      {%- if lang in item._iktomi_langs %}
+        {% set lang_item = item._item_version(env.version, lang) %}
+        {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (item.ABSENT, item.DELETED)) %}
+        {%- set private = not absent and lang_item.state is defined and lang_item.state == item.PRIVATE %}
+        {%- set public = not absent and lang_item.state is defined and lang_item.state == item.PUBLIC %}
+        {%- set has_changes = not absent and lang_item.has_unpublished_changes %}
+        <a class="stream-flag
+                  {%- if lang == env.lang %} selected{% endif %}
+                  {%- if absent %} absent{% endif %}
+                  {%- if private %} private{% endif %}
+                  {%- if public %} public{% endif %}
+                  {%- if has_changes %} has-changes{% endif %}"
+           {% if lang != env.lang %}
+           href="{{ stream.url_for(env, 'item', version='admin', lang=lang, item=item.id) }}"
+           {%- endif %} >
+          <span class="lang-{{ lang }}"></span>
+        </a>
+      {%- endif %}
+    {%- endfor %}
   {% endif %}
 </div>
 {% endif %}
