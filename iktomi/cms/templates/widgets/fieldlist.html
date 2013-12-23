@@ -1,7 +1,7 @@
 <table class="fieldlist init-block" id="{{ field.id }}"
        data-input-name="{{ field.input_name }}"
        data-block-name="fieldlist"
-       data-template="{{ field.get_field_template()|forceescape }}"
+       data-template="{{ field.render_template_field()|forceescape }}"
        {%- if readonly %} data-readonly="readonly"{% endif %}
        {%- if field.order %} data-order="true"{% endif %}
        {%- if field.max_length %} data-max-length="{{ field.max_length }}"{% endif -%}
@@ -17,7 +17,7 @@
                   <span class="error">{{ f.error }}</span>
                 </div>
                 {% endif %}
-                {{ f.render() }}
+                {{ f.widget.render() }}
             </td>
             {% if field.order %}
             <td class="fieldlist-order fieldlist-btns"></td>

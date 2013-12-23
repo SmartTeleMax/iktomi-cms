@@ -7,15 +7,15 @@
     </tr>
   {% endif %}
   <tr class="form-row{% if loop.last %} last{% endif %}{% if loop.first %} first{% endif %}{% if subfield.classname %} {{ subfield.classname }}{% endif %}">
-    {% if subfield.label %}
+    {%- if subfield.label -%}
     <th>
-      <label for="{{ subfield.id }}">{{ subfield.label }}</label>    
+      <label for="{{ subfield.id }}">{{ subfield.label }}</label>
     </th>
-    {% else %}
+    {%- else -%}
     <td></td>
-    {% endif %}
+    {%- endif -%}
     <td>
-      {{ subfield.render() }}
+      {{- subfield.widget.render() -}}
     </td>
   </tr>
 {% endmacro %}

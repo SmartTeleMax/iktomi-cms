@@ -48,7 +48,7 @@
       {%- if f.error %}
         <div><span class="error">{{ f.error }}</span></div>
       {%- endif %}
-      {{- f.render() -}}
+      {{- f.widget.render() -}}
     </td>
     {% endif %}
   {% endblock %}

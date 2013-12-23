@@ -15,9 +15,9 @@
 
   {%- block before_filedata %}{% endblock -%}
   <div class="file_data">
-      {{ field.get_field('mode').render()|safe }}
-      {{ field.get_field('transient_name').render()|safe }}
-      {{ field.get_field('original_name').render()|safe }}
+      {{ field.get_field('mode').widget.render()|safe }}
+      {{ field.get_field('transient_name').widget.render()|safe }}
+      {{ field.get_field('original_name').widget.render()|safe }}
       {% if value %}
         <a target="_blank" href="{{ value.url }}">
           {% if value.mode == 'existing' %}
@@ -29,7 +29,7 @@
       {% endif %}
   </div>
 
-  {{ field.get_field('file').render()|safe }}
+  {{ field.get_field('file').widget.render()|safe }}
 </div>
 
 

@@ -43,16 +43,16 @@
     <tr>
       <td width="20%"></td>
       <td>
-	<span class="error">{{ field.error }}</span>
+         <span class="error">{{ field.error }}</span>
       </td>
     </tr>
   {% endif %}
     <TR>
       <TD width="20%" align="right">
-	<LABEL for="id-{{ field.name }}">{{ field.label }}</LABEL>
+         <LABEL for="id-{{ field.name }}">{{ field.label }}</LABEL>
       </TD>
       <TD width="80%">
-	{{ field.render() }}
+         {{- field.widget.render() -}}
       </TD>
     </TR>
 {% endfor %}

@@ -11,26 +11,27 @@
 {% endmacro -%}
 
 {% for field in form.fields %}
+{%- set widget=field.widget -%}
 <div class="form-row
             {%- if field.form.changed_fields is defined and 
                    field.input_name in field.form.changed_fields %} changed-after-publication{% endif %}
             {%- if field.error %} with-error{% endif %}
-            {%- if field.render_type == 'full-width' %} full-width{% endif %}
+            {%- if widget.render_type == 'full-width' %} full-width{% endif %}
             {%- if field.classname %} {{ field.classname }}{% endif %}"
-     {%- if field.render_type == 'hidden' %} style="display: none"{% endif %}>
+     {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
     {% if field.error %}
       <div class="error">{{ field.error }}</div>
     {% endif %}
 
-    {%- if field.render_type == 'checkbox' %}
-      {{- field.render()|safe }}
+    {%- if widget.render_type == 'checkbox' %}
+      {{- widget.render()|safe }}
       {{- label(field) }}
       {{- hint(field) -}}
-    {%- elif field.render_type == 'hidden' %}
-      {{- field.render()|safe }}
-    {%- elif field.render_type == 'full-width' %}
+    {%- elif widget.render_type == 'hidden' %}
+      {{- widget.render()|safe }}
+    {%- elif widget.render_type == 'full-width' %}
       {{- label(field) }}
-      {{- field.render()|safe }}
+      {{- widget.render()|safe }}
       {{- hint(field) -}}
     {% else %}
       {%- if field.label -%}
@@ -38,7 +39,7 @@
           {{- label(field) -}}
         </div>
       {%- endif -%}
-      {{ field.render()|safe }}
+      {{ widget.render()|safe }}
       {{- hint(field) -}}
     {% endif -%}
 </div>
