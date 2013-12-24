@@ -1,3 +1,17 @@
+.changed-after-publication{
+  background: #FFFFDA;
+  }
+.changed-after-publication>.form-label label:after{
+  content: "";
+  background-image: url(../images/worker.svg);
+  background-size: 20px;
+  vertical-align: top;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  margin-left: 5px;
+  }
+
 .form .form-row {
     vertical-align:middle;
     text-align:left;
@@ -130,16 +144,3 @@ textarea.bigtext{
     margin-left: 180px;
     }
 
-.changed-after-publication{
-  background: #fff2cc;
-  }
-.changed-after-publication>.form-label label:after{
-  content: "";
-  background-image: url(../images/worker.svg);
-  background-size: 20px;
-  vertical-align: top;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  margin-left: 5px;
-  }
