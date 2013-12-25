@@ -22,18 +22,24 @@ ItemLock.prototype = {
       this.forceLockRequest = null;
       this.lockActions = this.getActions();
       this.editSessionField = this.el.getParent('form').getElement('[name="edit_session"]');
+      this.editSession = sessionStorage[this.options.globalId];
+      var activeSession = this.options.editSession;
 
-      var lockId = sessionStorage[this.options.globalId];
-      console.log('LOCK init', this.options.globalId, lockId, this.options.editSession);
-      if(this.options.lockMessage != '' && (!lockId || lockId != this.options.editSession)){
-        this.showDialog(this.options.lockMessage, this.lockActions.slice(1));
+      //console.log('LOCK init', this.options.globalId, lockId, this.editSession);
+      if(this.options.lockMessage != '' && (!this.editSession || this.editSession != activeSession)){
+        this.showDialog(this.options.lockMessage, this.lockActions.slice(1), activeSession);
       } else {
-        sessionStorage[this.options.globalId] = this.options.editSession;
-        this.editSessionField.value = this.options.editSession;
+        this.setEditSession(activeSession);
         if (!this.options.noStart){
           this.start();
         }
       }
+  },
+
+  setEditSession: function(editSession){
+      sessionStorage[this.options.globalId] = 
+          this.editSession = 
+          this.editSessionField.value = editSession;
   },
 
   getActions: function(){
@@ -43,6 +49,7 @@ ItemLock.prototype = {
         ['Перейти к списку', this.goToList, 'Переход на страницу со списком объектов']
     ];
   },
+
 
   start: function(){
     if(this.updateTimer == null) {
@@ -75,7 +82,7 @@ ItemLock.prototype = {
     for (var i=locks.length; i--;){
       var data = locks[i].dataset;
       if (data.globalId == this.options.globalId &&
-          data.editSession == this.options.editSession){
+          data.editSession == this.editSession){
         return true;
       }
     }
@@ -92,7 +99,7 @@ ItemLock.prototype = {
   },
 
   getUrl: function(url){
-    return url.replace('GLOBAL_ID', this.options.globalId).replace('EDIT_SESSION', this.options.editSession);
+    return url.replace('GLOBAL_ID', this.options.globalId).replace('EDIT_SESSION', this.editSession);
   },
 
   updateLock: function(){
@@ -109,7 +116,7 @@ ItemLock.prototype = {
         this.noJsonHandler(this.updateRequest);
       } else if(response.status == 'fail'){
         this.stop();
-        this.showDialog(response.message, this.lockActions)
+        this.showDialog(response.message, this.lockActions, response.locked_session)
       } else {
         this.failed_attempts = 0;
         this.popup.hide();
@@ -138,16 +145,16 @@ ItemLock.prototype = {
 
       this.stop();
       this.start();
-      if (this.options.globalId !== undefined){
+      if (response.global_id !== undefined){
         this.options.globalId = response.global_id;
       }
       sessionStorage[this.options.globalId] = 
-          this.options.editSession =
+          this.editSession =
           this.editSessionField.value = response.edit_session;
       this.popup.hide();
     } else if(response.status == 'fail'){
       this.stop();
-      this.showDialog(response.message, this.lockActions)
+      this.showDialog(response.message, this.lockActions, response.locked_session);
     }
   },
 
@@ -160,7 +167,7 @@ ItemLock.prototype = {
       window.location.reload(); // XXX should work without reload
     } else if(response.status == 'fail'){
       this.stop();
-      this.showDialog(response.message, this.lockActions)
+      this.showDialog(response.message, this.lockActions, response.locked_session)
     }
   },
 
@@ -190,7 +197,7 @@ ItemLock.prototype = {
 
   },
 
-  showDialog: function(text, buttons){
+  showDialog: function(text, buttons, locked_session){
     text = text.replace('__OBJ__', this.options.itemTitle);
     var buttons_pane = new Element('div', {'class':'buttons'});
     for (var i=0, l=buttons.length; i < l; i++){
@@ -202,10 +209,12 @@ ItemLock.prototype = {
         ).addEvent('click', handler.bind(this), false)
       )
     };
-    this.popup.adopt(
-      new Element('h3', {'text':text}),
-      buttons_pane
-    );
+    this.popup.adopt(new Element('h3', {'text':text}),
+                     new Element('p', {'text': 'текущий ключ: '+ this.editSession}));
+    if (locked_session){
+      this.popup.adopt(new Element('p', {'text': 'действительный ключ: '+ locked_session}));
+    }
+    this.popup.adopt(buttons_pane);
     this.popup.show();
   }//,
   //releasing_link: function(elem){

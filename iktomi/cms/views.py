@@ -6,7 +6,7 @@ from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPBadRequest, HTTPFo
 from iktomi import web
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth
-from .item_lock import ModelLockError
+from .item_lock import ModelLockError, ModelLockedByOther
 from iktomi.cms.forms import Form, convs
 from iktomi.cms.stream import I18nLabel
 from iktomi.forms.fields import Field
@@ -29,13 +29,22 @@ class IndexHandler(web.WebHandler):
     __call__ = index
 
 
+def failure_lock_message(e):
+    if isinstance(e, ModelLockedByOther):
+        return {'status': 'fail',
+                'message': unicode(e),
+                'locked_session': e.edit_session}
+    return {'status': 'fail',
+            'message': unicode(e)}
+
+
 def update_lock(env, data):
     if env.request.method != "POST":
         raise HTTPMethodNotAllowed()
     try:
         env.item_lock.update(data.item_id, data.edit_session)
     except ModelLockError, e:
-        return env.json({'status': 'fail', 'message': unicode(e)})
+        return env.json(failure_lock_message(e))
     return env.json({'status':'updated'})
 
 def force_lock(env, data):
@@ -44,7 +53,7 @@ def force_lock(env, data):
     try:
         edit_session = env.item_lock.create(data.item_id, True)
     except ModelLockError, e:
-        return env.json({'status': 'fail', 'message': unicode(e)})
+        return env.json(failure_lock_message(e))
 
     return env.json({'status':'captured',
                     'edit_session': edit_session})
