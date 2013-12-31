@@ -25,7 +25,6 @@ ItemLock.prototype = {
       this.editSession = sessionStorage[this.options.globalId];
       var activeSession = this.options.editSession;
 
-      //console.log('LOCK init', this.options.globalId, lockId, this.editSession);
       if(this.options.lockMessage != '' && (!this.editSession || this.editSession != activeSession)){
         this.showDialog(this.options.lockMessage, this.lockActions.slice(1), activeSession);
       } else {
@@ -210,7 +209,7 @@ ItemLock.prototype = {
       )
     };
     this.popup.adopt(new Element('h3', {'text':text}),
-                     new Element('p', {'text': 'текущий ключ: '+ this.editSession}));
+                     new Element('p', {'text': 'текущий ключ: '+ (this.editSession || '-')}));
     if (locked_session){
       this.popup.adopt(new Element('p', {'text': 'действительный ключ: '+ locked_session}));
     }

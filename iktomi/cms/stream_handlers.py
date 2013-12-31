@@ -170,6 +170,8 @@ class PrepareItemHandler(web.WebHandler):
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
+        insure_is_xhr(env)
+
         stream = self.action.stream
         stream.insure_has_permission(env, 'r')
 
@@ -263,7 +265,6 @@ class EditItemHandler(StreamAction):
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
-        insure_is_xhr(env)
 
         item, lock_message, filter_form = \
             data.item, data.lock_message, data.filter_form
