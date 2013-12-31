@@ -165,6 +165,7 @@
       var newData = this.formHash();
       if(this.frm.retrieve('savedData') == newData){
         console.log('AUTOSAVE no changes');
+        this.statusElement.setAttribute('data-status', 'no-changes');
         return;
       }
 
@@ -292,10 +293,14 @@
         }
 
         Array.from(value).each(function(val){
-          if (typeof val != 'undefined') queryString.push(el.name + '=' + val.trim());
+          if (typeof val != 'undefined'){
+            queryString.push([el.name, val.trim()]);
+          };
         });
       });
-      return queryString.sort().join('&');
+      return queryString.sort(function(x){return x[0];})
+                        .map(function(x){return x.join('=');})
+                        .join('&');
     }
   };
 
