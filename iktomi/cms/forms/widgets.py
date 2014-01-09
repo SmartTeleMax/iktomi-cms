@@ -273,8 +273,17 @@ class Calendar(TextInput):
 
 
 class FieldBlockWidget(widgets.FieldBlockWidget):
+    """
+    If FieldBlock needs to be collapsed by default,
+    pass `closed=True` to the widget::
+
+        FieldBlock('name',
+                   fields=[..],
+                   widget=FieldBlock.widget(closed=True))
+    """
 
     classname = 'collapsable'
     template = 'widgets/collapsable_block'
     renders_hint = True
+    closed = False
 
