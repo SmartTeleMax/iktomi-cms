@@ -1,5 +1,4 @@
-<div class="border form text init-block {{ widget.classname }}
-            {%- if field.closed %} closed{% endif %}"
+<div class="border form text init-block collapsable {%- if widget.closed %} closed{% endif %}"
             data-block-name="collapsable-block">
   {%- if field.hint -%}
     <div class="hint hint-right">{{ field.hint }}</div>
