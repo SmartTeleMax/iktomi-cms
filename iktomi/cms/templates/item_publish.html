@@ -5,7 +5,7 @@
 {% if item.id %}
 <div class="flags">
   {% for version, version_name in stream.versions %}
-    {% set lang_item = item._item_version(version, env.lang) %}
+    {% set lang_item = item._item_version(version) %}
     {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (item.ABSENT, item.DELETED)) %}
     <a class="stream-flag
               {%- if version == env.version %} selected{% endif %}
