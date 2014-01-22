@@ -25,7 +25,6 @@ class _WithState(object):
     PUBLIC = 2
     DELETED = 3
 
-
     @declared_attr
     def created_dt(self):
         return Column(DateTime, nullable=False, default=datetime.now)
@@ -54,6 +53,15 @@ class WithState(_WithState):
     @declared_attr
     def state(self):
         return Column(Integer, nullable=True, default=self.ABSENT)
+
+    def _item_version(self, version):
+        # XXX hacky
+        models = getattr(AdminReplicated, version)
+        model = getattr(models, self.__class__.__name__)
+        db = object_session(self)
+        ident = identity_key(instance=self)[1]
+        assert ident is not None
+        return db.query(model).get(ident)
 
 
 class _AdminWithStateMixIn(object):
@@ -93,7 +101,8 @@ def _get_model_name(item):
 
 class WithLanguage(object):
 
-    def _item_version(self, version, lang):
+    def _item_version(self, version, lang=None):
+        lang = lang or self.models.lang
         if not lang in self._iktomi_langs:
             return None
         # XXX hacky
