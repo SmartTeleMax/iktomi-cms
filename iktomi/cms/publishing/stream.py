@@ -43,7 +43,9 @@ class PublishItemHandler(EditItemHandler):
     def changed_fields(self, env, item, admin_form):
         if env.version == 'front' or \
            not item.has_unpublished_changes or \
-           not admin_form.is_valid:
+           not admin_form.is_valid or \
+           (hasattr(item, 'state') and \
+            item.state not in (item.PUBLIC, item.PRIVATE)):
                 #(not item.has_unpublished_changes and \
                 # getattr(admin_form, 'draft', None) is None):
             return []
