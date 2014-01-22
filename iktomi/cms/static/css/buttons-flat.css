@@ -265,11 +265,15 @@
     }
  .button.icon-unpublish:before{
   background-image: url(../images/unpublish-white.svg);
-  background-position-y: center;
+  background-position: center center;
   height: 100%;
   background-size: 16px;
-  top: 0px;
-  left: 7px;
+  top: 3px;
+  left: 5px;
+  background-color: #e74c3c;
+  width: 20px;
+  height: 20px;
+  border-radius: 8px;
   }
 
 .form-controls .button{
