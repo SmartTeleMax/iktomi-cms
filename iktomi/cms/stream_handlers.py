@@ -297,9 +297,16 @@ class EditItemHandler(StreamAction):
             DraftForm = env.draft_form_model
             draft = DraftForm.get_for_item(env.db, stream.uid(env),
                                            item, env.user)
+            has_draft = bool(draft)
         elif getattr(data, 'autosave', False):
             raise HTTPForbidden
         else:
+            draft = None
+            has_draft = False
+
+        if item.id is None \
+                and not getattr(data, 'autosave', False) \
+                and 'force_draft' not in env.request.GET:
             draft = None
 
         form = self.get_item_form(stream, env, item, initial, draft)
@@ -363,6 +370,7 @@ class EditItemHandler(StreamAction):
                              roles=env.user.roles,
                              item=item,
                              draft=draft,
+                             has_draft=has_draft,
                              stream=stream,
                              stream_title=stream.config.title,
                              title=unicode(item),

@@ -144,3 +144,14 @@ textarea.bigtext{
     margin-left: 180px;
     }
 
+.has-draft{
+    padding: 10px;
+    margin-bottom: 7px;
+    font-size: 15px;
+    border-bottom: 2px solid #1abc9c;
+    border-top: 2px solid #1abc9c;
+    background: #BBE2DB;
+    }
+.has-draft p:last-child{
+    margin: 0;
+    }

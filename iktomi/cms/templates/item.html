@@ -115,6 +115,13 @@
     </div>
     <div class="text">
       <div class="line"></div>
+      {% if has_draft and not draft %}
+        <div class="has-draft">
+          <p>Имеется несохранённый черновик объекта.</p>
+          <p>Вы можете <a href="{{ submit_url.qs_set(force_draft=1) }}">редактировать черновик</a> или
+             продолжить редактирование без черновика (он будет удалён при первом автосохранении).</p>
+        </div>
+      {% endif %}
       <div class="form">
         {{ form.render() }}
       </div>
