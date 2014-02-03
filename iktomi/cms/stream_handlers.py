@@ -93,6 +93,7 @@ class StreamListHandler(StreamAction):
                     is_popup=('__popup' in env.request.GET),
                     no_layout=no_layout,
                     menu=stream.module_name,
+                    title=stream.title,
                     item_row=item_row,
                     live_search=stream.live_search,
                     base_template=self.base_template)
