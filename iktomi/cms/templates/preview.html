@@ -21,13 +21,8 @@
 
 
 {% block content %}
-<div id="loader-overlay" class="loader-overlay overlay">
-  <div>
-    Идет загрузка
-  </div>
-</div>
-
-<form>
+<form class="init-block item-form{% if is_popup %} popup-form{% endif %}"
+      data-block-name="item-form">
   <input type="hidden" name="edit_session" value="{{ edit_session }}"/>
   <div class="content">
     <div class="header">
