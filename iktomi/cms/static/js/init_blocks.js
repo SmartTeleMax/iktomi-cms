@@ -32,6 +32,10 @@ Blocks.register('textarea', function(el){
   if (window.LongPress){
     LongPress(el);
   }
+  if (el.scrollHeight > el.getHeight()){
+    el.setStyle('height', Math.min(el.scrollHeight+2,
+                                   el.dataset.maxHeight || 400));
+  }
 });
 
 Blocks.register('textinput', function(el){
