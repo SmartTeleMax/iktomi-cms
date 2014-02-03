@@ -44,7 +44,7 @@
 {% block after_title %}
 <div class="flags">
   {% for version, version_name in loner.versions %}
-    {% set lang_item = form.item._item_version(version, env.lang) %}
+    {% set lang_item = form.item._item_version(version) %}
     {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (form.item.ABSENT, form.item.DELETED)) %}
     <a class="stream-flag
               {%- if version == env.version %} selected{% endif %}
