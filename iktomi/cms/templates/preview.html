@@ -1,3 +1,4 @@
+{% from "macros/version_switch.html" import item_versions with context %}
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
@@ -19,7 +20,6 @@
 </div>
 {% endmacro %}
 
-
 {% block content %}
 <form class="init-block item-form{% if is_popup %} popup-form{% endif %}"
       data-block-name="item-form">
@@ -27,9 +27,10 @@
   <div class="content">
     <div class="header">
       <h1>
-          <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
+          <a href="{{ stream_url.qs_set(filter_form.get_data()) }}" style="text-decoration:none;">{{ stream_title }}</a> <br/>
+          <a href="{{ stream.url_for(env, 'item', item=item.id) }}" style="font-size: 10px;">{{ item.title or item }}</a>
       </h1>
-      {#% block after_title %}{% endblock -%#}
+      {{- item_versions(stream, item, url_name='preview') }}
       {{ buttons(is_popup) }}
     </div>
   </div>
