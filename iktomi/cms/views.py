@@ -72,7 +72,7 @@ class AdminAuth(SqlaModelAuth):
 
     def identify_user(self, env, user_identity):
         user = SqlaModelAuth.identify_user(self, env, user_identity)
-        if user.active:
+        if user is not None and user.active:
             return user
 
 
