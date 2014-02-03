@@ -53,3 +53,15 @@ button.close:before{
     content: "✘";
     color: #4273ba;
 }
+
+.flashmessage ins{
+    text-decoration: none;
+    margin-left: 5px;
+    }
+    .flashmessage ins:before{
+    content: "(";
+    }
+    .flashmessage ins:after{
+    content: ")";
+    }
+

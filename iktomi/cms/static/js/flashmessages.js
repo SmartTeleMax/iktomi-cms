@@ -24,20 +24,25 @@ function flash(text, className, timeout){
   }
 
   var tooltip = $('flashmessages').getElements('.flashmessage.show').filter(function(el){
-    return el.get('text') == text;
+    return el.getElement('span').get('text') == text;
   })[0];
 
   if (tooltip){
+    var count = tooltip.getElement('ins').get('text');
+    tooltip.getElement('ins').set('text', parseInt(count, 10)+1).setStyle('display', '');
+
     var oldTimeouts = JSON.parse(tooltip.dataset.timeouts);
     for (var i=oldTimeouts.length; i--;){
       window.clearTimeout(oldTimeouts[i]);
     }
     var timeouts = [];
   } else {
-    tooltip = new Element('<div>', {
-      'class': 'flashmessage '+ className,
-      'text': text
-    }).inject('flashmessages');
+    tooltip = new Element('div', {
+      'class': 'flashmessage '+ className
+    }).adopt(
+      new Element('span', {'text': text}),
+      new Element('ins', {'text': 0, 'style': 'display:none'})
+    ).inject('flashmessages');
 
     if (timeout > 5000){
       new Element('button', {'class': 'close'}).inject(tooltip, 'top');
@@ -83,7 +88,7 @@ function flashAll(){
       if (typeof(data) == 'string' && data.charAt(0) == '[') {
         data = JSON.decode(data);
       }
-	    
+
       for (var j=0; j<data.length; j++){
         flash(data[j][0], data[j][1], data[j][1]=='failure'?6000:undefined);
       }
