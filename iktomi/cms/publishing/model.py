@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, Integer, DateTime, Boolean
+from sqlalchemy.sql.expression import text
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import object_session
@@ -53,15 +54,6 @@ class WithState(_WithState):
     @declared_attr
     def state(self):
         return Column(Integer, nullable=True, default=self.ABSENT)
-
-    def _item_version(self, version):
-        # XXX hacky
-        models = getattr(AdminReplicated, version)
-        model = getattr(models, self.__class__.__name__)
-        db = object_session(self)
-        ident = identity_key(instance=self)[1]
-        assert ident is not None
-        return db.query(model).get(ident)
 
 
 class _AdminWithStateMixIn(object):
@@ -170,6 +162,18 @@ class AdminWithLanguage(WithLanguage):
 # ==============   Repicated models
 
 
+class ReplicatedVersions(object):
+
+    def _item_version(self, version):
+        # XXX hacky
+        models = getattr(AdminReplicated, version)
+        model = getattr(models, self.__class__.__name__)
+        db = object_session(self)
+        ident = identity_key(instance=self)[1]
+        assert ident is not None
+        return db.query(model).get(ident)
+
+
 class _FrontReplicated(object):
 
 
@@ -194,7 +198,7 @@ class _FrontReplicated(object):
         return ItemLock.item_global_id(self._admin_item)
 
 
-class FrontReplicated(_FrontReplicated):
+class FrontReplicated(ReplicatedVersions, _FrontReplicated):
 
     @cached_property
     def has_unpublished_changes(self):
@@ -271,11 +275,12 @@ class _AdminReplicated(object):
         self.has_unpublished_changes = False
 
 
-class AdminReplicated(_AdminReplicated):
+class AdminReplicated(ReplicatedVersions, _AdminReplicated):
 
     @declared_attr
     def has_unpublished_changes(self):
         '''Was the object updated after publishing? Does it differ from
         published version?'''
-        return Column(Boolean, nullable=False, default=True)#, onupdate=True)
+        return Column(Boolean, nullable=False, default=True,
+                      server_default='0')#, onupdate=True)
 
