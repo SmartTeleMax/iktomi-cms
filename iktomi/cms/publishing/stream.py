@@ -82,12 +82,13 @@ class PublishAction(PostAction):
     title = u'Опубликовать'
     hint = u'Перенести изменения из редакторской версии на опубликованную ' \
            u'и сделать её доступной для просмотра на сайте'
+    PrepareItemHandler = PrepareItemHandler
 
     @property
     def app(self):
         return web.match('/<int:item>/%s' % self.action, self.action) | \
                web.method('POST', strict=True) | \
-               PrepareItemHandler(self) | self
+               self.PrepareItemHandler(self) | self
 
     def admin_publish(self, env, data):
         self.stream.insure_has_permission(env, 'w')
@@ -121,12 +122,13 @@ class UnpublishAction(PostAction):
     action = 'unpublish'
     cls = 'unpublish'
     title = Markup(u'Снять<br/> с публикации')
+    PrepareItemHandler = PrepareItemHandler
 
     @property
     def app(self):
         return web.match('/<int:item>/%s' % self.action, self.action) | \
                web.method('POST', strict=True) | \
-               PrepareItemHandler(self) | self
+               self.PrepareItemHandler(self) | self
 
     def unpublish(self, env, data):
         self.stream.insure_has_permission(env, 'w')
@@ -144,7 +146,8 @@ class UnpublishAction(PostAction):
     __call__ = unpublish
 
     def is_available(self, env, item):
-        return item.state == item.PUBLIC and \
+        return hasattr(item, 'state') and \
+                item.state == item.PUBLIC and \
                 self.stream.has_permission(env, 'w') and \
                 env.version == 'admin'
 
@@ -157,12 +160,13 @@ class RevertAction(PostAction):
     cls = 'revert'
     title = Markup(u'Восстановить<br/> из фронтальной')
     hint = u'Отменить изменения, сделанные после публикации'
+    PrepareItemHandler = PrepareItemHandler
 
     @property
     def app(self):
         return web.match('/<int:item>/%s' % self.action, self.action) | \
                web.method('POST', strict=True) | \
-               PrepareItemHandler(self) | self
+               self.PrepareItemHandler(self) | self
 
     def revert(self, env, data):
         self.stream.insure_has_permission(env, 'w')

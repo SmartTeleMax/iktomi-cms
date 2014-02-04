@@ -71,6 +71,7 @@
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
   <div class="content">
     <div class="header">
+      {% block title %}
       <h1>
         {%- if is_popup %}
           {{- stream_title }}
@@ -78,6 +79,7 @@
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
         {%- endif -%}
       </h1>
+      {% endblock %}
 
       {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}

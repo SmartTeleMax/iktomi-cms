@@ -1,143 +1,52 @@
 # -*- coding: utf-8 -*-
-import json
 from iktomi import web
 from iktomi.cms.loner import Loner
 from iktomi.utils import cached_property
-from webob.exc import HTTPNotFound, HTTPMethodNotAllowed, HTTPOk
-from iktomi.cms.item_lock import prepare_lock_data
-from iktomi.cms.flashmessages import flash, set_flash_cookies
+from .stream import PublishItemHandler, PublishAction, UnpublishAction, \
+            RevertAction, PublishStreamNoState
+from ..loner import LonerHandler, PrepareLonerHandler
 
-class PublishLoner(Loner):
 
-    versions = (('admin', u'Редакторская версия'),
-                ('front', u'Фронтальная версия'),)
-    versions_dict = dict(versions)
+class PublishLonerHandler(LonerHandler, PublishItemHandler):
+    pass
+
+
+class BaseLonerAction(object):
+    PrepareItemHandler = PrepareLonerHandler
+
+    @property
+    def app(self):
+        return web.match('/%s' % self.action, self.action) | \
+               web.method('POST', strict=True) | \
+               self.PrepareItemHandler(self) | self
+
+
+class LonerPublishAction(BaseLonerAction, PublishAction):
+    pass
+
+
+class LonerUnpublishAction(BaseLonerAction, UnpublishAction):
+    pass
+
+
+class LonerRevertAction(BaseLonerAction, RevertAction):
+    pass
+
+
+class PublishLoner(PublishStreamNoState, Loner):
+
     with_state = False
 
-    def get_prefix_handler(self):
-        @web.request_filter
-        def set_models(env, data, nxt):
-            assert data.version in self.versions_dict.keys()
-            env.models = getattr(env.models, data.version)
-            env.version = data.version
-            return nxt(env, data)
-
-        version_prefix = web.prefix('/<any("%s"):version>' % \
-                                     ('","'.join(self.versions_dict.keys())))
-        return Loner.get_prefix_handler(self) | version_prefix | set_models
-
-    def get_app_handler(self):
-        handlers = [
-            web.match() | self,
-            web.match('/autosave', 'autosave') | self.autosave,
-            #web.match('/published-version', 'published_version') | \
-            #    self.published_version,
-            web.match('/publish', 'publish') | 
-                web.method('POST', strict=True) |
-                self.publish,
-            web.match('/revert', 'revert') |
-                web.method('POST', strict=True) |
-                self.revert,
-            ]
-        if self.with_state:
-            handlers.append(
-                web.match('/unpublish', 'unpublish') |
-                    web.method('POST', strict=True) |
-                    self.unpublish)
-        return web.cases(*handlers)
-
-    def uid(self, env, version=True):
-        # Attention! Be careful!
-        # Do not change format of uid unless you are sure it will not 
-        # brake tray views, where stream_name and language are parsed out
-        # from the uid
-        if version:
-            return self.module_name + ':version=' + env.version
-        return self.module_name
-
-    def url_for(self, env, name=None, **kwargs):
-        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
-        return Loner.url_for(self, env, name, **kwargs)
-
-    def save_allowed(self, env):
-        return env.version == 'admin' and Loner.save_allowed(self, env)
-
-    def get_model(self, env):
-        return getattr(env.models, self.config.Model)
+    core_actions = [PublishLonerHandler(),
+                    LonerPublishAction(),
+                    LonerRevertAction(),
+                    LonerUnpublishAction()]
 
     @cached_property
     def template_name(self):
         return getattr(self.config, 'template', 'loner_publish')
 
-    def commit_item_transaction(self, env, item):
-        item.has_unpublished_changes = True
-        if not item._front_item:
-            env.db.flush()
-            # XXX it is better to do this automatically on before_insert or
-            #     after_insert
-            item._create_front_object()
-        Loner.commit_item_transaction(self, env, item)
+    def url_for(self, env, name=None, **kwargs):
+        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
+        return Loner.url_for(self, env, name, **kwargs)
 
-    def process_template_data(self, env, template_data):
-        return dict(template_data,
-                    version=env.version)
-
-    def _get_item_for_action(self, env, data):
-        self.insure_has_permission(env, 'w')
-        Model = self.get_model(env)
-        extra_filters = getattr(self.config, 'model_filters', {})
-        item = env.db.query(Model)\
-                    .filter_by(**extra_filters).scalar()
-        if item is None:
-            raise HTTPNotFound()
-
-        prepare_lock_data(env, data, item if self.item_lock else None)
-        if data.lock_message:
-            self.rollback_due_lock_lost(env, item)
-            raise set_flash_cookies(env, HTTPOk(body=json.dumps({
-                'lost_lock': True
-            }))) # XXX Add lost_lock everywhere
-
-        return item
-
-    def __call__(self, env, data):
-        if env.version != 'admin' and env.request.method == 'POST':
-            raise HTTPMethodNotAllowed
-        return Loner.__call__(self, env, data)
-
-    def publish(self, env, data):
-        if env.version != 'admin':
-            raise HTTPNotFound
-        self.insure_has_permission(env, 'w')
-        item = self._get_item_for_action(env, data)
-
-        item.publish()
-        env.db.commit()
-        flash(env, u'Объект «%s» опубликован' % item, 'success')
-        return env.json({'result': 'success',
-                         'location': self.url_for(env)})
-
-    def revert(self, env, data):
-        if env.version != 'admin':
-            raise HTTPNotFound
-        self.insure_has_permission(env, 'w')
-        item = self._get_item_for_action(env, data)
-
-        item.revert_to_published()
-        env.db.commit()
-        flash(env, u'Объект «%s» восстановлен из фронтальной версии' % item, 'success')
-        return env.json({'result': 'success',
-                         'location': self.url_for(env)})
-
-    def unpublish(self, env, data):
-        if env.version != 'admin':
-            raise HTTPNotFound
-        self.insure_has_permission(env, 'w')
-        item = self._get_item_for_action(env, data)
-
-        item.unpublish()
-        env.db.commit()
-
-        flash(env, u'Объект «%s» снят с публикации' % item, 'success')
-        return env.json({'result': 'success',
-                         'location': self.url_for(env)})

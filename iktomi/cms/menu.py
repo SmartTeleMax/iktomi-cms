@@ -161,11 +161,12 @@ class ActionMenu(Menu):
 class LonerMenu(Menu):
 
     def __init__(self, loner_name, title=None, items=None,
-                 template_vars={}, env=None):
+                 template_vars={}, env=None, template=None):
         self.loner_name = loner_name
         if title is not None:
             self.title = title
         self.items = items or []
+        self.template = template or self.template
         self.template_vars = template_vars
         self._env = env
         for item in self.items:

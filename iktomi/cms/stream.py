@@ -276,6 +276,7 @@ class Stream(object):
     def get_permissions(self, env):
         perms = set()
         for role in env.user.roles:
+            # XXX how does it work for wheel?
             perms |= set(self.perms.get(role, ''))
         return perms
 
