@@ -1,6 +1,7 @@
 <div class="init-block w-popup-stream-select" id="{{ widget.id }}"
      {%- block block_name %} data-block-name="popup-stream-select"{% endblock %}
      {%- if widget.multiple %} data-multiple="multiple"{%- endif -%}
+     {%- if widget.unshift %} data-unshift="true"{%- endif -%}
      {%- if readonly %} data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
   {% for v in options %}

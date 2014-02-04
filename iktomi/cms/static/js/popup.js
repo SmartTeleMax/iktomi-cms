@@ -40,7 +40,8 @@ var Popup = new Class({
     // this.paginator_bottom = new Element('div', {'class': 'popup-pagination', 'id':this.id+'-popup-pagination-bottom'});
 
     this.el.adopt(
-      new Element('div', {'class': 'popup-content'}).adopt(this.titleEl, this.fixedContent,
+      new Element('div', {'class': 'popup-content'}).adopt(this.titleEl,
+                                                           this.fixedContent,
                                                            //this.filters,
                                                            this.contentEl)
     ).inject(injectTo);
