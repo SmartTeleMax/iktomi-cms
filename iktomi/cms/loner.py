@@ -45,15 +45,6 @@ class LonerHandler(EditItemHandler):
                         web.method('POST', strict=True) | self.autosave
             )
 
-    def create_allowed(self, env):
-        return False
-
-    def delete_allowed(self, env, item=None):
-        return False
-
-    def get_item_template(self, env, item):
-        return self.stream.template_name
-
 
 class Loner(Stream):
 
@@ -70,15 +61,17 @@ class Loner(Stream):
     def extra_filters(self):
         return getattr(self.config, 'model_filters', {})
 
-    @cached_property
-    def template_name(self):
-        return getattr(self.config, 'template', 'loner')
-
     def url_for(self, env, name=None, **kwargs):
         kwargs.pop('item', 0)
         if name and name[:5] in ['item.', 'item']:
             name = name[5:] # XXX
         name = name and '%s.%s' % (self.module_name, name) or self.module_name
         return env.url_for('loners.' + name, **kwargs)
+
+    @cached_property
+    def perms(self):
+        p = getattr(self.config, 'permissions', {})
+        p.setdefault('wheel', 'rw')
+        return p
 
 

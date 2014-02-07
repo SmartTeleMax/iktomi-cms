@@ -42,10 +42,6 @@ class PublishLoner(PublishStreamNoState, Loner):
                     LonerRevertAction(),
                     LonerUnpublishAction()]
 
-    @cached_property
-    def template_name(self):
-        return getattr(self.config, 'template', 'loner_publish')
-
     def url_for(self, env, name=None, **kwargs):
         kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
         return Loner.url_for(self, env, name, **kwargs)

@@ -384,6 +384,7 @@ class EditItemHandler(StreamAction):
                              actions=[x for x in stream.actions 
                                       if x.for_item and x.is_visible(env, item)],
                              item_buttons=stream.buttons,
+                             list_allowed=self.stream.has_permission(env, 'x'),
                              autosave_allowed=autosave_allowed,
                              create_allowed=create_allowed,
                              save_allowed=save_allowed,

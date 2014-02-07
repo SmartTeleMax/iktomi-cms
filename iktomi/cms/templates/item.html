@@ -29,24 +29,29 @@
     </a>
     {% endif %}
 
-    {% if (create_allowed and 'save_and_add_another' in item_buttons) or ('save' in item_buttons) %}
-    <div class="buttons__save-hidden">
-      {% if create_allowed and 'save_and_add_another' in item_buttons %}
+    {% macro buttons_in_tooltip() %}
+      {%- if create_allowed and 'save_and_add_another' in item_buttons -%}
       <a href="{{ stream.url_for(env, 'item', item=None).qs_set(filter_form.get_data()) }}"
          data-item-lock="true"
          data-item-form="true"
          class="button icon-add" rel="save-and-add">
-        &hellip; и создать новый
+        … и создать новый
       </a>
-      {% endif %}
+      {%- endif -%}
 
-      {% if 'save' in item_buttons %}
+      {%- if list_allowed and 'save' in item_buttons -%}
       <a href="{{ stream_url }}" class="button icon-back" rel="save"
          data-item-lock="true"
          data-item-form="true">
-        &hellip; и закрыть
+        … и закрыть
       </a>
-      {% endif %}
+      {%- endif -%}
+    {% endmacro %}
+    {% set buttons_in_tooltip_rendered = buttons_in_tooltip() %}
+
+    {% if buttons_in_tooltip_rendered %}
+    <div class="buttons__save-hidden">
+      {{- buttons_in_tooltip_rendered -}}
     </div>
     {% endif %}
   </div>
@@ -73,7 +78,7 @@
     <div class="header">
       {% block title %}
       <h1>
-        {%- if is_popup %}
+        {%- if is_popup or not list_allowed %}
           {{- stream_title }}
         {%- else -%}
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
