@@ -196,11 +196,17 @@ class RevertAction(PostAction):
         if item.id is None or (
                 env.version == 'admin' and \
                 hasattr(item._front_item, 'state') and \
-                item._front_item.state not in (item.PUBLIC, item.PRIVATE)):
+                item._front_item.state not in (item.PUBLIC, item.PRIVATE)
+                ) or not (self.stream.has_permission(env, 'w') and \
+                          env.version == 'admin'):
             return False
-        return item.has_unpublished_changes and \
-                self.stream.has_permission(env, 'w') and \
-                env.version == 'admin'
+        if hasattr(env, 'draft_form_model'):
+            DraftForm = env.draft_form_model
+            draft = DraftForm.get_for_item(env.db, self.stream.uid(env),
+                                           item, env.user)
+            if draft:
+                return True
+        return item.has_unpublished_changes
 
 
 class DeleteFlagHandler(DeleteItemHandler):
