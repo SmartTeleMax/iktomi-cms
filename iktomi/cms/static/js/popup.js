@@ -24,7 +24,7 @@ var Popup = new Class({
 
     this.zindex=100;
 
-    this.el = new Element('div', {'class': 'popup'});
+    this.el = new Element('div', {'class': 'popup', 'tabindex': '0'});
     this.el.store('popup', this);
 
     var injectTo = $(this.options.injectTo);
@@ -61,6 +61,11 @@ var Popup = new Class({
     }
     if(this.options.clickable_overlay){
       this.overlay.addEvent('mousedown', this._hide);
+      this.el.addEvent('keyup', function(e){
+        if (e.code == 27){
+          this.hide();
+        }
+      }.bind(this));
     }
     this.onWindowResize()
     this._onWindowResize = this.onWindowResize.bind(this);
@@ -120,6 +125,7 @@ var Popup = new Class({
     this.el.setStyle('display', 'block');
     this.onWindowResize();
     this.el.setStyle('visibility', 'visible')
+    this.el.focus();
   },
 
   setContent: function(html) {
@@ -178,7 +184,7 @@ var Popup = new Class({
   },
 
   onWindowResize: function() {
-    var paddings = 2*5; /* hard-coded */
+    var paddings = 30; /* hard-coded */
     var extraHeight = this.el.getHeight()-this.contentEl.getHeight()-this.fixedContent.getHeight();// -this.paginator_bottom.getHeight()-this.paginator_top.getHeight();
     var maxHeight = window.getHeight()-40;
     var maxContentHeight = maxHeight-extraHeight;
@@ -189,14 +195,18 @@ var Popup = new Class({
     } else if (this.contentEl.getScrollSize().y<maxContentHeight) {
       this.contentEl.setStyle('height', 'auto');
     };
-    var left = Math.ceil((this.overlay.getWidth() - this.el.getWidth()) / 2);
-    var top = Math.ceil((window.getSize().y - this.el.getHeight()) / 2) + window.getScroll().y;
+
+    this.el.setStyles({'left': 'auto', 'right': 'auto'});
+
+    var left = Math.floor((this.overlay.getWidth() - this.el.getWidth()) / 2);
+    var top = Math.floor((window.getSize().y - this.el.getHeight()) / 2) + window.getScroll().y;
 
     top = (top<0)?0:top;
-    left = (left<0)?0:left;
+    left = Math.max(paddings/2, left);
 
     this.el.setStyles({
       'left': left,
+      'right': left,
       'top': top
     });
 

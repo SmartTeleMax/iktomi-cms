@@ -4,7 +4,8 @@
     visibility: hidden;
     left: 0px;
     top: 0px;
-    padding: 0 40px;
+    padding: 0;
+    outline: none;
 }
 
 
