@@ -386,3 +386,22 @@ td.field_id {
 .clearfix:after {
   clear: both;
 }
+
+.item-lock-extra{
+  display: none;
+  }
+  .item-lock-show-extra .item-lock-extra{
+    display: block;
+    }
+
+.item-lock-toggle-extra{
+  cursor: pointer;
+  }
+.item-lock-toggle-extra:before{
+  content: "+";
+  margin-right: 4px;
+  font-weight: normal;
+  }
+.item-lock-show-extra .item-lock-toggle-extra:before{
+  content: "–";
+  }

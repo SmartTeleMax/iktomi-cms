@@ -196,6 +196,10 @@ ItemLock.prototype = {
 
   },
 
+  toggleExtraInfo: function(){
+    this.popup.contentEl.toggleClass('item-lock-show-extra');
+  },
+
   showDialog: function(text, buttons, locked_session){
     text = text.replace('__OBJ__', this.options.itemTitle);
     var buttons_pane = new Element('div', {'class':'buttons'});
@@ -208,10 +212,15 @@ ItemLock.prototype = {
         ).addEvent('click', handler.bind(this), false)
       )
     };
-    this.popup.adopt(new Element('h3', {'text':text}),
-                     new Element('p', {'text': 'текущий ключ: '+ (this.editSession || '-')}));
+
+    this.popup.adopt(new Element('h3', {'text':text,
+                                        'class': 'item-lock-toggle-extra'
+                                       }).addEvent('click', this.toggleExtraInfo.bind(this)),
+                     new Element('p', {'text': 'текущий ключ: '+ (this.editSession || '–'),
+                                       'class': 'item-lock-extra'}));
     if (locked_session){
-      this.popup.adopt(new Element('p', {'text': 'действительный ключ: '+ locked_session}));
+      this.popup.adopt(new Element('p', {'text': 'действительный ключ: '+ locked_session,
+                                         'class': 'item-lock-extra'}));
     }
     this.popup.adopt(buttons_pane);
     this.popup.show();
