@@ -87,6 +87,7 @@ class StreamListHandler(StreamAction):
                                              url=url,
                                              row_cls=row_cls,
                                              read_allowed=read_allowed,
+                                             stream=stream,
                                              **kw))
 
         data = dict(self.prepare_data(env, data),
@@ -229,6 +230,11 @@ class EditItemHandler(StreamAction):
     def get_item_template(self, env, item):
         return self.stream.item_template_name
 
+    def _clean_item_data(self, stream, env, item):
+        form_cls = stream.get_item_form_class(env)
+        form = form_cls.load_initial(env, item, initial={}, permissions='r')
+        return form.raw_data.items()
+
     def get_item_form(self, stream, env, item, initial, draft=None):
         save_allowed = self.create_allowed(env) \
                 if (item is None or item.id is None) else \
@@ -290,9 +296,10 @@ class EditItemHandler(StreamAction):
             save_allowed = self.save_allowed(env, item)
             delete_allowed = self.delete_allowed(env, item)
 
+
         autosave_allowed = save_allowed and \
                            getattr(env, 'draft_form_model', None) and \
-                           self.stream.autosave
+                           stream.autosave
         autosave = autosave_allowed and getattr(data, 'autosave', False)
         if autosave_allowed:
             DraftForm = env.draft_form_model
@@ -311,10 +318,30 @@ class EditItemHandler(StreamAction):
             draft = None
 
         form = self.get_item_form(stream, env, item, initial, draft)
+        EditLog = getattr(env, 'edit_log_model', None)
+        log_enabled = (item.id is not None and 
+                       EditLog is not None and stream.edit_log)
 
         if request.method == 'POST':
             if not save_allowed:
                 raise HTTPForbidden
+
+            log = None
+            if log_enabled:
+                log = EditLog.last_for_item(
+                        env.db, stream.uid(env), item, 
+                        env.user, data.edit_session)
+                if log is None:
+                    before = self._clean_item_data(stream, env, item)
+                    log = EditLog(stream_name=stream.uid(env),
+                                  type="edit",
+                                  object_id=item.id,
+                                  global_id=ItemLock.item_global_id(item),
+                                  edit_session=data.edit_session,
+                                  users=[env.user],
+                                  before=before)
+                if draft is not None:
+                    log.users = list(set(log.users + draft.users))
 
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
@@ -322,6 +349,18 @@ class EditItemHandler(StreamAction):
                 item, item_url, autosave_url = \
                         self.save_item(env, filter_form, form,
                                        item, draft, autosave)
+
+                if log is not None:
+                    # do not write form.raw_data directly, because it can be
+                    # different for same data stored in db.
+                    # Assume form raw data generated from item as canonical
+                    # representation
+                    log.after = self._clean_item_data(stream, env, item)
+                    if log.after != log.before:
+                        log.update_time = datetime.now()
+                        env.db.add(log)
+                        env.db.commit()
+
                 result = {'success': True,
                           'item_id': item.id,
                           'autosave_url': autosave_url,
@@ -353,8 +392,8 @@ class EditItemHandler(StreamAction):
                     env.db.add(draft)
                 draft.data = form.raw_data.items()
 
-                if not env.user in draft.admins:
-                    draft.admins.append(env.user)
+                if not env.user in draft.users:
+                    draft.users.append(env.user)
                 draft.update_time = datetime.now()
                 env.db.commit()
                 return env.json({'success': False,
@@ -375,6 +414,7 @@ class EditItemHandler(StreamAction):
                              stream=stream,
                              stream_title=stream.config.title,
                              title=unicode(item),
+                             log_enabled=log_enabled,
                              submit_url=stream.url_for(env, 'item',
                                                     item=item.id).qs_set(
                                                         filter_form.get_data()),

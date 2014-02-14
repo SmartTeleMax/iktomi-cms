@@ -88,6 +88,10 @@
 
       {% block after_title %}{% endblock -%}
       {{ buttons(is_popup) }}
+      {% if log_enabled %}
+
+      <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}"></a>
+      {% endif %}
 
       {%- if context.item_trays is defined and item and item.id -%}
       <div class="trays init-block" data-block-name="item-trays"

@@ -1,0 +1,39 @@
+<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+
+<div class="content">
+  <div class="header">
+    <h1><a href="{{ stream.url_for(env, 'edit_log', item=item.id) }}">Журнал изменений</a><br/>
+        <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
+    </h1>
+  </div>
+  <div class="text">
+    <div class="line"></div>
+    <div class="form">
+      <dl class="edit-log-info">
+          <dt>Автор</dt>
+          <dd>{%- for user in log.users %}{{- user.name or user.login }}{% if not loop.last %}, {% endif %}{% endfor -%}</dd>
+          <dt>Тип</dt>
+          <dd><strong>{{ log_type|capitalize }}</strong></dd>
+          <dt>Дата и время</dt>
+          <dd>{% set d1 = log.creation_time.strftime("%d.%m.%Y %H:%M:%S") %}
+              {% set d2 = log.update_time.strftime("%d.%m.%Y %H:%M:%S") %}
+              {% if d1 == d2 %}{{ d1 }} {% else %}{{ d1 }} – {{ d2 }}{% endif %}</dd></dl>
+
+      <table class="edit-log-diff"><tbody>
+        {% for field_name in changed_fields %}
+          <tr><td>
+            <div class="form-label">
+              <label>{{ form1.get_field(field_name).label }}</label>
+            </div>
+          </td><td class="edit-log-del">
+            {{ form1.get_field(field_name).widget.render() }}
+          </td><td class="edit-log-ins">
+            {{ form2.get_field(field_name).widget.render() }}
+          </td></tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+  </div>
+</div>
+

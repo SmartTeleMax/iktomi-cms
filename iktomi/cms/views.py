@@ -4,11 +4,11 @@ import logging
 
 from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPBadRequest, HTTPForbidden
 from iktomi import web
+from iktomi.cms.stream import expand_stream
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth
 from .item_lock import ModelLockError, ModelLockedByOther
 from iktomi.cms.forms import Form, convs
-from iktomi.cms.stream import I18nLabel
 from iktomi.forms.fields import Field
 
 logger = logging.getLogger(__name__)
@@ -214,30 +214,8 @@ class TrayView(web.WebHandler):
         if tray is None:
             raise HTTPNotFound()
         objects = env.db.query(self.ObjectTray).filter_by(tray=tray).all()
-        items = []
-        for obj in objects:
-            if ':' in obj.stream_name:
-                stream_name = obj.stream_name.split(':', 1)[0]
-                params = dict([x.split('=', 1) for x in
-                               obj.stream_name.split(':')[1:]
-                               if '=' in x])
-            else:
-                stream_name = obj.stream_name
-                params = {}
-            if 'lang' in params:
-                # XXX Bug! make new env
-                env.models = getattr(env.models, params['lang'])
-                env.lang = params['lang']
-            if stream_name not in env.streams:
-                continue
-            stream = env.streams[stream_name]
-            item = stream.item_query(env).filter_by(id=obj.object_id).first()
-            if item is not None:
-                stream_title = stream.title
-                if 'lang' in params:
-                    stream_title = I18nLabel(stream_title, params['lang'])
-                url = stream.url_for(env, 'item', item=obj.object_id, **params)
-                items.append((url, stream_title, stream, obj, item))
+        items = [expand_stream(env, obj) for obj in objects]
+
         #changed.sort(key=lambda x: x.date_changed)
         return env.render_to_response('tray', dict(
             tray = tray,

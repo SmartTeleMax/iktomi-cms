@@ -18,9 +18,11 @@ class MediumPickleType(PickleType):
 @register_model('BaseModel')
 def DraftFormAdminUser(models):
 
-    admin_id  = Column(ForeignKey(models.AdminUser.id, ondelete="CASCADE"),
+    admin_id  = Column(ForeignKey(models.AdminUser.id,
+                                  ondelete="CASCADE"),
                        primary_key=True)
-    draft_id  = Column(Integer, ForeignKey('DraftForm.id', ondelete="CASCADE"),
+    draft_id  = Column(Integer, ForeignKey(models.DraftForm.id,
+                                           ondelete="CASCADE"),
                        primary_key=True)
 
 
@@ -35,7 +37,7 @@ def DraftForm(models):
     creation_time = Column(DateTime, default=datetime.now, nullable=False)
     update_time = Column(DateTime, default=datetime.now, nullable=False)
 
-    admins = relationship(models.AdminUser,
+    users = relationship(models.AdminUser,
                           secondary=models.DraftFormAdminUser.__table__)
 
     @classmethod
@@ -46,7 +48,7 @@ def DraftForm(models):
         '''
         query = db.query(cls).filter_by(stream_name=stream_name)
         if item is None or item.id is None:
-            return query.filter(cls.admins.contains(user) &
+            return query.filter(cls.users.contains(user) &
                                 (cls.object_id == None)).first()
         return query.filter(cls.object_id == str(item.id)).first()
 

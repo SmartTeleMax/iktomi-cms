@@ -1,0 +1,52 @@
+.edit-log-link{
+  display: inline-block;
+  position: relative;
+  height: 20px;
+  width: 20px;
+  /* History by Ema Dimitrova from The Noun Project, published under CC-BY */
+  background-image: url(../images/history.svg);
+  background-size: 20px 20px;
+  vertical-align: middle;
+  margin-left: 20px;
+  }
+
+.edit-log-diff{
+    width: 100%;
+    }
+.edit-log-diff>tbody>tr>td{
+    padding: 10px;
+    }
+td.edit-log-del{
+    background: #fee;
+    }
+td.edit-log-ins{
+    background: #efe;
+    }
+
+.edit-log-publish.odd td{
+    background-color: hsl(120,80%,91%);
+    }
+    .edit-log-publish.even td{
+        background-color: hsl(120,80%,93%);
+        }
+.edit-log-revert.odd td,
+.edit-log-unpublish.odd td{
+    background-color: hsl(20,80%,91%);
+    }
+    .edit-log-revert.even td,
+    .edit-log-unpublish.even td{
+        background-color: hsl(20,80%,93%);
+        }
+
+.edit-log-info{
+    padding: 0 10px;
+    }
+    .edit-log-info dt{
+        float: left; 
+        clear: left;
+        width: 100px;
+        }
+    .edit-log-info dd{
+        float: left;
+        width: 400px;
+        }

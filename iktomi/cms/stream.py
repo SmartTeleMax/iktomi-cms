@@ -9,6 +9,7 @@ from jinja2 import Markup
 from iktomi.utils import cached_property
 from collections import OrderedDict
 from iktomi.utils.mdict import MultiDict
+from iktomi.utils.storage import VersionedStorage
 from iktomi import web
 from iktomi.cms.forms import Form
 from . import stream_handlers as handlers
@@ -192,6 +193,10 @@ class Stream(object):
         return getattr(self.config, 'autosave', True)
 
     @cached_property
+    def edit_log(self):
+        return any(x for x in self.actions if x.action=='edit_log')
+
+    @cached_property
     def app_namespace(self):
         if '.' in self.module_name:
             return self.module_name.rsplit('.', 1)[0]
@@ -322,3 +327,39 @@ class Stream(object):
         if not silent:
             flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
                        'failure')
+
+
+def decode_stream_uid(stream_name):
+    if ':' in stream_name:
+        stream_name = stream_name.split(':', 1)[0]
+        params = dict([x.split('=', 1) for x in
+                       stream_name.split(':')[1:]
+                       if '=' in x])
+        return stream_name, params
+    return stream_name, {}
+
+
+def expand_stream(env, obj):
+    stream_name, params = decode_stream_uid(obj.stream_name)
+
+    stream_env = VersionedStorage()
+    stream_env._storage.parent_storage = env
+
+    if 'lang' in params:
+        stream_env.models = getattr(env.models, params['lang'])
+        stream_env.lang = params['lang']
+    if stream_name not in env.streams:
+        # Deleted or renamed stream
+        raise NotImplementedError
+    stream = env.streams[stream_name]
+    item = stream.item_query(stream_env)\
+                 .filter_by(id=obj.object_id).first()
+    if item is not None:
+        stream_title = stream.title
+        if 'lang' in params:
+            stream_title = I18nLabel(stream_title, params['lang'])
+        url = stream.url_for(stream_env, 'item', 
+                             item=obj.object_id, **params)
+    return (url, stream_title, stream, obj, item)
+
+

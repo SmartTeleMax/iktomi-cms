@@ -7,6 +7,7 @@ from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler,\
 from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
+from iktomi.cms.item_lock import ItemLock
 from iktomi.utils import cached_property
 from jinja2 import Markup
 
@@ -96,6 +97,16 @@ class PublishAction(PostAction):
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
 
+        EditLog = getattr(env, 'edit_log_model', None)
+        log_enabled = EditLog is not None and self.stream.edit_log
+        if log_enabled:
+            log = EditLog(stream_name=self.stream.uid(env),
+                          type="publish",
+                          object_id=data.item.id,
+                          global_id=ItemLock.item_global_id(data.item),
+                          users=[env.user])
+            env.db.add(log)
+
         data.item.publish()
         flash(env, u'Объект «%s» опубликован' % data.item, 'success')
         env.db.commit()
@@ -136,6 +147,16 @@ class UnpublishAction(PostAction):
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
 
+        EditLog = getattr(env, 'edit_log_model', None)
+        log_enabled = EditLog is not None and self.stream.edit_log
+        if log_enabled:
+            log = EditLog(stream_name=self.stream.uid(env),
+                          type="unpublish",
+                          object_id=data.item.id,
+                          global_id=ItemLock.item_global_id(data.item),
+                          users=[env.user])
+            env.db.add(log)
+
         data.item.unpublish()
         flash(env, u'Объект «%s» снят с публикации' % data.item, 'success')
         env.db.commit()
@@ -168,13 +189,31 @@ class RevertAction(PostAction):
                web.method('POST', strict=True) | \
                self.PrepareItemHandler(self) | self
 
+    def _clean_item_data(self, stream, env, item):
+        form_cls = stream.get_item_form_class(env)
+        form = form_cls.load_initial(env, item, initial={}, permissions='r')
+        return form.raw_data.items()
+
     def revert(self, env, data):
         self.stream.insure_has_permission(env, 'w')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
 
+        EditLog = getattr(env, 'edit_log_model', None)
+        log_enabled = EditLog is not None and self.stream.edit_log
+        if log_enabled:
+            before = self._clean_item_data(self.stream, env, data.item)
+            log = EditLog(stream_name=self.stream.uid(env),
+                          type="revert",
+                          object_id=data.item.id,
+                          global_id=ItemLock.item_global_id(data.item),
+                          before=before,
+                          users=[env.user])
+            env.db.add(log)
+
         data.item.revert_to_published()
+
         DraftForm = getattr(env, 'draft_form_model', None)
         if DraftForm is not None:
             draft = DraftForm.get_for_item(env.db,
@@ -186,6 +225,11 @@ class RevertAction(PostAction):
         flash(env, u'Объект «%s» восстановлен из фронтальной версии' 
                     % data.item, 'success')
         env.db.commit()
+
+        if log_enabled:
+            log.after = self._clean_item_data(self.stream, env, data.item)
+            env.db.commit()
+
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
         return env.json({'result': 'success',
