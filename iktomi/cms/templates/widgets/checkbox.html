@@ -1,0 +1,5 @@
+<input id="{{ widget.id }}" type="checkbox" name="{{ widget.input_name|escape }}"
+       {%- if value %} checked="checked"{% endif %}
+       {%- if readonly %} readonly="readonly" disabled="disabled"{% endif %}
+       {%- if widget.classname %} class="{{ widget.classname }}"{% endif %} />
+{%- if readonly and value %}<input name="{{ widget.input_name }}" type="hidden" value="checked"/>{% endif %}
