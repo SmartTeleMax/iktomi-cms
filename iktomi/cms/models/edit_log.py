@@ -64,7 +64,7 @@ def EditLog(models):
                            object_id=item.id)\
                 .order_by(desc(cls.update_time))\
                 .first()
-        if log.edit_session == edit_session and log.type=='edit':
+        if log and log.edit_session == edit_session and log.type=='edit':
             return log
 
     __mapper_args__ = {'order_by': desc(update_time)}

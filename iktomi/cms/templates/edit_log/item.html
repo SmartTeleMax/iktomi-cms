@@ -24,7 +24,7 @@
         {% for field_name in changed_fields %}
           <tr><td>
             <div class="form-label">
-              <label>{{ form1.get_field(field_name).label }}</label>
+              <label>{{ form1.get_field(field_name).label or form1.get_field(field_name).name }}</label>
             </div>
           </td><td class="edit-log-del">
             {{ form1.get_field(field_name).widget.render() }}
