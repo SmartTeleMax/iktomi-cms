@@ -36,7 +36,7 @@
   });
 
   function loadPage(url, force, contentBlock){
-    console.log('loadPage');
+    console.log('loadPage', url || (window.location.pathname + window.location.search));
     contentBlock = contentBlock || $('app-content');
     var isMain = contentBlock == $('app-content');
     if (!url){
@@ -52,7 +52,8 @@
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       'onSuccess': function(result){
-        if (isMain) {
+        var _url = window.location.pathname + window.location.search;
+        if (isMain && _url != url) {
           history.pushState(null, null, url);
           currentUrl = url;
         }
