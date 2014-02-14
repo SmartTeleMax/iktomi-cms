@@ -52,10 +52,12 @@
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
       'onSuccess': function(result){
-        var _url = window.location.pathname + window.location.search;
-        if (isMain && _url != url) {
-          history.pushState(null, null, url);
+        if (isMain) {
           currentUrl = url;
+          var _url = window.location.pathname + window.location.search;
+          if (_url != url) {
+            history.pushState(null, null, url);
+          }
         }
         console.log('loadPage success', url);
         renderPage(result, contentBlock);
