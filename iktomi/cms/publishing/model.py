@@ -39,7 +39,7 @@ class _WithState(object):
     def public(self):
         return self.state==self.PUBLIC
 
-    # public condition for preview on andmin site
+    # public condition for admin site
     @hybrid_property
     def existing(self):
         return self.state in [self.PUBLIC, self.PRIVATE]

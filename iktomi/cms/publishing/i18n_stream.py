@@ -70,8 +70,8 @@ class I18nItemHandler(PublishItemHandler):
 
 class I18nStreamMixin(object):
 
-    langs = (('ru', u'Русский'),
-             ('en', u'Английский'),)
+    langs = [('ru', u'Русский'),
+             ('en', u'Английский')]
     langs_dict = dict(langs)
 
     list_base_template = 'lang_publish_stream.html'
