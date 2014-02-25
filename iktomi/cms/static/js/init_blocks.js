@@ -11,7 +11,8 @@
         var elem = elems[i];
         var key = elem.dataset.blockName;
         var block = this.blocks[key];
-        console.log('Init block: ' + key);
+        if (! block) { throw "Block is not registered: "+ key; }
+        //console.log('Init block: ' + key);
         block(elem);
         elem.removeClass('init-block');
       }
