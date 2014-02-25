@@ -13,6 +13,14 @@
         Создать
       </a>
       {% endif %}
+      {%- for action in stream.actions %}
+        {%- if action.display and not action.for_item and action.action %}
+          <a href="{{ stream.url_for(env, action.action) }}" 
+             class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}">
+            {{- action.title -}}
+          </a>
+        {%- endif %}
+      {%- endfor %}
     </div>
   </div>
   {% endif %}

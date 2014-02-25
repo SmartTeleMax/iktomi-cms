@@ -1,4 +1,4 @@
-<table class="fieldlist init-block" id="{{ field.id }}"
+<table class="fieldlist init-block{% if widget.classname %} {{ widget.classname }}{% endif %}" id="{{ field.id }}"
        data-input-name="{{ field.input_name }}"
        data-block-name="fieldlist"
        data-template="{{ widget.render_template_field()|forceescape }}"
