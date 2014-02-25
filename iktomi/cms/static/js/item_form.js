@@ -156,6 +156,8 @@
     },
 
     autoSaveHandler: function(){
+      var url = this.frm.dataset.autosave;
+      if (! url) { return; }
       if (! this.frm.getParent('body') ) {
         console.log('AUTOSAVE stop')
         window.clearInterval(this.autoSaveInterval);
@@ -171,7 +173,6 @@
 
       this.statusElement.setAttribute('data-status', 'saving');
 
-      var url = this.frm.dataset.autosave;
       new Request.JSON({
         url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
         onSuccess: function(result){
