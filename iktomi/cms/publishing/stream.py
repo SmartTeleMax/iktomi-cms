@@ -92,7 +92,7 @@ class PublishAction(PostAction):
                self.PrepareItemHandler(self) | self
 
     def admin_publish(self, env, data):
-        self.stream.insure_has_permission(env, 'w')
+        self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
@@ -118,11 +118,10 @@ class PublishAction(PostAction):
 
     def is_available(self, env, item):
         return item.id and \
-            (not hasattr(item, 'state') or 
-                 item.state in (item.PRIVATE, item.PUBLIC)) and \
+            (not hasattr(item, 'state') or item.existing) and \
             (item.has_unpublished_changes or \
-                (hasattr(item, 'state') and item.state == item.PRIVATE)) and \
-                self.stream.has_permission(env, 'w') and \
+                (hasattr(item, 'state') and not item.public)) and \
+                self.stream.has_permission(env, 'p') and \
                 env.version == 'admin'
 
 
@@ -142,7 +141,7 @@ class UnpublishAction(PostAction):
                self.PrepareItemHandler(self) | self
 
     def unpublish(self, env, data):
-        self.stream.insure_has_permission(env, 'w')
+        self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
@@ -168,8 +167,8 @@ class UnpublishAction(PostAction):
 
     def is_available(self, env, item):
         return hasattr(item, 'state') and \
-                item.state == item.PUBLIC and \
-                self.stream.has_permission(env, 'w') and \
+                item.public and \
+                self.stream.has_permission(env, 'p') and \
                 env.version == 'admin'
 
 
@@ -195,7 +194,7 @@ class RevertAction(PostAction):
         return form.raw_data.items()
 
     def revert(self, env, data):
-        self.stream.insure_has_permission(env, 'w')
+        self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
             return env.json({})
@@ -241,7 +240,7 @@ class RevertAction(PostAction):
                 env.version == 'admin' and \
                 hasattr(item._front_item, 'state') and \
                 item._front_item.state not in (item.PUBLIC, item.PRIVATE)
-                ) or not (self.stream.has_permission(env, 'w') and \
+                ) or not (self.stream.has_permission(env, 'p') and \
                           env.version == 'admin'):
             return False
         if hasattr(env, 'draft_form_model'):
@@ -377,7 +376,6 @@ class PublishStream(PublishStreamNoState):
         query = PublishStreamNoState.item_query(self, env)
         if not getattr(env, 'absent_items', False): # XXX dirty hack
             Model = self.get_model(env)
-            condition = Model.state.in_((Model.PRIVATE, Model.PUBLIC))
-            return query.filter(condition)
+            return query.filter(Model.existing)
         return query
 
