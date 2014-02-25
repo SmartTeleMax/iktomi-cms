@@ -205,7 +205,7 @@ class Stream(object):
     @cached_property
     def perms(self):
         p = getattr(self.config, 'permissions', {})
-        p.setdefault('wheel', 'rwxcd')
+        p.setdefault('wheel', 'rwxcdp')
         return p
 
     @cached_property
