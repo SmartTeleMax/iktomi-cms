@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import class_mapper, PropertyLoader
+from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy.orm.util import identity_key
 
 from iktomi.utils import cached_property
@@ -580,7 +580,7 @@ class DeleteItemHandler(StreamAction):
         for other_class in self._get_all_classes(cls):
             queries = {}
             for prop in class_mapper(other_class).iterate_properties:
-                if not (isinstance(prop, PropertyLoader) and \
+                if not (isinstance(prop, RelationshipProperty) and \
                         issubclass(cls, prop.mapper.class_)):
                     continue
                 query = env.db.query(prop.parent)
