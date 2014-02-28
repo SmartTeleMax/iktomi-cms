@@ -3,7 +3,8 @@
   }
 .changed-after-publication>.form-label label:after{
   content: "";
-  background-image: url(../images/worker.svg);
+  /* Edit by Garrett Knoll from The Noun Project */
+  background-image: url(../images/changed.svg);
   background-size: 20px;
   vertical-align: top;
   width: 20px;
@@ -103,6 +104,20 @@ textarea.bigtext{
     }
   .autosave-status__saved{
     color: #5b4;
+    }
+  .autosave-status__error:before,
+  .autosave-status__draft:before{
+    content: "!";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: #e74c3c;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 10px;
+    text-align: center;
+    vertical-align: middle;
+    margin: 0 5px;
     }
 
 .autosave-authors{

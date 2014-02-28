@@ -87,10 +87,8 @@
       {% endblock %}
 
       {% block after_title %}{% endblock -%}
-      {{ buttons(is_popup) }}
       {% if log_enabled %}
-
-      <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}"></a>
+          <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}"></a>
       {% endif %}
 
       {%- if context.item_trays is defined and item and item.id -%}
@@ -120,6 +118,8 @@
         <button type="button" class="trays__add">+</button>
       </div>
       {%- endif -%}
+
+      {{ buttons(is_popup) }}
 
       {% from "macros/autosave_status.html" import autosave_status %}
       {{ autosave_status(autosave_allowed, draft) }}

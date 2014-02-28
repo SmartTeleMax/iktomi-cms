@@ -68,6 +68,7 @@ input.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
   padding: 20px 20px 10px 20px;
   z-index: 3;
   height: 71px;
+  white-space: nowrap;
   }
   .popup .header {
     position: absolute;
@@ -84,15 +85,18 @@ input.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; borde
     display: inline-block;
     padding: 0;
     margin: 0;
-    margin-right: 20px;
     vertical-align: top;
+    }
+  .header h1 {
+    margin-right: 20px;
     }
   .header .buttons{
     display: block;
-    position: absolute;
-    right: 0;
-    top: 26px;
+    position: relative;
+    float: right;
     z-index: 10;
+    white-space: normal;
+    text-align: right;
     }
   .header .line { background-color: #e3e6e8; }
   .buttons__save-actions{
@@ -330,13 +334,14 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
       content: "";
       width: 15px;
       height: 15px;
-      background-image: url(../images/worker.svg);
+      /* Edit by Garrett Knoll from The Noun Project */
+      background-image: url(../images/changed.svg);
       background-position: center center;
       background-repeat: no-repeat;
       background-size: 15px;
       position:absolute;
       top: -15px;
-      right: 0px;
+      right: 2px;
       }
 
 a.stream-flag .version-admin{
@@ -385,7 +390,8 @@ td.field_has_unpublished_changes {
         display: inline-block;
         width: 30px;
         height: 30px;
-        background-image: url(../images/worker.svg);
+        /* Edit by Garrett Knoll from The Noun Project */
+        background-image: url(../images/changed.svg);
         background-size: 30px 30px;
         }
 td.field_id {

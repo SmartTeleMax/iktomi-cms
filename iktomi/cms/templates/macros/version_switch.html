@@ -56,6 +56,7 @@
                   {%- if private %} private{% endif %}
                   {%- if public %} public{% endif %}
                   {%- if has_changes %} has-changes{% endif %}"
+           {%- if has_changes %} title="Имеются неопубликованные изменения"{% endif %}
            {% if lang != env.lang %}
            href="{{ stream.url_for(env, url_name, version='admin', lang=lang, item=item.id) }}"
            {%- endif %} >

@@ -12,13 +12,15 @@
 
 {% for field in form.fields %}
 {%- set widget=field.widget -%}
+{%- set changed = field.form.changed_fields is defined and 
+                  field.input_name in field.form.changed_fields %}
 <div class="form-row
-            {%- if field.form.changed_fields is defined and 
-                   field.input_name in field.form.changed_fields %} changed-after-publication{% endif %}
+            {%- if changed %} changed-after-publication{% endif %}
             {%- if field.error %} with-error{% endif %}
             {%- if widget.render_type == 'full-width' %} full-width{% endif %}
             {%- if field.classname %} {{ field.classname }}{% endif %}"
-     {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
+      {%- if changed %} title="Имеются изменения по сравнению с опубликованной версией"{% endif %}
+      {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
     {% if field.error %}
       <div class="error">{{ field.error }}</div>
     {% endif %}

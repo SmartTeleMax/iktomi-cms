@@ -167,7 +167,9 @@
       var newData = this.formHash();
       if(this.frm.retrieve('savedData') == newData){
         console.log('AUTOSAVE no changes');
-        this.statusElement.setAttribute('data-status', 'no-changes');
+        if (this.statusElement.getAttribute('data-status') != 'draft') {
+          this.statusElement.setAttribute('data-status', 'no-changes');
+        }
         return;
       }
 
