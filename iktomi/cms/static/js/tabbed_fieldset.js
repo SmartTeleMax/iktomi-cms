@@ -42,7 +42,6 @@ var TabbedFieldSet = new Class({
     var related_fields = this.options.tabbed_fields[this.switchers.indexOf(sw)].map(function(field) {
       return this.options.tabbed_fields_list.indexOf(field);
     }.bind(this));
-    console.log('rel', related_fields);
     related_fields.each(function(index) {
       var t = this.tabbed_fields[index];
       //t.getParent().adopt(t);

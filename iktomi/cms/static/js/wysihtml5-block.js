@@ -23,10 +23,16 @@
       //}
       parserRules: config.parserRules // defined in parser rules set 
     });
-    editor.composer.iframe.contentDocument.addEventListener('click', function(e){
-      $$('.wysihtml5-dialog').setStyle('display', 'none');
-    }, true);
-    extendRange(editor.composer.iframe.contentWindow)
+    var iframe = editor.composer.iframe;
+
+    function attachIFrame(){
+      editor.composer.iframe.contentDocument.addEventListener('click', function(e){
+        $$('.wysihtml5-dialog').setStyle('display', 'none');
+      }, true);
+      extendRange(editor.composer.iframe.contentWindow)
+    }
+    iframe.addEventListener('load', attachIFrame, false);
+    attachIFrame();
 
     el.store('widget', editor);
 

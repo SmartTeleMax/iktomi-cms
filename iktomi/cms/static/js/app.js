@@ -1,5 +1,5 @@
 (function(){
-  var currentUrl = null;
+  var currentUrl = window.location.pathname + window.location.search;
   window.addEvent('domready', function(){
     Blocks.init(document.body);
 
@@ -32,11 +32,10 @@
       }
     }, false);
 
-    loadPage();
+    loadPage(null, true);
   });
 
   function loadPage(url, force, contentBlock){
-    console.log('loadPage', url || (window.location.pathname + window.location.search));
     contentBlock = contentBlock || $('app-content');
     var isMain = contentBlock == $('app-content');
     if (!url){
@@ -46,6 +45,7 @@
       console.log('Skipping URL (already loaded): ' + url);
       return;
     }
+    console.log('loadPage', url);
 
     document.body.addClass('loading');
     new Request({
@@ -165,5 +165,8 @@
     flash(text, 'failure', 10*1000)
     tempFailure.apply(this, arguments);
     document.body.removeClass('loading');
+  }
+  window.onerror = function(e){
+    flash('Ошибка выполнения клиентской программы:\n'+e, 'failure', 10*1000);
   }
 })();

@@ -1,6 +1,6 @@
 (function(){
   function ItemForm(frm){
-    console.log('Generating ItemForm #'+frm.id);
+    //console.log('Generating ItemForm #'+frm.id);
 
     this.frm = frm;
     this._callback_hook = undefined;

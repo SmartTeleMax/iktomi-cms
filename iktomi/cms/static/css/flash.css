@@ -20,6 +20,7 @@
     transition: opacity .3s, margin-top .3s;
     border: 1px solid #CBCDD2;
     border-top: none;
+    white-space: pre-wrap;
 }
 /*.flashmessage:last-child{
   border-bottom-right-radius: 5px;
