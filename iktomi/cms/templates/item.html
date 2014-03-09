@@ -88,7 +88,7 @@
 
       {% block after_title %}{% endblock -%}
       {% if log_enabled %}
-          <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}"></a>
+          <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}" title="История правок"></a>
       {% endif %}
 
       {%- if context.item_trays is defined and item and item.id -%}
@@ -96,6 +96,7 @@
            data-delete-url="{{ env.url_for('delete_from_tray') }}"
            data-stream-name="{{ stream.uid(env, version=False) }}"
            data-object-id="{{ item.id }}">
+        <button type="button" class="trays__add" title="Отправить в рабочую папку пользователю"></button>
         <div class="trays__dropdown">
           <div class="trays__list">
           {%- for object_tray in context.item_trays(stream, item) -%}
@@ -115,7 +116,6 @@
           {%- endfor -%}
           </div>
         </div>
-        <button type="button" class="trays__add">+</button>
       </div>
       {%- endif -%}
 

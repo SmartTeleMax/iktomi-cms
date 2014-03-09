@@ -85,7 +85,7 @@ class EditLogHandler(GetAction):
             raise NotImplementedError
         rel_stream = env.streams[rel_stream_name]
         rel_env = VersionedStorage(**params)
-        rel_env._storage.parent_storage = env
+        rel_env._storage._parent_storage = env
 
         form_cls = rel_stream.get_item_form_class(env)
 

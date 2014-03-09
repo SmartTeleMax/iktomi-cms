@@ -28,7 +28,8 @@
     padding: 0 10px;
     }
 .form .form-row .form-label{
-  position: relative;
+  float: left;
+  width: 0;
   }
   .form .form-row .form-label:before{
     content: "";
@@ -37,12 +38,11 @@
     diaplay: block;
     }
   .form .form-row .form-label label{
-    position: absolute;
+    position: relative;
     display: inline-block;
     top: 0;
     left: -200px;
     width: 180px;
-    height: 100%;
   }
 
 .form .form-row>td {

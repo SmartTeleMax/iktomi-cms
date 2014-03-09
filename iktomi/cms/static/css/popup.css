@@ -32,6 +32,7 @@
     font-size: 18px;
     color: #850708;
     text-align: center;
+    white-space: nowrap;
 }
 
 .popup-body {

@@ -149,13 +149,6 @@ class TrayView(web.WebHandler):
                              'errors': form.errors})
         return self._put_to_tray(env, **form.python_data)
 
-    def put_to_my_tray(self, env, data):
-        form = self.MyTrayObjectForm(env)
-        if not form.accept(env.request.POST):
-            return env.json({'success': False,
-                             'errors': form.errors})
-        return self._put_to_user_tray(env, env.user, form)
-
     def put_to_user_tray(self, env, data):
         form = self.UserTrayObjectForm(env)
         if not form.accept(env.request.POST):
@@ -181,7 +174,7 @@ class TrayView(web.WebHandler):
                             .filter_by(**filter_args).first()
         if object_tray is not None:
             return env.json({'success': False,
-                             'error': u'Объект уже находится в лотке'})
+                             'error': u'Объект уже находится в папке'})
         object_tray = self.ObjectTray(**filter_args)
         env.db.add(object_tray)
         object_tray.comment = comment

@@ -3,8 +3,6 @@
   position: relative;
   height: 20px;
   width: 20px;
-  /* Lock designed by Diego Naive from The Noun Project, published under CC-BY */
-  background-image: url(../images/tags.svg);
   background-size: 20px 20px;
   vertical-align: middle;
   margin-left: 20px;
@@ -17,22 +15,27 @@
     background: #fff;
     display: none;
     padding: 10px;
+    z-index: 20;
     }
   .trays__add{
-    padding-left: 23px;
     background: none;
     outline: none;
     border: none;
     font-weight: bold;
-    font-size: 16px;
-    display: none;
-    cursor: pointer
+    display: inline-block;
+    cursor: pointer;
+    /* Folder by Simple Icons from The Noun Project, published under CC-BY */
+    background: url(../images/folder.svg) no-repeat top left;
+    background-size: 20px;
+    width:20px;
+    height: 20px;
     }
   .trays:hover .trays__dropdown{
     display: block;
     }
   .trays:hover .trays__add{
-    display: inline-block;
+    /* Folder by Simple Icons from The Noun Project, published under CC-BY */
+    background-image: url(../images/folder-add.svg);
     }
   .trays__tray{
     display: inline-block;

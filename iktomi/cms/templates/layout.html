@@ -22,7 +22,7 @@
             <b>
               {{ user.name }}
             {%- if context.user_tray is defined and context.user_tray %}
-              <a href="{{ url_for("tray", tray=context.user_tray.id) }}" class="tray-count" title="Лоток пользователя">
+              <a href="{{ url_for("tray", tray=context.user_tray.id) }}" class="tray-count" title="Рабочая папка пользователя">
                 {{ context.user_tray.object_count }}
               </a>
             {%- endif -%}
@@ -44,7 +44,6 @@
     <div class="tray-popup init-block"
          data-url="{{ env.url_for('put_to_tray') }}"
          data-user-url="{{ env.url_for('put_to_user_tray') }}"
-         data-my-url="{{ env.url_for('put_to_my_tray') }}"
          data-tray-url="{{ env.url_for('tray', tray='TRAY_ID') }}"
          data-block-name="tray-popup" style="display: none">
       <div>
@@ -54,13 +53,13 @@
         </label>
       </div>
       <div>
-        <button type="button" class="button tray-popup__to-self">Отправить себе</button>
-      </div>
-      <div>
-        Отправить пользователю
+        Добавить в рабочую папку пользователю
         <select class="tray-popup__user">
-          {%- for user in context.users -%}
-            <option value="{{ user.id }}">{{ user.name or user.login }}</option>
+          {%- for u in context.users -%}
+            <option value="{{ u.id }}"{% if u == user %} selected{% endif %}>
+                {{- u.name or u.login -}}
+                {% if u == user %} (текущий пользователь){% endif -%}
+            </option>
           {%- endfor -%}
         </select>
         <button class="button tray-popup__to-user">Ок</button>

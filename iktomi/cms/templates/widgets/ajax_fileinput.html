@@ -1,12 +1,12 @@
-<div class="init-block filedropwidget"
+{%- set value = field.clean_value -%}
+<div class="init-block filedropwidget{% if widget.classname %} {{ widget.classname }}{% endif %}"
      data-input-name="{{ field.input_name }}"
      id='id_{{field.input_name}}'
      data-block-name="dropfile"
      data-url="{{ url_for(field.upload_endpoint) }}"
-     {% if readonly %} data-disabled="disabled"{% endif %}
+     {%- if value %} data-current-file="{{ value.url }}"{% endif %}
+     {%- if readonly %} data-disabled="disabled"{% endif %}
      {% block extra_js_options %}{% endblock %}>
-
-  {% set value = field.clean_value %}
 
   {% if not readonly and value and not field.conv.required %}
     <button type="button" class="button ajax-file-delete">удалить</button>
@@ -29,7 +29,7 @@
       {% endif %}
   </div>
 
-  {{ field.get_field('file').widget.render()|safe }}
+  {{- field.get_field('file').widget.render()|safe }}
 </div>
 
 

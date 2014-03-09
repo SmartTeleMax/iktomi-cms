@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
+from iktomi.forms.fields import *
+from iktomi.forms.fields import __all__ as _all1
+
 from datetime import datetime, timedelta
 from sqlalchemy import desc
 
-from iktomi.forms.fields import *
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
 from iktomi.forms import fields
-from iktomi.unstable.forms.files import FileFieldSet
+from iktomi.forms.form import Form
+from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
+from iktomi.unstable.db.files import PersistentFile
+from iktomi.unstable.db.sqla.files import FileAttribute
+from iktomi.unstable.db.sqla.images import ImageProperty
+from iktomi.utils import cached_property
+_all2 = locals().keys()
 
 
 class AjaxFileField(FileFieldSet):
@@ -22,17 +30,93 @@ class AjaxFileField(FileFieldSet):
         FileFieldSet.__init__(self, *args, **kwargs)
 
 
+class ImageFieldSetConv(FileFieldSetConv):
+
+    autocrop = False
+
+    def to_python(self, value):
+        if value["mode"] == "existing" and self.autocrop:
+            source = self.field.form.get_field(self.field.fill_from)
+            if not isinstance(source.clean_value, PersistentFile):
+                value = dict(mode="empty")
+        return FileFieldSetConv.to_python(self, value)
+
+
 class AjaxImageField(AjaxFileField):
 
     widget = widgets.FieldSetWidget(template='widgets/ajax_imageinput')
     #: used when file is uploaded
     thumb_size = None
+    model_field = None
     upload_endpoint = 'load_tmp_image'
 
     # Show the thumb or not. Works only with image option on
     show_thumbnail = True
+    show_size = True
     #: use js pre-upload thumbnail generation by canvas
     canvas_thumb_preview = False
+    conv = ImageFieldSetConv()
+    retina = False
+    crop = True
+
+    def __init__(self, *args, **kwargs):
+        kwargs['_label'] = kwargs.pop('label', kwargs.get('_label'))
+        AjaxFileField.__init__(self, *args, **kwargs)
+
+    @cached_property
+    def model_field(self):
+        model = None
+        parent = self.parent
+        while parent is not None:
+            if isinstance(parent, Form):
+                model = parent.model
+                break
+            elif isinstance(parent.conv, convs.ModelDictConv):
+                model = parent.conv.model
+                break
+            elif getattr(parent, 'name', None):
+                break
+            parent = getattr(parent, 'parent', None)
+
+        if model is not None:
+            model_field = getattr(model, self.name)
+            if isinstance(model_field, FileAttribute) and \
+               isinstance(model_field.prop, ImageProperty):
+                return model_field.prop
+        return None
+
+    @cached_property
+    def size(self):
+        if self.model_field is not None:
+            return self.model_field.image_sizes
+
+    @cached_property
+    def thumb_size(self):
+        if self.retina and self.size is not None:
+            w, h = self.size
+            return w/2, h/2
+        return self.size
+
+    @cached_property
+    def label(self):
+        if self.size is not None and self._label and self.show_size:
+            return self._label + u' ({}×{})'.format(*self.size)
+        return self._label
+
+    @cached_property
+    def fill_from(self):
+        if self.model_field is not None:
+            fill_from = self.model_field.fill_from
+            if '.' in self.input_name:
+                parent_name = self.input_name.rsplit('.', 1)[0]
+                fill_from = parent_name + '.' + fill_from
+
+            if self.form.get_field(fill_from):
+                return fill_from
+
+        return None
+
+
 
 
 def SplitDateTimeField(name, label, required=True,
@@ -166,3 +250,11 @@ class EditorNoteField(Field):
     @property
     def submit_url(self):
         return self.env.url_for('post_note')
+
+
+# Expose all variables defined after imports and all variables imported from
+# parent module
+__all__ = [x for x
+           in set(locals().keys()) - (set(_all2) - set(_all1))
+           if not x.startswith('_')]
+del _all1, _all2
