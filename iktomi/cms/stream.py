@@ -331,11 +331,11 @@ class Stream(object):
 
 def decode_stream_uid(stream_name):
     if ':' in stream_name:
-        stream_name = stream_name.split(':', 1)[0]
+        name = stream_name.split(':', 1)[0]
         params = dict([x.split('=', 1) for x in
                        stream_name.split(':')[1:]
                        if '=' in x])
-        return stream_name, params
+        return name, params
     return stream_name, {}
 
 
@@ -343,7 +343,7 @@ def expand_stream(env, obj):
     stream_name, params = decode_stream_uid(obj.stream_name)
 
     stream_env = VersionedStorage()
-    stream_env._storage.parent_storage = env
+    stream_env._storage._parent_storage = env
 
     if 'lang' in params:
         stream_env.models = getattr(env.models, params['lang'])
