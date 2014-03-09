@@ -3,7 +3,7 @@
 <div class="content itemlist">
   <div class="stream">
     <div class="header">
-      <h1>Лоток {% if tray.editor %}пользователя {% endif %}{{ tray.title }}</h1>
+      <h1>{% if tray.editor %}Рабочая папка пользователя {% else %}Папка {% endif %}{{ tray.title }}</h1>
     </div>
     <div class="stream-items">
       <div class="table">
@@ -22,7 +22,7 @@
             </thead>
             <tbody>
             {% if not items %}
-              <td colspan="5">Лоток пуст</td>
+              <td colspan="5">{% if tray.editor %}Рабочая папка{% else %}Папка{% endif %} пуста</td>
             {% endif %}
             {% for url, stream_title, stream, obj, item in items %}
               <tr class="item {{ loop.cycle('odd', 'even') }}

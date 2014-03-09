@@ -8,7 +8,7 @@ Blocks.register('item-trays', function(el){
           tray.destroy();
         } else {
           console.warn(result.errors);
-          flash('Не удалось удалить из лотка', 'failure');
+          flash('Не удалось удалить из папки', 'failure');
         }
       }.bind(this)
     }).post({'id': tray.dataset.id});
@@ -34,7 +34,7 @@ Blocks.register('tray', function(el){
           this.getParent('tr').destroy();
         } else {
           console.warn(result.errors);
-          flash('Не удалось удалить из лотка', 'failure');
+          flash('Не удалось удалить из папки', 'failure');
         }
       }.bind(this)
     }).post({'id': this.dataset.id});
@@ -76,16 +76,11 @@ Blocks.register('tray-popup', function(el){
           div.inject(trays.getElement('.trays__list'));
         } else {
           console.warn(result.errors || result.error);
-          flash(result.error || 'Не удалось положить в лоток', 'failure');
+          flash(result.error || 'Не удалось положить в папку', 'failure');
         }
       }.bind(this)
     }).post(data);
     window.trayPopup.hide();
-  }
-
-  function putToSelf(){
-    put(el.dataset.myUrl, {'object_id': el.dataset.objectId,
-                           'stream_name': el.dataset.streamName});
   }
 
   function putToUser(){
@@ -95,6 +90,5 @@ Blocks.register('tray-popup', function(el){
                              'user': user_id });
   }
 
-  el.getElement('.tray-popup__to-self').addEvent('click', putToSelf);
   el.getElement('.tray-popup__to-user').addEvent('click', putToUser);
 });
