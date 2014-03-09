@@ -1,0 +1,63 @@
+.cropper{
+  position: relative;
+  }
+
+
+.cropper{
+  position: relative;
+  }
+.cropper .selected-area{
+  position: absolute;
+  top:0;
+  left: 0;
+  overflow: hidden;
+  cursor: move;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+  cursor: grab;
+  box-shadow: 0 0 10px #000;
+  }
+.cropper .selected-area.dragging{
+  cursor: move;
+  }
+.cropper .selected-area img{
+  position: absolute; top:0; left: 0;
+  }
+.cropper .source-image{
+  opacity: 0.5;
+  }
+
+.cropper .top-area,
+.cropper .bottom-area,
+.cropper .left-area,
+.cropper .right-area {
+  position: absolute;
+}
+.cropper .left-area,
+.cropper .right-area {
+  width: 20px;
+  top: 20px;
+  bottom: 20px;
+  }
+.cropper .top-area,
+.cropper .bottom-area {
+  left:20px;
+  right:20px;
+  height: 20px;
+  }
+.cropper .top-area {
+  top: 0;
+  cursor: n-resize;
+  }
+.cropper .bottom-area {
+  bottom: 0;
+  cursor: s-resize;
+  }
+.cropper .left-area {
+  left: 0;
+  cursor: w-resize;
+  }
+.cropper .right-area {
+  right: 0;
+  cursor: e-resize;
+  }

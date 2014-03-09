@@ -248,6 +248,9 @@ var Popup = new Class({
   },
 
   'destroy': function(){
+    window.removeEvent('resize', this._onWindowResize);
+    window.removeEvent('scroll', this._onWindowResize);
+    window.removeEvent('mousewheel', this._onMouseWheel);
     this.overlay.destroy();
     this.el.destroy();
     this.loader.destroy();

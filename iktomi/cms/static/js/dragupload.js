@@ -96,20 +96,21 @@ var DragUpload = new Class({
     if(this.options.disabled) return false;
 
     this.fireEvent('out', e);
-
     var files = dt.files;
     for (var i = 0; i < files.length && i!= this.options.max_file_count; i++) {
-      var file = files[i];
-      if (file.size!==undefined){
-        this.fireEvent('addfile', {
-            event: e.event,
-            fileName: file.fileName || file.name,
-            file: file
-        });
-        this.upload(file);
-      }
+      this.uploadFile(files[i], e.event);
     }
     return false;
+  },
+
+  uploadFile: function(file, event) {
+    if (file.size!==undefined){
+      this.fireEvent('addfile', {
+          fileName: file.fileName || file.name,
+          file: file
+      });
+      this.upload(file);
+    }
   },
 
   upload: function(file){
@@ -187,7 +188,7 @@ var FileManagerSingle = new Class({
     input_name: 'file',
     image: false,
     thumb_size: null,
-    canvas_thumb_preview: false
+    canvas_thumb_preview: true
   },
 
   initialize: function(element, options){
@@ -199,10 +200,6 @@ var FileManagerSingle = new Class({
     if (this.options.image){
       qs += '&image=1';
       this.thumb = this.el.getElement('.thumbnail');
-    }
-    if (this.options.thumb_size){
-      qs += '&thumb_width='+this.options.thumb_size[0]+
-            '&thumb_height='+this.options.thumb_size[1];
     }
     this.uploader = new DragUpload(this.el, {
         url: this.options.url,
@@ -275,11 +272,11 @@ var FileManagerSingle = new Class({
       this.reader = new FileReader();
 
       // Closure to capture the file information.
-      this.reader.onload = (function(e) {
+      this.reader.onload = (function(ev) {
         thumb_size = this.options.thumb_size || (600, 600);
         var transient_img = new Element('img').setStyles({
-            'max-width': Math.min(600, thumb_size[0]),
-            'max-height': Math.min(600, thumb_size[1]),
+            'max-width': thumb_size[0],
+            'max-height': thumb_size[1],
             'visibility': 'hidden',
             'position': 'fixed'
         }).inject(document.body);
@@ -295,7 +292,7 @@ var FileManagerSingle = new Class({
           transient_img.destroy();
           this.thumb.destroy();
           this.thumb = cnv;
-        }.bind(this)).set('src', e.target.result);
+        }.bind(this)).set('src', ev.target.result);
       }).bind(this);
       // Read in the image file as a data URL.
       this.reader.readAsDataURL(this.uploading_file);
@@ -417,6 +414,7 @@ Blocks.register('dropfile', function(el){
       options.thumb_size = [el.dataset.thumbWidth, el.dataset.thumbHeight];
     }
   }
+
   var fm = new FileManagerSingle(el, options);
 
   var frm = el.getParent('.item-form');
@@ -438,6 +436,21 @@ Blocks.register('dropfile', function(el){
   fm.uploader.addEvent('complete', function(){
     frm.retrieve('hooks').check_delayed();
   });
+
+  if (el.dataset.crop){
+    el.getElement('.icon-crop').addEvent('click', function(){
+      var form = el.getParent('form');
+      var label = form.getElement('label[for="'+form.id+'-'+el.dataset.inputName+'"]');
+      new Cropper({src: form.getElement('[data-input-name="'+el.dataset.fillFrom+'"]')
+                            .dataset.currentFile,
+                   targetHeight: el.dataset.cropHeight,
+                   targetWidth: el.dataset.cropWidth,
+                   title: label? label.get('text') : null,
+                   onCrop: function(file){
+                     fm.uploader.uploadFile(file);
+                   }});
+    });
+  }
   //alert(frm.retrieve('hooks'));
   // btw, good idea!
   //frm.retrieve('hooks').append(CheckFilesUploaded);

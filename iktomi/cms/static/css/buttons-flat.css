@@ -260,6 +260,19 @@
   background-position-y: 1px;
   background-size: 17px;
   }
+ .button.icon-crop{
+  padding-left: 24px;
+  background: #444;
+  }
+  .button.icon-crop:hover{
+    background: #555;
+    }
+ .button.icon-crop:before{
+  background-image: url(../images/crop.svg);
+  background-position-y: 1px;
+  background-size: 17px;
+  left: 3px;
+  }
  .button.icon-unpublish{
     padding-left: 27px;
     }
@@ -303,6 +316,7 @@
 .form-controls.compact .button{
     margin-left: 0;
     }
+.compact-button,
 .compact .button[class*="icon"]{
     width: 0px;
     overflow: hidden;

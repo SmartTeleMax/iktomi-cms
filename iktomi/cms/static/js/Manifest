@@ -36,3 +36,6 @@ tray
 stream_sortable
 preview
 longpress
+pixastic
+canvas-to-blob
+crop
