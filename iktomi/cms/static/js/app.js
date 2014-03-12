@@ -9,6 +9,7 @@
                       e.target.getParent('a[href]'));
       if (link){
         if (link.get('target') == '_blank' || link.get('rel') == 'external'){
+          e.preventDefault();
           window.open(link.href);
           return;
         }
