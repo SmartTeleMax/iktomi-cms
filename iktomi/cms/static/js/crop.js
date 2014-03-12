@@ -61,6 +61,11 @@
       this.rightArea = new Element('div', {'class': 'right-area'}).inject(this.area);
       this.leftArea = new Element('div', {'class': 'left-area'}).inject(this.area);
 
+      this.topLeftArea = new Element('div', {'class': 'top-left-area'}).inject(this.area);
+      this.topRightArea = new Element('div', {'class': 'top-right-area'}).inject(this.area);
+      this.bottomLeftArea = new Element('div', {'class': 'bottom-left-area'}).inject(this.area);
+      this.bottomRightArea = new Element('div', {'class': 'bottom-right-area'}).inject(this.area);
+
       this.popup.contentEl.adopt(this.container);
 
       this.cropButton = new Element('a', {'class': 'button icon-crop compact-button'})
@@ -113,8 +118,12 @@
     startResize: function(e){
       e.preventDefault();
       this.resize = true;
-      this._x = e.event.clientX;
-      this._y = e.event.clientY;
+      this._x = this._initX = e.event.clientX;
+      this._y = this._initY = e.event.clientY;
+
+      this._initWidth = this.width;
+      this._initHeight = this.height;
+
       switch (e.target){
         case this.areaImage: 
           this._action = 'move'; break
@@ -126,6 +135,15 @@
           this._action = 'resize-left'; break
         case this.rightArea: 
           this._action = 'resize-right'; break
+
+        case this.topLeftArea: 
+          this._action = 'resize-top-left'; break
+        case this.topRightArea: 
+          this._action = 'resize-top-right'; break
+        case this.bottomLeftArea: 
+          this._action = 'resize-bottom-left'; break
+        case this.bottomRightArea: 
+          this._action = 'resize-bottom-right'; break
         default:
           this._action = null;
       }
@@ -135,35 +153,41 @@
       e.preventDefault();
       this.resize = false;
       this.area.removeClass('dragging');
+
+      this.left = Math.round(this.left);
+      this.top = Math.round(this.top);
+      this.width = Math.round(this.width);
+      this.height = Math.round(this.height);
     },
     doResize: function(e){
       e.preventDefault();
       if(this.resize){
         var dx = (e.event.clientX - this._x) / this.scale;
         var dy = (e.event.clientY - this._y) / this.scale;
+        var initdx = (e.event.clientX - this._initX) / this.scale;
+        var initdy = (e.event.clientY - this._initY) / this.scale;
+        var oldHeight = this.height;
+        var oldWidth = this.width;
+
         if (this._action == 'move'){
-          this.left = Math.min(this.sourceWidth-this.width, Math.max(0, this.left+dx));
-          this.top = Math.min(this.sourceHeight-this.height, Math.max(0, this.top+dy));
+          this.left += dx;
+          this.top += dy;
         }
         if (this._action == 'resize-left'){
           dx = Math.max(-this.left, dx);
-          var width = Math.min(this.maxWidth, Math.max(this.targetWidth, this.width-dx));
-          var dw = width - this.width;
-          this.width = width;
+          this.width = Math.min(this.maxWidth, Math.max(this.targetWidth, this.width-dx));
           this.height = this.width / this.targetRatio;
 
-          this.left = Math.min(this.sourceWidth-this.width, Math.max(0, this.left-dw));
-          this.top = Math.min(this.sourceHeight-this.height, this.top);
+          this.left -= this.width-oldWidth;
+          this.top -= (this.height-oldHeight) / 2;
         }
         if (this._action == 'resize-top'){
           dy = Math.max(-this.top, dy);
-          var height = Math.min(this.maxHeight, Math.max(this.targetHeight, this.height-dy));
-          var dh = height - this.height;
-          this.height = height;
+          this.height = Math.min(this.maxHeight, Math.max(this.targetHeight, this.height-dy));
           this.width = this.height * this.targetRatio;
 
-          this.left = Math.min(this.sourceWidth-this.width, this.left);
-          this.top = Math.min(this.sourceHeight-this.height, Math.max(0, this.top-dh));
+          this.top -= this.height - oldHeight;
+          this.left -= (this.width-oldWidth) / 2;
         }
         if (this._action == 'resize-right'){
           dx = Math.min(this.sourceWidth - (this.left+this.width), dx);
@@ -171,16 +195,73 @@
           this.width = Math.min(this.maxWidth, Math.max(this.targetWidth, this.width+dx));
           this.height = this.width / this.targetRatio;
 
-          this.top = Math.min(this.sourceHeight-this.height, this.top);
+          this.top -= (this.height-oldHeight) / 2;
         }
         if (this._action == 'resize-bottom'){
           dy = Math.min(this.sourceHeight - (this.top+this.height), dy);
 
           this.height = Math.min(this.maxHeight, Math.max(this.targetHeight, this.height+dy));
           this.width = this.height * this.targetRatio;
-
-          this.left = Math.min(this.sourceWidth-this.width, this.left);
+          this.left -= (this.width-oldWidth) / 2;
         }
+
+        if (this._action == 'resize-top-left'){
+          var height = Math.min(this.height + this.top, this._initHeight-initdy);
+          height = Math.min(this.maxHeight, Math.max(this.targetHeight, height));
+          var width1 = height * this.targetRatio;
+
+          var width2 = Math.min(this.width + this.left, this._initWidth-initdx);
+          width2 = Math.min(this.maxWidth, Math.max(this.targetWidth, width2));
+
+          this.width = Math.min(width1, width2);
+          this.height = this.width / this.targetRatio;
+          this.top -= this.height - oldHeight;
+          this.left -= this.width-oldWidth;
+        }
+
+        if (this._action == 'resize-top-right'){
+          var height = Math.min(this.height + this.top, this._initHeight-initdy);
+          height = Math.min(this.maxHeight, Math.max(this.targetHeight, height));
+          var width1 = height * this.targetRatio;
+
+          var width2 = Math.min(this.sourceWidth - this.left, this._initWidth+initdx);
+          width2 = Math.min(this.maxWidth, Math.max(this.targetWidth, width2));
+
+          this.width = Math.min(width1, width2);
+          this.height = this.width / this.targetRatio;
+          this.top -= this.height - oldHeight;
+        }
+
+        if (this._action == 'resize-bottom-left'){
+          var height = Math.min(this.sourceHeight - this.top, this._initHeight+initdy);
+          height = Math.min(this.maxHeight, Math.max(this.targetHeight, height));
+          var width1 = height * this.targetRatio;
+
+          var width2 = Math.min(this.width + this.left, this._initWidth-initdx);
+          width2 = Math.min(this.maxWidth, Math.max(this.targetWidth, width2));
+
+          this.width = Math.min(width1, width2);
+          this.height = this.width / this.targetRatio;
+          this.left -= this.width-oldWidth;
+        }
+
+        if (this._action == 'resize-bottom-right'){
+          var height = Math.min(this.sourceHeight - this.top, this._initHeight+initdy);
+          height = Math.min(this.maxHeight, Math.max(this.targetHeight, height));
+          var width1 = height * this.targetRatio;
+
+          var width2 = Math.min(this.sourceWidth - this.left, this._initWidth+initdx);
+          width2 = Math.min(this.maxWidth, Math.max(this.targetWidth, width2));
+
+          this.width = Math.min(width1, width2);
+          this.height = this.width / this.targetRatio;
+        }
+
+        this.left = Math.min(this.sourceWidth-this.width,
+                             Math.max(0, this.left));
+        this.top = Math.min(this.sourceHeight-this.height,
+                            Math.max(0, this.top));
+
         this._x = e.event.clientX;
         this._y = e.event.clientY;
         this.setDimensions();

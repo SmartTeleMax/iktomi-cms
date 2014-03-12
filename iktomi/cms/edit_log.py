@@ -87,7 +87,7 @@ class EditLogHandler(GetAction):
         rel_env = VersionedStorage(**params)
         rel_env._storage._parent_storage = env
 
-        form_cls = rel_stream.get_item_form_class(env)
+        form_cls = rel_stream.config.ItemForm
 
         form1 = form_cls.load_initial(env, data.item, initial={})
         form2 = form_cls.load_initial(env, data.item, initial={})

@@ -3,14 +3,12 @@
 {% block before_filedata %}
 {%- if field.show_thumbnail %}
 <div class="thumbnail-container">
-  {%- if value %}
-      <img class="thumbnail" src="{{ value.url }}" class='value'
-           {%- if field.retina and field.size %} style="max-width: {{ field.size[0]//2 }}px"{% endif %}/>
-  {%- else %}
-      <img class="thumbnail" src="" style="display: none" class="value"/>
-  {%- endif %}
+  <img class="thumbnail" src="{{ value.url if value else '' }}" class='value'
+       {%- if field.retina and field.size %} style="max-width: {{ field.size[0]//2 }}px"{% endif %}
+       {%- if not value %} style="display: none"{% endif %}/>
   {%- if field.size and field.fill_from %}
-    <a class="button icon-crop compact-button" {% if not value %} style="display: none"{% endif %} title="Кадрировать">Кадрировать</a>
+    <a class="button icon-crop compact-button"
+       {%- if not value %} style="display: none"{% endif %} title="Кадрировать">Кадрировать</a>
   {% endif %}
 </div>
 {%- endif %}

@@ -219,9 +219,6 @@ class Stream(object):
         if self.list_edit_action:
             return self.list_edit_action.ListItemForm
 
-    def get_item_form_class(self, env):
-        return self.config.ItemForm
-
     @cached_property
     def stream_template_name(self):
         if hasattr(self.config, 'stream_template'):

@@ -3,7 +3,7 @@
      data-input-name="{{ field.input_name }}"
      id='id_{{field.input_name}}'
      data-block-name="dropfile"
-     data-url="{{ url_for(field.upload_endpoint) }}"
+     data-url="{{ field.upload_url }}"
      {%- if value %} data-current-file="{{ value.url }}"{% endif %}
      {%- if readonly %} data-disabled="disabled"{% endif %}
      {% block extra_js_options %}{% endblock %}>

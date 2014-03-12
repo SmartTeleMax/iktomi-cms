@@ -1,10 +1,7 @@
 .cropper{
   position: relative;
-  }
-
-
-.cropper{
-  position: relative;
+  overflow: hidden;
+  display: inline-block;
   }
 .cropper .selected-area{
   position: absolute;
@@ -15,7 +12,7 @@
   cursor: -webkit-grab;
   cursor: -moz-grab;
   cursor: grab;
-  box-shadow: 0 0 10px #000;
+  outline: 1px solid #000;
   }
 .cropper .selected-area.dragging{
   cursor: move;
@@ -27,6 +24,10 @@
   opacity: 0.5;
   }
 
+.cropper .top-left-area,
+.cropper .top-right-area,
+.cropper .bottom-left-area,
+.cropper .bottom-right-area,
 .cropper .top-area,
 .cropper .bottom-area,
 .cropper .left-area,
@@ -61,3 +62,33 @@
   right: 0;
   cursor: e-resize;
   }
+
+.cropper .top-left-area,
+.cropper .top-right-area,
+.cropper .bottom-left-area,
+.cropper .bottom-right-area {
+  width: 20px;
+  height: 20px;
+  }
+.cropper .top-left-area {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+  }
+.cropper .top-right-area {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+  }
+.cropper .bottom-left-area {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  }
+.cropper .bottom-right-area {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+  }
+
+

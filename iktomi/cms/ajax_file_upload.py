@@ -1,12 +1,22 @@
 # -*- coding: utf-8 -*-
 
+import os
 import logging
-from iktomi.web import WebHandler
+from webob.exc import HTTPMethodNotAllowed
+from iktomi import web
+from iktomi.cms.stream_actions import PostAction
+from iktomi.cms.forms.fields import AjaxImageField
+from iktomi.unstable.db.sqla.files import FileAttribute
+from iktomi.unstable.db.sqla.images import ImageProperty
+try:
+    import Image
+except ImportError:       # pragma: no cover
+    from PIL import Image # pragma: no cover
 
 logger = logging.getLogger(__file__)
 
 
-class FileUploadHandler(WebHandler):
+class FileUploadHandler(web.WebHandler):
 
     def get_length(self, request):
         length = int(request.environ.get('CONTENT_LENGTH', 0))
@@ -34,29 +44,102 @@ class FileUploadHandler(WebHandler):
                                'headers or in get args\n')
         return length
 
+    def _save_file(self, env, data, length):
+        request = env.request
+        return env.file_manager.create_transient(
+                                   request.environ['wsgi.input'],\
+                                   request.GET["file"],\
+                                   length=length)
+
+    def save_file(self, env, data, length):
+        original_name = env.request.GET["file"]
+        transient = self._save_file(env, data, length)
+        return {
+            "file": transient.name,
+            'file_url': env.file_manager.get_transient_url(transient, env),
+            'original_name': original_name,
+            }
+
     def __call__(self, env, data):
         request = env.request
 
-        if request.method =="POST":
-            length = self.get_length(request)
-            if not length:
-                return env.json({'status': 'failure',
-                                 'error': 'No Content-Length provided'})
+        if request.method != "POST":
+            raise HTTPMethodNotAllowed()
 
-            tmp_file = env.file_manager.create_transient(
-                                       request.environ['wsgi.input'],\
-                                       request.GET["file"],\
-                                       length=length)
+        length = self.get_length(request)
+        if not length:
+            return env.json({'status': 'failure',
+                             'error': 'No Content-Length provided'})
 
-            result = {
-                "status": 'ok',
-                "file": tmp_file.name,
-                'file_url': env.file_manager.get_transient_url(tmp_file, env)
-                }
+        result = dict(self.save_file(env, data, length),
+                      status="ok")
+        return env.json(result)
 
-            if 'thumb_width' in request.GET and 'thumb_height' in request.GET:
-                # XXX implement thumbnails
-                pass
-                #img = Image.open(tmp_file.path)
 
-            return env.json(result)
+
+class StreamImageUploadHandler(PostAction, FileUploadHandler):
+
+    item_lock = False
+    for_item = False
+    display=False
+    action = 'image_upload'
+
+    @property
+    def app(self):
+        return web.match('/{}/<field_name>'.format(self.action),
+                         name=self.action) | self
+
+    def _collect_related_fields(self, env, form_field, image):
+        original_name = env.request.GET["file"]
+        ext = os.path.splitext(original_name)[1]
+        rel_images = []
+        for name in dir(form_field.model):
+            rel_field = getattr(form_field.model, name)
+            # XXX make recursive
+            if isinstance(rel_field, FileAttribute) and \
+                    isinstance(rel_field.prop, ImageProperty) and \
+                    rel_field.prop.fill_from == form_field.name:
+                rel_form_field = form_field.name_parent.get_field(name)
+                if rel_form_field is None:
+                    continue
+
+                resizer = rel_field.prop.resize
+                target_size = rel_field.prop.image_sizes
+                transforms = resizer.transformations(image, target_size)
+                rel_image = resizer(image, target_size)
+                rel_transient = env.file_manager.new_transient(ext)
+                rel_image.save(rel_transient.path)
+
+                rel_images.append({
+                    "name": rel_form_field.input_name,
+                    "file": rel_transient.name,
+                    'file_url': env.file_manager.get_transient_url(rel_transient, env),
+                    'fill_from': form_field.input_name,
+                    'transformations': transforms,
+                    'source_size': image.size,
+                    'original_name': original_name,
+                    })
+                rel_images += self._collect_related_fields(env, rel_form_field, rel_image)
+        return rel_images
+
+    def save_file(self, env, data, length):
+        form = self.stream.config.ItemForm(env, {})
+        form.model = self.stream.get_model(env)
+        field = form.get_field(data.field_name)
+        #import pdb; pdb.set_trace()
+        if not isinstance(field, AjaxImageField) or \
+                field.model is None:
+            return FileUploadHandler.save_file(self, env, data, length)
+
+        transient = self._save_file(env, data, length)
+        image = Image.open(transient.path)
+
+        rel_images = self._collect_related_fields(env, field, image)
+
+        original_name = env.request.GET["file"]
+        return {
+            "file": transient.name,
+            'file_url': env.file_manager.get_transient_url(transient, env),
+            'original_name': original_name,
+            'related_files': rel_images,
+            }

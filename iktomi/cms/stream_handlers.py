@@ -231,7 +231,7 @@ class EditItemHandler(StreamAction):
         return self.stream.item_template_name
 
     def _clean_item_data(self, stream, env, item):
-        form_cls = stream.get_item_form_class(env)
+        form_cls = stream.config.ItemForm
         form = form_cls.load_initial(env, item, initial={}, permissions='r')
         return form.raw_data.items()
 
@@ -243,7 +243,7 @@ class EditItemHandler(StreamAction):
         if not save_allowed:
             form_kw['permissions'] = 'r'
 
-        form_cls = stream.get_item_form_class(env)
+        form_cls = stream.config.ItemForm
         form = form_cls.load_initial(env, item, initial=initial, **form_kw)
         form.model = self.stream.get_model(env)
         form.draft = draft

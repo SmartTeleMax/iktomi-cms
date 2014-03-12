@@ -26,16 +26,24 @@ a.remove {
     position: relative;
     width: auto;
     display: inline-block;
+    overflow: hidden;
     }
-.thumbnail-container .icon-crop{
-    position: absolute;
-    top: 10px;
-    right: 10px;
+  .thumbnail-container .source-image{
+    opacity: 0.5;
     }
-.thumbnail{
-    max-width: 1000px;
-    max-height: 600px;
-    }
+  .thumbnail-container .icon-crop{
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      }
+  .thumbnail{
+      max-width: 1000px;
+      max-height: 600px;
+      }
+  .thumbnail.has-source{
+      position: absolute;
+      outline: 1px solid #000;
+      }
 
 .no-upload input[type=file]{
     display: none;

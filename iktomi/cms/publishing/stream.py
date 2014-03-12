@@ -29,7 +29,7 @@ class PublishItemHandler(EditItemHandler):
         #front_env = VersionedStorage()
         #front_env._storage._parent_storage = env
 
-        form_cls = self.stream.get_item_form_class(env)
+        form_cls = self.stream.config.ItemForm
         form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
         form.model = self.stream.get_model(env)
         return form
@@ -189,7 +189,7 @@ class RevertAction(PostAction):
                self.PrepareItemHandler(self) | self
 
     def _clean_item_data(self, stream, env, item):
-        form_cls = stream.get_item_form_class(env)
+        form_cls = stream.config.ItemForm
         form = form_cls.load_initial(env, item, initial={}, permissions='r')
         return form.raw_data.items()
 
