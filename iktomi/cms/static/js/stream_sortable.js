@@ -171,21 +171,25 @@
     sortUp: function(e){
       e.preventDefault();
       var target = this._getTarget(e.target);
+      var offset1 = target.offsetTop;
       var prev = target.getPrevious(this.itemsSelector);
       if(prev) {
         target.inject(prev, 'before');
       }
       this.fireEvent('change');
+      scrollAfterSort(target, offset1);
     },
 
     sortDown: function(e){
       e.preventDefault();
       var target = this._getTarget(e.target);
+      var offset1 = target.offsetTop;
       var next = target.getNext(this.itemsSelector);
       if(next) {
         target.inject(next, 'after');
       }
       this.fireEvent('change');
+      scrollAfterSort(target, offset1);
     },
 
     handleSubmit: function(e){
