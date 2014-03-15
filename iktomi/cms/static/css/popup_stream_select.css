@@ -66,12 +66,9 @@
       margin-right: 5px;
     }
 
-    .w-popup-stream-select-items .item:last-child .down-btn {
-      display: none;
-    }
-
+    .w-popup-stream-select-items .item:last-child .down-btn,
     .w-popup-stream-select-items .item:first-child .up-btn {
-      display: none;
+      visibility: hidden;
     }
 
     /*.w-popup-stream-select-items a.remove {

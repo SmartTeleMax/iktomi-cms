@@ -113,10 +113,11 @@ class StreamListHandler(StreamAction):
         filter_form = stream.get_filter_form(env)
 
         # Note: errors are displayed, but ignored in code.
-        if request.method == 'POST':
-            filter_form.accept(request.POST)
-        else:
-            filter_form.accept(request.GET)
+        # XXX for what purpose filter_form accepts POS?
+        #if request.method == 'POST':
+        #    filter_form.accept(request.POST)
+        #else:
+        filter_form.accept(request.GET)
         query = filter_form.filter(query)
 
         query = stream.order(query)

@@ -170,4 +170,25 @@
   window.onerror = function(e){
     flash('Ошибка выполнения клиентской программы:\n'+e, 'failure', 10*1000);
   }
+
+  window.scrollAfterSort = function(tr, offset1){
+    var offset2 = tr.offsetTop;
+    var scrollParent = tr.parentNode;
+    while (scrollParent){
+      if (scrollParent == tr.ownerDocument){
+        return;
+      }
+      // XXX scrollParent detection is not fine
+      if(scrollParent.scrollTop){
+        break;
+      }
+      var overflow = window.getCompiledStyle(scrollParent, 'overflow-y');
+      if(scrollParent.scrollHeight < scrollParent.offsetHeight &&
+         (overflow == 'auto' || overflow == 'scroll')){
+           break;
+      }
+      scrollParent = scrollParent.parentNode;
+    }
+    scrollParent.scrollTop += offset2 - offset1;
+  }
 })();

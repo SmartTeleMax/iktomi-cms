@@ -24,7 +24,7 @@ table.fieldlist td a.sort:hover {
 
 table.fieldlist tr:first-child>td>a.sort-up,
 table.fieldlist tr:last-child>td>a.sort-down {
-  display: none;
+  visibility: hidden;
 }
 
 table.fieldlist table {

@@ -63,24 +63,34 @@ var FieldList = new Class({
     }
   },
 
+  sortUpClick: function(e){
+    e.preventDefault(); e.stopPropagation();
+    var tr = e.target.getParent('tr');
+    var offset1 = tr.offsetTop;
+    var prev = tr.getPrevious('.fieldlist-item');
+    if(prev){
+      tr.inject(prev, 'before').highlight('#fefeb0', '#fafafa');
+    }
+    this.fireEvent('reorder', this.items.bind(this));
+    scrollAfterSort(tr, offset1);
+  },
+
+  sortDownClick: function(e){
+    e.preventDefault(); e.stopPropagation();
+    var tr = e.target.getParent('tr');
+    var offset1 = tr.offsetTop;
+    var next = tr.getNext('.fieldlist-item');
+    if(next){
+      tr.inject(next, 'after').highlight('#fefeb0', '#fafafa');
+    }
+    this.fireEvent('reorder', this.items.bind(this));
+    scrollAfterSort(tr, offset1);
+  },
+
   installSortBtns: function(wrap, tr) {
     if(!wrap.getElement('a.sort')){
-      wrap.adopt(this.btn('#up', 'sort sort-up', '&uarr;', function(e){
-        e.stopPropagation(); e.preventDefault();
-        var prev = tr.getPrevious('.fieldlist-item');
-        if(prev){
-          tr.inject(prev, 'before').highlight('#fefeb0', '#fafafa');
-        }
-        this.fireEvent('reorder', this.items.bind(this));
-      }.bind(this)));
-      wrap.adopt(this.btn('#down', 'sort sort-down', '&darr;', function(e){
-        e.stopPropagation(); e.preventDefault();
-        var next = tr.getNext('.fieldlist-item');
-        if(next){
-          tr.inject(next, 'after').highlight('#fefeb0', '#fafafa');
-        }
-        this.fireEvent('reorder', this.items.bind(this));
-      }.bind(this)));
+      wrap.adopt(this.btn('#up', 'sort sort-up', '&uarr;', this.sortUpClick.bind(this)));
+      wrap.adopt(this.btn('#down', 'sort sort-down', '&darr;', this.sortDownClick.bind(this)));
     }
   },
 

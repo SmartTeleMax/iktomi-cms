@@ -17,8 +17,7 @@
 <div class="form-row
             {%- if changed %} changed-after-publication{% endif %}
             {%- if field.error %} with-error{% endif %}
-            {%- if widget.render_type == 'full-width' %} full-width{% endif %}
-            {%- if field.classname %} {{ field.classname }}{% endif %}"
+            {%- if widget.render_type == 'full-width' %} full-width{% endif %}"
       {%- if changed %} title="Имеются изменения по сравнению с опубликованной версией"{% endif %}
       {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
     {% if field.error %}

@@ -382,24 +382,23 @@ var PopupStreamSelectMultiple = new Class({
     upBtn.addEvent('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      with (row) {
-        if (getPrevious()) {
-          inject(getPrevious(), 'before');
-        }
+      var offset1 = row.offsetTop;
+      if (row.getPrevious()) {
+        row.inject(row.getPrevious(), 'before');
       }
       this.fireEvent('reorder', row);
+      scrollAfterSort(row, offset1);
     }.bind(this));
 
     downBtn.addEvent('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      with (row) {
-        if (getNext()) {
-          inject(getNext(), 'after');
-
-        }
+      var offset1 = row.offsetTop;
+      if (row.getNext()) {
+        row.inject(row.getNext(), 'after');
       }
       this.fireEvent('reorder', row);
+      scrollAfterSort(row, offset1);
     }.bind(this));
 
     sortTd.adopt(upBtn, downBtn);
