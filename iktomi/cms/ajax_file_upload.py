@@ -81,6 +81,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
 
     item_lock = False
     for_item = False
+    generate_autocropped = False
     display=False
     action = 'image_upload'
 
@@ -95,12 +96,14 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         rel_images = []
         for name in dir(form_field.model):
             rel_field = getattr(form_field.model, name)
-            # XXX make recursive
             if isinstance(rel_field, FileAttribute) and \
                     isinstance(rel_field.prop, ImageProperty) and \
                     rel_field.prop.fill_from == form_field.name:
                 rel_form_field = form_field.name_parent.get_field(name)
                 if rel_form_field is None:
+                    continue
+                if not self.generate_autocropped and \
+                        getattr(rel_form_field.conv, 'autocrop', False):
                     continue
 
                 resizer = rel_field.prop.resize
