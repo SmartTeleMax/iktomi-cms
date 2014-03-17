@@ -3,13 +3,22 @@ from webob.multidict import MultiDict
 from iktomi import web
 from iktomi.forms import FieldBlock
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler,\
-        DeleteItemHandler, insure_is_xhr
+        DeleteItemHandler, insure_is_xhr, StreamListHandler
 from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.cms.item_lock import ItemLock
 from iktomi.utils import cached_property
 from jinja2 import Markup
+
+
+class PublishStreamListHandler(StreamListHandler):
+
+    def list_form_data(self, env, paginator, filter_data):
+        if env.version == 'admin':
+            return StreamListHandler.list_form_data(
+                    self, env, paginator, filter_data)
+        return {}
 
 
 class PublishItemHandler(EditItemHandler):
@@ -364,7 +373,9 @@ class PublishStreamNoState(Stream):
 class PublishStream(PublishStreamNoState):
 
     core_actions = [x for x in Stream.core_actions
-                    if x.action not in ('delete', 'item')] + [
+                    if x.action not in ('delete', 'item')
+                       and not isinstance(x, StreamListHandler)] + [
+           PublishStreamListHandler(),
            PublishItemHandler(),
            DeleteFlagHandler(),
            PublishAction(),

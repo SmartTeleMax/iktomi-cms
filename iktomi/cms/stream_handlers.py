@@ -113,11 +113,8 @@ class StreamListHandler(StreamAction):
         filter_form = stream.get_filter_form(env)
 
         # Note: errors are displayed, but ignored in code.
-        # XXX for what purpose filter_form accepts POS?
-        #if request.method == 'POST':
-        #    filter_form.accept(request.POST)
-        #else:
         filter_form.accept(request.GET)
+        filter_data = filter_form.get_data()
         query = filter_form.filter(query)
 
         query = stream.order(query)
@@ -125,13 +122,12 @@ class StreamListHandler(StreamAction):
         paginator = ModelPaginator(request, query,
                                    impl=FancyPageRange(),
                                    limit=getattr(stream.config, 'limit', None),
-                                   url=stream.url_for(env).qs_set(
-                                       filter_form.get_data()))
+                                   url=stream.url_for(env).qs_set(filter_data))
 
         def item_url(item=None):
             item_id = item.id if item is not None else None
             return stream.url_for(env, 'item', item=item_id).qs_set(
-                filter_form.get_data())
+                                                                filter_data)
 
         try:
             paginator.items = stream.config.modify_items(paginator.items)
@@ -148,14 +144,16 @@ class StreamListHandler(StreamAction):
                       filter_form=filter_form,
                       allow_add=stream.has_permission(env, 'c'),
                       repr=repr)
-
-        if self.stream.ListItemForm:
-            list_item_form = self.stream.ListItemForm.for_items(
-                                    env, paginator.items)
-            result['list_item_form'] = list_item_form
-
+        result.update(self.list_form_data(env, paginator, filter_data))
         result = stream.process_list_template_data(env, result)
         return result
+
+    def list_form_data(self, env, paginator, filter_data):
+        if self.stream.ListItemForm and not filter_data:
+            return {'list_item_form':self.stream.ListItemForm.for_items(
+                                            env, paginator.items)}
+        return {}
+
 
 
 class PrepareItemHandler(web.WebHandler):
