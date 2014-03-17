@@ -16,10 +16,15 @@
 .form .form-row {
     vertical-align:middle;
     text-align:left;
-    padding: 5px 0 5px 200px;
     border-bottom: 1px solid #eee;
 
     }
+    .form div.form-row {
+      padding: 5px 0 5px 200px;
+      }
+    .form tr.form-row>th {
+      width: 200px;
+      }
     .form .form-row:after { clear:both; content:"."; display:block; height:0; visibility:hidden; }
     .form .form-row.full-width {
         padding-left: 5px;
@@ -157,6 +162,9 @@ textarea.bigtext{
     }*/
   .full-width .hint{
     margin-left: 180px;
+    }
+  .full-width .form-row .hint{
+    margin-left: 0;
     }
 
 .has-draft{

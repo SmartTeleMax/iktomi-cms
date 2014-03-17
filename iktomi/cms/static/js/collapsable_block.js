@@ -1,8 +1,7 @@
 var CollapsableForm = new Class({
   initialize: function(block){
-    //var has_errors = block.getParent('form').getElement('.error');
 
-    block.getElement('h2').addEvent('mousedown', function(e){
+    block.getElement('h2').addEvent('click', function(e){
       e.stopPropagation(); e.preventDefault();
       block.toggleClass('closed');
     });
@@ -10,9 +9,6 @@ var CollapsableForm = new Class({
     if(block.getElements('.error').length > 0){
       block.removeClass('closed');
     }
-    //if(!has_errors){
-    //  container.getElements('.collapsable')[0].removeClass('closed');
-    //}
   }
 });
 
