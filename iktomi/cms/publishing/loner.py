@@ -46,3 +46,10 @@ class PublishLoner(PublishStreamNoState, Loner):
         kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
         return Loner.url_for(self, env, name, **kwargs)
 
+    @cached_property
+    def perms(self):
+        p = getattr(self.config, 'permissions', {})
+        p.setdefault('wheel', 'rwp')
+        return p
+
+
