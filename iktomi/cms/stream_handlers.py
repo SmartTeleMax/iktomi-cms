@@ -27,7 +27,9 @@ def see_other(location):
                         content_type="application/json")
 
 def insure_is_xhr(env):
-    if not env.request.is_xhr and not '__ajax' in env.request.GET:
+    if (env.request.method in ('GET', 'HEAD') and \
+           not env.request.is_xhr and \
+           not '__ajax' in env.request.GET):
         raise HTTPOk(body=env.render_to_string('layout.html', {}))
 
 
