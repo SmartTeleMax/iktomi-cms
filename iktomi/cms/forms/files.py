@@ -61,7 +61,9 @@ class AjaxImageField(AjaxFileField):
         env = self.env
         # XXX looks like a hack
         if any(x for x in env.stream.actions if x.action=="image_upload"):
-            return env.stream.url_for(env, 'image_upload', field_name=self.input_name)
+            return env.stream.url_for(env, 'image_upload',
+                                      item=self.form.item.id,
+                                      field_name=self.input_name)
         return env.root.load_tmp_file
 
     @cached_property
@@ -77,8 +79,12 @@ class AjaxImageField(AjaxFileField):
     def model(self):
         parent = self.name_parent
         if isinstance(parent, Form):
+            if parent.item:
+                return parent.item.__class__
             return parent.model
         elif isinstance(parent.conv, convs.ModelDictConv):
+            if parent.clean_value is not None:
+                return parent.clean_value.__class__
             return parent.conv.model
         else:
             return None

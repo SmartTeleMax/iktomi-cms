@@ -6,6 +6,7 @@ from webob.exc import HTTPMethodNotAllowed
 from iktomi import web
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.forms.fields import AjaxImageField
+from iktomi.cms.stream_handlers import PrepareItemHandler, NoneIntConv
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
 try:
@@ -80,14 +81,17 @@ class FileUploadHandler(web.WebHandler):
 class StreamImageUploadHandler(PostAction, FileUploadHandler):
 
     item_lock = False
-    for_item = False
+    for_item = True
+    allowed_for_new = True
     display=False
     action = 'image_upload'
 
     @property
     def app(self):
-        return web.match('/{}/<field_name>'.format(self.action),
-                         name=self.action) | self
+        return (web.match('/<noneint:item>/{}/<field_name>'.format(self.action),
+                         self.action,
+                         convs={'noneint': NoneIntConv}) |
+                PrepareItemHandler(self) | self)
 
     def _collect_related_fields(self, env, form_field, image):
         original_name = env.request.GET["file"]
@@ -123,8 +127,13 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         return rel_images
 
     def save_file(self, env, data, length):
-        form = self.stream.config.ItemForm(env, {})
-        form.model = self.stream.get_model(env)
+        item = data.item
+        initial = {}
+        if item is None:
+            initial = data.filter_form.defaults()
+            item = self.stream.get_model(env)(**initial)
+        form = self.stream.config.ItemForm.load_initial(env, item, initial=initial)
+        #form.model = self.stream.get_model(env)
         field = form.get_field(data.field_name)
         #import pdb; pdb.set_trace()
         if not isinstance(field, AjaxImageField) or \
