@@ -10,12 +10,6 @@ from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
 
 
-def log_type_title(log):
-    return {'edit': u'правка',
-            'publish': u'опубликовано',
-            'unpublish': u'снято с публикации',
-            'revert': u'откат'}[log.type]
-
 class EditLogHandler(GetAction):
 
     item_lock = False
@@ -29,10 +23,17 @@ class EditLogHandler(GetAction):
     @property
     def app(self):
         return web.prefix('/<int:item>/log', name=self.action) | \
-                    self.PrepareItemHandler(self) | web.cases(
-                            web.match('') | self,
-                            web.match('/<int:log_id>', 'entry') | self.log_entry,
-                            )
+            self.PrepareItemHandler(self) | web.cases(
+                web.match('') | self,
+                web.match('/<int:log_id>', 'entry') | self.log_entry,
+                )
+
+    @classmethod
+    def log_type_title(cls, log):
+        return {'edit': u'Правка',
+                'publish': u'Опубликовано',
+                'unpublish': u'Стято с публикации',
+                'revert': u'Откат'}[log.type]
 
     def edit_log(self, env, data):
         insure_is_xhr(env)
@@ -49,15 +50,17 @@ class EditLogHandler(GetAction):
                                    impl=FancyPageRange(),
                                    limit=30,
                                    url=log_url)
+
         def get_lang(obj):
             return decode_stream_uid(obj.stream_name)[1].get('lang')
         #paginator.items = [expand_stream(env, obj) for obj in paginator.items]
 
-        return env.render_to_response('edit_log/index', dict(paginator=paginator,
-                                                             stream=self.stream,
-                                                             get_lang=get_lang,
-                                                             item=data.item,
-                                                             log_type_title=log_type_title))
+        return env.render_to_response('edit_log/index',
+                                      dict(paginator=paginator,
+                                           stream=self.stream,
+                                           get_lang=get_lang,
+                                           item=data.item,
+                                           log_type_title=self.log_type_title))
 
     __call__ = edit_log
 
@@ -106,15 +109,16 @@ class EditLogHandler(GetAction):
 
         # XXX
         form1 = form_cls.load_initial(env, data.item.__class__(),
-                                      initial=form1.python_data, permissions='r')
+                                      initial=form1.python_data,
+                                      permissions='r')
         form2 = form_cls.load_initial(env, data.item.__class__(),
-                                      initial=form2.python_data, permissions='r')
-        return env.render_to_response('edit_log/item', dict(form1=form1,
-                                                            form2=form2,
-                                                            changed_fields=changed_fields,
-                                                            log=log,
-                                                            stream=self.stream,
-                                                            item=data.item,
-                                                            log_type=log_type_title(log)))
-
-
+                                      initial=form2.python_data,
+                                      permissions='r')
+        return env.render_to_response('edit_log/item',
+                                      dict(form1=form1,
+                                           form2=form2,
+                                           changed_fields=changed_fields,
+                                           log=log,
+                                           stream=self.stream,
+                                           item=data.item,
+                                           log_type=self.log_type_title(log)))
