@@ -1,5 +1,8 @@
-var FieldList = new Class({
-  Implements: [Events],
+function FieldList(){
+  FieldList.prototype.initialize.apply(this, arguments);
+}
+
+FieldList.prototype = Object.append(Object.create(Events.prototype), {
 
   initialize: function(container, template, order, allowCreate, allowDelete, limit) {
     this.container = $(container);
@@ -19,20 +22,28 @@ var FieldList = new Class({
 
     this.fireEvent('ready', this);
   },
+
   len: function() {
     return this.container.getElements('[name=' + this.inputName + '-indeces]').length;
   },
+
+  tbody: function() {
+    return this.container.getLast();
+  },
   items: function() {
-    return this.container.getLast().getChildren().filter(function(c) {
+    return this.tbody().getChildren().filter(function(c) {
       return c.hasClass('fieldlist-item');
     });
   },
-  btn: function(href, classname, caption, callback) {
+  btn: function(href, classname, caption, callback, title) {
     var el = new Element('a', {href: href, 'class': classname});
     if(caption){
       el.set('html', caption);
     }
     el.addEvent('click', callback ? callback : $empty);
+    if (title){
+      el.set('title', title);
+    }
     return el
   },
   setup: function() {
@@ -88,21 +99,11 @@ var FieldList = new Class({
   },
 
   installSortBtns: function(wrap, tr) {
-    if(!wrap.getElement('a.sort')){
-      wrap.adopt(this.btn('#up', 'sort sort-up', '&uarr;', this.sortUpClick.bind(this)));
-      wrap.adopt(this.btn('#down', 'sort sort-down', '&darr;', this.sortDownClick.bind(this)));
-    }
+    wrap.adopt(this.btn('#up', 'sort sort-up', '&uarr;', this.sortUpClick.bind(this)));
+    wrap.adopt(this.btn('#down', 'sort sort-down', '&darr;', this.sortDownClick.bind(this)));
   },
 
-  add: function(e) {
-    e.stopPropagation(); e.preventDefault();
-    this.currentCount++;
-    if(this.limit>0){
-      if(this.currentCount > this.limit)
-        return
-      if(this.currentCount == this.limit)
-        this.addBtn.addClass('hide');
-    }
+  newLine: function(){
     var next = 0;
     this.container.getElements('[name=' + this.inputName + '-indeces]').each(function(input){
       var value = parseInt(input.value);
@@ -134,10 +135,30 @@ var FieldList = new Class({
 
     Blocks.init(fieldTd);
 
+    return line;
+  },
+
+  add: function(e) {
+    e.stopPropagation(); e.preventDefault();
+    this.currentCount++;
+    if(this.limit>0){
+      if(this.currentCount > this.limit)
+        return
+      if(this.currentCount == this.limit)
+        this.addBtn.addClass('hide');
+    }
+
+    var line = this.newLine();
     this.fireEvent('add', line);
   }
+
 });
 
 Blocks.register('fieldlist', function(el){
-        new FieldList(el, el.dataset.template, el.dataset.order, !el.dataset.readonly, !el.dataset.readonly, el.dataset.maxLength);
-})
+        new FieldList(el, el.dataset.template, el.dataset.order,
+                      !el.dataset.readonly, // allowCreate
+                      !el.dataset.readonly, // allowDelete
+                      el.dataset.maxLength);
+});
+
+

@@ -215,7 +215,7 @@ var PopupStreamSelect = new Class({
   },
 
   markSelectedItems: function() {
-    console.log('Mark selecteed items')
+    //console.log('Mark selected items')
     this.popup.el.getElements('.itemlist .item').each(function(item) {
       var link = item.getElement('a[rel^=id]');
       if (link) {
@@ -275,7 +275,6 @@ var PopupStreamSelect = new Class({
     delete this._input;
     delete this._items_div;
 
-    this.fireEvent('change', this.container);
 
   },
 
@@ -287,8 +286,15 @@ var PopupStreamSelect = new Class({
     this.popup.hide();
     this.addControls();
 
+    this.onChange();
+  },
+
+  onChange: function(){
     this.fireEvent('change', this.container);
 
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent("change", true, true);
+    this.container.dispatchEvent(evt);
   },
 
   makeLinksExternal: function(el) {
@@ -447,7 +453,7 @@ var PopupStreamSelectMultiple = new Class({
     this.getItemsDiv().empty();
     this._selected_items = [];
 
-    this.fireEvent('change', this.container);
+    this.onChange();
 
   },
 
@@ -489,7 +495,7 @@ var PopupStreamSelectMultiple = new Class({
     this.addControls();
     item.addClass('selected');
 
-    this.fireEvent('change', this.container);
+    this.onChange();
 
   },
 
@@ -503,7 +509,7 @@ var PopupStreamSelectMultiple = new Class({
       delete this._inputs[index];
       delete this._selected_items[index];
       delete this._rows[index];
-      this.fireEvent('change', this.container);
+      this.onChange();
     }).bind(this);
 
     if (this.popup.el.getStyle('display') == 'block') {
