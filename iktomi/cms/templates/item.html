@@ -76,48 +76,50 @@
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
   <div class="content">
     <div class="header">
-      {% block title %}
-      <h1>
-        {%- if is_popup or not list_allowed %}
-          {{- stream_title }}
-        {%- else -%}
-          <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
-        {%- endif -%}
-      </h1>
-      {% endblock %}
+      <div style="float:left">
+        {% block title %}
+        <h1>
+          {%- if is_popup or not list_allowed %}
+            {{- stream_title }}
+          {%- else -%}
+            <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
+          {%- endif -%}
+        </h1>
+        {% endblock %}
 
-      {% block after_title %}{% endblock -%}
-      {% if log_enabled %}
-          <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}" title="История правок"></a>
-      {% endif %}
+        {% block after_title %}{% endblock -%}
+        {% if log_enabled %}
+            <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}" title="История правок"></a>
+        {% endif %}
 
-      {%- if context.item_trays is defined and item and item.id -%}
-      <div class="trays init-block" data-block-name="item-trays"
-           data-delete-url="{{ env.url_for('delete_from_tray') }}"
-           data-stream-name="{{ stream.uid(env, version=False) }}"
-           data-object-id="{{ item.id }}">
-        <button type="button" class="trays__add" title="Отправить в рабочую папку пользователю"></button>
-        <div class="trays__dropdown">
-          <div class="trays__list">
-          {%- for object_tray in context.item_trays(stream, item) -%}
-          <div class="trays__tray tray{{ object_tray.tray.id % 24 }}" data-id="{{ object_tray.id }}">
-            <a href="{{ url_for('tray', tray=object_tray.tray.id) }}">
-              {{- object_tray.tray.title -}}
-            </a>
-            {%- if object_tray.comment -%}
-              <div class="trays__comment-hellip">
-                <div class="trays__comment">{{ object_tray.comment }}</div>
-              </div>
-            {%- endif -%}
-            {%- if object_tray.can_delete(env.user) -%}
-              <button type="button" class="trays__tray__remove">&times;</button>
-            {%- endif -%}
-          </div>
-          {%- endfor -%}
+        {%- if context.item_trays is defined and item and item.id -%}
+        <div class="trays init-block" data-block-name="item-trays"
+             data-delete-url="{{ env.url_for('delete_from_tray') }}"
+             data-stream-name="{{ stream.uid(env, version=False) }}"
+             data-object-id="{{ item.id }}">
+          <button type="button" class="trays__add" title="Отправить в рабочую папку пользователю"></button>
+          <div class="trays__dropdown">
+            <div class="trays__list">
+            {%- for object_tray in context.item_trays(stream, item) -%}
+            <div class="trays__tray tray{{ object_tray.tray.id % 24 }}" data-id="{{ object_tray.id }}">
+              <a href="{{ url_for('tray', tray=object_tray.tray.id) }}">
+                {{- object_tray.tray.title -}}
+              </a>
+              {%- if object_tray.comment -%}
+                <div class="trays__comment-hellip">
+                  <div class="trays__comment">{{ object_tray.comment }}</div>
+                </div>
+              {%- endif -%}
+              {%- if object_tray.can_delete(env.user) -%}
+                <button type="button" class="trays__tray__remove">&times;</button>
+              {%- endif -%}
+            </div>
+            {%- endfor -%}
+            </div>
           </div>
         </div>
+        {%- endif -%}
       </div>
-      {%- endif -%}
 
       {{ buttons(is_popup) }}
 
