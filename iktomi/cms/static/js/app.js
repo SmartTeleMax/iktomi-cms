@@ -71,19 +71,19 @@
     loadPage();
   }, false);
 
-  function renderPage(result, contentBlock, callback){
+  function renderPage(result, contentBlock){
     try {
       if (typeof result == 'string') {
         result = JSON.decode(result);
       }
     } catch (e){
-      var content = contentBlock || $('app-content');
-      content.setStyle('height', content.getHeight());
-      content.set('html', result);
-      Blocks.init(content);
+      contentBlock = contentBlock || $('app-content');
+      contentBlock.setStyle('height', contentBlock.getHeight());
+      contentBlock.set('html', result);
+      Blocks.init(contentBlock);
       window.setTimeout(function(){
-        content.setStyle('height', '');
-        if (content.id == 'app-content'){
+        contentBlock.setStyle('height', '');
+        if (contentBlock.id == 'app-content'){
           window.scrollTo(window.scrollX, 0);
         }
       }, 2);
@@ -92,14 +92,24 @@
       document.body.set('class',
           bodyClass ? bodyClass.dataset.bodyClass : null);
       //document.body.removeClass('loading');
+
+      var evt = document.createEvent("HTMLEvents");
+      evt.initEvent("load", false, true);
+      contentBlock.dispatchEvent(evt);
+
+      if (contentBlock == $('app-content')){
+        new Element('div', {'class': 'window-delegate'});contentBlock
+      }
+
       return;
     }
 
 
     if (result.location){
-      loadPage(result.location, true);
+      loadPage(result.location, true, contentBlock);
     } else {
       document.body.removeClass('loading');
+
     }
   }
 

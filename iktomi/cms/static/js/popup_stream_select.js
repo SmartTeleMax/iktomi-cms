@@ -132,6 +132,7 @@ var PopupStreamSelect = new Class({
         this.show();
       }.bind(this));
     }
+    this.popup.contentEl.addEvent('load', this.patchItemForm.bind(this));
 
     this.postSetup();
 
@@ -148,6 +149,7 @@ var PopupStreamSelect = new Class({
     new Request({
       'url': url,
       'onSuccess': function(result) {
+        renderPage(result, this.popup.contentEl);
         this.onContentRecieved(result);
         if (callback) {
           callback();
@@ -156,12 +158,9 @@ var PopupStreamSelect = new Class({
     }).get();
   },
 
-  onContentRecieved: function(result, redirect) {
-    this.popup.hide_loader();
-    this.popup.setContent(result);
-    Blocks.init(this.popup.contentEl);
+  patchItemForm: function(){
     var frm = this.popup.contentEl.getElement('.item-form');
-    if (frm) {
+    if (frm){
       frm.retrieve('ItemForm')._callback_hook = function(result, callback) {
         /* вызывается при успешном сохранении нового объекта */
         if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
@@ -170,17 +169,23 @@ var PopupStreamSelect = new Class({
         }
       }.bind(this);
     }
+  },
 
-    var id = this._select_items.pop();
-    while(id) {
-      var item = this.popup.el.getElement('.itemlist .item a[rel=id:'+id+']').getParent('.item');
-      this.onItemClicked(item, ''+id);
-      id = this._select_items.pop();
+  onContentRecieved: function(result, redirect) {
+    this.popup.hide_loader();
+    var frm = this.popup.contentEl.getElement('.item-form');
+    if (!frm) {
+      var id = this._select_items.pop();
+      while(id) {
+        var item = this.popup.el.getElement('.itemlist .item a[rel=id:'+id+']').getParent('.item');
+        this.onItemClicked(item, ''+id);
+        id = this._select_items.pop();
+      }
+
+      this.markSelectedItems();
+      this.addSelectAllButtons()
     }
-
     this.attachContentEvents();
-    this.markSelectedItems();
-    this.addSelectAllButtons()
     this.popup.show();
 
   },

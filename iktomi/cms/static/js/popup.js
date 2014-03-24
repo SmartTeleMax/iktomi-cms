@@ -48,10 +48,12 @@ var Popup = new Class({
 
     this.empty();
     this._hide = function(e){
-      if (e && e.stop) {
-        e.stop();   
+      if(!e.rightClick) {
+        if (e && e.stop) {
+          e.preventDefault();
+        }
+        this.hide();
       }
-      this.hide();
     }.bind(this);
 
     if(this.options.close_button_on){
@@ -107,7 +109,9 @@ var Popup = new Class({
   show: function() {
     this.setZindex();
     this.visible = true;
-
+  
+    // XXX should be cleaned up explicitly. Implement event delegation mechanic
+    // with automatic cleanup!!!
     window.addEvent('resize', this._onWindowResize);
     window.addEvent('scroll', this._onWindowResize);
     window.addEvent('mousewheel', this._onMouseWheel);
@@ -198,16 +202,18 @@ var Popup = new Class({
 
     this.el.setStyles({'left': 'auto', 'right': 'auto'});
 
-    var left = Math.floor((this.overlay.getWidth() - this.el.getWidth()) / 2);
     var top = Math.floor((window.getSize().y - this.el.getHeight()) / 2) + window.getScroll().y;
 
     top = (top<0)?0:top;
-    left = Math.max(paddings/2, left);
+    this.el.setStyles({
+      'top': top
+    });
 
+    var left = Math.floor((this.overlay.getWidth() - this.el.getWidth()-16) / 2);
+    left = Math.max(paddings/2, left);
     this.el.setStyles({
       'left': left,
-      'right': left,
-      'top': top
+      'right': left
     });
 
     //this.overlay.setStyle('width', document.body.scrollWidth);
