@@ -11,6 +11,7 @@
   }
 
 .edit-log-diff{
+    clear: both;
     width: 100%;
     }
 .edit-log-diff>tbody>tr>td{
