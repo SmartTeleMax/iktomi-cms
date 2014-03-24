@@ -98,3 +98,16 @@
 .w-popup-stream-select-items .field_locked {
     display: none;
     }
+
+.popup .buttons__save-hidden{
+  display: none;
+  }
+.popup .item-form{
+  min-width: 900px;
+  }
+.popup .buttons .action-delete{
+  display: none;
+  }
+.popup .autosave-status{
+  top: -8px;
+  }
