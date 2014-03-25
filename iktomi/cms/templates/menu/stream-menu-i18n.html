@@ -4,7 +4,8 @@
   <a href="{{ menu.items[0].url }}">{{ menu.items[0].title }}</a>
 
   {% for submenu in menu.items %}
-    <a class="stream-flag" href="{{ submenu.url }}">
+    <a class="stream-flag" href="{{ submenu.url }}"
+       {% if submenu.endpoint_name %}data-endpoint="{{ submenu.endpoint_name }}"{% endif %}>
       <span class="lang-{{ submenu.lang }}"></span>
     </a>
     {% if submenu.create %}
