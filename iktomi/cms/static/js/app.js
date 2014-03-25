@@ -3,6 +3,23 @@
   window.addEvent('domready', function(){
     Blocks.init(document.body);
 
+    window.addEvents({'scroll': delegateWindowEvents('scroll'),
+                      'mousewheel': delegateWindowEvents('mousewheel'),
+                      'resize': delegateWindowEvents('resize')})
+
+    window.addEvent = function(type, callback){
+      var delegate = this.document.getElement('.window-delegate');
+      delegate.addEvent('delegated-'+type, callback);
+    }
+    window.removeEvent = function(type, callback){
+      var delegate = this.document.getElement('.window-delegate');
+      delegate.removeEvent('delegated-'+type, callback);
+    };
+
+    // XXX not implemented
+    window.addEvents = null;
+    window.removeEvents = null;
+
     document.querySelector('body').addEventListener('click', function(e){
       var link = (e.target.tagName == 'A' && e.target.getAttribute('href')?
                       e.target: 
@@ -98,7 +115,7 @@
       contentBlock.dispatchEvent(evt);
 
       if (contentBlock == $('app-content')){
-        new Element('div', {'class': 'window-delegate'});contentBlock
+        new Element('div', {'class': 'window-delegate'}).inject(contentBlock);
       }
 
       return;
@@ -160,6 +177,17 @@
   //  this.removeEventListener(ev, callback);
   //  return this;
   //}
+
+  function delegateWindowEvents(type){
+    // Delegate window events to special element which is utilized every time
+    // when #app-content is reloaded.
+    // This allows us not to pollute window with outdated event handlers and
+    // clean up them automatically.
+    return function(e){
+      var delegate = this.document.getElement('.window-delegate');
+      delegate.fireEvent('delegated-'+type, e);
+    }
+  }
 
   var tempFailure = Request.prototype.onFailure;
   Request.prototype.onFailure = function(){

@@ -110,18 +110,12 @@ var Popup = new Class({
     this.setZindex();
     this.visible = true;
   
-    // XXX should be cleaned up explicitly. Implement event delegation mechanic
-    // with automatic cleanup!!!
+    // events are delegated throught .window-delegate, so there is no need to
+    // clean them up manually
     window.addEvent('resize', this._onWindowResize);
     window.addEvent('scroll', this._onWindowResize);
     window.addEvent('mousewheel', this._onMouseWheel);
     this.overlay.addClass('show');
-    //setStyles({
-      //'top': -window.getScroll().y,
-      //'height': window.getScrollSize().y + window.getScroll().y,
-    //  'display': 'block',
-    //  'opacity': 0.3
-    //});
 
     if (Browser.Engine.trident) {
       $$('select').setStyle('visibility', 'hidden');
@@ -178,13 +172,13 @@ var Popup = new Class({
   },
 
   onMouseWheel: function(e) {
-    var pos = this.contentEl.getScroll().y;
-    if (e.wheel>0) {
-      this.contentEl.scrollTo(0, Math.max(0, pos-50));
-    } else if (e.wheel<0) {
-      this.contentEl.scrollTo(0, pos+50);
-    };
-    e.stop();
+    //var pos = this.contentEl.getScroll().y;
+    //if (e.wheel>0) {
+    //  this.contentEl.scrollTo(0, Math.max(0, pos-50));
+    //} else if (e.wheel<0) {
+    //  this.contentEl.scrollTo(0, pos+50);
+    //};
+    //e.stop();
   },
 
   onWindowResize: function() {
