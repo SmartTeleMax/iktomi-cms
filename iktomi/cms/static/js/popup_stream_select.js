@@ -199,7 +199,7 @@ var PopupStreamSelect = new Class({
                                          'class':'button'});
 
     selectButton.addEvent('click', function(e) {
-        this.popup.contentEl.getElements('.item').each(function(item) {
+        this.popup.contentEl.getElements('.stream-items .item').each(function(item) {
             var id = item.getElement('a').getProperty('rel').match(/^id:(.*)+/)[1];
             if (this._selected_items.indexOf(id) == -1) {
                 this.add(item, id);
@@ -208,7 +208,7 @@ var PopupStreamSelect = new Class({
     }.bind(this));
 
     deselectButton.addEvent('click', function(e) {
-        this.popup.contentEl.getElements('.item').each(function(item) {
+        this.popup.contentEl.getElements('.stream-items .item').each(function(item) {
             var id = item.getElement('a').getProperty('rel').match(/^id:(.*)+/)[1];
             if (this._selected_items.indexOf(id) != -1) {
                 this.remove(id);
