@@ -32,7 +32,7 @@ class EditLogHandler(GetAction):
     def log_type_title(cls, log):
         return {'edit': u'Правка',
                 'publish': u'Опубликовано',
-                'unpublish': u'Стято с публикации',
+                'unpublish': u'Снято с публикации',
                 'revert': u'Откат'}[log.type]
 
     def edit_log(self, env, data):
