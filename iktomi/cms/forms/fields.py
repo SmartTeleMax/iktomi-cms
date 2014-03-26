@@ -147,11 +147,6 @@ class EditorNoteField(Field):
         return self.env.url_for('post_note')
 
 
-class FieldList(FieldList):
-
-    order = True
-
-
 # Expose all variables defined after imports and all variables imported from
 # parent module
 __all__ = [x for x
