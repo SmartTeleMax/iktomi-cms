@@ -155,10 +155,10 @@ FieldList.prototype = Object.append(Object.create(Events.prototype), {
 });
 
 Blocks.register('fieldlist', function(el){
-        new FieldList(el, el.dataset.template, el.dataset.order,
-                      !el.dataset.readonly, // allowCreate
-                      !el.dataset.readonly, // allowDelete
-                      el.dataset.maxLength);
+  new FieldList(el, el.dataset.template, el.dataset.order,
+                !el.dataset.readonly, // allowCreate
+                !el.dataset.readonly, // allowDelete
+                el.dataset.maxLength);
 });
 
 
