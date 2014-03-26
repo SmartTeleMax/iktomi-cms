@@ -1,0 +1,30 @@
+{% macro list_form() %}
+  <form method="POST"
+        action="{{ stream.url_for(env, stream.list_edit_action.action) }}" 
+        id="{{ list_item_form.id }}"
+        class="init-block" data-block-name="stream-sortable" data-selector=".item">
+    {{- caller() -}}
+  </form>
+{% endmacro %}
+
+{% macro thead_content() %}
+  {{ caller() }}
+  <th>
+    <button type="button" class="button icon-apply submit-list-edit">
+      Сохранить
+    </button>
+  </th>
+{% endmacro %}
+
+{% macro tfoot() %}
+ <tfoot>
+   <tr>
+     <td colspan="{{ list_fields|length }}"></td>
+     <td>
+       <button type="button" class="button icon-apply submit-list-edit">
+         Сохранить
+       </button>
+     </td>
+   </tr>
+ </tfoot>
+{% endmacro %}

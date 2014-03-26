@@ -1,6 +1,15 @@
 {% if not no_layout %}
   {% extends base_template if base_template is defined else "stream_base.html" %}
 {% endif %}
+{%- macro empty_macro() %}{% if caller %}{{ caller() }}{% endif %}{% endmacro %}
+
+{%- if list_item_form is defined %}
+  {%- from list_item_form.template import list_form, thead_content, tfoot with context %}
+{%- else -%}
+  {%- set list_form = empty_macro %}
+  {%- set thead_content = empty_macro %}
+  {%- set tfoot = empty_macro %}
+{%- endif %}
 
 {% macro paginate(paginator) %}
   {% if paginator %}
@@ -18,19 +27,6 @@
   {% endif %}
 {% endmacro %}
 
-{% macro list_form() %}
-  {% if list_item_form is defined %}
-    <form method="POST"
-          action="{{ stream.url_for(env, stream.list_edit_action.action) }}" 
-          id="{{ list_item_form.id }}"
-          class="init-block" data-block-name="stream-sortable" data-selector=".item">
-      {{- caller() -}}
-    </form>
-  {% else %}
-    {{- caller() -}}
-  {% endif %}
-{% endmacro %}
-
 {% set pager = paginate(paginator) %}
 
 {% block stream_items %}
@@ -40,33 +36,17 @@
       <table class="items">
         <thead class="init-block" data-block-name="sort-fields">
           <tr>
-            {%- for field in list_fields.values() -%}
-              <th style="width: {{ field.width }};" class="field_{{ field.name }}"
-                  {%- if not field.title %} class="no-title"{% endif %}>
-                {{- field.title -}}
-              </th>
-            {%- endfor -%}
-            {% if list_item_form is defined %}
-            <th>
-              <button type="button" class="button icon-apply submit-list-edit">
-                Сохранить
-              </button>
-            </th>
-            {%- endif -%}
+            {% call thead_content() %}
+              {%- for field in list_fields.values() -%}
+                <th style="width: {{ field.width }};" class="field_{{ field.name }}"
+                    {%- if not field.title %} class="no-title"{% endif %}>
+                  {{- field.title -}}
+                </th>
+              {%- endfor -%}
+            {% endcall %}
           </tr>
         </thead>
-        {%- if list_item_form is defined -%}
-          <tfoot>
-            <tr>
-            <td colspan="{{ list_fields|length }}"></td>
-            <td>
-              <button type="button" class="button icon-apply submit-list-edit">
-                Сохранить
-              </button>
-            </td>
-            </tr>
-          </tfoot>
-        {%- endif -%}
+        {{ tfoot() }}
 
         <tbody>
           {% block item_rows %}

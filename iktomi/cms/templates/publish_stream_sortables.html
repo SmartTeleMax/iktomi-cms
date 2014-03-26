@@ -1,0 +1,26 @@
+{% from "stream_sortables.html" import list_form as base_list_form with context %}
+
+{# XXX #}
+{%- set list_form = base_list_form %}
+
+{% macro thead_content() %}
+  {{ caller() }}
+  <th>
+    <button type="button" class="button icon-publish submit-list-edit">
+      Опубликовать сортировку
+    </button>
+  </th>
+{% endmacro %}
+
+{% macro tfoot() %}
+ <tfoot>
+   <tr>
+     <td colspan="{{ list_fields|length }}"></td>
+     <td>
+       <button type="button" class="button icon-publish submit-list-edit">
+         Опубликовать сортировку
+       </button>
+     </td>
+   </tr>
+ </tfoot>
+{% endmacro %}

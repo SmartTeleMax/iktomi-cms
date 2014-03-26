@@ -6,9 +6,9 @@ from iktomi.forms import Form, Field, FieldSet, FieldList
 from iktomi.cms.forms import convs
 
 from .stream_actions import StreamAction
-from .stream_handlers import see_other
 from .item_lock import ModelLockedByOther, ModelLockError
 from .flashmessages import flash
+from webob.exc import HTTPForbidden
 
 #BR = '\n'
 
@@ -22,6 +22,7 @@ class ListItemModelChoice(convs.ModelChoice):
 class ListItemForm(Form):
 
     ordering_field = 'order'
+    template = 'stream_sortables.html'
 
     def __init__(self, *args, **kwargs):
         self.ordering_field = kwargs.pop('ordering_field', self.ordering_field)
@@ -62,11 +63,20 @@ class ListEditAction(StreamAction):
     for_item = False
     title=u'Редактировать'
 
+    def save_allowed(self, env):
+        return self.stream.has_permission(env, 'w')
+
     @cached_property
     def ListItemForm(self):
         return getattr(self.stream.config, 'ListItemForm', ListItemForm)
 
+    def set_order(self, item, ordering_field, position):
+        setattr(item, ordering_field, position)
+
     def __call__(self, env, data):
+        if not self.save_allowed(env):
+            raise HTTPForbidden()
+
         list_item_form = self.ListItemForm(env)
         ordering_field = list_item_form.ordering_field
         if list_item_form is not None:
@@ -84,8 +94,7 @@ class ListEditAction(StreamAction):
                             lock_messages.append(unicode(e))
                         except ModelLockError, e:
                             lock_messages.append(unicode(e))
-
-                        setattr(item, ordering_field, value['order'])
+                        self.set_order(item, ordering_field, value['order'])
                         modified_items.append(item)
 
                 if len(lock_messages) > 0:
