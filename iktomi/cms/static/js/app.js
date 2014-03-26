@@ -97,6 +97,10 @@
       contentBlock = contentBlock || $('app-content');
       contentBlock.setStyle('height', contentBlock.getHeight());
       contentBlock.set('html', result);
+      if (contentBlock == $('app-content')){
+        // delegate which is used to pass events from window to listener
+        new Element('div', {'class': 'window-delegate'}).inject(contentBlock);
+      }
       Blocks.init(contentBlock);
       window.setTimeout(function(){
         contentBlock.setStyle('height', '');
@@ -113,11 +117,6 @@
       var evt = document.createEvent("HTMLEvents");
       evt.initEvent("load", false, true);
       contentBlock.dispatchEvent(evt);
-
-      if (contentBlock == $('app-content')){
-        new Element('div', {'class': 'window-delegate'}).inject(contentBlock);
-      }
-
       return;
     }
 
