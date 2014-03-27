@@ -188,9 +188,7 @@
     }
   }
 
-  var tempFailure = Request.prototype.onFailure;
-  Request.prototype.onFailure = function(){
-    var status = this.status;
+  window.flashRequestError = function(status){
     if (status == 0) {
       var text = 'Ошибка сети';
     } else if (status/100>>0 == 5){
@@ -201,6 +199,11 @@
       var text = 'Ошибка ('+status+')';
     }
     flash(text, 'failure', 10*1000)
+    return text
+  }
+  var tempFailure = Request.prototype.onFailure;
+  Request.prototype.onFailure = function(){
+    flashRequestError(this.status);
     tempFailure.apply(this, arguments);
     document.body.removeClass('loading');
   }

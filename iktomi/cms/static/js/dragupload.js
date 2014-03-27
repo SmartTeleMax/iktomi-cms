@@ -136,13 +136,19 @@
         //xhr.addEventListener('progress', progress, false);
 
         xhr.onload = function(e){
-          e.fileName = file.fileName || file.name;
-          this.uploading_count--;
-          var queue_file = this.queue.shift();
-          if (queue_file){
-              this.upload(queue_file);
+          var status = e.target.status;
+          var statusGroup = Math.floor(status / 100);
+          if (statusGroup == 4 || statusGroup == 5){
+            this.fireEvent('error', e);
+          } else {
+            e.fileName = file.fileName || file.name;
+            this.uploading_count--;
+            var queue_file = this.queue.shift();
+            if (queue_file){
+                this.upload(queue_file);
+            }
+            this.fireEvent('complete', e);
           }
-          this.fireEvent('complete', e);
         }.bind(this);
 
         xhr.onabort = function(e){
@@ -459,16 +465,11 @@
     onError: function(e){
       var stat;
       if (typeof e == 'string'){
-        stat = e;
+        stat = 'ошибка (' + e + ')';
       } else {
-        try{// XXX is try-catch necessary here?
-            stat = e.target.status;
-        } catch (e) {
-            stat = 'код ошибки неизвестен';
-        }
-        alert('Ошибка на сервере или в сети: ' + stat);
+        stat = flashRequestError(e.target.status);
       }
-      this.cancel('ошибка (' + stat + ')')
+      this.cancel(stat)
       this.clrbtn.setStyle('display', '');
     },
 
