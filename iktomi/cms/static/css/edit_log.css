@@ -18,9 +18,11 @@
     padding: 10px;
     }
 td.edit-log-del{
+    width: 45%;
     background: #fee;
     }
 td.edit-log-ins{
+    width: 45%;
     background: #efe;
     }
 
