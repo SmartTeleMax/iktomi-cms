@@ -24,13 +24,17 @@
   background-position: 0px 0px;
 }
 
+.popup-select .w-buttons,
 .w-popup-stream-select .w-buttons {
   overflow: hidden;
 }
+.popup-select>div,
 .w-popup-stream-select>div {
     display: inline-block;
+    vertical-align: top;
     }
 
+.popup-select .w-buttons .button,
 .w-popup-stream-select .w-buttons .button {
   float: left;
 }
@@ -79,6 +83,7 @@
       cursor: pointer;
     }*/
 
+  .empty .w-popup-stream-select-items,
   .w-popup-stream-select-items .hide-in-popup-stream-select {
     display: none;
   }

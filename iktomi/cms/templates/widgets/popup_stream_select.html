@@ -1,5 +1,6 @@
 <div class="init-block w-popup-stream-select
-            {%- if widget.classname %} {{ widget.classname }}{% endif %}" id="{{ widget.id }}"
+            {%- if widget.classname %} {{ widget.classname }}{% endif %}"
+     id="{{ widget.id }}"
      {%- block block_name %} data-block-name="popup-stream-select"{% endblock %}
      {%- if widget.multiple %} data-multiple="multiple"{%- endif -%}
      {%- if widget.unshift %} data-unshift="true"{%- endif -%}
@@ -17,7 +18,7 @@
       </tbody>
     </table>
   </div>
-  {%- if not readonly %}
+  {%- if not readonly -%}
   <div class="w-buttons">
     {% if widget.allow_select %}
     <a class="button hide" id="{{ widget.id }}-btn" href="#select">

@@ -135,7 +135,7 @@ var PopupStreamSelect = new Class({
     this.popup.contentEl.addEvent('load', this.patchItemForm.bind(this));
 
     this.postSetup();
-
+    this.setState();
   },
 
   show: function(callback) {
@@ -295,6 +295,7 @@ var PopupStreamSelect = new Class({
   },
 
   onChange: function(){
+    this.setState();
     this.fireEvent('change', this.container);
 
     var evt = document.createEvent("HTMLEvents");
@@ -304,6 +305,11 @@ var PopupStreamSelect = new Class({
 
   makeLinksExternal: function(el) {
     el.getElements('a').setProperty('target', '_blank');
+  },
+  
+  setState: function(el){
+    var empty = !this.container.getElement('.w-popup-stream-select-items tr');
+    this.container.toggleClass('empty', empty);
   }//,
 
   //onFilterSubmitClicked: function() {

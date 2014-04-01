@@ -12,7 +12,7 @@ FieldList.prototype = Object.append(Object.create(Events.prototype), {
     this.container.store('widget', this);
     this.limit = limit;
     this.currentCount = this.len();
-    this.addBtn = this.btn('#add', 'button', 'Добавить', this.add.bind(this));
+    this.addBtn = this.btn('#add', 'button w-button', 'Добавить', this.add.bind(this));
     if (allowCreate){
         this.addBtn.inject(this.container, 'after');
     }

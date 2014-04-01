@@ -201,7 +201,6 @@ class PopupStreamSelect(Select):
 class PopupFilteredSelect(Select):
 
     template = 'widgets/popup_filtered_select'
-    classname = 'filtered_multiple_select' # XXX strange name for this widget
     open_btn_text = u'Выбрать'
     disable_unpublished = False
 

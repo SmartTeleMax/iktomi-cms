@@ -1,36 +1,32 @@
-<table id="{{ widget.id }}"
-       class="init-block {%- if widget.classname %} {{ widget.classname }}{% endif %}"
-       data-block-name="popup-filtered-select"
-       {%- if readonly %}data-readonly="true"{% endif %}
-       data-config="{{ widget.js_config() }}">
-  <tr>
+<div id="{{ widget.id }}"
+     class="init-block popup-select {%- if widget.classname %} {{ widget.classname }}{% endif %}"
+     data-block-name="popup-filtered-select"
+     {%- if readonly %}data-readonly="true"{% endif %}
+     data-config="{{ widget.js_config() }}">
+  <div>
+    <ul class="selected_values" id="{{ widget.id }}-values">
+      {% for option in options -%}
+      <li class="{% if option.selected %}selected{% endif %}">
+        <input value="{{ option.value|escape }}"
+         name="{{ widget.input_name }}"
+         type="{% if widget.multiple %}checkbox{% else %}radio{% endif %}"
+         class="value" 
+         id="{{ widget.id }}-{{ option.value }}" 
+         {% if option.selected %} checked="checked" {% endif %} />
+        <label for="{{ widget.id }}-{{ option.value }}" 
+         class="tree_label{% if option.title.published|default(False) %} published{% endif %}">
+         {{- option.title|escape -}}</label><span>x</span>
+      </li>
+      {%- endfor %}
+    </ul>
+  </div>
 
-  <td>
-  <ul class="selected_values" id="{{ widget.id }}-values">
-    {% for option in options -%}
-    <li class="{% if option.selected %}selected{% endif %}">
-      <input value="{{ option.value|escape }}"
-       name="{{ widget.input_name }}"
-       type="{% if widget.multiple %}checkbox{% else %}radio{% endif %}"
-       class="value" 
-       id="{{ widget.id }}-{{ option.value }}" 
-       {% if option.selected %} checked="checked" {% endif %} />
-      <label for="{{ widget.id }}-{{ option.value }}" 
-       class="tree_label{% if option.title.published|default(False) %} published{% endif %}">
-       {{- option.title|escape -}}</label><span>x</span>
-    </li>
-    {%- endfor %}
-  </ul>
-  </td>
   {%- if not readonly -%}
-  <td class="controls">
-  <a class="button" id="{{ widget.id }}-listbutton">
-    <span>{{ widget.open_btn_text }}</span>
-  </a>
-  </td>
+    <div class="w-buttons">
+      <a class="button" id="{{ widget.id }}-listbutton">
+        {{- widget.open_btn_text -}}
+      </a>
+    </div>
   {%- endif -%}
-</tr>
-
-
-</table>
+</div>
 
