@@ -72,6 +72,22 @@ class _AdminWithStateMixIn(object):
         self._front_item.state = self.state = self.DELETED
 
 
+class _FrontOnlyWithState(_WithState):
+
+    def publish(self):
+        self.state = self.PUBLIC
+
+    def unpublish(self):
+        '''Make the object invisible on front site.'''
+        self.state = self.PRIVATE
+
+    def delete(self):
+        self.state = self.DELETED
+
+
+class FrontOnlyWithState(_FrontOnlyWithState, WithState):
+    '''Class with publishing and without replication'''
+    pass
 
 
 class _AdminWithState(_AdminWithStateMixIn, _WithState):

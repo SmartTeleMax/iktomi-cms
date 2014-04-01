@@ -130,8 +130,8 @@ class PublishAction(PostAction):
             (not hasattr(item, 'state') or item.existing) and \
             (item.has_unpublished_changes or \
                 (hasattr(item, 'state') and not item.public)) and \
-                self.stream.has_permission(env, 'p') and \
-                env.version == 'admin'
+            self.stream.has_permission(env, 'p') and \
+            env.version == 'admin'
 
 
 class UnpublishAction(PostAction):
