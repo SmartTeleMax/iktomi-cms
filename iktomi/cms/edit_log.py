@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from webob.multidict import MultiDict
 from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.utils.storage import VersionedStorage
-from iktomi.cms.stream import expand_stream, decode_stream_uid
+from iktomi.cms.stream import decode_stream_uid
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.cms.stream_handlers import PrepareItemHandler
@@ -64,13 +63,6 @@ class EditLogHandler(GetAction):
 
     __call__ = edit_log
 
-    def get_field_data(self, form, field_name):
-        md = MultiDict()
-        field = form.get_field(field_name)
-        rv = field.from_python(form.python_data[field.name])
-        field.set_raw_value(md, rv)
-        return md
-
     def log_entry(self, env, data):
         insure_is_xhr(env)
 
@@ -94,30 +86,22 @@ class EditLogHandler(GetAction):
 
         form1 = form_cls.load_initial(env, data.item, initial={})
         form2 = form_cls.load_initial(env, data.item, initial={})
+
         form1.accept(log.before)
         form2.accept(log.after)
 
-        fields = sum([x.field_names for x in form1.fields], [])
-        changed_fields = []
-        for field in fields:
-            if not field:
-                continue
-            data1 = self.get_field_data(form1, field)
-            data2 = self.get_field_data(form2, field)
-            if data1 != data2:
-                changed_fields.append(field)
+        # reset permissions
+        form1.permissions = form2.permissions = frozenset('r')
+        form1.fields = [field(parent=form1) for field in form1.fields]
+        form2.fields = [field(parent=form2) for field in form2.fields]
 
-        # XXX
-        form1 = form_cls.load_initial(env, data.item.__class__(),
-                                      initial=form1.python_data,
-                                      permissions='r')
-        form2 = form_cls.load_initial(env, data.item.__class__(),
-                                      initial=form2.python_data,
-                                      permissions='r')
+        diff = form1.get_diff(form2)
+        diffs = diff['children'] if diff is not None else []
+
         return env.render_to_response('edit_log/item',
                                       dict(form1=form1,
                                            form2=form2,
-                                           changed_fields=changed_fields,
+                                           diffs=diffs,
                                            log=log,
                                            stream=self.stream,
                                            item=data.item,

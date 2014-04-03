@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
+from webob.multidict import MultiDict
 from time import time
 import struct, os
 from iktomi.utils import cached_property
 from ...forms import Form
-from .fields import FieldBlock
+from .fields import FieldBlock, DiffFieldSetMixIn
 
 class Form(Form):
 
@@ -14,12 +16,20 @@ class Form(Form):
         return 'form'+(time_part+os.urandom(1)).encode('hex')
 
 
-class ModelForm(Form):
+def _get_field_data(form, field):
+    md = MultiDict()
+    rv = field.from_python(form.python_data[field.name])
+    field.set_raw_value(md, rv)
+    return md
+
+
+class ModelForm(Form, DiffFieldSetMixIn):
 
     # XXX It's a hack to support inheritance
-    def __init__(self, env, initial={}, item=None, **kwargs):
+    def __init__(self, env, initial={}, item=None, for_diff=False, **kwargs):
         #required to check unique field values
         self.item = item
+        self.for_diff = for_diff
         Form.__init__(self, env, initial, **kwargs)
 
     def update_default(self, obj, name, value):

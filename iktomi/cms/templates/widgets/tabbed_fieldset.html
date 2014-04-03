@@ -1,6 +1,9 @@
 {% macro render_subfield(field, loop) %}
+{%- set changed = field.form.changed_fields is defined and 
+                  field.input_name in field.form.changed_fields %}
 {%- set widget = field.widget -%}
 <div class="form-row
+            {%- if changed %} changed-after-publication{% endif %}
             {%- if field.error %} with-error{% endif %}
             {%- if field.classname %} {{ field.classname }}{% endif %}"
      {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>

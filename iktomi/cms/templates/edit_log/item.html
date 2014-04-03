@@ -1,6 +1,24 @@
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
+{% macro diff_table(diff, level=0) %}
+    <tr class="form-row edit-log-level edit-log-level-{{level}}"><th>
+      <div class="form-label">
+        <label for="{{diff.name}}">{{ diff.label }}</label>
+      </div>
+    </th><td{% if diff.changed %} class="edit-log-del"{% endif %}>
+      {{- diff.before() -}}
+    </td><td{% if diff.changed %} class="edit-log-ins"{% endif %}>
+      {{- diff.after() -}}
+    </td></tr>
+
+    {%- if diff.children is defined %}
+      {%- for di in diff.children %}
+        {{- diff_table(di, level+1) }}
+      {%- endfor %}
+    {%- endif -%}
+{% endmacro %}
+
 <div class="content">
   <div class="header">
     <h1><a href="{{ stream.url_for(env, 'edit_log', item=item.id) }}">Журнал изменений</a><br/>
@@ -21,17 +39,9 @@
               {% if d1 == d2 %}{{ d1 }} {% else %}{{ d1 }} – {{ d2 }}{% endif %}</dd></dl>
 
       <table class="edit-log-diff"><tbody>
-        {% for field_name in changed_fields %}
-          <tr><td>
-            <div class="form-label">
-              <label>{{ form1.get_field(field_name).label or form1.get_field(field_name).name }}</label>
-            </div>
-          </td><td class="edit-log-del">
-            {{ form1.get_field(field_name).widget.render() }}
-          </td><td class="edit-log-ins">
-            {{ form2.get_field(field_name).widget.render() }}
-          </td></tr>
-        {% endfor %}
+        {%- for diff in diffs %}
+          {{- diff_table(diff) }}
+        {%- endfor -%}
       </tbody></table>
     </div>
   </div>

@@ -1,17 +1,132 @@
 # -*- coding: utf-8 -*-
 from iktomi.forms.fields import *
 from iktomi.forms.fields import __all__ as _all1
+from iktomi.forms.form import Form
 
 from datetime import datetime, timedelta
 from sqlalchemy import desc
+from sqlalchemy.orm.util import identity_key
 
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
+from iktomi.cms.models.edit_log import _get_field_data, make_diff
 from iktomi.forms import fields
 _all2 = locals().keys()
 
 # place this after _all2 to add them to __all__
 from .files import AjaxImageField, AjaxFileField
+
+class DiffFieldSetMixIn(object):
+    def get_diff(form1, form2):
+        fields = sum([x.field_names for x in form1.fields], [])
+        diffs = []
+        for field_name in fields:
+            if not field_name:
+                continue
+            field1 = form1.get_field(field_name)
+            field2 = form2.get_field(field_name)
+            if field2.widget.render_type == "hidden":
+                continue
+            if hasattr(field1, 'get_diff'):
+                child_diff = field1.get_diff(field2)
+                if child_diff is not None:
+                    diffs.append(child_diff)
+            else:
+                data1 = _get_field_data(form1, field1)
+                data2 = _get_field_data(form2, field2)
+                if data1 != data2:
+                    diff = make_diff(field1, field2,
+                                     changed=True)
+                    diffs.append(diff)
+        if diffs:
+            if isinstance(form1, Form):
+                label = name = ''
+                before = unicode(form1.item)
+                after = unicode(form2.item)
+            else:
+                label = form1.label or form1.name
+                name = form1.input_name
+                before = unicode(form1.clean_value)
+                after = unicode(form2.clean_value)
+            return dict(label=label or '',
+                        name=name or '',
+                        before=before,
+                        after=after,
+                        children=diffs,
+                        changed=True)
+
+
+class FieldSet(FieldSet, DiffFieldSetMixIn):
+    pass
+
+
+class FieldBlock(FieldBlock, DiffFieldSetMixIn):
+    pass
+
+
+class FieldList(FieldList):
+
+    @staticmethod
+    def _is_pair(field1, field2):
+        if field1.conv.__class__ == field2.conv.__class__:
+            if isinstance(field1.conv, convs.ModelDictConv):
+                ident1 = identity_key(instance=field1.clean_value)[1]
+                ident2 = identity_key(instance=field2.clean_value)[1]
+                return ident1 == ident2
+            return True
+        return False
+
+    def get_diff(fieldlist1, fieldlist2):
+        reordered = False
+        fields1 = []
+        fields2 = []
+        for index in fieldlist1.form.raw_data.getall(fieldlist1.indeces_input_name):
+            fields1.append(fieldlist1.field(name=index))
+        for index in fieldlist2.form.raw_data.getall(fieldlist2.indeces_input_name):
+            fields2.append(fieldlist2.field(name=index))
+
+        diffs = []
+        while fields1:
+            field2 = None
+            field1 = fields1.pop(0)
+            if fields2 and fieldlist1._is_pair(field1, fields2[0]):
+                field2 = fields2.pop(0)
+
+            if field1.widget.render_type == "hidden":
+                continue
+            if field2 is not None:
+                if hasattr(field1, 'get_diff'):
+                    diff = field1.get_diff(field2)
+                    if diff is not None:
+                        diffs.append(diff)
+                else:
+                    data1 = _get_field_data(form1, field1)
+                    data2 = _get_field_data(form2, field2)
+                    if data1 != data2:
+                        diff = make_diff(field1, field2,
+                                        changed=True)
+                        diffs.append(diff)
+            else:
+                diff = make_diff(field1, None,
+                                 changed=False)
+                diffs.append(diff)
+                reordered = True
+
+        while fields2:
+            field2 = fields2.pop(0)
+            diff = make_diff(None, field2,
+                            changed=True)
+            diffs.append(diff)
+
+        if not reordered:
+            diffs = [x for x in diffs if x['changed'] or x]
+        if diffs:
+            return dict(label=fieldlist1.label or '',
+                        name=fieldlist1.input_name,
+                        before='',
+                        after='',
+                        children=diffs,
+                        changed=True)
 
 
 def SplitDateTimeField(name, label, required=True,

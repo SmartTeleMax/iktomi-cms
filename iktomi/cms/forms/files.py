@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
+from cStringIO import StringIO
+from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
 from iktomi.unstable.db.files import PersistentFile
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
+from iktomi.unstable.utils.image_resizers import ResizeFit
 from iktomi.utils import cached_property
 from iktomi.cms.forms import convs, widgets
+try:
+    import Image
+except ImportError:       # pragma: no cover
+    from PIL import Image # pragma: no cover
 
 
 class AjaxFileField(FileFieldSet):
@@ -22,6 +29,24 @@ class AjaxFileField(FileFieldSet):
             conv = kwargs.get('conv', self.conv)
             kwargs['conv'] = conv(required=required)
         FileFieldSet.__init__(self, *args, **kwargs)
+
+    def set_raw_value(self, raw_data, value):
+        FileFieldSet.set_raw_value(self, raw_data, value)
+        # XXX hack!
+        # XXX removing for_diff check breaks history logging, adding it breaks changed 
+        #     fields indication. Workaround is needed
+        if getattr(self.form, 'for_diff', False) and self.clean_value:
+            raw_data[self.prefix+'path'] = self.clean_value.name
+
+    def get_diff(field1, field2):
+        path1 = field1.form.raw_data.get(field1.prefix+'path')
+        path2 = field2.form.raw_data.get(field2.prefix+'path')
+        if path1 != path2:
+            return dict(label=field2.label,
+                        name=field2.input_name,
+                        before=lambda: path1,
+                        after=lambda: path2,
+                        changed=True)
 
 
 class ImageFieldSetConv(FileFieldSetConv):
@@ -129,3 +154,48 @@ class AjaxImageField(AjaxFileField):
                 return fill_from
 
         return None
+
+    def set_raw_value(self, raw_data, value):
+        AjaxFileField.set_raw_value(self, raw_data, value)
+        # XXX hack!
+        if getattr(self.form, 'for_diff', False) and \
+                self.clean_value and \
+                not self.conv.autocrop:
+            resizer = ResizeFit()
+            img = Image.open(self.clean_value.path)
+            img = resizer(img, (100, 100))
+            img_file = StringIO()
+            img.save(img_file, format='jpeg')
+            data = "data:image/png;base64," + \
+                    img_file.getvalue().encode('base64').replace('\n', '')
+            raw_data[self.prefix+'image'] = data
+
+    def get_diff(field1, field2):
+        path1 = field1.form.raw_data.get(field1.prefix+'path')
+        path2 = field2.form.raw_data.get(field2.prefix+'path')
+        if path1 != path2:
+            img1 = field1.form.raw_data.get(field1.prefix+'image')
+            img2 = field2.form.raw_data.get(field2.prefix+'image')
+            if img1 or img2:
+                if img1:
+                    before = lambda: Markup("<img src='{}'/>").format(img1)
+                else:
+                    before = lambda: ''
+                if img2:
+                    after = lambda: Markup("<img src='{}'/>").format(img2)
+                else:
+                    after = lambda: ''
+                return dict(label=field2.label,
+                            name=field2.input_name,
+                            before=before,
+                            after=after,
+                            changed=True)
+            elif not field1.conv.autocrop and not field2.conv.autocrop:
+                return dict(label=field2.label,
+                            name=field2.input_name,
+                            before=lambda: path1,
+                            after=lambda: path2,
+                            changed=True)
+
+
+

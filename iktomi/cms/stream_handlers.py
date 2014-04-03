@@ -234,7 +234,7 @@ class EditItemHandler(StreamAction):
 
     def _clean_item_data(self, stream, env, item):
         form_cls = stream.config.ItemForm
-        form = form_cls.load_initial(env, item, initial={}, permissions='r')
+        form = form_cls.load_initial(env, item, initial={}, permissions='r', for_diff=True)
         return form.raw_data.items()
 
     def get_item_form(self, stream, env, item, initial, draft=None):
@@ -353,6 +353,7 @@ class EditItemHandler(StreamAction):
                                        item, draft, autosave)
 
                 if log is not None:
+                    env.db.commit()
                     # do not write form.raw_data directly, because it can be
                     # different for same data stored in db.
                     # Assume form raw data generated from item as canonical

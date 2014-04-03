@@ -43,12 +43,14 @@ class PublishItemHandler(EditItemHandler):
         form.model = self.stream.get_model(env)
         return form
 
-    def get_field_data(self, form, field_name):
-        md = MultiDict()
-        field = form.get_field(field_name)
-        rv = field.from_python(form.python_data[field.name])
-        field.set_raw_value(md, rv)
-        return md
+    def _collect_changed_fields(self, diff):
+        names = sum([self._collect_changed_fields(subdiff)
+                     for subdiff in diff.get('children', [])], [])
+        if names:
+            return names
+        if diff['name'] and diff['changed']:
+            return [diff['name']]
+        return []
 
     def changed_fields(self, env, item, admin_form):
         if env.version == 'front' or \
@@ -61,24 +63,10 @@ class PublishItemHandler(EditItemHandler):
             return []
 
         front_form = self.get_front_item_form(env, item)
-        field_names = sum([[x.name] if not isinstance(x, FieldBlock) else
-                           x.field_names
-                           for x in admin_form.fields], [])
-        field_names = filter(None, field_names)
-
-        changed_fields = []
-        for field_name in field_names:
-            #admin_field = admin_form.get_field(field_name)
-            #if admin_field.error:
-            #    # XXX ?
-            #    changed_fields.append(field_name)
-            #    continue
-            admin_data = self.get_field_data(admin_form, field_name)
-            front_data = self.get_field_data(front_form, field_name)
-            if admin_data != front_data:
-                changed_fields.append(field_name)
-
-        return changed_fields
+        diff = front_form.get_diff(admin_form)
+        if diff is None:
+            return []
+        return self._collect_changed_fields(diff)
 
 
 class PublishAction(PostAction):
