@@ -92,6 +92,11 @@ class FilterForm(Form):
     def filter_by_scalar(self, query, field, value):
         return query.filter(getattr(self.model, field.name)==value)
 
+    def filter_by_true(self, query, field, value):
+        if value:
+            return self.filter_by_scalar(query, field, value)
+        return query
+
     def filter_by_list(self, query, field, values):
         prop = getattr(self.model, field.name)
         for value in values:
@@ -184,8 +189,8 @@ class Stream(object):
         returns an url to item edit page
         '''
         if isinstance(item, self.get_model(env)):
-            cls, id = identity_key(instance=item)
-            if self.item_query(env).get(id):
+            #cls, id = identity_key(instance=item)
+            if self.item_query(env).filter_by(id=item.id).scalar() is not None:
                 return self.url_for(env, 'item', item=item.id)
 
     @cached_property
