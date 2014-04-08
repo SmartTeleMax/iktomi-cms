@@ -235,7 +235,9 @@ class EditItemHandler(StreamAction):
     def _clean_item_data(self, stream, env, item):
         form_cls = stream.config.ItemForm
         form = form_cls.load_initial(env, item, initial={}, permissions='r', for_diff=True)
-        return form.raw_data.items()
+        raw_data = form.raw_data.items()
+        unic = lambda s: (s if type(s) in (unicode, bytes) else unicode(s))
+        return [(unic(k), unic(v)) for k, v in raw_data]
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         save_allowed = self.create_allowed(env) \
