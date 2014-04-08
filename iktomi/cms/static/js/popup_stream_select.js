@@ -32,7 +32,8 @@ var PopupStreamSelect = new Class({
     create_url: null,
     input_name: null,
     sortable: true,
-    unshift: false
+    unshift: false,
+    allow_delete: true
   },
 
   _select_items: [],
@@ -95,12 +96,14 @@ var PopupStreamSelect = new Class({
       if (row.getLast() && row.getLast().hasClass('w-control-cell')) {
         return;
       }
-      var removeBtn = new Element('td').adopt(
-        new Element('button', {
-          'class': 'button button-tiny icon-delete'
-        }).addEvent('click', this.reset.bind(this))
-      );
-      row.adopt(removeBtn);
+      if (this.options.allow_delete){
+        var removeBtn = new Element('td').adopt(
+          new Element('button', {
+            'class': 'button button-tiny icon-delete'
+          }).addEvent('click', this.reset.bind(this))
+        );
+        row.adopt(removeBtn);
+      }
     }
   },
 
@@ -439,17 +442,18 @@ var PopupStreamSelectMultiple = new Class({
   },
 
   _addRemoveButton: function(row) {
-      row.adopt(this._createRemoveButton(row));
+    row.adopt(this._createRemoveButton(row));
   },
 
   _addControls: function(row) {
+    if (row.getLast() && row.getLast().hasClass('w-control-cell')) {
+      return;
+    }
 
-      if (row.getLast() && row.getLast().hasClass('w-control-cell')) {
-        return;
-      }
-
-      this._addOrderButtons(row);
+    this._addOrderButtons(row);
+    if(this.options.allow_delete){
       this._addRemoveButton(row);
+    }
   },
 
   addControls: function() {
