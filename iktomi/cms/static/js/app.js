@@ -37,11 +37,20 @@
         }
         e.preventDefault();
 
+        if (link.get('rel') == 'popup'){
+          var popup = new Popup();
+          loadPage(url, false, popup.contentEl);
+          popup.contentEl.addEvent('load', function(){
+            popup.show();
+          });
+          return;
+        }
+
         var item_forms = Array.from($$('.item-form'));
         function doLoad() {
           if (item_forms.length){
             var item_form = item_forms.shift();
-            item_form.retrieve('ItemForm').withChangesHook(doLoad);
+            item_form.retrieve('ItemForm').autoSaveHandler(doLoad);
           } else {
             loadPage(url);
           }

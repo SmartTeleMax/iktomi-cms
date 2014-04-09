@@ -145,7 +145,7 @@ class Stream(object):
     core_actions = [handlers.StreamListHandler(),
                     handlers.EditItemHandler(),
                     handlers.DeleteItemHandler(),
-                    handlers.CleanFormFieldHandler(),
+                    handlers.GetReferrersHandler(),
                     ]
 
     buttons = ['save', 'save_and_continue', 'save_and_add_another', 'delete']
@@ -200,6 +200,10 @@ class Stream(object):
     @cached_property
     def edit_log(self):
         return any(x for x in self.actions if x.action=='edit_log')
+
+    @cached_property
+    def referrers(self):
+        return any(x for x in self.actions if x.action=='referrers')
 
     @cached_property
     def app_namespace(self):

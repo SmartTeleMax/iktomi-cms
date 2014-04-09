@@ -466,57 +466,7 @@ def _iter_subclasses(cls, _seen=None):
                 yield sub
 
 
-class DeleteItemHandler(StreamAction):
-
-    action = 'delete'
-    cls = 'delete'
-    title = u'Удалить'
-
-    @property
-    def app(self):
-        return web.match('/<noneint:item>/delete', 'delete',
-                         convs={'noneint': NoneIntConv}) | \
-            PrepareItemHandler(self) | self
-
-    def is_available(self, env, item):
-        return StreamAction.is_available(self, env, item) and \
-                self.stream.has_permission(env, 'd')
-
-    def delete_item_handler(self, env, data):
-        insure_is_xhr(env)
-        item, edit_session, lock_message, filter_form = \
-            data.item, data.edit_session, data.lock_message, data.filter_form
-        stream = self.stream
-
-        self.insure_is_available(env, item)
-
-        stream_url = stream.url_for(env).qs_set(filter_form.get_data())
-        item_url = stream.url_for(env, 'item', item=item.id).qs_set(
-                                   filter_form.get_data())
-        delete_url = stream.url_for(env, 'delete', item=item.id)\
-                           .qs_set(filter_form.get_data())
-        if env.request.method == 'POST':
-            env.db.delete(item)
-            try:
-                env.db.commit()
-            except IntegrityError:
-                env.db.rollback()
-                flash(env, u'Невозможно удалить объект (%s) пока на него'\
-                      u' ссылаются другие объекты' % (item,),
-                      'failure')
-                return env.json({'result': 'failure'})
-            return env.json({'result': 'success',
-                             'location': stream_url})
-        data = dict(item=item,
-                    item_url=item_url,
-                    form_url=delete_url,
-                    referers=self._list_referers(env, item),
-                    title=u'Удаление объекта «%s»' % item,
-                    stream=stream,
-                    stream_url=stream_url,
-                    menu=stream.module_name)
-        return env.render_to_response('delete', data)
-    __call__ = delete_item_handler
+class _ReferrersAction(StreamAction):
 
     def _list_referers(self, env, obj, limit=50, exclude=None):
         if exclude is None:
@@ -602,35 +552,80 @@ class DeleteItemHandler(StreamAction):
         return result
 
 
-class CleanFormFieldHandler(StreamAction):
+class DeleteItemHandler(_ReferrersAction):
 
-    action = 'clean_form_field'
-    allowed_for_new = True,
-    title = u'Очистка поля формы'
-    display = False
-    for_item = False
+    action = 'delete'
+    cls = 'delete'
+    title = u'Удалить'
 
     @property
     def app(self):
-        return web.match('/clean-form-field', 'clean_form_field') | self
+        return web.match('/<noneint:item>/delete', 'delete',
+                         convs={'noneint': NoneIntConv}) | \
+            PrepareItemHandler(self) | self
 
-    def clean_form_field_handler(self, env, data):
-        filter_form = self.stream.get_filter_form(env)
+    def is_available(self, env, item):
+        return StreamAction.is_available(self, env, item) and \
+                self.stream.has_permission(env, 'd')
 
-        initial = filter_form.defaults()
-        form = self.stream.config.ItemForm(env, initial)
-        field_name = env.request.POST.get('field')
+    def delete_item_handler(self, env, data):
+        insure_is_xhr(env)
+        item, edit_session, lock_message, filter_form = \
+            data.item, data.edit_session, data.lock_message, data.filter_form
+        stream = self.stream
 
-        field = form.get_field(field_name)
-        #assert field_name == field.resolve_name()
-        try:
-            # We need cleanup even when there is an (non-fatal) error in
-            # the field. XXX This will work for Char and subclasses only.
-            value = field.conv.clean_value(env.request.POST.get('value'))
-            return env.json({'valid': True,
-                             'value': value})
-        except convs.ValidationError, e:
-            return env.json({'valid': False,
-                             'error': e.message})
-    __call__ = clean_form_field_handler
+        self.insure_is_available(env, item)
+
+        stream_url = stream.url_for(env).qs_set(filter_form.get_data())
+        item_url = stream.url_for(env, 'item', item=item.id).qs_set(
+                                   filter_form.get_data())
+        delete_url = stream.url_for(env, 'delete', item=item.id)\
+                           .qs_set(filter_form.get_data())
+        if env.request.method == 'POST':
+            env.db.delete(item)
+            try:
+                env.db.commit()
+            except IntegrityError:
+                env.db.rollback()
+                flash(env, u'Невозможно удалить объект (%s) пока на него'\
+                      u' ссылаются другие объекты' % (item,),
+                      'failure')
+                return env.json({'result': 'failure'})
+            return env.json({'result': 'success',
+                             'location': stream_url})
+        data = dict(item=item,
+                    item_url=item_url,
+                    form_url=delete_url,
+                    referers=self._list_referers(env, item),
+                    title=u'Удаление объекта «%s»' % item,
+                    stream=stream,
+                    stream_url=stream_url,
+                    menu=stream.module_name)
+        return env.render_to_response('delete', data)
+    __call__ = delete_item_handler
+
+
+class GetReferrersHandler(_ReferrersAction):
+
+    mode = 'popup'
+    item_lock = False
+    accepts_item_form = False
+    display = False
+    action = 'referrers'
+    title = u'Связанные объекты'
+    PrepareItemHandler = PrepareItemHandler
+
+    @property
+    def app(self):
+        return web.match('/<noneint:item>/{}'.format(self.action),
+                         self.action,
+                         convs={'noneint': NoneIntConv}) | \
+            self.PrepareItemHandler(self) | self
+
+    def referrers_handler(self, env, data):
+        insure_is_xhr(env)
+        data = dict(item=data.item,
+                    referers=self._list_referers(env, data.item))
+        return env.render_to_response('referrers', data)
+    __call__ = referrers_handler
 

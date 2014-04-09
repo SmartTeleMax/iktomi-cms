@@ -178,3 +178,15 @@ textarea.bigtext{
 .has-draft p:last-child{
     margin: 0;
     }
+
+.referrers-link{
+  display: inline-block;
+  position: relative;
+  height: 20px;
+  width: 20px;
+  /* Link by Martha Ormiston from The Noun Project, published under CC-BY */
+  background-image: url(../images/referrers.svg);
+  background-size: 20px 20px;
+  vertical-align: middle;
+  margin-left: 20px;
+  }

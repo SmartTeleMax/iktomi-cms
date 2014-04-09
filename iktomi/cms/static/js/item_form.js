@@ -22,7 +22,7 @@
     attachHooks: function(){
       var hooks = new PreSaveHooks(this.frm);
       hooks.addEvent('ready', function(){
-        this.do_submit.delay(0);
+        this.doSubmit.delay(0);
       }.bind(this));
       this.frm.store('hooks', hooks);
 
@@ -60,7 +60,12 @@
 
     submit: function(button, callback, url) {
       url = url || this.frm.getAttribute('action');
-      this.do_submit = function(){
+
+      this.doSubmit = function(){
+        var valueToPost = (button.dataset.itemForm? 
+              this.frm:
+              {'edit_session': this.frm.getElement('[name=edit_session]').value});
+
         document.body.addClass('loading');
         new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
@@ -88,7 +93,7 @@
               renderPage(result, this.container);
             }
           }.bind(this)
-        }).post(this.frm); // XXX Post to IFRAME!
+        }).post(valueToPost); // XXX Post to IFRAME!
       }.bind(this);
 
       var hooks = this.frm.retrieve('hooks');
@@ -131,16 +136,16 @@
 
       var button = e.target;
       var url = button.getAttribute('href');
-      var doSubmit = function(){
+      var _doSubmit = function(){
         this.submit(button, function(result){
           renderPage(result, this.container);
         }, url);
       }.bind(this);
 
       if (!button.dataset.itemForm){
-        this.withChangesHook(doSubmit);
+        this.autoSaveHandler(_doSubmit);
       } else {
-        doSubmit();
+        _doSubmit();
       }
     },
 
@@ -155,7 +160,7 @@
       }.bind(this));
     },
 
-    autoSaveHandler: function(){
+    autoSaveHandler: function(callback){
       var url = this.frm.dataset.autosave;
       if (! url) { return; }
       if (! this.frm.getParent('body') ) {
@@ -170,6 +175,7 @@
         if (this.statusElement.getAttribute('data-status') != 'draft') {
           this.statusElement.setAttribute('data-status', 'no-changes');
         }
+        if (callback) { callback(); }
         return;
       }
 
@@ -181,6 +187,7 @@
           $$('.autosave-errors').removeClass('autosave-errors');
           if (result.success || result.error == 'draft'){
             this.frm.store('savedData', newData);
+            if (callback) { callback(); }
           }
           if (result.success){
             this.statusElement.setAttribute('data-status', 'saved');
@@ -226,34 +233,6 @@
         this.load(result.item_url, true, this.container);
       }.bind(this));
     },
-
-    withChangesHook: function(callback){
-      this.autoSaveHandler();
-      callback();
-
-      //if(this.hasChanges()){
-      //  this.showConfirmationPopup(callback);
-      //} else {
-      //  callback();
-      //}
-    },
-
-    //showConfirmationPopup: function(doSubmit){
-    //  if (this.confirmationPopup){
-    //    var popup = this.confirmationPopup.empty();
-    //  } else {
-    //    var popup = new Popup(_popup_id(), {'close_button_on':false, 'clickable_overlay':false});
-    //    this.confirmationPopup = popup;
-    //  }
-    //  var buttons_pane = new Element('div', {'class':'buttons'}).adopt(
-    //    new Element('button', {'type': 'button', 'class': 'button', 'text': 'Продолжить'}).addEvent('click', function(){ popup.hide(); doSubmit(); }),
-    //    new Element('button', {'type': 'button', 'class': 'button', 'text': 'Отменить'}).addEvent('click', function(){ popup.hide(); })
-    //  );
-
-    //  popup.setTitle('Объект был отредактирован со времени последнего сохранения. Это действие приведёт к потере всех изменений.');
-    //  popup.adopt(buttons_pane);
-    //  popup.show();
-    //},
 
     hasChanges: function(){
       var newData = this.formHash();
