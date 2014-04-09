@@ -92,7 +92,7 @@
             <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}" title="История правок"></a>
         {%- endif %}
 
-        {% if stream.referrers %} {# XXX #}
+        {% if item.id and stream.referrers %} {# XXX #}
             <a class="referrers-link" href="{{ stream.url_for(env, 'referrers', item=item.id) }}" title="Связанные объекты" rel="popup"></a>
         {% endif %}
 
