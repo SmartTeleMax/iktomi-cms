@@ -46,6 +46,8 @@ Blocks.register('tray', function(el){
 
 
 Blocks.register('tray-popup', function(el){
+  // trayPopup is assigned to window object because it is created once
+  // and then we should use only this particular popup.
   var trayPopup = window.trayPopup = new Popup('tray-popup', {
     'injectTo': document.body,
     'empty_on_hide': false
