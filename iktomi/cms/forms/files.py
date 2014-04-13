@@ -146,12 +146,13 @@ class AjaxImageField(AjaxFileField):
     def fill_from(self):
         if self.model_field is not None:
             fill_from = self.model_field.fill_from
-            if '.' in self.input_name:
-                parent_name = self.input_name.rsplit('.', 1)[0]
-                fill_from = parent_name + '.' + fill_from
+            if fill_from is not None:
+                if '.' in self.input_name:
+                    parent_name = self.input_name.rsplit('.', 1)[0]
+                    fill_from = parent_name + '.' + fill_from
 
-            if self.form.get_field(fill_from):
-                return fill_from
+                if self.form.get_field(fill_from):
+                    return fill_from
 
         return None
 
