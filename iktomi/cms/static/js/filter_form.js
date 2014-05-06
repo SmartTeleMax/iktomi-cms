@@ -1,6 +1,7 @@
 (function(){
   function FilterForm(form){
     this.form = form;
+    this.$events = {}; // XXX is not copied
     form.store('filterForm', this);
     form.store('submitFilter', function(){
       var qs = form.toQueryString();
@@ -105,7 +106,7 @@
     input.addEventListener('change', onKeySmth, false);
   }
 
-  $extend(FilterForm.prototype, Events.prototype);
+  FilterForm.implement(Events.prototype);
 
   Blocks.register('filter-form', function(elem){
     new FilterForm(elem);

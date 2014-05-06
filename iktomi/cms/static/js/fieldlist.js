@@ -2,10 +2,11 @@ function FieldList(){
   FieldList.prototype.initialize.apply(this, arguments);
 }
 
-FieldList.prototype = Object.append(Object.create(Events.prototype), {
+FieldList.prototype = {
 
   initialize: function(container, template, order, allowCreate, allowDelete, limit) {
     this.container = $(container);
+    this.$events = {}; // XXX is not copied
     this.template = template;
     this.inputName = this.container.dataset.inputName;
     this.order = order;
@@ -152,7 +153,9 @@ FieldList.prototype = Object.append(Object.create(Events.prototype), {
     this.fireEvent('add', line);
   }
 
-});
+};
+
+FieldList.implement(Events.prototype);
 
 Blocks.register('fieldlist', function(el){
   new FieldList(el, el.dataset.template, el.dataset.order,
