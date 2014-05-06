@@ -175,6 +175,9 @@ textarea.wysihtml5{
 .wysihtml5-widget.tiny textarea.wysihtml5{
   height: 100px;
   }
+.wysihtml5-widget.long textarea.wysihtml5{
+  height: 600px;
+  }
 .wysihtml5-widget.shallow {
   width: 300px;
   }
