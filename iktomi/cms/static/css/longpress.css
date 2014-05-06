@@ -9,10 +9,9 @@
   margin:0;
   font-size: 40px;
   display: none;
+  z-index: 100;
 }
-.long-press-popup.show {
-  display: block;
-  }
+
 .long-press-popup>li {
   display:inline-block;
   list-style: none;
@@ -31,3 +30,21 @@
   -moz-box-shadow:    0 0 18px rgba(255, 255, 255, 0.75);
   box-shadow:         0 0 18px rgba(255, 255, 255, 0.75);
 }
+
+.long-press-description {
+  position: fixed;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin:0;
+  font-size: 12px;
+  display: none;
+  z-index: 100;
+  color: #fff;
+  }
+
+.long-press-description.show,
+.long-press-popup.show {
+  display: block;
+  }
