@@ -18,7 +18,7 @@ Blocks.register('item-trays', function(el){
   el.getElement('.trays__add').addEvent('click', function(){
     popupEl.dataset.objectId = el.dataset.objectId;
     popupEl.dataset.streamName = el.dataset.streamName;
-    popupEl.dataset.formId = el.getParent('form').id;
+    popupEl.dataset.formId = el.getParent('form').getProperty('id');
     popupEl.getElement('.tray-popup__comment').set('value', '');
     window.trayPopup.show();
   });
