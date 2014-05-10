@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+
+from webob.exc import HTTPNotFound
+
 from iktomi import web
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.cms.item_lock import ItemLock
-
 
 
 class PreviewHandler(GetAction):
@@ -23,8 +25,14 @@ class PreviewHandler(GetAction):
     def item_url(self, env, data, item):
         raise NotImplementedError
 
+    def is_available(self, env, item=None):
+        return GetAction.is_available(self, env, item) and \
+                getattr(env, 'version', None) != 'front'
+
     def preview(self, env, data):
         insure_is_xhr(env)
+        if not self.is_available(env, data.item):
+            raise HTTPNotFound
 
         item = data.item
 

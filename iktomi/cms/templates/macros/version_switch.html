@@ -24,9 +24,7 @@
   </div>
 {% endmacro %}
 
-{% macro item_versions(stream, item, url_name="item") %}
-{% if item.id %}
-<div class="flags">
+{% macro item_dbs(stream, item, url_name="item") %}
   {% for version, version_name in stream.versions %}
     {% set lang_item = item._item_version(version) %}
     {%- set absent = not lang_item or (lang_item.state is defined and lang_item.state in (item.ABSENT, item.DELETED)) %}
@@ -40,7 +38,9 @@
       <span class="version-{{ version }}"></span>
     </a>
   {% endfor -%}
+{% endmacro %}
 
+{% macro item_langs(stream, item, url_name="item") %}
   {%- if stream.langs is defined -%}
     <span style="padding-left: 20px;">&nbsp;</span>
     {%- for lang, lang_name in stream.langs %}
@@ -65,6 +65,13 @@
       {%- endif %}
     {%- endfor %}
   {% endif %}
+{% endmacro %}
+
+{% macro item_versions(stream, item, url_name="item") %}
+{% if item.id %}
+<div class="flags">
+  {{ item_dbs(stream, item, url_name) }}
+  {{ item_langs(stream, item, url_name) }}
 </div>
 {% endif %}
 {% endmacro %}

@@ -40,6 +40,9 @@ class StreamAction(web.WebHandler):
         self.allowed_for_new = kw.get('allowed_for_new', self.allowed_for_new)
         self.display = kw.get('display', self.display)
         self.hint = kw.get('hint', self.hint)
+        if stream is not None and \
+                getattr(stream.config, 'item_lock', None) == False:
+            self.item_lock = False
 
     def bind(self, stream):
         return self.__class__(stream=stream, **self.init_kwargs)

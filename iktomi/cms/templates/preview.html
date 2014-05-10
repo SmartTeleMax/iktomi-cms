@@ -1,4 +1,4 @@
-{% from "macros/version_switch.html" import item_versions with context %}
+{% from "macros/version_switch.html" import item_langs with context %}
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
@@ -30,7 +30,9 @@
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}" style="text-decoration:none;">{{ stream_title }}</a> <br/>
           <a href="{{ stream.url_for(env, 'item', item=item.id) }}" style="font-size: 10px;">{{ item.title or item }}</a>
       </h1>
-      {{- item_versions(stream, item, url_name='preview') }}
+      <div class="flags">
+          {{- item_langs(stream, item, url_name='preview') }}
+      </div>
       {{ buttons(is_popup) }}
     </div>
   </div>
