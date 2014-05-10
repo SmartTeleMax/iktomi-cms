@@ -348,6 +348,18 @@ class PublishStreamNoState(Stream):
     def get_model(self, env):
         return getattr(env.models, self.config.Model)
 
+    def get_edit_url(self, env, item):
+        '''
+        Checks if item belongs to the stream, and if it's true,
+        returns an url to item edit page
+        '''
+        if hasattr(item, 'models'):
+            model = getattr(item.models, self.config.Model, None)
+            if model is not None and isinstance(item, model):
+                item_ = self.item_query(env).filter_by(id=item.id).scalar()
+                if item_ is not None:
+                    return self.url_for(env, 'item', item=item.id)
+
     def commit_item_transaction(self, env, item, **kwargs):
         item.has_unpublished_changes = True
         item._create_versions()

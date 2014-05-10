@@ -188,9 +188,11 @@ class Stream(object):
         Checks if item belongs to the stream, and if it's true,
         returns an url to item edit page
         '''
+        # be careful, this method is redefined for publish streams
         if isinstance(item, self.get_model(env)):
             #cls, id = identity_key(instance=item)
-            if self.item_query(env).filter_by(id=item.id).scalar() is not None:
+            item_ = self.item_query(env).filter_by(id=item.id).scalar()
+            if item_ is not None:
                 return self.url_for(env, 'item', item=item.id)
 
     @cached_property

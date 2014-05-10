@@ -37,7 +37,7 @@ class EditLogHandler(GetAction):
     def edit_log(self, env, data):
         insure_is_xhr(env)
 
-        if getattr(env, 'version') == 'front':
+        if getattr(env, 'version', None) == 'front':
             raise HTTPNotFound()
 
         EditLog = env.edit_log_model
@@ -66,7 +66,7 @@ class EditLogHandler(GetAction):
     def log_entry(self, env, data):
         insure_is_xhr(env)
 
-        if getattr(env, 'version') == 'front':
+        if getattr(env, 'version', None) == 'front':
             raise HTTPNotFound()
 
         EditLog = env.edit_log_model
