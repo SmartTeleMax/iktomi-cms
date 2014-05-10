@@ -10,7 +10,6 @@
   {%- endif -%}
 {% endmacro -%}
 
-{% if value %}
 <table class="fieldset{% if widget.classname %} {{ widget.classname }} {% endif %}">
 {%- for subfield in field.fields %}
 {%- set changed = field.form.changed_fields is defined and 
@@ -54,6 +53,3 @@
 {%- endif -%}
 {% endfor -%}
 </table>
-{% else %}
-—
-{% endif %}
