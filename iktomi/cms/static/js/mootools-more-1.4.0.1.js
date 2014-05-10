@@ -1,8 +1,13 @@
-// MooTools: the javascript framework.
-// Load this file's selection again by visiting: http://mootools.net/more/f7005197184c1ad698fa1b435a9aecc0 
-// Or build this file again with packager using: packager build More/Drag More/Drag.Move
 /*
 ---
+MooTools: the javascript framework
+
+web build:
+ - http://mootools.net/more/d023e266f8471120e424cc18ce8dc42b
+
+packager build:
+ - packager build More/Sortables
+
 copyrights:
   - [MooTools](http://mootools.net)
 
@@ -10,6 +15,7 @@ licenses:
   - [MIT License](http://mootools.net/license.txt)
 ...
 */
+
 MooTools.More={version:"1.4.0.1",build:"a4244edf2aa97ac8a196fc96082dd35af1abab87"};var Drag=new Class({Implements:[Events,Options],options:{snap:6,unit:"px",grid:false,style:true,limit:false,handle:false,invert:false,preventDefault:false,stopPropagation:false,modifiers:{x:"left",y:"top"}},initialize:function(){var b=Array.link(arguments,{options:Type.isObject,element:function(c){return c!=null;
 }});this.element=document.id(b.element);this.document=this.element.getDocument();this.setOptions(b.options||{});var a=typeOf(this.options.handle);this.handles=((a=="array"||a=="collection")?$$(this.options.handle):document.id(this.options.handle))||this.element;
 this.mouse={now:{},pos:{}};this.value={start:{},now:{}};this.selection=(Browser.ie)?"selectstart":"mousedown";if(Browser.ie&&!Drag.ondragstartFixed){document.ondragstart=Function.from(false);
@@ -43,4 +49,25 @@ if(c.getStyle("position")=="fixed"){var a=window.getScroll();b.left+=a.x;b.right
 var b=this.mouse.now;return(b.x>d.left&&b.x<d.right&&b.y<d.bottom&&b.y>d.top);},this).getLast();if(this.overed!=a){if(this.overed){this.fireEvent("leave",[this.element,this.overed]);
 }if(a){this.fireEvent("enter",[this.element,a]);}this.overed=a;}},drag:function(a){this.parent(a);if(this.options.checkDroppables&&this.droppables.length){this.checkDroppables();
 }},stop:function(a){this.checkDroppables();this.fireEvent("drop",[this.element,this.overed,a]);this.overed=null;return this.parent(a);}});Element.implement({makeDraggable:function(a){var b=new Drag.Move(this,a);
-this.store("dragger",b);return b;}});
+this.store("dragger",b);return b;}});var Sortables=new Class({Implements:[Events,Options],options:{opacity:1,clone:false,revert:false,handle:false,dragOptions:{}},initialize:function(a,b){this.setOptions(b);
+this.elements=[];this.lists=[];this.idle=true;this.addLists($$(document.id(a)||a));if(!this.options.clone){this.options.revert=false;}if(this.options.revert){this.effect=new Fx.Morph(null,Object.merge({duration:250,link:"cancel"},this.options.revert));
+}},attach:function(){this.addLists(this.lists);return this;},detach:function(){this.lists=this.removeLists(this.lists);return this;},addItems:function(){Array.flatten(arguments).each(function(a){this.elements.push(a);
+var b=a.retrieve("sortables:start",function(c){this.start.call(this,c,a);}.bind(this));(this.options.handle?a.getElement(this.options.handle)||a:a).addEvent("mousedown",b);
+},this);return this;},addLists:function(){Array.flatten(arguments).each(function(a){this.lists.include(a);this.addItems(a.getChildren());},this);return this;
+},removeItems:function(){return $$(Array.flatten(arguments).map(function(a){this.elements.erase(a);var b=a.retrieve("sortables:start");(this.options.handle?a.getElement(this.options.handle)||a:a).removeEvent("mousedown",b);
+return a;},this));},removeLists:function(){return $$(Array.flatten(arguments).map(function(a){this.lists.erase(a);this.removeItems(a.getChildren());return a;
+},this));},getClone:function(b,a){if(!this.options.clone){return new Element(a.tagName).inject(document.body);}if(typeOf(this.options.clone)=="function"){return this.options.clone.call(this,b,a,this.list);
+}var c=a.clone(true).setStyles({margin:0,position:"absolute",visibility:"hidden",width:a.getStyle("width")}).addEvent("mousedown",function(d){a.fireEvent("mousedown",d);
+});if(c.get("html").test("radio")){c.getElements("input[type=radio]").each(function(d,e){d.set("name","clone_"+e);if(d.get("checked")){a.getElements("input[type=radio]")[e].set("checked",true);
+}});}return c.inject(this.list).setPosition(a.getPosition(a.getOffsetParent()));},getDroppables:function(){var a=this.list.getChildren().erase(this.clone).erase(this.element);
+if(!this.options.constrain){a.append(this.lists).erase(this.list);}return a;},insert:function(c,b){var a="inside";if(this.lists.contains(b)){this.list=b;
+this.drag.droppables=this.getDroppables();}else{a=this.element.getAllPrevious().contains(b)?"before":"after";}this.element.inject(b,a);this.fireEvent("sort",[this.element,this.clone]);
+},start:function(b,a){if(!this.idle||b.rightClick||["button","input","a","textarea"].contains(b.target.get("tag"))){return;}this.idle=false;this.element=a;
+this.opacity=a.getStyle("opacity");this.list=a.getParent();this.clone=this.getClone(b,a);this.drag=new Drag.Move(this.clone,Object.merge({droppables:this.getDroppables()},this.options.dragOptions)).addEvents({onSnap:function(){b.stop();
+this.clone.setStyle("visibility","visible");this.element.setStyle("opacity",this.options.opacity||0);this.fireEvent("start",[this.element,this.clone]);
+}.bind(this),onEnter:this.insert.bind(this),onCancel:this.end.bind(this),onComplete:this.end.bind(this)});this.clone.inject(this.element,"before");this.drag.start(b);
+},end:function(){this.drag.detach();this.element.setStyle("opacity",this.opacity);if(this.effect){var b=this.element.getStyles("width","height"),d=this.clone,c=d.computePosition(this.element.getPosition(this.clone.getOffsetParent()));
+var a=function(){this.removeEvent("cancel",a);d.destroy();};this.effect.element=d;this.effect.start({top:c.top,left:c.left,width:b.width,height:b.height,opacity:0.25}).addEvent("cancel",a).chain(a);
+}else{this.clone.destroy();}this.reset();},reset:function(){this.idle=true;this.fireEvent("complete",this.element);},serialize:function(){var c=Array.link(arguments,{modifier:Type.isFunction,index:function(d){return d!=null;
+}});var b=this.lists.map(function(d){return d.getChildren().map(c.modifier||function(e){return e.get("id");},this);},this);var a=c.index;if(this.lists.length==1){a=0;
+}return(a||a===0)&&a>=0&&a<this.lists.length?b[a]:b;}});

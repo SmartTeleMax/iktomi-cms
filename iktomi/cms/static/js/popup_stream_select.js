@@ -66,6 +66,12 @@ var PopupStreamSelect = new Class({
     if (! this.readonly ){
       this.showControls();
     }
+
+    this.options.sortable = this.options.sortable && this._multiple;
+
+    if (this.options.sortable){
+      this._makeDragable();
+    }
   },
 
   hasValue: function(v) {
@@ -550,6 +556,22 @@ var PopupStreamSelectMultiple = new Class({
     } else {
       this.remove(id);
     }
+  },
+
+  _makeDragable: function() {
+    var tbody = $(this.options.container+'-div');
+    tbody.addClass('dragable');
+    this._sortable = new Sortables(tbody, {
+
+      onStart: function(row, clone) {
+        row.addClass('dragged');
+      },
+      onComplete: function(row) {
+        row.removeClass('dragged');
+        this.fireEvent('reorder', row);
+      }.bind(this)
+
+    });
   }
 
 });
