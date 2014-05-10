@@ -53,10 +53,6 @@ select.date { width: 12em; }
 input.date { width: 10em; }
 input.infilter { width: 10em; }
 
-input.red { background-color: #990000; color: #ffffff; font-weight: bold; border-left: 1px solid #d60000; border-top: 1px solid #d60000; border-right: 1px solid #550000; border-bottom: 1px solid #550000; }
-input.green { background-color: #006600; color: #ffffff; font-weight: bold; border-left: 1px solid #54c033; border-top: 1px solid #54c033; border-right: 1px solid #084003; border-bottom: 1px solid #084003; }
-input.gray { background-color: #93a0ab; color: #ffffff; font-weight: bold; border-left: 1px solid #d1dce3; border-top: 1px solid #d1dce3; border-right: 1px solid #274157; border-bottom: 1px solid #274157; }
-
 .header {
   position: fixed;
   top: 38px;
@@ -203,6 +199,9 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 
 .form .textinput {
     width: 300px;
+}
+.form .textinput.wide {
+    width: 600px;
 }
 .form .select-checkbox>div {
     margin-bottom: 5px;
