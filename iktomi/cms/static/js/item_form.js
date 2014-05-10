@@ -62,9 +62,12 @@
       url = url || this.frm.getAttribute('action');
 
       this.doSubmit = function(){
-        var valueToPost = (button.dataset.itemForm? 
-              this.frm:
-              {'edit_session': this.frm.getElement('[name=edit_session]').value});
+        var valueToPost = {};
+        if(button.dataset.itemForm){
+            valueToPost = this.frm;
+        } else if(this.frm.getElement('[name=edit_session]')){
+            valueToPost = {'edit_session': this.frm.getElement('[name=edit_session]').value};
+        }
 
         document.body.addClass('loading');
         new Request({
@@ -162,7 +165,11 @@
 
     autoSaveHandler: function(callback){
       var url = this.frm.dataset.autosave;
-      if (! url) { return; }
+      if (! url) {
+        if (callback) { callback(); }
+        return;
+      }
+
       if (! this.frm.getParent('body') ) {
         console.log('AUTOSAVE stop')
         window.clearInterval(this.autoSaveInterval);
