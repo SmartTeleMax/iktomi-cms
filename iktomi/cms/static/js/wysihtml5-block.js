@@ -25,6 +25,8 @@
     });
     var iframe = editor.composer.iframe;
 
+
+
     function attachIFrame(){
       editor.composer.iframe.contentDocument.addEventListener('click', function(e){
         $$('.wysihtml5-dialog').setStyle('display', 'none');
@@ -46,6 +48,13 @@
     if (window.LongPress){
       window.setTimeout(function(){
         LongPress(editor.composer.element);
+
+        if (el.getProperty('readonly')){
+          // Do not change styles for disabled (readonly) elements
+          editor.composer.disabledStylesHost = document.createElement('div');
+          editor.composer.disable();
+        }
+
       }, 500); // XXX delay is not good solution here
     }
   }
