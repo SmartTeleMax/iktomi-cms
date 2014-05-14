@@ -142,6 +142,7 @@ class PopupStreamSelect(Select):
     select_all_button = True
     unshift = False
     default_filters = {}
+    rel = None # set rel="popup" to open and edit the item in popup
 
     @cached_property
     def default_create_filters(self):
@@ -159,7 +160,7 @@ class PopupStreamSelect(Select):
         url = self.stream.url_for(self.env, 'item', item=item.id)
         read_allowed=self.stream.has_permission(self.env, 'r')
         return self.render_row_template(stream=self.stream,
-                                        item=item, 
+                                        item=item,
                                         list_fields=self.list_fields,
                                         read_allowed=read_allowed,
                                         url=url, row_cls=row_cls)
@@ -183,6 +184,8 @@ class PopupStreamSelect(Select):
             'sortable': self.sortable,
             'unshift': self.unshift,
         }
+        if self.rel is not None:
+            data['rel'] = self.rel
         if self.allow_create:
             data['create_url'] = self.create_url
         return json.dumps(data) # XXX escape_js

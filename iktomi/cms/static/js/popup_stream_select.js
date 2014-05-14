@@ -33,6 +33,7 @@ var PopupStreamSelect = new Class({
     input_name: null,
     sortable: true,
     unshift: false,
+    rel: null,
     allow_delete: true
   },
 
@@ -186,7 +187,7 @@ var PopupStreamSelect = new Class({
     if (!frm) {
       var id = this._select_items.pop();
       while(id) {
-        var item = this.popup.el.getElement('.itemlist .item a[rel=id:'+id+']').getParent('.item');
+        var item = this.popup.el.getElement('.itemlist .item a[data-id='+id+']').getParent('.item');
         this.onItemClicked(item, ''+id);
         id = this._select_items.pop();
       }
@@ -209,7 +210,7 @@ var PopupStreamSelect = new Class({
 
     selectButton.addEvent('click', function(e) {
         this.popup.contentEl.getElements('.stream-items .item').each(function(item) {
-            var id = item.getElement('a').getProperty('rel').match(/^id:(.*)+/)[1];
+            var id = item.getElement('a').dataset.id;
             if (this._selected_items.indexOf(id) == -1) {
                 this.add(item, id);
             }
@@ -218,7 +219,7 @@ var PopupStreamSelect = new Class({
 
     deselectButton.addEvent('click', function(e) {
         this.popup.contentEl.getElements('.stream-items .item').each(function(item) {
-            var id = item.getElement('a').getProperty('rel').match(/^id:(.*)+/)[1];
+            var id = item.getElement('a').dataset.id;
             if (this._selected_items.indexOf(id) != -1) {
                 this.remove(id);
             }
@@ -231,9 +232,9 @@ var PopupStreamSelect = new Class({
   markSelectedItems: function() {
     //console.log('Mark selected items')
     this.popup.el.getElements('.itemlist .item').each(function(item) {
-      var link = item.getElement('a[rel^=id]');
+      var link = item.getElement('a[data-id]');
       if (link) {
-        var id = link.getProperty('rel').replace(/^(id:)/, '');
+        var id = link.dataset.id;
         if (this.hasValue(id)) {
           item.addClass('selected');
         }
@@ -258,12 +259,12 @@ var PopupStreamSelect = new Class({
 
     this.popup.el.getElements('.itemlist .item').each(function(item) {
 
-      item.getElements('a[rel]').each(function(a) {
+      item.getElements('a[data-id]').each(function(a) {
 
         a.addEvent('click', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          this.onItemClicked(item, a.getProperty('rel').match(/^id:(.*)+/)[1]);
+          this.onItemClicked(item, a.dataset.id);
         }.bind(this));
 
       }.bind(this));
@@ -313,7 +314,11 @@ var PopupStreamSelect = new Class({
   },
 
   makeLinksExternal: function(el) {
-    el.getElements('a').setProperty('target', '_blank');
+    if (this.options.rel === null){
+      el.getElements('a').setProperty('target', '_blank');
+    } else {
+      el.getElements('a').setProperty('rel', this.options.rel);
+    }
   },
   
   setState: function(el){
@@ -370,11 +375,10 @@ var PopupStreamSelectMultiple = new Class({
     var inputs = this._inputs, index = 0;
     this._map = {}, this._rows = [], this._inputs = [];
     this.getItemsDiv().getChildren('.item').each(function(row) {
-      var id = row.getElements('a').getProperty('rel').filter(function(rel) {
-        return /^id:\d+$/.test(rel);
-      }).getLast();
-      if (id) {
-        id = parseInt(id.replace('id:', ''));
+      var link = row.getElement('a[data-id]');
+      if (link) {
+        var id = link.dataset.id;
+        id = parseInt(id, 10);
         this._map[id] = index;
         inputs.each(function(input) {
           if (input.value == id ) {
@@ -389,6 +393,7 @@ var PopupStreamSelectMultiple = new Class({
   },
 
   redrawOrderClasses: function(row) {
+    // XXX make on CSS
     var index = 0;
     this.getItemsDiv().getElements('.item').each(function(row) {
       row.removeClass('odd').removeClass('even');
@@ -534,7 +539,7 @@ var PopupStreamSelectMultiple = new Class({
     }).bind(this);
 
     if (this.popup.el.getStyle('display') == 'block') {
-      link = this.popup.el.getElement('a[rel=id:' + id + ']');
+      link = this.popup.el.getElement('a[data-id=' + id + ']');
       if (link) {
         item = link.getParent('.item');
         item.removeClass('selected');
