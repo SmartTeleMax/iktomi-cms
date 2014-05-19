@@ -1,4 +1,5 @@
 {% from "macros/version_switch.html" import item_langs with context %}
+{% from "macros/preview.html" import external_link %}
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
@@ -41,6 +42,8 @@
         <div class="flags">
           {{- item_langs(stream, item, url_name='preview') -}}
         </div>
+
+        {{- external_link(external_url) -}}
       </div>
 
       {{ buttons(is_popup) }}

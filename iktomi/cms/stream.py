@@ -226,6 +226,12 @@ class Stream(object):
                 return action
 
     @cached_property
+    def preview_action(self):
+        for action in self.actions:
+            if action.action=='preview':
+                return action
+
+    @cached_property
     def ListItemForm(self):
         if self.list_edit_action:
             return self.list_edit_action.ListItemForm

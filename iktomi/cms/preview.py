@@ -25,6 +25,9 @@ class PreviewHandler(GetAction):
     def item_url(self, env, data, item):
         raise NotImplementedError
 
+    def external_url(self, env, data, item):
+        raise NotImplementedError
+
     def is_available(self, env, item=None):
         return GetAction.is_available(self, env, item) and \
                 getattr(env, 'version', None) != 'front'
@@ -40,6 +43,7 @@ class PreviewHandler(GetAction):
                      roles=env.user.roles,
                      item=item,
                      item_url=self.item_url(env, data, item),
+                     external_url=self.external_url(env, data, item),
                      stream=self.stream,
                      stream_url=self.stream.url_for(env),
                      stream_title=self.stream.config.title,

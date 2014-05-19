@@ -179,6 +179,7 @@ textarea.bigtext{
     margin: 0;
     }
 
+.external-url,
 .referrers-link{
   display: inline-block;
   position: relative;
@@ -190,3 +191,20 @@ textarea.bigtext{
   vertical-align: middle;
   margin-left: 20px;
   }
+
+.external-url{
+  background-image: url(../images/external-link.svg);
+  position: relative;
+  }
+  .external-url-dropdown{
+    background-image: url(../images/external-link.svg) no-repeat top left;
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    padding-top: 25px;
+    }
+  .external-url:hover .external-url-dropdown{
+    display: block;
+    }

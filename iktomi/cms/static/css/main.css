@@ -200,7 +200,7 @@ INPUT.del { margin-left: 10px; vertical-align: top; width: 2em; }
 .form .textinput {
     width: 300px;
 }
-.form .textinput.wide {
+input[type="text"].wide {
     width: 600px;
 }
 .form .select-checkbox>div {

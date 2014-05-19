@@ -1,6 +1,12 @@
 {% extends "item.html" %}
 {% from "macros/version_switch.html" import item_versions with context %}
+{% from "macros/preview.html" import external_link %}
 
 {% block after_title %}
     {{- item_versions(stream, item) }}
+
+    {%- if env.version == 'front' and stream.preview_action -%}
+      {%- set external_url = stream.preview_action.external_url(env, env.data, item) -%}
+      {{- external_link(external_url) -}}
+    {%- endif -%}
 {% endblock %}
