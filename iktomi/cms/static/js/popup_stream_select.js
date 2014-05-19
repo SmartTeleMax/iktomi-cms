@@ -377,8 +377,7 @@ var PopupStreamSelectMultiple = new Class({
     this.getItemsDiv().getChildren('.item').each(function(row) {
       var link = row.getElement('a[data-id]');
       if (link) {
-        var id = link.dataset.id;
-        id = parseInt(id, 10);
+        var id = parseInt(link.dataset.id, 10);
         this._map[id] = index;
         inputs.each(function(input) {
           if (input.value == id ) {

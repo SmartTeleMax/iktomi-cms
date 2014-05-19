@@ -26,13 +26,16 @@
   <input type="hidden" name="edit_session" value="{{ edit_session }}"/>
   <div class="content">
     <div class="header">
-      <h1>
+      <div style="float:left">
+        <h1>
           <a href="{{ stream_url.qs_set(filter_form.get_data()) }}" style="text-decoration:none;">{{ stream_title }}</a> <br/>
           <a href="{{ stream.url_for(env, 'item', item=item.id) }}" style="font-size: 10px;">{{ item.title or item }}</a>
-      </h1>
-      <div class="flags">
-          {{- item_langs(stream, item, url_name='preview') }}
+        </h1>
+        <div class="flags">
+          {{- item_langs(stream, item, url_name='preview') -}}
+        </div>
       </div>
+
       {{ buttons(is_popup) }}
     </div>
   </div>
