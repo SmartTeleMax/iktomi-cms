@@ -233,28 +233,21 @@
     left: 1px; top:6px;
     }
 
- .button.icon-apply_preview:before{
-     background-image: url(../images/actions/apply_preview.png);
- }
 
- .button.icon-remove:before{
-     background-image: url(../images/actions/remove.png);
- }
-
- .button.icon-search:before{
-     background-image: url(../images/actions/search.png);
- }
-
- .button.icon-twitter:before{
-     background-image: url(../images/actions/twitter.png);
- }
-
- .button.icon-change:before{
-   background-image: url(../images/actions/change.png);
+ .button.icon-edit{
+  padding-left: 28px;
   }
+ .button.icon-edit:before{
+  background-image: url(../images/edit-white.svg);
+  background-position-y: 0px;
+  background-size: 15px;
+  top: 5px;
+  left: 7px;
+ }
+
  .button.icon-publish:before{
   background-image: url(../images/eye-white.svg);
-  background-position-y: 1px;
+  background-position-y: -3px;
   background-size: 19px;
   top: 7px;
   left: 7px;
