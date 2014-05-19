@@ -16,8 +16,13 @@ _all2 = locals().keys()
 # place this after _all2 to add them to __all__
 from .files import AjaxImageField, AjaxFileField
 
+def optional_unicode(value):
+    return unicode(value) if hasattr(value, '__unicode__') else ''
+
 class DiffFieldSetMixIn(object):
+
     def get_diff(form1, form2):
+        # diff for edit log
         fields = sum([x.field_names for x in form1.fields], [])
         diffs = []
         for field_name in fields:
@@ -41,13 +46,13 @@ class DiffFieldSetMixIn(object):
         if diffs:
             if isinstance(form1, Form):
                 label = name = ''
-                before = unicode(form1.item)
-                after = unicode(form2.item)
+                before = lambda: optional_unicode(form1.item)
+                after = lambda: optional_unicode(form2.item)
             else:
                 label = form1.label or form1.name
                 name = form1.input_name
-                before = unicode(form1.clean_value)
-                after = unicode(form2.clean_value)
+                before = lambda: optional_unicode(form1.clean_value)
+                after = lambda: optional_unicode(form2.clean_value)
             return dict(label=label or '',
                         name=name or '',
                         before=before,
@@ -73,6 +78,7 @@ class FieldList(FieldList):
                 ident1 = identity_key(instance=field1.clean_value)[1]
                 ident2 = identity_key(instance=field2.clean_value)[1]
                 return ident1 == ident2
+            # XXX how to implement indication in this case?
             return True
         return False
 
@@ -123,8 +129,8 @@ class FieldList(FieldList):
         if diffs:
             return dict(label=fieldlist1.label or '',
                         name=fieldlist1.input_name,
-                        before='',
-                        after='',
+                        before=lambda: '',
+                        after=lambda: '',
                         children=diffs,
                         changed=True)
 
