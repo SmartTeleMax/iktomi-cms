@@ -148,9 +148,9 @@ var PopupStreamSelect = new Class({
     this.setState();
   },
 
-  show: function(callback) {
+  show: function(callback, url) {
     this.popup.setTitle(this.options.title);
-    this.load(this.options.url, callback);
+    this.load(url || this.options.url, callback);
   },
 
   load: function(url, callback) {
@@ -169,19 +169,24 @@ var PopupStreamSelect = new Class({
   },
 
   patchItemForm: function(){
+    // create popup magic is here!
     var frm = this.popup.contentEl.getElement('.item-form');
     if (frm){
       frm.retrieve('ItemForm')._callback_hook = function(result, callback) {
         /* вызывается при успешном сохранении нового объекта */
         if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
           this._select_items.push(result.item_id);
-          this.show(callback);
+          // Show only created item in stream after redirection
+          var urlWithId = this.options.url + 
+                            (this.options.url.indexOf('?') == -1? '?': '&') + 
+                            'id='+result.item_id;
+          this.show(callback, urlWithId);
         }
       }.bind(this);
     }
   },
 
-  onContentRecieved: function(result, redirect) {
+  onContentRecieved: function(result) {
     this.popup.hide_loader();
     var frm = this.popup.contentEl.getElement('.item-form');
     if (!frm) {
@@ -249,9 +254,9 @@ var PopupStreamSelect = new Class({
     new Request.IFRAME({
       'url': url,
       'onSuccess': function(result) {
-        this.onContentRecieved(result, true);
+        this.onContentRecieved(result);
       }.bind(this)
-    }).post(frm)
+    }).post(frm);
   },
 
   attachContentEvents: function() {
