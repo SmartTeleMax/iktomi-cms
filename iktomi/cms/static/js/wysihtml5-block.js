@@ -29,6 +29,7 @@
 
     function attachIFrame(){
       editor.composer.iframe.contentDocument.addEventListener('click', function(e){
+        e.preventDefault(); // do not handle clicks, especially on links
         $$('.wysihtml5-dialog').setStyle('display', 'none');
       }, true);
       extendRange(editor.composer.iframe.contentWindow)
