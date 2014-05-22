@@ -193,7 +193,9 @@
     // clean up them automatically.
     return function(e){
       var delegate = this.document.getElement('.window-delegate');
-      delegate.fireEvent('delegated-'+type, e);
+      if (delegate) {
+        delegate.fireEvent('delegated-'+type, e);
+      }
     }
   }
 
