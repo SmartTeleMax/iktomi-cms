@@ -300,6 +300,8 @@ class PublishStreamNoState(Stream):
            RevertAction(),
         ]
 
+    list_base_template = 'lang_publish_stream.html'
+
     versions = (('admin', u'Редакторская версия'),
                 ('front', u'Фронтальная версия'),)
     versions_dict = dict(versions)
