@@ -1,0 +1,7 @@
+{% macro external_link(url) %}
+  {%- if url -%}
+    <div class="external-url">
+      <div class="external-url-dropdown"><input type="text" readonly="readonly" value="{{ url }}" class="wide" style="border: 1px solid #ccc" /></div>
+    </div>
+  {%- endif -%}
+{% endmacro %}

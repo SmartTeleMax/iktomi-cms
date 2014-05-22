@@ -197,7 +197,6 @@ textarea.bigtext{
   position: relative;
   }
   .external-url-dropdown{
-    background-image: url(../images/external-link.svg) no-repeat top left;
     display: none;
     position: absolute;
     top: 0;
