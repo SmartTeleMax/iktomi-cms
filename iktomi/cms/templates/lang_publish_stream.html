@@ -10,12 +10,14 @@
       <span class="version-{{ version }}"></span>
     </a>
   {%- endfor -%}
-  <span style="padding-left: 20px;">&nbsp;</span>
-  {%- for lang, lang_name in stream.langs -%}
-    <a class="stream-flag{% if lang == env.lang %} selected{% endif %}"
-       href="{{ stream.url_for(env, lang=lang) }}">
-      <span class="lang-{{ lang }}"></span>
-    </a>
-  {% endfor %}
+  {% if stream.langs is defined and stream.langs %}
+    <span style="padding-left: 20px;">&nbsp;</span>
+    {%- for lang, lang_name in stream.langs -%}
+      <a class="stream-flag{% if lang == env.lang %} selected{% endif %}"
+         href="{{ stream.url_for(env, lang=lang) }}">
+        <span class="lang-{{ lang }}"></span>
+      </a>
+    {% endfor %}
+  {% endif %}
 </div>
 {%- endblock %}
