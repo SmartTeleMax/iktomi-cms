@@ -226,6 +226,8 @@
 
 
   Blocks.register('stream-sortable', function(el){
-    new StreamSortable(el);
+    if (! el.getParent('.popup')){
+      new StreamSortable(el);
+    }
   });
 })();
