@@ -110,6 +110,8 @@ textarea.wysihtml5{
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="undo"] { background-position: -825px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="redo"] { background-position: -850px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="termLink"] { background-position: -875px; }
+.wysihtml5-toolbar a.btn[data-wysihtml5-command="supplementLink"] { background-position: -900px; }
+.wysihtml5-toolbar a.btn[data-wysihtml5-command="docLink"] { background-position: -925px; }
 .wysihtml5-menu a[data-wysihtml5-command="h1"] { font-size: 1.4em; }
 .wysihtml5-menu a[data-wysihtml5-command="h2"] { font-size: 1.3em; }
 .wysihtml5-menu a[data-wysihtml5-command="h3"] { font-size: 1.2em; }
