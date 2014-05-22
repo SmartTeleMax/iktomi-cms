@@ -60,7 +60,7 @@ class StaticPacker(WebHandler):
                           partial(self.import_css, base_url, base_path),
                           data)
 
-            data = re.sub(r'url\(?([^\)]+)\)',
+            data = re.sub(r'url\(([^\)]+)\)',
                           partial(self.fix_url, base_url),
                           data)
 
