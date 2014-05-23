@@ -1,6 +1,7 @@
 <table class="fieldlist init-block{% if widget.classname %} {{ widget.classname }}{% endif %}" id="{{ field.id }}"
        data-input-name="{{ field.input_name }}"
        data-block-name="fieldlist"
+       data-new-block-position="{{widget.new_block_position}}"
        data-template="{{ widget.render_template_field()|forceescape }}"
        {%- if readonly %} data-readonly="readonly"{% endif %}
        {%- if field.order %} data-order="true"{% endif %}

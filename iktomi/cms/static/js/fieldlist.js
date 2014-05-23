@@ -9,13 +9,17 @@ FieldList.prototype = {
     this.$events = {}; // XXX is not copied
     this.template = template;
     this.inputName = this.container.dataset.inputName;
+    this.newBlockPosition = this.container.dataset.newBlockPosition;
+    if (!this.newBlockPosition || this.newBlockPosition === 'None') {
+      this.newBlockPosition = 'after';
+    }
     this.order = order;
     this.container.store('widget', this);
     this.limit = limit;
     this.currentCount = this.len();
     this.addBtn = this.btn('#add', 'button w-button', 'Добавить', this.add.bind(this));
     if (allowCreate){
-        this.addBtn.inject(this.container, 'after');
+        this.addBtn.inject(this.container, this.newBlockPosition);
     }
     this.allowDelete = allowDelete;
 
@@ -131,7 +135,14 @@ FieldList.prototype = {
     this.installDeleteBtn(deleteBtnTd, line);
     fieldTd.adopt(new Element('input', {'type': 'hidden', name: this.inputName + '-indeces', value: next}));
 
-    this.container.getFirst().adopt(line);
+    
+    if (this.newBlockPosition === 'before' && this.items().length > 0) {
+      var first_line = this.container.getFirst().getFirst();
+      line.inject(first_line, 'before');
+    } else {
+      this.container.getFirst().adopt(line);  
+    }
+
     line.highlight('#fefeb0', '#fafafa');
 
     Blocks.init(fieldTd);
