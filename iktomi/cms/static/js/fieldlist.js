@@ -9,10 +9,7 @@ FieldList.prototype = {
     this.$events = {}; // XXX is not copied
     this.template = template;
     this.inputName = this.container.dataset.inputName;
-    this.newBlockPosition = this.container.dataset.newBlockPosition;
-    if (!this.newBlockPosition || this.newBlockPosition === 'None') {
-      this.newBlockPosition = 'after';
-    }
+    this.newBlockPosition = this.container.dataset.newBlockPosition || 'after';;
     this.order = order;
     this.container.store('widget', this);
     this.limit = limit;
