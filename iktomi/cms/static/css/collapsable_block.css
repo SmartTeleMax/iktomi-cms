@@ -1,10 +1,10 @@
-.border {
+.collapsable {
     border:1px solid #ccc;
     -moz-border-radius:5px;
     -webkit-border-radius: 5px;
     padding:3px 5px;
     margin-bottom:10px;
-}
+    }
 
 .collapsable .block_title{
     cursor:pointer;
@@ -35,4 +35,8 @@
 .form .collapsable-content>.form-row:last-child,
 .form .form-row.collapsable{
     border-bottom: none;
+    }
+
+.borderless{
+    border: none;
     }

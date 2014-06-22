@@ -41,7 +41,7 @@
 {% endmacro %}
 
 {% macro item_langs(stream, item, url_name="item") %}
-  {%- if stream.langs is defined -%}
+  {%- if stream.langs is defined and stream.items_are_i18n -%}
     <span style="padding-left: 20px;">&nbsp;</span>
     {%- for lang, lang_name in stream.langs %}
       {%- if lang in item._iktomi_langs %}

@@ -74,6 +74,10 @@ class I18nStreamMixin(object):
              ('en', u'Английский')]
     langs_dict = dict(langs)
 
+    # If any item in one language have a pair in other language
+    # Basically, if it is instance of iktomi.cms.publishing.model.WithLanguage
+    items_are_i18n = True
+
     list_base_template = 'lang_publish_stream.html'
 
     def uid(self, env, version=True):
