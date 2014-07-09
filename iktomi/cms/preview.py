@@ -5,8 +5,8 @@ from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
-from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.cms.item_lock import ItemLock
+from iktomi.cms.loner import Loner
 
 
 class PreviewHandler(GetAction):
@@ -18,9 +18,16 @@ class PreviewHandler(GetAction):
     title = u'Предпросмотр'
 
     @property
+    def PrepareItemHandler(self):
+        return self.stream.edit_action.PrepareItemHandler
+
+    @property
     def app(self):
-        return web.match('/<int:item>/%s' % self.action, name=self.action) | \
-                    PrepareItemHandler(self) | self
+        if isinstance(self.stream, Loner):
+            prefix = web.prefix('/'+self.action, name=self.action)
+        else:
+            prefix = web.prefix('/<int:item>/'+self.action, name=self.action)
+        return prefix | self.PrepareItemHandler(self) | self
 
     def item_url(self, env, data, item):
         raise NotImplementedError
