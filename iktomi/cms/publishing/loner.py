@@ -35,8 +35,6 @@ class LonerRevertAction(BaseLonerAction, RevertAction):
 
 class PublishLoner(PublishStreamNoState, Loner):
 
-    with_state = False
-
     core_actions = [PublishLonerHandler(),
                     LonerPublishAction(),
                     LonerRevertAction(),
@@ -51,5 +49,13 @@ class PublishLoner(PublishStreamNoState, Loner):
         p = getattr(self.config, 'permissions', {})
         p.setdefault('wheel', 'rwp')
         return p
+
+
+class PublishLonerNoState(PublishLoner):
+
+    core_actions = [PublishLonerHandler(),
+                    LonerPublishAction(),
+                    LonerRevertAction()]
+
 
 

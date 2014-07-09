@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from iktomi import web
 from iktomi.cms.loner import Loner
-from iktomi.cms.publishing.loner import PublishLoner
+from iktomi.cms.publishing.loner import PublishLoner, PublishLonerNoState
 from .i18n_stream import I18nStreamMixin
 
 
@@ -13,12 +12,11 @@ class I18nLonerMixin(I18nStreamMixin):
         return Loner.url_for(self, env, name, **kwargs)
 
 
-#class I18nPublishLonerNoState(I18nLonerMixin, PublishLonerNoState):
-#    pass
+class I18nPublishLonerNoState(I18nLonerMixin, PublishLonerNoState):
+    pass
 
 
 class I18nPublishLoner(I18nLonerMixin, PublishLoner):
-
     pass
 
 
