@@ -13,14 +13,14 @@ class Streams(dict):
                    for name in stream_list)
 
     @classmethod
-    def from_tree(cls, stream_tree, package):
+    def from_tree(cls, stream_tree, package, **kwargs):
         stream_list = []
         for stream in stream_tree:
             if type(stream) in (list, tuple):
                 stream_list += [stream[0] + '.' + s for s in stream[1:]]
             else:
                 stream_list.append(stream)
-        return cls.from_list(stream_list, package)
+        return cls.from_list(stream_list, package, **kwargs)
 
     @staticmethod
     def get_stream(name, package):
@@ -62,12 +62,14 @@ class Streams(dict):
         return result
 
 
-class Loners(dict):
+class Loners(Streams):
+
+    get_stream = None
 
     @classmethod
-    def from_list(cls, loner_list, package, loner_class=Loner):
+    def from_list(cls, stream_list, package, loner_class):
         return cls((name, cls.get_loner(name, package, loner_class)) \
-                   for name in loner_list)
+                   for name in stream_list)
 
     @staticmethod
     def get_loner(name, package, loner_class=Loner):
@@ -76,9 +78,7 @@ class Loners(dict):
         return loner_class(name, module)
 
     def to_app(self):
-        return web.prefix('/loners', name='loners') | web.cases(*[
-            loner.get_handler() for loner in self.values()
-        ])
+        return web.prefix('/loners', name='loners') | self._create_subapp()
 
 
 
