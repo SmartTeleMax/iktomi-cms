@@ -165,9 +165,10 @@ class AjaxImageField(AjaxFileField):
             resizer = ResizeFit()
             img = Image.open(self.clean_value.path)
             img = resizer(img, (100, 100))
+            img = img.convert('RGB')
             img_file = StringIO()
             img.save(img_file, format='jpeg')
-            data = "data:image/png;base64," + \
+            data = "data:image/jpeg;base64," + \
                     img_file.getvalue().encode('base64').replace('\n', '')
             raw_data[self.prefix+'image'] = data
 
