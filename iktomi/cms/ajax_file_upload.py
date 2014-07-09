@@ -26,7 +26,7 @@ class FileUploadHandler(web.WebHandler):
             from pprint import pprint
             sio = StringIO()
             sio.write('No content-length provided! \nHeaders:\n')
-            pprint(request.headers, sio)
+            pprint(request.headers.items(), sio)
             sio.write('\nEnviron:\n')
             pprint(request.environ, sio)
             sio.write('\nTrying to read directly from headers...')
@@ -48,7 +48,7 @@ class FileUploadHandler(web.WebHandler):
     def _save_file(self, env, data, length):
         request = env.request
         return env.file_manager.create_transient(
-                                   request.environ['wsgi.input'],\
+                                   request.body_file_raw,\
                                    request.GET["file"],\
                                    length=length)
 
@@ -72,8 +72,8 @@ class FileUploadHandler(web.WebHandler):
             return env.json({'status': 'failure',
                              'error': 'No Content-Length provided'})
 
-        result = dict(self.save_file(env, data, length),
-                      status="ok")
+        result = dict(status="ok")
+        result.update(self.save_file(env, data, length))
         return env.json(result)
 
 
@@ -97,6 +97,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
     def _collect_related_fields(self, env, form_field, image):
         original_name = env.request.GET["file"]
         ext = os.path.splitext(original_name)[1]
+        ext = ext or ('.' + (image.format or 'jpeg')).lower()
         rel_images = []
         for name in dir(form_field.model):
             rel_field = getattr(form_field.model, name)
@@ -138,13 +139,16 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         form = self.stream.config.ItemForm.load_initial(env, item, initial=initial)
         #form.model = self.stream.get_model(env)
         field = form.get_field(data.field_name)
-        #import pdb; pdb.set_trace()
         if not isinstance(field, AjaxImageField) or \
                 field.model is None:
             return FileUploadHandler.save_file(self, env, data, length)
 
         transient = self._save_file(env, data, length)
-        image = Image.open(transient.path)
+        try:
+            image = Image.open(transient.path)
+        except IOError:
+            return {'status': 'failure',
+                    'error': 'Invalid image'}
 
         rel_images = self._collect_related_fields(env, field, image)
 

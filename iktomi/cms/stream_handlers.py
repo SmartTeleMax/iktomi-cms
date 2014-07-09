@@ -196,7 +196,11 @@ class PrepareItemHandler(web.WebHandler):
             item_url = stream.url_for(env, 'item')(
                 data.filter_form.get_data())
             return see_other(item_url)
-        prepare_lock_data(env, data, data.item if self.action.item_lock else None)
+
+        if self.action.item_lock:
+            prepare_lock_data(env, data, data.item)
+        else:
+            data.edit_session = data.owner_session = data.lock_message = ''
         return self.next_handler(env, data)
     __call__ = prepare_item_handler
 
@@ -216,10 +220,13 @@ class EditItemHandler(StreamAction):
                           convs={'noneint': NoneIntConv})
     @property
     def app(self):
-        return self.app_prefix | self.PrepareItemHandler(self) | web.cases(
-                web.match('', '') | self,
+        # Be careful, put prepare handler only after match! Otherwise it brakes
+        # file upload (yes, its not obvious!)
+        prepare =  self.PrepareItemHandler(self)
+        return self.app_prefix | web.cases(
+                web.match('', '') | prepare | self,
                 web.match('/autosave', 'autosave') | \
-                        web.method('POST', strict=True) | self.autosave
+                        web.method('POST', strict=True) | prepare |self.autosave
             )
 
     def create_allowed(self, env):

@@ -28,7 +28,10 @@ class PrepareLonerHandler(PrepareItemHandler):
         data.filter_form = stream.get_filter_form(env) # XXX
 
         data.item = self.retrieve_item(env, None)
-        prepare_lock_data(env, data, data.item if self.action.item_lock else None)
+        if self.action.item_lock:
+            prepare_lock_data(env, data, data.item)
+        else:
+            data.edit_session = data.owner_session = data.lock_message = ''
         return self.next_handler(env, data)
     __call__ = prepare_item_handler
 
@@ -39,10 +42,11 @@ class LonerHandler(EditItemHandler):
 
     @property
     def app(self):
-        return self.PrepareItemHandler(self) | web.cases(
-                web.match('', '') | self,
+        prepare = self.PrepareItemHandler(self)
+        return prepare | web.cases(
+                web.match('', '') | prepare | self,
                 web.match('/autosave', 'autosave') | \
-                        web.method('POST', strict=True) | self.autosave
+                        web.method('POST', strict=True) | prepare | self.autosave
             )
 
 
