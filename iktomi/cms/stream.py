@@ -2,7 +2,6 @@
 
 import logging, warnings
 
-from sqlalchemy.orm.util import identity_key
 from webob.exc import HTTPForbidden
 from jinja2 import Markup
 
@@ -218,6 +217,12 @@ class Stream(object):
         p = getattr(self.config, 'permissions', {})
         p.setdefault('wheel', 'rwxcdp')
         return p
+
+    @cached_property
+    def edit_action(self):
+        for action in self.actions:
+            if action.action=='item':
+                return action
 
     @cached_property
     def list_edit_action(self):

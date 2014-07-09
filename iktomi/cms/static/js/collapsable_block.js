@@ -27,7 +27,13 @@ var CollapsableForm = new Class({
       for (var j=0; j<els.length; j++){
         var el = els[j];
         var value = el?(el.get('value') || el.get('text')):null;
+        if (el && el.tagName == 'TEXTAREA' && el.hasClass('wysihtml5')){
+          value = value.replace(/<\/?[^>]+(>|$)/g, " ");
+        }
         if (value){
+          if (value.length > 90){
+              value = value.substr(0, 90) + '…';
+          }
           var title = this.block.getElement('h2');
           title = title.getElement('span') || title;
           title.set('text', value);
