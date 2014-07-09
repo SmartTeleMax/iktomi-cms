@@ -5,7 +5,7 @@ from iktomi.utils.storage import VersionedStorage
 from iktomi.cms.stream import decode_stream_uid
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
-from iktomi.cms.stream_handlers import PrepareItemHandler
+from iktomi.cms.loner import Loner
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
 
 
@@ -17,12 +17,18 @@ class EditLogHandler(GetAction):
     cls = 'edit-log'
     action = 'edit_log'
     title = u'Журнал изменений'
-    PrepareItemHandler = PrepareItemHandler
+
+    @property
+    def PrepareItemHandler(self):
+        return self.stream.edit_action.PrepareItemHandler
 
     @property
     def app(self):
-        return web.prefix('/<int:item>/log', name=self.action) | \
-            self.PrepareItemHandler(self) | web.cases(
+        if isinstance(self.stream, Loner):
+            prefix = web.prefix('/log', name=self.action)
+        else:
+            prefix = web.prefix('/<int:item>/log', name=self.action)
+        return prefix | self.PrepareItemHandler(self) | web.cases(
                 web.match('') | self,
                 web.match('/<int:log_id>', 'entry') | self.log_entry,
                 )
@@ -74,6 +80,9 @@ class EditLogHandler(GetAction):
                      .filter_by(id=data.log_id)\
                      .first()
 
+        if log is None:
+            raise HTTPNotFound()
+
         rel_stream_name, params = decode_stream_uid(log.stream_name)
         if rel_stream_name not in env.streams:
             # Deleted or renamed stream
@@ -86,6 +95,7 @@ class EditLogHandler(GetAction):
 
         form1 = form_cls.load_initial(env, data.item, initial={})
         form2 = form_cls.load_initial(env, data.item, initial={})
+        form1.model = form2.model = rel_stream.get_model(env)
 
         form1.accept(log.before)
         form2.accept(log.after)
@@ -106,3 +116,5 @@ class EditLogHandler(GetAction):
                                            stream=self.stream,
                                            item=data.item,
                                            log_type=self.log_type_title(log)))
+
+
