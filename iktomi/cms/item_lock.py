@@ -42,8 +42,9 @@ class ItemLock(object):
         return os.urandom(5).encode('hex')
 
     @staticmethod
-    def item_global_id(obj):
-        if hasattr(obj, 'item_global_id'):
+    def item_global_id(obj, view_in_obj=True):
+        # XXX this look to the item is hacky
+        if hasattr(obj, 'item_global_id') and view_in_obj:
             return obj.item_global_id()
         cls, ident = sqlalchemy.orm.util.identity_key(instance=obj)
         ident = '-'.join(map(str, ident))

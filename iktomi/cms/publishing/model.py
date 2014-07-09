@@ -126,6 +126,9 @@ class WithLanguage(object):
 
 class AdminWithLanguage(WithLanguage):
 
+    def _create_version(self, cls):
+        return cls(id=self.id)
+
     def _create_versions(self):
         # be careful! makes flush!
         db = object_session(self)
@@ -137,9 +140,9 @@ class AdminWithLanguage(WithLanguage):
 
         # The first language is default. It is used as id autoincrement
         if self.models.lang != main_lang and self.id is None:
-            # XXX self.models is not an interface!
-            ru = getattr(self.models,
-                         modelname + main_lang.title())()
+            model = getattr(self.models,
+                            modelname + main_lang.title())
+            ru = self._create_version(model)
             # Flush ru model first to get autoincrement id.
             # Do not flush english model yet, but return it to pending
             # state after the flush
@@ -160,7 +163,7 @@ class AdminWithLanguage(WithLanguage):
                 model = getattr(self.models, modelname + lang.title())
                 item = db.query(model).get(self.id)
                 if item is None:
-                    item = model(id=self.id)
+                    item = self._create_version(model)
                     db.add(item)
 
             if not item._front_item:
@@ -171,8 +174,9 @@ class AdminWithLanguage(WithLanguage):
             # to force queries in right order aloso on the front
             db.flush()
 
-        if self.state is None or self.state == item.ABSENT:
-            self.state = self.PRIVATE
+        if hasattr(self, 'state'): # XXX or isinstance check?
+            if self.state is None or self.state == item.ABSENT:
+                self.state = self.PRIVATE
 
 
 # ==============   Repicated models
@@ -211,7 +215,11 @@ class _FrontReplicated(object):
         return self._admin_item
 
     def item_global_id(self):
-        return ItemLock.item_global_id(self._admin_item)
+        gid = ItemLock.item_global_id(self, view_in_obj=False)
+        assert gid.startswith(self.__class__.__module__)
+        return gid.replace(self.__class__.__module__, 
+                           self._admin_model.__class__.__module__, 1)
+        #return ItemLock.item_global_id(self._admin_item)
 
 
 class FrontReplicated(ReplicatedVersions, _FrontReplicated):
