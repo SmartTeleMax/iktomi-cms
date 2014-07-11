@@ -8,10 +8,10 @@
        {%- if field.max_length %} data-max-length="{{ field.max_length }}"{% endif -%}
        >
     <tbody>
-    {% for index in field.form.raw_data.getall(field.indeces_input_name) %}
+    {% for index in field.form.raw_data.getall(field.indices_input_name) %}
         <tr class="fieldlist-item">
             <td class="fieldlist-cell">
-                <input type="hidden" name="{{ field.indeces_input_name }}" value="{{ index }}" />
+                <input type="hidden" name="{{ field.indices_input_name }}" value="{{ index }}" />
                 {% set f = field.field(name=index) %}
                 {% if f.error %}
                 <div>

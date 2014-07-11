@@ -26,7 +26,7 @@ FieldList.prototype = {
   },
 
   len: function() {
-    return this.container.getElements('[name=' + this.inputName + '-indeces]').length;
+    return this.container.getElements('[name=' + this.inputName + '-indices]').length;
   },
 
   tbody: function() {
@@ -107,7 +107,7 @@ FieldList.prototype = {
 
   newLine: function(){
     var next = 0;
-    this.container.getElements('[name=' + this.inputName + '-indeces]').each(function(input){
+    this.container.getElements('[name=' + this.inputName + '-indices]').each(function(input){
       var value = parseInt(input.value);
       if (value >= next) {
         next = value;
@@ -130,7 +130,7 @@ FieldList.prototype = {
     }
     var deleteBtnTd = new Element('td', {'class':'fieldlist-btns'}).inject(line);
     this.installDeleteBtn(deleteBtnTd, line);
-    fieldTd.adopt(new Element('input', {'type': 'hidden', name: this.inputName + '-indeces', value: next}));
+    fieldTd.adopt(new Element('input', {'type': 'hidden', name: this.inputName + '-indices', value: next}));
 
     
     if (this.newBlockPosition === 'before' && this.items().length > 0) {

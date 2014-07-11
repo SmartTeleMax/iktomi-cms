@@ -86,9 +86,9 @@ class FieldList(FieldList):
         reordered = False
         fields1 = []
         fields2 = []
-        for index in fieldlist1.form.raw_data.getall(fieldlist1.indeces_input_name):
+        for index in fieldlist1.form.raw_data.getall(fieldlist1.indices_input_name):
             fields1.append(fieldlist1.field(name=index))
-        for index in fieldlist2.form.raw_data.getall(fieldlist2.indeces_input_name):
+        for index in fieldlist2.form.raw_data.getall(fieldlist2.indices_input_name):
             fields2.append(fieldlist2.field(name=index))
 
         diffs = []
