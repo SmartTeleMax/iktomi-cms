@@ -3,11 +3,11 @@
 import logging, warnings
 
 from webob.exc import HTTPForbidden
+from webob.multidict import MultiDict
 from jinja2 import Markup
 
 from iktomi.utils import cached_property
 from collections import OrderedDict
-from iktomi.utils.mdict import MultiDict
 from iktomi.utils.storage import VersionedStorage
 from iktomi import web
 from iktomi.cms.forms import Form

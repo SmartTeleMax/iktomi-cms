@@ -3,6 +3,7 @@ import inspect
 import json
 from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
+from webob.multidict import MultiDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy.orm.util import identity_key
@@ -10,10 +11,8 @@ from sqlalchemy.orm.util import identity_key
 from iktomi.utils import cached_property
 from iktomi import web
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
-from iktomi.utils.mdict import MultiDict
 from iktomi.web.url_converters import Integer as IntegerConv, \
                         Converter as BaseConv, ConvertError
-from iktomi.forms import convs
 
 
 from .item_lock import lock_template_data, prepare_lock_data
