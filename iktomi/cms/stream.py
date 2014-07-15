@@ -129,7 +129,7 @@ class FilterForm(Form):
             compact_data = MultiDict()
             for key, value in data.iteritems():
                 if value:
-                    compact_data.append(key, value)
+                    compact_data.add(key, value)
             data = compact_data
         return data
 
