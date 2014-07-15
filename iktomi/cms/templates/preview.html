@@ -42,6 +42,13 @@
         <div class="flags">
           {{- item_langs(stream, item, url_name='preview') -}}
         </div>
+        <ul class="preview-width init-block" data-block-name="preview-width">
+          <li data-device="desktop" class="active"></li>
+          <li data-device="mobile" data-width="500"></li>
+          <li data-device="tablet" data-width="1000"></li>
+          <li data-device="laptop" data-width="1200"></li>
+          <li data-device="desktop" data-width=""></li>
+        </ul>
 
         {{- external_link(external_url) -}}
       </div>

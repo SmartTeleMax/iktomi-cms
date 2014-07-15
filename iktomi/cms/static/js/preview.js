@@ -16,3 +16,15 @@ function unpublishedItems(items){
     alert(text);
   }).inject(document.getElement('.buttons'), 'top');
 }
+
+
+Blocks.register('preview-width', function(el){
+  el.addEvent('click', function(e){
+    var target = e.target;
+    if (target.tagName == 'LI' && !target.hasClass('active')){
+      var iframe = target.getParent('form').getNext('iframe');
+      iframe.setStyle('width', target.dataset.width || '100%');
+      el.getElement('.active').dataset.device = target.dataset.device;
+    }
+  })
+})
