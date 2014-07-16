@@ -1,0 +1,2 @@
+recursive-include iktomi/cms/templates *.html
+recursive-include iktomi/cms/static *
