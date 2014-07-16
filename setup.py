@@ -13,9 +13,22 @@ setup(
                     'iktomi.cms.streams',
                     'iktomi.cms.utils'],
 
+    package_dir={
+        'iktomi.cms': 'iktomi/cms'
+    },
     package_data={
-        'iktomi.cms': ['cms/templates/*',
-                       'cms/static/*'],
+        'iktomi.cms': ['templates/*.html',
+                       'templates/*/*.html',
+                       'templates/*/*/*.html',
+                       'static/js/*.js',
+                       'static/js/*/*.js',
+                       'static/js/Manifest',
+                       'static/css/*.css',
+                       'static/css/*/*.css',
+                       'static/css/Manifest',
+                       'static/images/*.*',
+                       'static/images/*/*.*',
+                       ],
     },
     requires=[
         'webob (>1.1b1)',
