@@ -7,13 +7,17 @@
      {%- if readonly %} data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
   {% for v in options %}
-    <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
+    {%- if v.existing is not defined or v.existing %}
+      <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
+    {%- endif -%}
   {% endfor %}
   <div>
     <table class="w-popup-stream-select-items">
       <tbody id="{{ widget.id }}-div">
         {% for v in options %}
-          {{ widget.item_row(v, loop.cycle('odd', 'even')) }}
+          {%- if v.existing is not defined or v.existing %}
+            {{ widget.item_row(v, loop.cycle('odd', 'even')) }}
+          {%- endif -%}
         {% endfor %}
       </tbody>
     </table>
