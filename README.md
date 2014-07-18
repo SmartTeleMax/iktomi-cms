@@ -109,3 +109,8 @@
   Allows to combine files from iktomi-cms pack and app-specific
   user-defined ones.
 
+## What next?
+
+* Docs
+* Tests
+* Try to use react forms
