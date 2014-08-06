@@ -317,7 +317,8 @@
 .compact .button[class*="icon"]{
     width: 0px;
     overflow: hidden;
-    /*font-size: 0;*/
+    font-size: 0;
+    line-height: 15px;
     padding-right: 2px;
     text-indent: 3px;
     height: 16px;

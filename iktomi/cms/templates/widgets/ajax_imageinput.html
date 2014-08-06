@@ -6,7 +6,7 @@
   <img class="thumbnail" src="{{ value.url if value else '' }}" class='value'
        {%- if field.retina and field.size %} style="max-width: {{ field.size[0]//2 }}px"{% endif %}
        {%- if not value %} style="display: none"{% endif %}/>
-  {%- if field.size and field.fill_from %}
+  {%- if field.size and field.fill_from and field.crop %}
     <a class="button icon-crop compact-button"
        {%- if not value %} style="display: none"{% endif %} title="Кадрировать">Кадрировать</a>
   {% endif %}
