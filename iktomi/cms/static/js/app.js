@@ -242,4 +242,7 @@
     }
     scrollParent.scrollTop += offset2 - offset1;
   }
+
+  // clean up localStorage
+  lscache.flush(true);
 })();
