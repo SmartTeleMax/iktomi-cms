@@ -149,6 +149,9 @@ class Stream(object):
 
     buttons = ['save', 'save_and_continue', 'save_and_add_another', 'delete']
 
+    lock_back_title = None
+    lock_back_help = None
+
     def __init__(self, module_name, config):
         self.config = config
         self.module_name = module_name
@@ -293,6 +296,9 @@ class Stream(object):
         '''Preprocessor for template variables.
            Can be overriden by descedant classes.'''
         return template_data
+
+    def lock_back_url(self, env, item, filter_form):
+        return self.url_for(env).qs_set(filter_form.get_data())
 
     def order(self, query):
         return query

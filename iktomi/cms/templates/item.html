@@ -82,7 +82,7 @@
           {%- if is_popup or not list_allowed %}
             {{- stream_title }}
           {%- else -%}
-            <a href="{{ stream_url.qs_set(filter_form.get_data()) }}">{{ stream_title }}</a>
+            <a href="{{ stream_url }}">{{ stream_title }}</a>
           {%- endif -%}
         </h1>
         {% endblock %}
@@ -145,9 +145,6 @@
     </div>
   </div>
 
-  {%- if item_lock -%}
-    {% from 'macros/item_lock.html' import main as item_lock with context %}
-    {{ item_lock(item, stream_url, lock_timeout, lock_message, edit_session) }}
-  {%- endif -%}
+  {% if item_lock %}{{ item_lock.render() }}{% endif %}
 </form>
 {% endblock %}

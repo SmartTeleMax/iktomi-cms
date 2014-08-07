@@ -8,7 +8,9 @@ ItemLock.prototype = {
 
   options: {
     'maxFailedAttempts': 3,
-    'timeout': 60
+    'timeout': 60,
+    'backTitle': 'Перейти к списку',
+    'backHelp': 'Переход на страницу со списком объектов'
   },
 
   initialize: function(el, options){
@@ -45,7 +47,7 @@ ItemLock.prototype = {
     return [
         ['Захватить блокировку', this.forceLock, 'Изменения, внесённые другим редактором, будут потеряны при сохранении'],
         ['Захватить блокировку с перезагрузкой', this.forceLockWithReload, 'Внесённые вами изменения будут потеряны'],
-        ['Перейти к списку', this.goToList, 'Переход на страницу со списком объектов']
+        [this.options.backTitle, this.goToList, this.options.backHelp]
     ];
   },
 

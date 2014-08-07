@@ -164,28 +164,42 @@ class ItemLock(object):
         return value or None
 
 
-def prepare_lock_data(env, data, item):
-    request = env.request
-    data.edit_session = request.POST.get('edit_session',
-                                         request.GET.get('edit_session',
-                                                         ''))
-    data.owner_session = data.lock_message = ''
-    if item is not None and item.id is not None:
-        try:
-            data.edit_session = env.item_lock.update_or_create(
-                item, data.edit_session)
-        except ModelLockedByOther, e:
-            data.lock_message = unicode(e)
-            data.owner_session = e.edit_session
-        except ModelLockError, e:
-            data.lock_message = unicode(e)
+class ItemLockData(object):
 
-def lock_template_data(env, data, item):
-    d = dict(item_lock=True,
-             lock_timeout=env.cfg.MODEL_LOCK_RENEW)
-    if item is not None and item.id is not None:
-        return dict(d,
-                    item_global_id=ItemLock.item_global_id(item),
-                    lock_message=data.lock_message,
-                    edit_session=data.edit_session or data.owner_session)
-    return d
+    def __init__(self, env, stream, item, filter_form,
+                 edit_session, owner_session, message):
+        self.env, self.filter_form, self.stream, self.item = \
+                env, filter_form, stream, item
+        self.edit_session, self.owner_session, self.message = \
+                edit_session, owner_session, message
+
+    def render(self):
+        env, stream = self.env, self.stream
+        back_url = stream.lock_back_url(env, self.item, self.filter_form)
+        global_id = ItemLock.item_global_id(self.item)
+        tdata = dict(self.__dict__,
+                     global_id=global_id,
+                     lock_timeout=env.cfg.MODEL_LOCK_RENEW,
+                     back_title = stream.lock_back_title,
+                     back_help = stream.lock_back_help,
+                     back_url = back_url)
+        return env.render_to_string("macros/item_lock", tdata)
+
+    @classmethod
+    def for_item(cls, env, stream, item, filter_form=None):
+        request = env.request
+        edit_session = request.POST.get('edit_session',
+                                        request.GET.get('edit_session', ''))
+        owner_session = message = ''
+        if item is not None and item.id is not None:
+            try:
+                edit_session = env.item_lock.update_or_create(
+                    item, edit_session)
+            except ModelLockedByOther, e:
+                message = unicode(e)
+                owner_session = e.edit_session
+            except ModelLockError, e:
+                message = unicode(e)
+        return cls(env, stream, item, filter_form,
+                   edit_session, owner_session, message)
+

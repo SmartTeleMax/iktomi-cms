@@ -1,16 +1,16 @@
-{% macro main(item, stream_url, lock_timeout, lock_message, edit_session) %}
 <input type="hidden" name="edit_session" value="{{ edit_session }}"/>
 <div style="display: none" class="init-block item-lock" data-block-name="item-lock"
      data-update-lock-url="{{ url_for('update_lock', item_id='GLOBAL_ID', edit_session='EDIT_SESSION') }}"
      data-force-lock-url="{{ url_for('force_lock', item_id='GLOBAL_ID') }}"
      data-release-lock-url="{{ url_for('release_lock', item_id='GLOBAL_ID', edit_session='EDIT_SESSION') }}"
-     data-list-url="{{ stream_url }}"
+     data-list-url="{{ back_url }}"
      data-timeout="{{ lock_timeout }}"
-     {%- if not item.id %} data-no-start="true" {% endif -%}
+     {%- if not item.id %} data-no-start="true"{% endif %}
 
-     data-global-id="{{ item_global_id }}"
-     data-edit-session="{{ edit_session }}"
+     data-global-id="{{ global_id }}"
+     data-edit-session="{{ edit_session or owner_session }}"
      data-item-title="{{ quote_js(item.__unicode__()) }}"
-     data-lock-message="{{ lock_message }}">
+     data-lock-message="{{ message }}"
+     {%- if back_title %} data-back-title="{{ back_title }}" {% endif %}
+     {%- if back_help %} data-back-help="{{ back_help }}" {% endif %}>
 </div>
-{% endmacro %}

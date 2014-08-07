@@ -5,7 +5,6 @@ from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
-from iktomi.cms.item_lock import ItemLock
 from iktomi.cms.loner import Loner
 
 
@@ -50,6 +49,7 @@ class PreviewHandler(GetAction):
                      roles=env.user.roles,
                      item=item,
                      item_url=self.item_url(env, data, item),
+                     item_lock = data.item_lock,
                      external_url=self.external_url(env, data, item),
                      stream=self.stream,
                      stream_url=self.stream.url_for(env),
@@ -59,13 +59,6 @@ class PreviewHandler(GetAction):
                      actions=[x for x in self.stream.actions 
                               if x.for_item and x.is_visible(env, item)
                                 and x.action not in ('preview', 'delete')])
-        if self.item_lock:
-            tdata = dict(tdata,
-                         item_lock=self.item_lock,
-                         item_global_id=ItemLock.item_global_id(item),
-                         lock_message=data.lock_message,
-                         edit_session=data.edit_session or data.owner_session,
-                         lock_timeout=env.cfg.MODEL_LOCK_RENEW)
         return env.render_to_response('preview', tdata)
 
     __call__ = preview

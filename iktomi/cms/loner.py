@@ -2,7 +2,7 @@
 from iktomi.utils import cached_property
 from iktomi import web
 from .stream_handlers import EditItemHandler, PrepareItemHandler, insure_is_xhr
-from .item_lock import prepare_lock_data
+from .item_lock import ItemLockData
 from .stream import Stream
 
 class PrepareLonerHandler(PrepareItemHandler):
@@ -28,10 +28,7 @@ class PrepareLonerHandler(PrepareItemHandler):
         data.filter_form = stream.get_filter_form(env) # XXX
 
         data.item = self.retrieve_item(env, None)
-        if self.action.item_lock:
-            prepare_lock_data(env, data, data.item)
-        else:
-            data.edit_session = data.owner_session = data.lock_message = ''
+        self.take_lock(env, data)
         return self.next_handler(env, data)
     __call__ = prepare_item_handler
 
@@ -53,6 +50,9 @@ class LonerHandler(EditItemHandler):
 class Loner(Stream):
 
     core_actions = [LonerHandler()]
+
+    lock_back_title = u'Вернуться на главную'
+    lock_back_help = u'Вернуться на главную страницу'
 
     #def uid(self, env, version=True):
     #    # Attention! Be careful!
@@ -78,4 +78,6 @@ class Loner(Stream):
         p.setdefault('wheel', 'rw')
         return p
 
+    def lock_back_url(self, env, item, filter_form):
+        return env.root.index
 

@@ -15,7 +15,7 @@ from iktomi.web.url_converters import Integer as IntegerConv, \
                         Converter as BaseConv, ConvertError
 
 
-from .item_lock import lock_template_data, prepare_lock_data
+from .item_lock import ItemLockData
 from .item_lock import ModelLockError, ItemLock
 from .stream_actions import StreamAction
 from .flashmessages import flash
@@ -173,6 +173,17 @@ class PrepareItemHandler(web.WebHandler):
     def retrieve_item(self, env, item):
         return self.action.stream.item_query(env).filter_by(id=item).first()
 
+    def take_lock(self, env, data):
+        if self.action.item_lock:
+            stream = self.action.stream
+            data.item_lock = ItemLockData.for_item(env, stream, data.item,
+                                                   data.filter_form)
+            data.lock_message = data.item_lock.message
+            data.edit_session = data.item_lock.edit_session
+        else:
+            data.item_lock = None
+            data.lock_message = data.edit_session = ''
+
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
         insure_is_xhr(env)
@@ -196,10 +207,7 @@ class PrepareItemHandler(web.WebHandler):
                 data.filter_form.get_data())
             return see_other(item_url)
 
-        if self.action.item_lock:
-            prepare_lock_data(env, data, data.item)
-        else:
-            data.edit_session = data.owner_session = data.lock_message = ''
+        self.take_lock(env, data)
         return self.next_handler(env, data)
     __call__ = prepare_item_handler
 
@@ -304,6 +312,8 @@ class EditItemHandler(StreamAction):
             item = stream.get_model(env)(**initial)
             # Don't add it to session since we don't know yet whether it should
             # be saved (there can be errors in form).
+            if data.item_lock:
+                data.item_lock.item = item # XXX
         else:
             save_allowed = self.save_allowed(env, item)
             delete_allowed = self.delete_allowed(env, item)
@@ -436,17 +446,20 @@ class EditItemHandler(StreamAction):
 
                              menu=stream.module_name,
                              stream_url=stream_url,
+
+                             item_lock=data.item_lock,
+
                              actions=[x for x in stream.actions 
                                       if x.for_item and x.is_visible(env, item)],
                              item_buttons=stream.buttons,
+
                              list_allowed=self.stream.has_permission(env, 'x'),
                              autosave_allowed=autosave_allowed,
                              create_allowed=create_allowed,
                              save_allowed=save_allowed,
                              delete_allowed=delete_allowed,
+
                              is_popup=('__popup' in request.GET))
-        if self.item_lock:
-            template_data.update(lock_template_data(env, data, item))
 
         template_data = stream.process_item_template_data(env, template_data)
         template_data = self.process_item_template_data(env, template_data)
