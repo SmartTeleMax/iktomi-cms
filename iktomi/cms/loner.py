@@ -2,7 +2,6 @@
 from iktomi.utils import cached_property
 from iktomi import web
 from .stream_handlers import EditItemHandler, PrepareItemHandler, insure_is_xhr
-from .item_lock import ItemLockData
 from .stream import Stream
 
 class PrepareLonerHandler(PrepareItemHandler):
@@ -40,7 +39,7 @@ class LonerHandler(EditItemHandler):
     @property
     def app(self):
         prepare = self.PrepareItemHandler(self)
-        return prepare | web.cases(
+        return web.cases(
                 web.match('', '') | prepare | self,
                 web.match('/autosave', 'autosave') | \
                         web.method('POST', strict=True) | prepare | self.autosave
