@@ -12,7 +12,11 @@
   </tr>
   <tr class="subfields">
       {% for subfield in field.fields %}
-        <td{% if subfield.error %} class="invalid"{% endif %}>
+
+        {%- set changed = field.form.changed_fields is defined and 
+                          subfield.input_name in field.form.changed_fields %}
+        <td class="{% if subfield.error %} invalid{% endif %}
+                   {%- if changed %} changed-after-publication{% endif %}">
           {% if subfield.label %}
             <label for="{{ subfield.id }}">{{ subfield.label }}</label>
           {% endif %}

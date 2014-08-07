@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from webob.multidict import MultiDict
 from iktomi import web
-from iktomi.forms import FieldBlock
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler,\
         DeleteItemHandler, insure_is_xhr, StreamListHandler
 from iktomi.cms.stream import Stream, ListField, FilterForm
@@ -39,6 +37,7 @@ class PublishItemHandler(EditItemHandler):
         #front_env._storage._parent_storage = env
 
         form_cls = self.stream.config.ItemForm
+        # XXX should a form be created in front environment or it is ok now?
         form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
         form.model = self.stream.get_model(env)
         return form

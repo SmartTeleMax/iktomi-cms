@@ -6,6 +6,7 @@ from iktomi.forms.form import Form
 from datetime import datetime, timedelta
 from sqlalchemy import desc
 from sqlalchemy.orm.util import identity_key
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
@@ -75,9 +76,12 @@ class FieldList(FieldList):
     def _is_pair(field1, field2):
         if field1.conv.__class__ == field2.conv.__class__:
             if isinstance(field1.conv, convs.ModelDictConv):
-                ident1 = identity_key(instance=field1.clean_value)[1]
-                ident2 = identity_key(instance=field2.clean_value)[1]
-                return ident1 == ident2
+                try:
+                    ident1 = identity_key(instance=field1.clean_value)[1]
+                    ident2 = identity_key(instance=field2.clean_value)[1]
+                    return ident1 == ident2
+                except UnmappedInstanceError:
+                    pass
             # XXX how to implement indication in this case?
             return True
         return False
