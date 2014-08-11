@@ -8,6 +8,7 @@ from functools import partial
 from os import path
 from iktomi import web
 from iktomi.web import WebHandler
+from react import jsx
 
 from webob.exc import HTTPNotModified
 
@@ -108,9 +109,16 @@ class StaticPacker(WebHandler):
                 files = filter(None, files)
                 files = [x +'.js' for x in files]
             for name in files:
+                mime = 'text/javascript'
+                if ':' in name:
+                    mime, name = name.split(':')
+
                 filename = path.join(root, name)
                 with open(filename) as f:
                     data = f.read().decode('utf-8').strip()
+                    if mime == 'text/jsx':
+                        transformer = jsx.JSXTransformer()
+                        data = transformer.transform_string(data)
                     if not data.endswith(';'):
                         data += ';'
                     content.append(u'/* %s */\n%s' % (json.dumps(name), data))
@@ -121,6 +129,10 @@ class StaticPacker(WebHandler):
         return self.response_with_etag(env.request, content, mimetype='text/javascript')
 
     def _read_manifests(self, env, tp):
+        MIMETYPES = {
+            'js': 'text/javascript',
+            'css': 'text/css',
+        }
         result = []
         for manifest in env.cfg.MANIFESTS.values():
             manifest_filename = path.join(manifest['path'], manifest[tp])
@@ -130,10 +142,14 @@ class StaticPacker(WebHandler):
                 for line in manifest_file:
                     line = line.split('#')[0].strip()
                     if line:
-                        out.append(line)
+                        mime = MIMETYPES[tp]
+                        if ':' in line:
+                            mime, line = line.split(':')
+                        out.append((mime, line))
 
             base_url = manifest['url'] + path.dirname(manifest[tp])
-            out = ['%s/%s.%s' % (base_url, name, tp) for name in out]
+            out = [(mime, '%s/%s.%s' % (base_url, name, tp))
+                   for mime, name in out]
             result += out
         return result
 
@@ -141,23 +157,23 @@ class StaticPacker(WebHandler):
         if getattr(env.cfg, 'RAW_JS', False):
 
             out = self._read_manifests(env, 'js')
-            out = ['<script type="text/javascript" src="%s"></script>' % url
-                   for url in out]
+            out = ['<script type="{}" src="{}"></script>'.format(mime, url)
+                   for mime, url in out]
             return Markup('\n'.join(out))
         else:
             url = env.url_for('js_packer')
-            return Markup('<script type="text/javascript" src="%s"></script>' % url)
+            return Markup('<script type="text/javascript" src="{}"></script>'.format(url))
 
     def css_tag(self, env, media='screen, projection', doctype="xhtml"):
         close = "/" if doctype.lower() == 'xhtml' else ""
         if getattr(env.cfg, 'RAW_CSS', False):
 
             out = self._read_manifests(env, 'css')
-            out = ['<link rel="stylesheet" type="text/css" '
-                   'media="%s" href="%s" %s>' % (media, url, close)
-                   for url in out]
+            out = ['<link rel="stylesheet" type="{}" '
+                   'media="{}" href="{}" {}>'.format(mime, media, url, close)
+                   for mime, url in out]
             return Markup('\n'.join(out))
         else:
             url = env.url_for('css_packer')
             return Markup('<link rel="stylesheet" type="text/css" '\
-                          'media="%s" href="%s" %s>' % (media, url, close))
+                          'media="{}" href="{}" {}>'.format(media, url, close))

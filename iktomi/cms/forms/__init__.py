@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 from webob.multidict import MultiDict
 from time import time
 import struct, os
@@ -65,3 +66,12 @@ class ModelForm(Form, DiffFieldSetMixIn):
             elif field.name:
                 initial[field.name] = getattr(item, field.name)
         return initial
+
+    def json(self):
+        data = {}
+        for field in self.fields:
+            data.update(field.json_data())
+        js = {'data': data,
+              'widgets': [x.widget.json() for x in self.fields]}
+        from pprint import pprint; pprint(js)
+        return json.dumps(js)

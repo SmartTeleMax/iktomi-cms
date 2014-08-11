@@ -1,175 +1,117 @@
-function FieldList(){
-  FieldList.prototype.initialize.apply(this, arguments);
-}
+/** @jsx React.DOM */
 
-FieldList.prototype = {
-
-  initialize: function(container, template, order, allowCreate, allowDelete, limit) {
-    this.container = $(container);
-    this.$events = {}; // XXX is not copied
-    this.template = template;
-    this.inputName = this.container.dataset.inputName;
-    this.newBlockPosition = this.container.dataset.newBlockPosition || 'after';;
-    this.order = order;
-    this.container.store('widget', this);
-    this.limit = limit;
-    this.currentCount = this.len();
-    this.addBtn = this.btn('#add', 'button w-button', 'Добавить', this.add.bind(this));
-    if (allowCreate){
-        this.addBtn.inject(this.container, this.newBlockPosition);
-    }
-    this.allowDelete = allowDelete;
-
-    this.setup();
-
-    this.fireEvent('ready', this);
-  },
-
-  len: function() {
-    return this.container.getElements('[name=' + this.inputName + '-indices]').length;
-  },
-
-  tbody: function() {
-    return this.container.getLast();
-  },
-  items: function() {
-    return this.tbody().getChildren().filter(function(c) {
-      return c.hasClass('fieldlist-item');
-    });
-  },
-  btn: function(href, classname, caption, callback, title) {
-    var el = new Element('a', {href: href, 'class': classname});
-    if(caption){
-      el.set('html', caption);
-    }
-    el.addEvent('click', callback ? callback : $empty);
-    if (title){
-      el.set('title', title);
-    }
-    return el
-  },
-  setup: function() {
-    if(this.currentCount >= this.limit){
-      this.addBtn.addClass('hide');
-    }
-
-    this.items().each(function(tr){
-      this.installDeleteBtn(tr.getLast(), tr);
-      if (this.order) {
-        this.installSortBtns(tr.getLast().getPrevious(), tr);
-      }
-      this.fireEvent('add', tr);
-    }.bind(this));
-  },
-
-  installDeleteBtn: function(wrap, tr) {
-    if(this.allowDelete && !wrap.getElement('a.icon-delete')){
-      wrap.adopt(this.btn('#remove', 'button button-tiny icon-delete', null, function(e){
-        e.stopPropagation(); e.preventDefault();
-        tr.destroy();
-        this.currentCount--;
-        if(this.limit>0 && this.currentCount<this.limit){
-          this.addBtn.removeClass('hide');
+window.FieldList = React.createClass({
+    getInitialState: function() {
+        var value;
+        if (this.props.data){
+            value =this.props.data;
+            delete this.props.data;
+        } else if (this.props.initial) {
+            value = this.props.initial;
+        } else {
+            value = [];
         }
-        this.fireEvent('delete', tr);
-      }.bind(this)));
+        this.key = this.key || -1;
+        //for (var i=value.length; i--;){
+        //    if(!value[i]._key){
+        //      value[i]._key = (this.key--);
+        //    }
+        //}
+ 
+        return {'value': value}
+ 
+    },
+    subWidget: function(data){
+        var prop = _clone(this.props.subwidget);
+        if(data){
+            prop.data = data;
+        } else {
+            prop.data = {};
+            this.key = this.key || -1;
+            prop.data._key = this.key--;
+        }
+ 
+        return (React.DOM[prop.widget]||window[prop.widget])(prop);
+    },
+ 
+    fieldListRow: function(data){
+        var subWidget = this.subWidget(data);
+        return <div className="fieldlist-row" key={subWidget.props.data._key}>
+                {subWidget}
+                <a onClick={this.onUpClick}>↑</a>
+                <a onClick={this.onDownClick}>↓</a>
+                <a onClick={this.onDropClick}>x</a>
+               </div>
+    },
+    render: function(){
+        var ws = [];
+        var value = this.state.value;
+        for (var i=0; i<value.length; i++){
+            var row = this.fieldListRow(value[i])
+            ws.push(row);
+        }
+        this.subWidgets = ws.slice(1);
+        var fields = React.DOM.div({'className': 'fieldlist'}, ws);
+        var addButton = React.DOM.button({onClick: this.onAddClick}, 'Add');
+        return React.DOM.div({},
+                             fields, addButton)
+    },
+    setValue: function(newValue){
+        var value = _mergeObjects(this.state.value, newValue);
+        this.setState({'value': value});
+    },
+    getValue: function(){
+        return this.state.value;
+    },
+    _move: function (arr, oldIndex, newIndex) {
+        if (newIndex >= arr.length) {
+            var k = newIndex - arr.length;
+            while ((k--) + 1) {
+                this.push(undefined);
+            }
+        }
+        arr.splice(newIndex, 0, arr.splice(oldIndex, 1)[0]);
+    },
+    onDownClick: function(e){
+        var index = e.target.getParent('.fieldlist-row').getAllPrevious('.fieldlist-row').length;
+        var value = this.getValue();
+        if(index < value.length-1){
+            this._move(value, index, index+1);
+            this.setValue(value);
+            //this.fireChange();
+        }
+    },
+    onUpClick: function(e){
+        var index = e.target.getParent('.fieldlist-row').getAllPrevious('.fieldlist-row').length;
+        if(index > 0){
+            var value = this.getValue();
+            this._move(value, index, index-1);
+            this.setValue(value);
+            //this.fireChange();
+        }
+    },
+    onDropClick: function(e){
+        var index = e.target.getParent('.fieldlist-row').getAllPrevious('.fieldlist-row').length;
+        var value = this.getValue();
+        value.splice(index, 1);
+        this.setValue(value);
+    },
+    onAddClick: function(e){
+        var value = this.getValue();
+        var params = this.props.subwidget;
+        var newRowValue = this.subWidget().getInitialState().value;
+        value.push(newRowValue)
+        this.setValue(value);
+ 
+        //this.fireChange();
+    },
+    fireChange: function(){
+        // XXX why doesn't this work?
+        var dom = this.getDOMNode()
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent("change", true, true);
+        dom.dispatchEvent(evt);
     }
-  },
-
-  sortUpClick: function(e){
-    e.preventDefault(); e.stopPropagation();
-    var tr = e.target.getParent('tr');
-    var offset1 = tr.offsetTop;
-    var prev = tr.getPrevious('.fieldlist-item');
-    if(prev){
-      tr.inject(prev, 'before').highlight('#fefeb0', '#fafafa');
-    }
-    this.fireEvent('reorder', this.items.bind(this));
-    scrollAfterSort(tr, offset1);
-  },
-
-  sortDownClick: function(e){
-    e.preventDefault(); e.stopPropagation();
-    var tr = e.target.getParent('tr');
-    var offset1 = tr.offsetTop;
-    var next = tr.getNext('.fieldlist-item');
-    if(next){
-      tr.inject(next, 'after').highlight('#fefeb0', '#fafafa');
-    }
-    this.fireEvent('reorder', this.items.bind(this));
-    scrollAfterSort(tr, offset1);
-  },
-
-  installSortBtns: function(wrap, tr) {
-    wrap.adopt(this.btn('#up', 'sort sort-up', '&uarr;', this.sortUpClick.bind(this)));
-    wrap.adopt(this.btn('#down', 'sort sort-down', '&darr;', this.sortDownClick.bind(this)));
-  },
-
-  newLine: function(){
-    var next = 0;
-    this.container.getElements('[name=' + this.inputName + '-indices]').each(function(input){
-      var value = parseInt(input.value);
-      if (value >= next) {
-        next = value;
-      }
-    });
-    next++;
-
-    var t = this.template;
-    var marker = '%' + this.inputName + '-index' + '%';
-    while(t.test(marker)){
-      t = t.replace(marker, next);
-    }
-
-    var line = new Element('tr', {'class':'fieldlist-item'});
-    var fieldTd = new Element('td', {html: t}).inject(line);
-
-    if (this.order) {
-      var sortBtnTd = new Element('td', {'class':'fieldlist-btns'}).inject(line);
-      this.installSortBtns(sortBtnTd, line);
-    }
-    var deleteBtnTd = new Element('td', {'class':'fieldlist-btns'}).inject(line);
-    this.installDeleteBtn(deleteBtnTd, line);
-    fieldTd.adopt(new Element('input', {'type': 'hidden', name: this.inputName + '-indices', value: next}));
-
-    
-    if (this.newBlockPosition === 'before' && this.items().length > 0) {
-      var first_line = this.container.getFirst().getFirst();
-      line.inject(first_line, 'before');
-    } else {
-      this.container.getFirst().adopt(line);  
-    }
-
-    line.highlight('#fefeb0', '#fafafa');
-
-    Blocks.init(fieldTd);
-
-    return line;
-  },
-
-  add: function(e) {
-    e.stopPropagation(); e.preventDefault();
-    this.currentCount++;
-    if(this.limit>0){
-      if(this.currentCount > this.limit)
-        return
-      if(this.currentCount == this.limit)
-        this.addBtn.addClass('hide');
-    }
-
-    var line = this.newLine();
-    this.fireEvent('add', line);
-  }
-
-};
-
-FieldList.implement(Events.prototype);
-
-Blocks.register('fieldlist', function(el){
-  new FieldList(el, el.dataset.template, el.dataset.order,
-                !el.dataset.readonly, // allowCreate
-                !el.dataset.readonly, // allowDelete
-                el.dataset.maxLength);
 });
 
 

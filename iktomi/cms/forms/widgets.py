@@ -200,6 +200,10 @@ class PopupStreamSelect(Select):
         values = filter(None, map(choice_conv.to_python, values))
         return values
 
+    def json(self):
+        return dict(Widget.json(self),
+                    options=[])
+
 
 class PopupFilteredSelect(Select):
 

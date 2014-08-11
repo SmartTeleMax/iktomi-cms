@@ -1,3 +1,5 @@
+JSXTransformer
+react-with-addons.min
 mootools-core-1.4.5-full-compat-yc
 mootools-more-1.4.0.1
 alert
@@ -26,7 +28,6 @@ progressbar
 calendar.compat
 popup_stream_select
 popup_filtered_select
-fieldlist
 tabbed_fieldset
 label_select
 version_switcher
@@ -40,3 +41,9 @@ longpress
 pixastic
 canvas-to-blob
 crop
+
+# ReactJS
+text/jsx:fieldset
+text/jsx:fieldlist
+text/jsx:textinput
+

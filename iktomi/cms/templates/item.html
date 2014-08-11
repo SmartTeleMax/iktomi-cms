@@ -73,7 +73,8 @@
       {%- if autosave_allowed %}
       data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id).qs_set(filter_form.get_data()) }}"
       {%- endif %}
-      {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
+      {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}
+      data-json="{{ form.json() }}">
   <div class="content">
     <div class="header">
       <div style="float:left">
@@ -140,7 +141,6 @@
         </div>
       {% endif %}
       <div class="form">
-        {{ form.render() }}
       </div>
     </div>
   </div>

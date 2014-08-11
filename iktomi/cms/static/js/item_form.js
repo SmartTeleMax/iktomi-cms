@@ -1,3 +1,48 @@
+function _clone(sourceProp){
+    var prop = {};
+    for (var k in sourceProp) if(sourceProp.hasOwnProperty(k)) {
+        prop[k] = sourceProp[k];
+    }
+    return prop;
+}
+ 
+function _mergeObjects(value, newValue){
+    if(value == newValue) { return value; }
+ 
+    if (Array.isArray(value)){
+        var byKey = {};
+        for (var i=value.length; i--;){
+            if(value[i]._key === undefined) {
+                console.warn('_key attribute is required to merge arrays');
+            }
+            byKey[value[i]._key] = value[i];
+        }
+        value.length = 0;
+        var newLength = newValue.length;
+        for (var i=0; i<newLength; i++){
+            var key = newValue[i]._key;
+            if(key === undefined) {
+                console.warn('_key attribute is required to merge arrays');
+            }
+            if (byKey.hasOwnProperty(key)) {
+                var val = _mergeObjects(byKey[key], newValue[i]);
+            } else {
+                var val = newValue[i];
+            }
+            value.push(val);
+        }
+        return value;
+    } else if (typeof value == 'object') {
+        for (var key in newValue) if(newValue.hasOwnProperty(key)){
+            value[key] = _mergeObjects(value[key], newValue[key]);
+        }
+        return value
+    }
+    return newValue;
+}
+
+
+
 (function(){
   function ItemForm(frm){
     //console.log('Generating ItemForm #'+frm.id);
@@ -14,6 +59,12 @@
     this.bindEventHandlers();
     this.addEvents();
     this.attachHooks();
+
+    var form = FieldSet(JSON.parse(frm.dataset.json));
+
+    window.dataCopy = _clone(form.props.data);
+    window.form = React.renderComponent(form, frm.getElement('.form'));
+
     window.scrollTo(window.scrollX, window.scrollY+1);
   }
 
