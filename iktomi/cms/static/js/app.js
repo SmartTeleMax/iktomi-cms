@@ -245,4 +245,5 @@
 
   // clean up localStorage
   lscache.flush(true);
+
 })();

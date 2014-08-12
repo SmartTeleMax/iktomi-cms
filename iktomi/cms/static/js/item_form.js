@@ -62,8 +62,9 @@ function _mergeObjects(value, newValue){
 
     var form = FieldSet(JSON.parse(frm.dataset.json));
 
+    window.props = form.props;
     window.dataCopy = _clone(form.props.data);
-    window.form = React.renderComponent(form, frm.getElement('.form'));
+    window.form = this.reactForm = React.renderComponent(form, frm.getElement('.form'));
 
     window.scrollTo(window.scrollX, window.scrollY+1);
   }
@@ -115,9 +116,10 @@ function _mergeObjects(value, newValue){
       this.doSubmit = function(){
         var valueToPost = {};
         if(button.dataset.itemForm){
-            valueToPost = this.frm;
-        } else if(this.frm.getElement('[name=edit_session]')){
-            valueToPost = {'edit_session': this.frm.getElement('[name=edit_session]').value};
+            valueToPost.json = JSON.stringify(this.reactForm.getValue());
+        }
+        if(this.frm.getElement('[name=edit_session]')){
+            valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
         }
 
         document.body.addClass('loading');
@@ -147,7 +149,7 @@ function _mergeObjects(value, newValue){
               renderPage(result, this.container);
             }
           }.bind(this)
-        }).post(valueToPost); // XXX Post to IFRAME!
+        }).post(valueToPost) // XXX Post to IFRAME!
       }.bind(this);
 
       var hooks = this.frm.retrieve('hooks');

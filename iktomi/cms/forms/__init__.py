@@ -72,6 +72,6 @@ class ModelForm(Form, DiffFieldSetMixIn):
         for field in self.fields:
             data.update(field.json_data())
         js = {'data': data,
+              'errors': self.errors,
               'widgets': [x.widget.json() for x in self.fields]}
-        from pprint import pprint; pprint(js)
         return json.dumps(js)
