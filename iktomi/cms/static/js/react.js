@@ -10234,6 +10234,7 @@ var ReactEventListener = {
       return;
     }
     if (!nativeEvent) { // XXX
+      console.warn('NO NATIVE EVENT')
       return;
     }
 

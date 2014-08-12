@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from iktomi.forms.fields import *
-from iktomi.forms.fields import __all__ as _all1
-from iktomi.forms.form import Form
+from iktomi.forms.form_json import *
+#from iktomi.forms.fields import __all__ as _all1
+#from iktomi.forms.form import Form
 
 from datetime import datetime, timedelta
 from sqlalchemy import desc
@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
-from iktomi.cms.models.edit_log import _get_field_data, make_diff
+from iktomi.cms.models.edit_log import make_diff
 from iktomi.forms import fields
 _all2 = locals().keys()
 
@@ -38,8 +38,8 @@ class DiffFieldSetMixIn(object):
                 if child_diff is not None:
                     diffs.append(child_diff)
             else:
-                data1 = _get_field_data(form1, field1)
-                data2 = _get_field_data(form2, field2)
+                data1 = field1.get_data()
+                data2 = field2.get_data()
                 if data1 != data2:
                     diff = make_diff(field1, field2,
                                      changed=True)
@@ -274,7 +274,7 @@ class EditorNoteField(Field):
 
 # Expose all variables defined after imports and all variables imported from
 # parent module
-__all__ = [x for x
-           in set(locals().keys()) - (set(_all2) - set(_all1))
-           if not x.startswith('_')]
-del _all1, _all2
+#__all__ = [x for x
+#           in set(locals().keys()) - (set(_all2) - set(_all1))
+#           if not x.startswith('_')]
+#del _all1, _all2

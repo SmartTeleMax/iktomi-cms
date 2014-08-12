@@ -35,14 +35,6 @@ def make_diff(field1, field2, changed=False):
                 changed=changed)
 
 
-def _get_field_data(form, field):
-    md = MultiDict()
-    rv = field.from_python(form.python_data[field.name])
-    field.set_raw_value(md, rv)
-    return md
-
-
-
 # XXX MySQL-specific type. How to resulve this?
 class MediumPickleType(PickleType):
 

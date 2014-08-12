@@ -193,7 +193,7 @@ class PrepareItemHandler(web.WebHandler):
 
         data.filter_form = stream.get_filter_form(env)
         # Note: errors are displayed, but ignored in code.
-        data.filter_form.accept(env.request.GET)
+        # data.filter_form.accept(env.request.GET)
 
         if data.item is not None:
             data.item = self.retrieve_item(env, data.item)
@@ -251,9 +251,7 @@ class EditItemHandler(StreamAction):
     def _clean_item_data(self, stream, env, item):
         form_cls = stream.config.ItemForm
         form = form_cls.load_initial(env, item, initial={}, permissions='r', for_diff=True)
-        raw_data = form.raw_data.items()
-        unic = lambda s: (s if type(s) in (unicode, bytes) else unicode(s))
-        return [(unic(k), unic(v)) for k, v in raw_data]
+        return form.get_data()
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         save_allowed = self.create_allowed(env) \
@@ -367,7 +365,8 @@ class EditItemHandler(StreamAction):
                 if draft is not None:
                     log.users = list(set(log.users + draft.users))
 
-            accepted = form.accept(request.POST)
+            post = json.loads(request.POST.get('json', '{}'))
+            accepted = form.accept(post)
             if accepted and not lock_message:
                 need_lock = item.id is None and self.item_lock and autosave
                 item, item_url, autosave_url = \
@@ -415,7 +414,7 @@ class EditItemHandler(StreamAction):
                     draft = DraftForm(stream_name=stream.uid(env),
                                       object_id=item.id)
                     env.db.add(draft)
-                draft.data = form.raw_data.items()
+                draft.data = form.raw_value
 
                 if not env.user in draft.users:
                     draft.users.append(env.user)

@@ -123,15 +123,15 @@ class FilterForm(Form):
     def defaults(self):
         return {}
 
-    def get_data(self, compact=True):
-        data = MultiDict(self.raw_data) # XXX
-        if compact:
-            compact_data = MultiDict()
-            for key, value in data.iteritems():
-                if value:
-                    compact_data.add(key, value)
-            data = compact_data
-        return data
+    #def get_data(self, compact=True):
+    #    data = MultiDict(self.raw_data) # XXX
+    #    if compact:
+    #        compact_data = MultiDict()
+    #        for key, value in data.iteritems():
+    #            if value:
+    #                compact_data.add(key, value)
+    #        data = compact_data
+    #    return data
 
     def __nonzero__(self):
         # We don't want to display form when there is no fields

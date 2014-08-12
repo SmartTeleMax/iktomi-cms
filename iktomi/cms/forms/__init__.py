@@ -4,7 +4,7 @@ from webob.multidict import MultiDict
 from time import time
 import struct, os
 from iktomi.utils import cached_property
-from ...forms import Form
+from iktomi.forms.form_json import Form
 from .fields import FieldBlock, DiffFieldSetMixIn
 
 class Form(Form):
@@ -15,13 +15,6 @@ class Form(Form):
         # Time part is repeated in about 3 days period
         time_part = struct.pack('!d', time())[3:]
         return 'form'+(time_part+os.urandom(1)).encode('hex')
-
-
-def _get_field_data(form, field):
-    md = MultiDict()
-    rv = field.from_python(form.python_data[field.name])
-    field.set_raw_value(md, rv)
-    return md
 
 
 class ModelForm(Form, DiffFieldSetMixIn):
@@ -68,10 +61,7 @@ class ModelForm(Form, DiffFieldSetMixIn):
         return initial
 
     def json(self):
-        data = {}
-        for field in self.fields:
-            data.update(field.json_data())
-        js = {'data': data,
+        js = {'data': self.get_data(),
               'errors': self.errors,
-              'widgets': [x.widget.json() for x in self.fields]}
+              'widgets': [x.widget.render() for x in self.fields]}
         return json.dumps(js)

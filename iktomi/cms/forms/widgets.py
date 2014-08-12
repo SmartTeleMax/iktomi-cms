@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from iktomi.forms.widgets import *
-from iktomi.forms import widgets
+from iktomi.forms.widgets_json import *
+from iktomi.forms import widgets_json as widgets
 
 from datetime import datetime
 from iktomi.cms.forms import convs
@@ -8,8 +8,6 @@ from iktomi.utils import cached_property
 import json
 
 class WysiHtml5(Widget):
-
-    template = 'widgets/wysihtml5'
 
     button_blocks = [
         ('inline', ['bold', 'italic', 'underline']),
@@ -53,10 +51,12 @@ class WysiHtml5(Widget):
 
     stylesheets = ("/static/css/wysihtml5-content.css",)
 
-    @cached_property
-    def js_config(self):
-        return json.dumps({'parserRules': self.parser_rules,
-                           'stylesheets': self.stylesheets})
+    def render(self):
+        return dict(super(Select, self).render(),
+                    parserRules=self.parser_rules,
+                    stylesheets=self.stylesheets,
+                    allowed_elements=self.allowed_elements,
+                    buttons=self.real_buttons)
 
     @cached_property
     def parser_rules(self):
@@ -188,111 +188,98 @@ class PopupStreamSelect(Select):
             data['rel'] = self.rel
         if self.allow_create:
             data['create_url'] = self.create_url
-        return json.dumps(data) # XXX escape_js
+        return data
 
     def get_options(self, value):
-        choice_conv = self.field.conv
-        if isinstance(choice_conv, convs.ListOf):
-            choice_conv = choice_conv.conv
-        assert isinstance(choice_conv, convs.EnumChoice)
+        options = []
+        values = self.field.clean_value
+        if not self.multiple:
+            values = [values]
 
-        values = value if self.multiple else [value]
-        values = filter(None, map(choice_conv.to_python, values))
-        return values
+        for value in values:
+            options.append(dict(value=unicode(value),
+                                title=label,
+                                html=self.item_row(value)))
+        return options
 
-    def json(self):
-        return dict(Widget.json(self),
-                    options=[])
+    def render(self):
+        return dict(Widget.render(self),
+                    options=this.get_options(self.field.clean_value),
+                    **self.js_config())
 
 
 class PopupFilteredSelect(Select):
 
-    template = 'widgets/popup_filtered_select'
     open_btn_text = u'Выбрать'
     disable_unpublished = False
 
     def get_options(self, value):
         options = []
-        # XXX ugly
         choice_conv = self.field.conv
         if isinstance(choice_conv, convs.ListOf):
             choice_conv = choice_conv.conv
         assert isinstance(choice_conv, convs.EnumChoice)
 
-        values = value if self.multiple else [value]
-        values = map(unicode, values)
         for choice, label in choice_conv.options():
-            choice = unicode(choice)
-            options.append(dict(value=choice,
+            options.append(dict(value=unicode(choice),
                                 title=label,
-                                selected=(choice in values)))
+                                public=getattr(choice, 'public', True)))
         return options
 
-    def js_config(self):
-        return json.dumps({
-            'multiple': self.multiple,
-            'required': self.field.conv.required,
-            'disable_unpublished': self.disable_unpublished,
-        })
+    def render(self):
+        return dict(Select.render(self),
+                    disable_unpublished=self.disable_unpublished,
+                    open_btn_text=self.open_btn_text)
 
 
 class TabSelect(Select):
 
-    template = 'widgets/tab_select'
     inject_to = 'list_tabs'
 
-    def js_config(self):
-        return json.dumps(dict(
-            getattr(self, 'js_conf', {}),
-            inject_to=self.inject_to
-        ))
+    def render(self):
+        return dict(Widget.render(self),
+                    inject_to=self.inject_to)
 
 
 class LabelSelect(Select):
 
-    template = 'widgets/label_select'
     hiddens = [] # hide these options if they are not set
+
+    def render(self):
+        return dict(Widget.render(self),
+                    hiddens=self.hiddens)
 
 
 class AjaxFileInput(FileInput):
 
-    template = 'widgets/ajax_fileinput'
     upload_url = None
 
     def js_config(self):
-        conf = {'input': self.id,
+        return {'input': self.id,
                 'error': self.field.error,
                 'upload_url': self.upload_url,
                 'value': self.field.clean_value}
 
-        # XXX copy-paste from old code. Should be replaced with better alternative after new uploading api stabilization.
-        if self.field.clean_value is not None:
-            conf['is_value_persistent'] = self.field.clean_value.mode == 'existing'
-        return json.dumps(conf)
+    def render(self):
+        return dict(Widget.render(self),
+                    **self.js_config())
 
 
 class Calendar(TextInput):
 
-    template = 'widgets/calendar'
     classname = 'calendar'
 
     @cached_property
     def size(self):
         return len(self.field.from_python(datetime(1999, 12, 31)))+1
 
+    def render(self):
+        return dict(Widget.render(self),
+                    size=self.size)
+
 
 class FieldBlockWidget(widgets.FieldBlockWidget):
-    """
-    If FieldBlock needs to be collapsed by default,
-    pass `closed=True` to the widget::
-
-        FieldBlock('name',
-                   fields=[..],
-                   widget=FieldBlock.widget(closed=True))
-    """
 
     classname = 'collapsable'
-    template = 'widgets/collapsable_block'
-    renders_hint = True
     closed = False
 
