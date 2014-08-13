@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-from webob.multidict import MultiDict
+from collections import defaultdict
 from time import time
 import struct, os
 from iktomi.utils import cached_property
@@ -61,7 +61,19 @@ class ModelForm(Form, DiffFieldSetMixIn):
         return initial
 
     def json(self):
+        errors = _defaultdict()
+        for key, err in self.errors.items():
+            d = errors
+            for part in key.split('.'):
+                d = d[part]
+            d['.'] = err
+
         js = {'data': self.get_data(),
-              'errors': self.errors,
+              'errors': errors, #self.errors,
               'widgets': [x.widget.render() for x in self.fields]}
-        return json.dumps(js)
+        return json.dumps(js, ensure_ascii=False)
+
+
+def _defaultdict():
+    return defaultdict(_defaultdict)
+

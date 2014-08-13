@@ -11,7 +11,7 @@
             } else {
                 var value = {}
             }
-     
+
             if (this.props.initial) {
                 // Value object must be mutable.
                 // As I understand, this is react's method to collect
@@ -22,17 +22,22 @@
             }
             var init = JSON.stringify(initial);
             initial = _mergeObjects(initial, value);
-            console.log('value', init, JSON.stringify(value), JSON.stringify(initial), JSON.stringify(_mergeObjects(value, initial)));
-     
-            return {'value': _mergeObjects(value, initial)}
+            return {'value': _mergeObjects(value, initial),
+                    'errors': this.props.errors}
         },
+
+        getError: function(){
+            return this.state.errors['.'] || '';
+        },
+
         setValue: function(newValue){
-            var value = _mergeObjects(this.state.value, newValue);
+            var value = _mergeObjects(this.state.value, {'text': newValue});
             this.setState({'value': value});
         },
         getValue: function(){
             return this.state.value.text;
         },
+
         onChange: function(e){
             this.setValue(e.target.value);
         },

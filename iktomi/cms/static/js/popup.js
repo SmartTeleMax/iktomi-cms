@@ -16,7 +16,7 @@ var Popup = new Class({
     'injectTo': 'app-content'
   },
 
-  onHide: $empty,
+  onHide: function(){},
 
   initialize: function(id, options) {
     this.id = id || _popup_id();
@@ -117,9 +117,6 @@ var Popup = new Class({
     window.addEvent('mousewheel', this._onMouseWheel);
     this.overlay.addClass('show');
 
-    if (Browser.Engine.trident) {
-      $$('select').setStyle('visibility', 'hidden');
-    };
     this.el.setStyle('display', 'block');
     this.onWindowResize();
     this.el.setStyle('visibility', 'visible')
@@ -217,20 +214,6 @@ var Popup = new Class({
     this.hide_loader();
     this.visible = false;
     this.zindex = 100;
-    if (Browser.Engine.trident) {
-      var top_popup = null;
-      $$('.popup').each(function(p){
-        var popup = p.retrieve('popup');
-        if(popup.visible == true && top_popup.zindex < popup.zindex && popup != this){
-          top_popup = popup;
-        }
-      });
-      if(top_popup){
-        top_popup.getElements('select').setStyle('visibility', 'visible');
-      } else {
-        $$('select').setStyle('visibility', 'visible');
-      }
-    };
     this.el.setStyles({
       visibility: 'hidden',
       display: 'none',

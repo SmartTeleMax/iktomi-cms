@@ -10233,10 +10233,6 @@ var ReactEventListener = {
     if (!ReactEventListener._enabled) {
       return;
     }
-    if (!nativeEvent) { // XXX
-      console.warn('NO NATIVE EVENT')
-      return;
-    }
 
     var bookKeeping = TopLevelCallbackBookKeeping.getPooled(
       topLevelType,
