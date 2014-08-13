@@ -60,7 +60,7 @@ class ModelForm(Form, DiffFieldSetMixIn):
                 initial[field.name] = getattr(item, field.name)
         return initial
 
-    def json(self):
+    def json_data(self):
         errors = _defaultdict()
         for key, err in self.errors.items():
             d = errors
@@ -68,10 +68,12 @@ class ModelForm(Form, DiffFieldSetMixIn):
                 d = d[part]
             d['.'] = err
 
-        js = {'data': self.get_data(),
-              'errors': errors, #self.errors,
-              'widgets': [x.widget.render() for x in self.fields]}
-        return json.dumps(js, ensure_ascii=False)
+        return {'data': self.raw_value,
+                'errors': errors,
+                'widgets': [x.widget.render() for x in self.fields]}
+
+    def json(self):
+        return json.dumps(self.json_data(), ensure_ascii=False)
 
 
 def _defaultdict():

@@ -241,6 +241,14 @@ function _mergeObjects(value, newValue){
 
       this.statusElement.setAttribute('data-status', 'saving');
 
+      var valueToPost = {
+        json: JSON.stringify(this.reactForm.getValue())
+      };
+
+      if(this.frm.getElement('[name=edit_session]')){
+          valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
+      }
+
       new Request.JSON({
         url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
         onSuccess: function(result){
@@ -249,6 +257,7 @@ function _mergeObjects(value, newValue){
             this.frm.store('savedData', newData);
             if (callback) { callback(); }
           }
+
           if (result.success){
             this.statusElement.setAttribute('data-status', 'saved');
             this.frm.setAttribute('action', result.item_url);
@@ -266,6 +275,7 @@ function _mergeObjects(value, newValue){
             this.statusElement.setAttribute('data-status', 'draft');
             var errors = result.errors;
 
+            // XXX set errors
             for (var key in errors) if (errors.hasOwnProperty(key)){
               var field = $(this.frm.id + '-' + key);
               if (field){
@@ -282,7 +292,7 @@ function _mergeObjects(value, newValue){
         onFailure: function(){
           this.statusElement.setAttribute('data-status', 'error');
         }.bind(this)
-      }).post(this.frm); 
+      }).post(valueToPost);
     },
 
     saveAndContinueHandler: function(e) {

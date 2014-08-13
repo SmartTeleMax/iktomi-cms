@@ -265,9 +265,8 @@ class EditItemHandler(StreamAction):
         form = form_cls.load_initial(env, item, initial=initial, **form_kw)
         form.model = self.stream.get_model(env)
         form.draft = draft
-        if draft is not None:
-            raw_data = MultiDict(draft.data)
-            form.accept(raw_data) # XXX
+        if draft is not None and draft.data:
+            form.accept(draft.data) # XXX
         return form
 
     def save_item(self, env, filter_form, form, item, draft, autosave):
@@ -423,7 +422,7 @@ class EditItemHandler(StreamAction):
                 return env.json({'success': False,
                                  'error': 'draft',
                                  'draft_id': draft.id,
-                                 'errors': form.errors,
+                                 'form': form.json_data(),
                                  })
             else:
                 stream.rollback_due_form_errors(env, item, silent=autosave)
