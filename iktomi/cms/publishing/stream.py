@@ -262,7 +262,7 @@ class DeleteFlagHandler(DeleteItemHandler):
         env.db.commit()
 
         stream_url = self.stream.url_for(env).qs_set(
-                            data.filter_form.get_data())
+                            data.filter_form.get_mdict())
 
         return env.json({'result': 'success',
                          'location': stream_url})

@@ -1,5 +1,42 @@
 /** @jsx React.DOM */
 
+function MutableString(text){
+    this.text = text;
+}
+
+MutableString.prototype = {
+    toString: function(){
+        return this.text.toString();    
+    },
+    toJSON: function(){
+        return this.text;
+    },
+    set: function(value){
+        this.text = value;    
+    },
+    copy: function(){
+        return new MutableString(this.text);
+    }
+};
+
+
+function makeMutable(obj){
+    if (obj instanceof MutableString){
+        return obj;
+    }
+    if (['string', 'number', 'boolean'].indexOf(typeof obj) != -1 || obj == null){
+        return new MutableString(obj);
+    }
+    if (typeof obj == "object"){
+        for(var name in obj) if (obj.hasOwnProperty(name)){
+            obj[name] = makeMutable(obj[name]);
+        }
+        return obj
+    }
+    throw "Can not convert to mutable JS object";
+    
+}
+
 (function() {
 
     // XXX how to do component inheritance in right way?

@@ -212,8 +212,8 @@ class SortConverter(convs.EnumChoice):
     def to_python(self, value):
         value = convs.EnumChoice.to_python(self, value)
         value = value or self.field.get_initial()
-        self.field.set_raw_value(self.field.form.raw_data,
-                                 self.from_python(value))
+        #self.field.set_raw_value(self.field.form.raw_data,
+        #                         self.from_python(value))
         return value
 
     # this does not work well, but default sort value is redundant in raw_data

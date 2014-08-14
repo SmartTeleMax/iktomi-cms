@@ -36,7 +36,7 @@
     <div class="header">
       <div style="float:left">
         <h1>
-          <a href="{{ stream_url.qs_set(filter_form.get_data()) }}" style="text-decoration:none;">{{ stream_title }}</a> <br/>
+          <a href="{{ stream_url.qs_set(filter_form.get_mdict()) }}" style="text-decoration:none;">{{ stream_title }}</a> <br/>
           <a href="{{ stream.url_for(env, 'item', item=item.id) }}" style="font-size: 10px;">{{ item.title or item }}</a>
         </h1>
         <div class="flags">

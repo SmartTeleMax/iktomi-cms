@@ -75,4 +75,10 @@
         }
     });
 
+    window.FieldSet.fromJSON = function(json){
+        var props = JSON.parse(json);
+        props.data = makeMutable(props.data);
+        return FieldSet(props)
+    }
+
 })();

@@ -116,8 +116,8 @@ class StreamListHandler(StreamAction):
         filter_form = stream.get_filter_form(env)
 
         # Note: errors are displayed, but ignored in code.
-        filter_form.accept(request.GET)
-        filter_data = filter_form.get_data()
+        filter_form.accept_mdict(request.GET)
+        filter_data = filter_form.get_mdict()
         query = filter_form.filter(query)
 
         query = stream.order(query)
@@ -193,7 +193,7 @@ class PrepareItemHandler(web.WebHandler):
 
         data.filter_form = stream.get_filter_form(env)
         # Note: errors are displayed, but ignored in code.
-        # data.filter_form.accept(env.request.GET)
+        data.filter_form.accept_mdict(env.request.GET)
 
         if data.item is not None:
             data.item = self.retrieve_item(env, data.item)
@@ -204,7 +204,7 @@ class PrepareItemHandler(web.WebHandler):
                   (self.action.title,),
                   'failure')
             item_url = stream.url_for(env, 'item')(
-                data.filter_form.get_data())
+                data.filter_form.get_mdict())
             return see_other(item_url)
 
         self.take_lock(env, data)
@@ -281,10 +281,11 @@ class EditItemHandler(StreamAction):
         if hasattr(self, 'post_create'):
             self.post_create(item)
 
+        filter_data = filter_form.get_mdict()
         item_url = self.stream.url_for(env, 'item', item=item.id)\
-                              .qs_set(filter_form.get_data())
+                              .qs_set(filter_data)
         autosave_url = self.stream.url_for(env, 'item.autosave', item=item.id)\
-                                  .qs_set(filter_form.get_data())
+                                  .qs_set(filter_data)
         return item, item_url, autosave_url
 
     def edit_item_handler(self, env, data):
@@ -296,7 +297,7 @@ class EditItemHandler(StreamAction):
         request = env.request
 
         initial = filter_form.defaults()
-        stream_url = stream.url_for(env).qs_set(filter_form.get_data())
+        stream_url = stream.url_for(env).qs_set(filter_form.get_mdict())
         create_allowed = save_allowed = self.create_allowed(env)
         delete_allowed = False
         success = False
@@ -427,6 +428,9 @@ class EditItemHandler(StreamAction):
             else:
                 stream.rollback_due_form_errors(env, item, silent=autosave)
 
+        filter_data = filter_form.get_mdict()
+        submit_url=stream.url_for(env, 'item', item=item.id).qs_set(
+                                                        filter_data)
         template_data = dict(filter_form=filter_form,
                              success=success,
                              form=form,
@@ -438,9 +442,7 @@ class EditItemHandler(StreamAction):
                              stream_title=stream.config.title,
                              title=unicode(item),
                              log_enabled=log_enabled,
-                             submit_url=stream.url_for(env, 'item',
-                                                    item=item.id).qs_set(
-                                                        filter_form.get_data()),
+                             submit_url=submit_url,
 
                              menu=stream.module_name,
                              stream_url=stream_url,
@@ -597,11 +599,13 @@ class DeleteItemHandler(_ReferrersAction):
 
         self.insure_is_available(env, item)
 
-        stream_url = stream.url_for(env).qs_set(filter_form.get_data())
+        filter_data = filter_form.get_mdict()
+
+        stream_url = stream.url_for(env).qs_set(filter_data)
         item_url = stream.url_for(env, 'item', item=item.id).qs_set(
-                                   filter_form.get_data())
+                                   filter_data)
         delete_url = stream.url_for(env, 'delete', item=item.id)\
-                           .qs_set(filter_form.get_data())
+                           .qs_set(filter_data)
         if env.request.method == 'POST':
             env.db.delete(item)
             try:

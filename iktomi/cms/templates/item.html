@@ -31,7 +31,7 @@
 
     {% macro buttons_in_tooltip() %}
       {%- if create_allowed and 'save_and_add_another' in item_buttons -%}
-      <a href="{{ stream.url_for(env, 'item', item=None).qs_set(filter_form.get_data()) }}"
+      <a href="{{ stream.url_for(env, 'item', item=None).qs_set(filter_form.get_mdict()) }}"
          data-item-lock="true"
          data-item-form="true"
          class="button icon-add" rel="save-and-add">
@@ -71,7 +71,7 @@
       enctype="multipart/form-data"
       data-block-name="item-form"
       {%- if autosave_allowed %}
-      data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id).qs_set(filter_form.get_data()) }}"
+      data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id).qs_set(filter_form.get_mdict()) }}"
       {%- endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}
       data-json="{{ form.json() }}">

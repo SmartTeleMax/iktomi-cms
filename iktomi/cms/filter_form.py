@@ -1,3 +1,4 @@
+import re
 from iktomi.cms.forms import Form
 from webob.multidict import MultiDict
 
@@ -45,6 +46,10 @@ class FilterForm(Form):
         data = self.get_data()
         return to_multidict(data)
 
+    def accept_mdict(self, md):
+        data = from_multidict(md)
+        return self.accept(data)
+
     def __nonzero__(self):
         # We don't want to display form when there is no fields
         return bool(self.fields)
@@ -73,5 +78,33 @@ def to_multidict(value, key=''):
             md.add(key, val)
     return md
 
+_d = re.compile('\d+$')
 
+def from_multidict(md):
+    items = [(key.split('.'), value)
+             for key, value in md.items()]
+    return _from_multidict(items)
 
+def _from_multidict(items):
+    is_dict = any(not _d.match(k[0]) for k, v in items)
+    result = {} if is_dict else []
+    while items:
+        part = items[0][0][0]
+        group = []
+        for item in items:
+            k, v = item
+            if k[0] == part:
+                items.remove(item)
+                group.append((k[1:], v))
+
+        for k, v in group:
+            if not k:
+                value = v
+                break
+        else:
+            value = _from_multidict(group)
+        if is_dict:
+            result[part] = value
+        else:
+            result.append(value)
+    return result

@@ -3,7 +3,6 @@
 import logging, warnings
 
 from webob.exc import HTTPForbidden
-from webob.multidict import MultiDict
 from jinja2 import Markup
 
 from iktomi.utils import cached_property
@@ -13,6 +12,7 @@ from iktomi import web
 from iktomi.cms.forms import Form
 from . import stream_handlers as handlers
 from .flashmessages import flash
+from .filter_form import FilterForm
 
 logger = logging.getLogger(__name__)
 
@@ -82,60 +82,6 @@ class ItemLockListField(ListField):
                         guid=env.item_lock.item_global_id(item),
                         user=env.db.query(env.auth_model)\
                                    .get(lock['user_id']))
-
-
-class FilterForm(Form):
-
-    fields = []
-
-    def filter_by_scalar(self, query, field, value):
-        return query.filter(getattr(self.model, field.name)==value)
-
-    def filter_by_true(self, query, field, value):
-        if value:
-            return self.filter_by_scalar(query, field, value)
-        return query
-
-    def filter_by_list(self, query, field, values):
-        prop = getattr(self.model, field.name)
-        for value in values:
-            query = query.filter(prop.contains(value))
-        return query
-
-    def filter_by_default(self, query, field, value):
-        if field.multiple:
-            return self.filter_by_list(query, field, value)
-        else:
-            return self.filter_by_scalar(query, field, value)
-
-    def filter(self, query):
-        '''Modifies query'''
-        # XXX will not work with FieldBlocks!
-        for field in self.fields:
-            filter_value = self.python_data[field.name]
-            if filter_value or filter_value == 0:
-                method = getattr(self, 'filter_by__%s' % field.name,
-                                 getattr(field, 'filter_query',
-                                         self.filter_by_default))
-                query = method(query, field, filter_value)
-        return query
-
-    def defaults(self):
-        return {}
-
-    #def get_data(self, compact=True):
-    #    data = MultiDict(self.raw_data) # XXX
-    #    if compact:
-    #        compact_data = MultiDict()
-    #        for key, value in data.iteritems():
-    #            if value:
-    #                compact_data.add(key, value)
-    #        data = compact_data
-    #    return data
-
-    def __nonzero__(self):
-        # We don't want to display form when there is no fields
-        return bool(self.fields)
 
 
 class Stream(object):
@@ -298,7 +244,8 @@ class Stream(object):
         return template_data
 
     def lock_back_url(self, env, item, filter_form):
-        return self.url_for(env).qs_set(filter_form.get_data())
+        filter_data = filter_form.get_mdict()
+        return self.url_for(env).qs_set(filter_data)
 
     def order(self, query):
         return query

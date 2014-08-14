@@ -190,7 +190,7 @@ class PopupStreamSelect(Select):
             data['create_url'] = self.create_url
         return data
 
-    def get_options(self, value):
+    def get_options(self):
         options = []
         values = self.field.clean_value
         if not self.multiple:
@@ -204,7 +204,7 @@ class PopupStreamSelect(Select):
 
     def render(self):
         return dict(Widget.render(self),
-                    options=this.get_options(self.field.clean_value),
+                    options=this.get_options(self.field),
                     **self.js_config())
 
 
@@ -213,7 +213,7 @@ class PopupFilteredSelect(Select):
     open_btn_text = u'Выбрать'
     disable_unpublished = False
 
-    def get_options(self, value):
+    def get_options(self):
         options = []
         choice_conv = self.field.conv
         if isinstance(choice_conv, convs.ListOf):
@@ -271,7 +271,7 @@ class Calendar(TextInput):
 
     @cached_property
     def size(self):
-        return len(self.field.from_python(datetime(1999, 12, 31)))+1
+        return len(self.field.conv.from_python(datetime(1999, 12, 31)))+1
 
     def render(self):
         return dict(Widget.render(self),

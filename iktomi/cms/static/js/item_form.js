@@ -60,7 +60,7 @@ function _mergeObjects(value, newValue){
     this.addEvents();
     this.attachHooks();
 
-    var form = FieldSet(JSON.parse(frm.dataset.json));
+    var form = FieldSet.fromJSON(frm.dataset.json);
 
     window.props = form.props;
     window.dataCopy = _clone(form.props.data);
