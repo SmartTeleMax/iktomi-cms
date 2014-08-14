@@ -19,7 +19,7 @@
                             '');
 
             children = [error,
-                        <div className="form-label">{label}</div>,
+                        <div className="form-label" key={widget.props.key + '-label'}>{label}</div>,
                         widget];
 
             return React.DOM.div({'className': 'form-row'}, children);
@@ -43,6 +43,7 @@
         },
 
         setValue: function(newValue){
+            newValue = makeMutable(newValue);
             var value = _mergeObjects(this.state.value, newValue);
             this.setState({'value': value});
         },
@@ -66,7 +67,9 @@
 
                 var el = (React.DOM[prop.widget]||window[prop.widget])(prop);
                 //this.widgetsByName[prop.key] = el;
-                ws.push(FormRow({fieldset: this, widget: el}));
+                ws.push(FormRow({fieldset: this,
+                                 widget: el,
+                                 key: prop.key+"-row"}));
             }
 
             return React.DOM.div({'className': 'fieldset',

@@ -89,7 +89,8 @@ function makeMutable(obj){
     var TextareaProto = Object.merge({}, TextInputProto, {
         render: function() {
             return <textarea name={this.props.input_name}
-                             onChange={this.onChange}>{this.state.value.text}</textarea>;
+                             onChange={this.onChange}
+                             value={this.state.value.text}></textarea>;
         }
     });
 
