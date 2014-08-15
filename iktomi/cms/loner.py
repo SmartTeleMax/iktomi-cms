@@ -46,7 +46,7 @@ class LonerHandler(EditItemHandler):
 
 class Loner(Stream):
 
-    core_actions = [LonerHandler()]
+    actions = [LonerHandler()]
 
     lock_back_title = u'Вернуться на главную'
     lock_back_help = u'Вернуться на главную страницу'

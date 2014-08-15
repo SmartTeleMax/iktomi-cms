@@ -7,7 +7,6 @@ from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.cms.item_lock import ItemLock
 from iktomi.utils import cached_property
-from jinja2 import Markup
 
 
 class PublishStreamListHandler(StreamListHandler):
@@ -71,11 +70,12 @@ class PublishItemHandler(EditItemHandler):
 class PublishAction(PostAction):
 
     action = 'publish'
+    group = 'publish'
     cls = 'publish'
     display = True
     for_item = True
     allowed_for_new = False
-    accepts_item_form = False
+    item_form = False
     title = u'Опубликовать'
     hint = u'Перенести изменения из редакторской версии на опубликованную ' \
            u'и сделать её доступной для просмотра на сайте'
@@ -124,10 +124,11 @@ class PublishAction(PostAction):
 class UnpublishAction(PostAction):
 
     allowed_for_new = False
-    accepts_item_form = False
+    item_form = False
     action = 'unpublish'
+    group = 'publish'
     cls = 'unpublish'
-    title = Markup(u'Снять<br/> с публикации')
+    title = u'Снять\nс публикации'
     PrepareItemHandler = PrepareItemHandler
 
     @property
@@ -171,10 +172,11 @@ class UnpublishAction(PostAction):
 class RevertAction(PostAction):
 
     allowed_for_new = False
-    accepts_item_form = False
+    item_form = False
     action = 'revert'
+    group = 'publish'
     cls = 'revert'
-    title = Markup(u'Восстановить<br/> из фронтальной')
+    title = u'Восстановить\n из фронтальной'
     hint = u'Отменить изменения, сделанные после публикации'
     PrepareItemHandler = PrepareItemHandler
 
@@ -291,8 +293,8 @@ class HasChangesListField(ListField):
 
 class PublishStreamNoState(Stream):
 
-    core_actions = [x for x in Stream.core_actions
-                    if x.action not in ('delete', 'item')] + [
+    actions = [x for x in Stream.actions
+               if x.action not in ('delete', 'item')] + [
            PublishItemHandler(),
            DeleteFlagHandler(),
            PublishAction(),
@@ -373,9 +375,9 @@ class PublishStreamNoState(Stream):
 
 class PublishStream(PublishStreamNoState):
 
-    core_actions = [x for x in Stream.core_actions
-                    if x.action not in ('delete', 'item')
-                       and not isinstance(x, StreamListHandler)] + [
+    actions = [x for x in Stream.actions
+               if x.action not in ('delete', 'item')
+                  and not isinstance(x, StreamListHandler)] + [
            PublishStreamListHandler(),
            PublishItemHandler(),
            DeleteFlagHandler(),

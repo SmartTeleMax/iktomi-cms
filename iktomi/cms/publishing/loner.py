@@ -35,10 +35,10 @@ class LonerRevertAction(BaseLonerAction, RevertAction):
 
 class PublishLoner(PublishStreamNoState, Loner):
 
-    core_actions = [PublishLonerHandler(),
-                    LonerPublishAction(),
-                    LonerRevertAction(),
-                    LonerUnpublishAction()]
+    actions = [PublishLonerHandler(),
+               LonerPublishAction(),
+               LonerRevertAction(),
+               LonerUnpublishAction()]
 
     def url_for(self, env, name=None, **kwargs):
         kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
@@ -53,9 +53,9 @@ class PublishLoner(PublishStreamNoState, Loner):
 
 class PublishLonerNoState(PublishLoner):
 
-    core_actions = [PublishLonerHandler(),
-                    LonerPublishAction(),
-                    LonerRevertAction()]
+    actions = [PublishLonerHandler(),
+               LonerPublishAction(),
+               LonerRevertAction()]
 
 
 

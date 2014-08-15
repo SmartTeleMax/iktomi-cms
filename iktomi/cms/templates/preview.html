@@ -12,7 +12,7 @@
       <a href="{{ action_url }}"
          rel="{{ action.mode }}"
          {%- if action.item_lock %} data-item-lock="true"{% endif %}
-         {%- if action.accepts_item_form %} data-item-form="true"{% endif %}
+         {%- if action.item_form %} data-item-form="true"{% endif %}
          class="button action-{{ action.action }}{% if action.cls %} icon-{{ action.cls}}{% endif %}">
         {{- action.title -}}
       </a>

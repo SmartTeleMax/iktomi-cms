@@ -1,62 +1,6 @@
 
 {% macro buttons(is_popup=False) %}
-<div class="buttons form-controls init-block" data-block-name="compact-buttons" data-compact-name="form-controls">
-  <a class="compact-toggle" title="Компактный вид"></a>
-  {% if not is_popup %}
-    {% for action in actions %}
-      {%- set action_url = stream.url_for(env, action.action, item=item.id) -%}
-      <a href="{{ action_url }}"
-         rel="{{ action.mode }}"
-         {%- if action.hint %} title="{{ action.hint }}"{% endif %}
-         {%- if action.item_lock %} data-item-lock="true"{% endif %}
-         {%- if action.accepts_item_form %} data-item-form="true"{% endif %}
-         {%- if action.js_block %} data-block-name="{{ action.js_block }}"{% endif %}
-         class="button action-{{ action.action }}
-                {%- if action.js_block %} init-block{% endif %}
-                {%- if action.cls %} icon-{{ action.cls}}{% endif %}">
-        {{- action.title -}}
-      </a>
-    {% endfor -%}
-  {% endif %}
 
-  {% if save_allowed %}
-  <div class="buttons__save-actions">
-    {% if 'save_and_continue' in item_buttons %}
-    <a href="" class="button icon-apply" rel="save-and-continue"
-       data-item-lock="true"
-       data-item-form="true">
-      Сохранить
-    </a>
-    {% endif %}
-
-    {% macro buttons_in_tooltip() %}
-      {%- if create_allowed and 'save_and_add_another' in item_buttons -%}
-      <a href="{{ stream.url_for(env, 'item', item=None).qs_set(filter_form.get_mdict()) }}"
-         data-item-lock="true"
-         data-item-form="true"
-         class="button icon-add" rel="save-and-add">
-        … и создать новый
-      </a>
-      {%- endif -%}
-
-      {%- if list_allowed and 'save' in item_buttons -%}
-      <a href="{{ stream_url }}" class="button icon-back" rel="save"
-         data-item-lock="true"
-         data-item-form="true">
-        … и закрыть
-      </a>
-      {%- endif -%}
-    {% endmacro %}
-    {% set buttons_in_tooltip_rendered = buttons_in_tooltip() %}
-
-    {% if buttons_in_tooltip_rendered %}
-    <div class="buttons__save-hidden">
-      {{- buttons_in_tooltip_rendered -}}
-    </div>
-    {% endif %}
-  </div>
-  {% endif %}
-</div>
 {% endmacro %}
 
 
@@ -70,6 +14,7 @@
       method="post"
       enctype="multipart/form-data"
       data-block-name="item-form"
+      data-buttons="{{ item_buttons }}"
       {%- if autosave_allowed %} data-autosave="true"{% endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}
       data-json="{{ form.json() }}">
@@ -124,7 +69,12 @@
         {%- endif -%}
       </div>
 
-      {{ buttons(is_popup) }}
+      <div class="buttons form-controls init-block"
+           data-block-name="compact-buttons"
+           data-compact-name="form-controls">
+        <a class="compact-toggle" title="Компактный вид"></a>
+        <div class="buttons-place"></div>
+      </div>
 
       {% from "macros/autosave_status.html" import autosave_status %}
       {{ autosave_status(autosave_allowed, draft) }}

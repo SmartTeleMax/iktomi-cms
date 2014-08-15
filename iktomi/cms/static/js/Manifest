@@ -45,4 +45,5 @@ crop
 text/jsx:fieldset
 text/jsx:fieldlist
 text/jsx:textinput
+text/jsx:buttons
 

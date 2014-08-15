@@ -6,12 +6,15 @@ from webob.exc import HTTPForbidden
 class StreamAction(web.WebHandler):
 
     item_lock = True
-    accepts_item_form = True
+    item_form = True
     for_item = True
     action = title = cls = js_block = None
     allowed_for_new = False
     display = True
     hint = None
+    order_position = 0
+    mode = 'custom'
+    group = None
 
     def is_available(self, env, item=None):
         """ Rewrite this method to add condition when action is avalible
@@ -44,6 +47,14 @@ class StreamAction(web.WebHandler):
                 getattr(stream.config, 'item_lock', None) == False:
             self.item_lock = False
 
+    def get_item_buttons(self):
+        if self.display and self.for_item:
+            props = ['action', 'title', 'hint', 'item_lock',
+                     'item_form', 'order_position',
+                     'cls', 'allowed_for_new', 'group', 'mode']
+            return [dict((x, getattr(self, x)) for x in props)]
+        return []
+
     def bind(self, stream):
         return self.__class__(stream=stream, **self.init_kwargs)
 
@@ -56,11 +67,6 @@ class PostAction(StreamAction):
 class GetAction(StreamAction):
 
     mode = 'get'
-
-
-class CustomAction(StreamAction):
-
-    mode = 'custom'
 
 
 class AfterPostAction(StreamAction):

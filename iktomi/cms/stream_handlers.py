@@ -216,8 +216,10 @@ class EditItemHandler(StreamAction):
     action = 'item'
     item_lock = True
     allowed_for_new = True
-    display = False
-    title = u'Редактировать/создать'
+    title = u'Сохранить'
+    order_position = -10
+    group = 'save'
+    cls = 'apply'
     PrepareItemHandler = PrepareItemHandler
 
     @property
@@ -425,6 +427,8 @@ class EditItemHandler(StreamAction):
         filter_data = filter_form.get_mdict()
         submit_url=stream.url_for(env, 'item', item=item.id).qs_set(
                                                         filter_data)
+        item_buttons = json.dumps(stream.get_item_buttons(env),
+                                  ensure_ascii=False)
         template_data = dict(filter_form=filter_form,
                              success=success,
                              form=form,
@@ -442,10 +446,7 @@ class EditItemHandler(StreamAction):
                              stream_url=stream_url,
 
                              item_lock=data.item_lock,
-
-                             actions=[x for x in stream.actions 
-                                      if x.for_item and x.is_visible(env, item)],
-                             item_buttons=stream.buttons,
+                             item_buttons=item_buttons,
 
                              list_allowed=self.stream.has_permission(env, 'x'),
                              autosave_allowed=autosave_allowed,
@@ -461,6 +462,23 @@ class EditItemHandler(StreamAction):
         return env.render_to_response(self.get_item_template(env, item),
                                       template_data)
     __call__ = edit_item_handler
+
+    def get_item_buttons(self):
+        buttons = StreamAction.get_item_buttons(self)
+        if buttons:
+            button = buttons[0]
+            buttons = [
+                dict(button,
+                     mode="save-and-continue"),
+                dict(button,
+                     mode="save-and-add",
+                     cls="add",
+                     title=u"… и создать новый"),
+                dict(button,
+                     mode="save-and-back",
+                     cls="back",
+                     title=u"… и закрыть"),]
+        return buttons
 
     def process_item_template_data(self, env, template_data):
         '''Preprocessor for template variables.
@@ -569,6 +587,7 @@ class DeleteItemHandler(_ReferrersAction):
     action = 'delete'
     cls = 'delete'
     title = u'Удалить'
+    order_position = 100
 
     @property
     def app(self):

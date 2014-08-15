@@ -120,7 +120,7 @@ class I18nPublishStreamNoState(I18nStreamMixin, PublishStreamNoState):
 
 class I18nPublishStream(I18nStreamMixin, PublishStream):
 
-    core_actions = [x for x in PublishStream.core_actions 
+    actions = [x for x in PublishStream.actions 
                     if x.action != 'item'] + [
         I18nItemHandler(),
     ]

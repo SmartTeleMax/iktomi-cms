@@ -86,14 +86,11 @@ class ItemLockListField(ListField):
 
 class Stream(object):
 
-    actions = []
-    core_actions = [handlers.StreamListHandler(),
-                    handlers.EditItemHandler(),
-                    handlers.DeleteItemHandler(),
-                    handlers.GetReferrersHandler(),
-                    ]
-
-    buttons = ['save', 'save_and_continue', 'save_and_add_another', 'delete']
+    actions = [handlers.StreamListHandler(),
+               handlers.EditItemHandler(),
+               handlers.DeleteItemHandler(),
+               handlers.GetReferrersHandler(),
+               ]
 
     lock_back_title = None
     lock_back_help = None
@@ -101,8 +98,25 @@ class Stream(object):
     def __init__(self, module_name, config):
         self.config = config
         self.module_name = module_name
-        self.actions = [x.bind(self) for x in self.core_actions + self.actions]
-        self.core_actions = []
+        self.actions = [x.bind(self) for x in self.actions]
+
+    def get_item_buttons(self, env):
+        buttons = sum([x.get_item_buttons() for x in self.actions], [])
+        buttons = [dict(x, url=self.url_for(env, x['action'], item="ITEM_ID"))
+                   for x in buttons]
+        buttons.sort(key=lambda x: -x['order_position'])
+        new_buttons = []
+        while buttons:
+            group = buttons[:1]
+            group_name = group[0]['group']
+            if group_name is not None:
+                group = [x for x in buttons
+                         if x['group'] == group_name]
+
+            new_buttons.append(group)
+            for b in group:
+                buttons.remove(b)
+        return new_buttons
 
     @property
     def prefix_handler(self):
@@ -130,6 +144,11 @@ class Stream(object):
     def url_for(self, env, name=None, **kwargs):
         name = name and '%s.%s' % (self.module_name, name) or self.module_name
         return env.url_for(name, **kwargs)
+
+    def item_state(self, env, action, item):
+        return {'action': action.action,
+                'id': item.id or '',
+                'stream': self.module_name}
 
     def get_edit_url(self, env, item):
         '''

@@ -59,10 +59,12 @@ function _mergeObjects(value, newValue){
     this.attachHooks();
 
     var form = FieldSet.fromJSON(frm.dataset.json);
+    var buttons = ButtonPanel.fromJSON(this, frm.dataset.buttons)
 
     window.props = form.props;
     window.dataCopy = _clone(form.props.data);
     window.form = this.reactForm = React.renderComponent(form, frm.getElement('.form'));
+    window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
 
     frm.store('savedData', this.formHash());
     window.scrollTo(window.scrollX, window.scrollY+1);
@@ -90,21 +92,21 @@ function _mergeObjects(value, newValue){
     },
 
     bindEventHandlers: function(){
-      this.redirectHandler = this.redirectHandler.bind(this);
-      this.postHandler = this.postHandler.bind(this);
-      this.saveHandler = this.saveHandler.bind(this);
+      //this.redirectHandler = this.redirectHandler.bind(this);
+      //this.postHandler = this.postHandler.bind(this);
+      //this.saveHandler = this.saveHandler.bind(this);
       this.autoSaveHandler = this.autoSaveHandler.bind(this);
-      this.saveAndContinueHandler = this.saveAndContinueHandler.bind(this);
+      //this.saveAndContinueHandler = this.saveAndContinueHandler.bind(this);
       this.changeHandler = this.changeHandler.bind(this);
     },
 
     addEvents: function(){
-      this.frm.getElements('.buttons a[rel="after-post"]').addEvent('click', this.redirectHandler);
-      this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
-      this.frm.getElements('.buttons a[rel="post"]').addEvent('click', this.postHandler);
-      this.frm.getElements('.buttons a[rel="save"]').addEvent('click', this.saveHandler);
-      this.frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', this.saveAndContinueHandler);
-      this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
+      //this.frm.getElements('.buttons a[rel="after-post"]').addEvent('click', this.redirectHandler);
+      //this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
+      //this.frm.getElements('.buttons a[rel="post"]').addEvent('click', this.postHandler);
+      //this.frm.getElements('.buttons a[rel="save"]').addEvent('click', this.saveHandler);
+      //this.frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', this.saveAndContinueHandler);
+      //this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
       this.frm.addEvent('change', this.changeHandler);
       //this.frm.addEvent('keydown', this.changeHandler);
     },
@@ -236,15 +238,14 @@ function _mergeObjects(value, newValue){
     //  this.frm.getElement('.item-lock').retrieve('item-lock').stop();
     //},
 
-    postHandler: function(e){
+    postHandler: function(props){
       e.preventDefault(); e.stopPropagation();
 
       var button = e.target;
-      var url = button.getAttribute('href');
       var _doSubmit = function(){
         this.submit(button, function(result){
           renderPage(result, this.container);
-        }, url);
+        }, props.url);
       }.bind(this);
 
       if (!button.dataset.itemForm){
