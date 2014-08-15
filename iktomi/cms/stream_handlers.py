@@ -3,7 +3,6 @@ import inspect
 import json
 from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
-from webob.multidict import MultiDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy.orm.util import identity_key
@@ -232,8 +231,6 @@ class EditItemHandler(StreamAction):
         prepare =  self.PrepareItemHandler(self)
         return self.app_prefix | web.cases(
                 web.match('', '') | prepare | self,
-                web.match('/autosave', 'autosave') | \
-                        web.method('POST', strict=True) | prepare |self.autosave
             )
 
     def create_allowed(self, env):
@@ -284,9 +281,7 @@ class EditItemHandler(StreamAction):
         filter_data = filter_form.get_mdict()
         item_url = self.stream.url_for(env, 'item', item=item.id)\
                               .qs_set(filter_data)
-        autosave_url = self.stream.url_for(env, 'item.autosave', item=item.id)\
-                                  .qs_set(filter_data)
-        return item, item_url, autosave_url
+        return item, item_url
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
@@ -317,23 +312,20 @@ class EditItemHandler(StreamAction):
             delete_allowed = self.delete_allowed(env, item)
 
 
-        autosave_allowed = save_allowed and \
-                           getattr(env, 'draft_form_model', None) and \
-                           stream.autosave
-        autosave = autosave_allowed and getattr(data, 'autosave', False)
-        if autosave_allowed:
-            DraftForm = env.draft_form_model
+        autosave_allowed = (save_allowed and stream.autosave)
+        autosave = autosave_allowed and env.request.POST.get('autosave', False)
+
+        DraftForm = getattr(env, 'draft_form_model', None)
+        if DraftForm is not None:
             draft = DraftForm.get_for_item(env.db, stream.uid(env),
                                            item, env.user)
             has_draft = bool(draft)
-        elif getattr(data, 'autosave', False):
-            raise HTTPForbidden
         else:
             draft = None
             has_draft = False
 
         if item.id is None \
-                and not getattr(data, 'autosave', False) \
+                and not autosave \
                 and 'force_draft' not in env.request.GET:
             draft = None
 
@@ -368,8 +360,8 @@ class EditItemHandler(StreamAction):
             post = json.loads(request.POST.get('json', '{}'))
             accepted = form.accept(post)
             if accepted and not lock_message:
-                need_lock = item.id is None and self.item_lock and autosave
-                item, item_url, autosave_url = \
+                need_lock = item.id is None and self.item_lock
+                item, item_url = \
                         self.save_item(env, filter_form, form,
                                        item, draft, autosave)
 
@@ -387,7 +379,7 @@ class EditItemHandler(StreamAction):
 
                 result = {'success': True,
                           'item_id': item.id,
-                          'autosave_url': autosave_url,
+                          'form': form.json_data(),
                           'item_url': item_url}
                 if need_lock:
                     try:
@@ -401,14 +393,12 @@ class EditItemHandler(StreamAction):
                             status='captured',
                             global_id=gid)
                 return env.json(result)
-            elif lock_message and autosave:
+            elif lock_message:
                 stream.rollback_due_lock_lost(env, item)
                 return env.json({'success': False,
                                  'error': 'item_lock',
                                  'lock_message': lock_message})
-            elif lock_message:
-                stream.rollback_due_lock_lost(env, item)
-            elif autosave:
+            elif DraftForm is not None:
                 stream.rollback_due_form_errors(env, item, silent=True)
                 if draft is None:
                     draft = DraftForm(stream_name=stream.uid(env),
@@ -426,7 +416,11 @@ class EditItemHandler(StreamAction):
                                  'form': form.json_data(),
                                  })
             else:
-                stream.rollback_due_form_errors(env, item, silent=autosave)
+                stream.rollback_due_form_errors(env, item, silent=False)
+                return env.json({'success': False,
+                                 'error': 'errors',
+                                 'form': form.json_data(),
+                                 })
 
         filter_data = filter_form.get_mdict()
         submit_url=stream.url_for(env, 'item', item=item.id).qs_set(
@@ -467,11 +461,6 @@ class EditItemHandler(StreamAction):
         return env.render_to_response(self.get_item_template(env, item),
                                       template_data)
     __call__ = edit_item_handler
-
-
-    def autosave(self, env, data):
-        data.autosave = True
-        return self(env, data)
 
     def process_item_template_data(self, env, template_data):
         '''Preprocessor for template variables.

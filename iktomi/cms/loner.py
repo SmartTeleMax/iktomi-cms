@@ -41,8 +41,6 @@ class LonerHandler(EditItemHandler):
         prepare = self.PrepareItemHandler(self)
         return web.cases(
                 web.match('', '') | prepare | self,
-                web.match('/autosave', 'autosave') | \
-                        web.method('POST', strict=True) | prepare | self.autosave
             )
 
 

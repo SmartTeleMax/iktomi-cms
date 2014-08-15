@@ -68,7 +68,10 @@ class ModelForm(Form, DiffFieldSetMixIn):
                 d = d[part]
             d['.'] = err
 
-        return {'data': self.raw_value,
+        # do not use raw_value to get actual transformed data
+        data = self.get_data()
+
+        return {'data': data,
                 'errors': errors,
                 'widgets': [x.widget.render() for x in self.fields]}
 

@@ -45,12 +45,10 @@ function _mergeObjects(value, newValue){
 
 (function(){
   function ItemForm(frm){
-    //console.log('Generating ItemForm #'+frm.id);
 
     this.frm = frm;
     this._callback_hook = undefined;
     frm.store('ItemForm', this);
-    frm.store('savedData', this.formHash());
     this.container = frm.getParent('.popup-body') || $('app-content');
     this.is_popup = !!frm.getParent('.popup-body');
     this.popup = frm.getParent('.popup');
@@ -66,6 +64,7 @@ function _mergeObjects(value, newValue){
     window.dataCopy = _clone(form.props.data);
     window.form = this.reactForm = React.renderComponent(form, frm.getElement('.form'));
 
+    frm.store('savedData', this.formHash());
     window.scrollTo(window.scrollX, window.scrollY+1);
   }
 
@@ -111,18 +110,38 @@ function _mergeObjects(value, newValue){
     },
 
     submit: function(button, callback, url) {
+      button = button || null; // If no button, this is autosave
+      callback = callback || function(){};
       url = url || this.frm.getAttribute('action');
 
       this.doSubmit = function(){
         var valueToPost = {};
-        if(button.dataset.itemForm){
+        if(button == null || button.dataset.itemForm){
             valueToPost.json = JSON.stringify(this.reactForm.getValue());
         }
         if(this.frm.getElement('[name=edit_session]')){
             valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
         }
+        if(!button){
+            valueToPost.autosave = true;
+        }
 
-        document.body.addClass('loading');
+        var applyResult = function (result){
+          this.reactForm.setErrors(result.form.errors);
+
+          var newValue = JSON.stringify(this.reactForm.getValue());
+
+          // XXX is this ok?
+          if (result.form.data && newValue == valueToPost.json) {
+            // nothing changed on client side
+            this.reactForm.setValue(result.form.data);
+            this.frm.store('savedData', this.formHash());
+          }
+        }.bind(this);
+
+        document.body.addClass('loading'); // XXX only for blocking requests
+        this.statusElement.setAttribute('data-status', 'saving');
+
         new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
           onSuccess: function(result){
@@ -132,11 +151,23 @@ function _mergeObjects(value, newValue){
               }
             } catch (e){}
 
-            if (result.lost_lock) {
-              this.frm.getElement('.item-lock').retrieve('item-lock').updateLock();
-            }
+            document.body.removeClass('loading');
 
             if (result.success){
+              applyResult(result);
+
+              this.statusElement.setAttribute('data-status', 'saved');
+
+              if(!this.is_popup){
+                history.replaceState(null, null, result.item_url);
+              }
+
+              if (result.edit_session){
+                // take a lock for new item saved first time (before save item
+                // didn't have an id, and the lock couldn't be taken)
+                this.frm.getElement('.item-lock').retrieve('item-lock').handleForceLock(result);
+              }
+
               if (this._callback_hook) {
                 this._callback_hook(result, function(){
                   callback.call(this, result, button);
@@ -144,16 +175,34 @@ function _mergeObjects(value, newValue){
               } else {
                 callback.call(this, result, button);
               }
+            } else if (result.error == 'draft') {
+              this.statusElement.setAttribute('data-status', 'draft');
+              applyResult(result);
+            } else if (result.error == 'errors') {
+              this.statusElement.setAttribute('data-status', 'error');
+              applyResult(result);
+            } else if (result.error == 'item_lock') {
+              this.frm.getElement('.item-lock').retrieve('item-lock').updateLock();
             } else {
               console.log('form load to', this.container)
               renderPage(result, this.container);
             }
+          }.bind(this),
+
+          onFailure: function(){
+            document.body.removeClass('loading');
+            this.statusElement.setAttribute('data-status', 'error');
           }.bind(this)
         }).post(valueToPost) // XXX Post to IFRAME!
       }.bind(this);
 
-      var hooks = this.frm.retrieve('hooks');
-      hooks.apply(button);
+      // XXX is this correct
+      if (button){
+        var hooks = this.frm.retrieve('hooks');
+        hooks.apply(button);
+      } else {
+        this.doSubmit()
+      }
     },
 
     load: function(url){
@@ -217,8 +266,7 @@ function _mergeObjects(value, newValue){
     },
 
     autoSaveHandler: function(callback){
-      var url = this.frm.dataset.autosave;
-      if (! url) {
+      if (! this.frm.dataset.autosave) {
         if (callback) { callback(); }
         return;
       }
@@ -240,68 +288,16 @@ function _mergeObjects(value, newValue){
       }
 
       this.statusElement.setAttribute('data-status', 'saving');
+      // XXX must be two types of autosave:
+      // * BLOCKING. When data must be updated from server
+      // * NON-BLOCKING. Just save a data and show errors, do not upgrade a form
 
-      var valueToPost = {
-        json: JSON.stringify(this.reactForm.getValue())
-      };
-
-      if(this.frm.getElement('[name=edit_session]')){
-          valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
-      }
-
-      new Request.JSON({
-        url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
-        onSuccess: function(result){
-          $$('.autosave-errors').removeClass('autosave-errors');
-          if (result.success || result.error == 'draft'){
-            this.frm.store('savedData', newData);
-            if (callback) { callback(); }
-          }
-
-          if (result.success){
-            this.statusElement.setAttribute('data-status', 'saved');
-            this.frm.setAttribute('action', result.item_url);
-            this.frm.dataset.autosave = result.autosave_url;
-            if(!this.is_popup){
-              history.replaceState(null, null, result.item_url);
-            }
-            this.frm.getElements('.error').destroy();
-            if (result.edit_session){
-              // take a lock for new item saved first time (before save item
-              // didn't have an id, and the lock couldn't be taken)
-              this.frm.getElement('.item-lock').retrieve('item-lock').handleForceLock(result);
-            }
-          } else if (result.error == 'draft') {
-            this.statusElement.setAttribute('data-status', 'draft');
-            var errors = result.errors;
-
-            // XXX set errors
-            for (var key in errors) if (errors.hasOwnProperty(key)){
-              var field = $(this.frm.id + '-' + key);
-              if (field){
-                field.getParent('.form-row').addClass('autosave-errors');
-              }
-            }
-            this.frm.getElements('.error').each(function(el){
-              if (! el.getParent('.form-row').hasClass('autosave-errors')){
-                el.destroy();
-              }
-            });
-          }
-        }.bind(this),
-        onFailure: function(){
-          this.statusElement.setAttribute('data-status', 'error');
-        }.bind(this)
-      }).post(valueToPost);
+      this.submit();
     },
 
     saveAndContinueHandler: function(e) {
       e.preventDefault(); e.stopPropagation();
-      this.submit(e.target, function(result){
-        // After save we render the same page, do not release the lock
-        //this.holdLock();
-        this.load(result.item_url, true, this.container);
-      }.bind(this));
+      this.submit(e.target);
     },
 
     hasChanges: function(){

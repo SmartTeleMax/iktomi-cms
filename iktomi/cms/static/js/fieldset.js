@@ -8,7 +8,7 @@
             var widget = this.props.widget;
             var fieldset = this.props.fieldset;
             var label = (widget.props.label? 
-                            <label for={widget.props.id}>{widget.props.label}</label> :
+                            <label htmlFor={widget.props.id}>{widget.props.label}</label> :
                             '');
 
 
@@ -53,6 +53,13 @@
             //}
             return this.state.value;
         },
+
+        setErrors: function(newErrors){
+            newErrors = makeMutable(newErrors);
+            var errors = _mergeObjects(this.state.errors, newErrors);
+            this.setState({'errors': errors});
+        },
+
         onChange: function(){
             this.forceUpdate();
         },
@@ -81,6 +88,7 @@
     window.FieldSet.fromJSON = function(json){
         var props = JSON.parse(json);
         props.data = makeMutable(props.data);
+        props.errors = makeMutable(props.errors || {});
         return FieldSet(props)
     }
 

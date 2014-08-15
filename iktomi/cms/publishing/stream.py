@@ -187,7 +187,7 @@ class RevertAction(PostAction):
     def _clean_item_data(self, stream, env, item):
         form_cls = stream.config.ItemForm
         form = form_cls.load_initial(env, item, initial={}, permissions='r')
-        return form.raw_data.items()
+        return form.get_data()
 
     def revert(self, env, data):
         self.stream.insure_has_permission(env, 'p')
