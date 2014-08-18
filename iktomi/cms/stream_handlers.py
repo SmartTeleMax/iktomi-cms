@@ -427,8 +427,9 @@ class EditItemHandler(StreamAction):
         filter_data = filter_form.get_mdict()
         submit_url=stream.url_for(env, 'item', item=item.id).qs_set(
                                                         filter_data)
-        item_buttons = json.dumps(stream.get_item_buttons(env),
+        item_buttons = json.dumps(stream.get_item_buttons(env, data),
                                   ensure_ascii=False)
+        item_state = json.dumps(stream.item_state(env, self, item))
         template_data = dict(filter_form=filter_form,
                              success=success,
                              form=form,
@@ -454,6 +455,8 @@ class EditItemHandler(StreamAction):
                              save_allowed=save_allowed,
                              delete_allowed=delete_allowed,
 
+                             item_state=item_state,
+
                              is_popup=('__popup' in request.GET))
 
         template_data = stream.process_item_template_data(env, template_data)
@@ -463,19 +466,25 @@ class EditItemHandler(StreamAction):
                                       template_data)
     __call__ = edit_item_handler
 
-    def get_item_buttons(self):
-        buttons = StreamAction.get_item_buttons(self)
+    def get_item_buttons(self, env, data):
+        buttons = StreamAction.get_item_buttons(self, env, data)
         if buttons:
             button = buttons[0]
+            filter_data = data.filter_form.get_mdict()
+            stream_url = self.stream.url_for(env).qs_set(filter_data)
+            add_url = self.stream.url_for(env, 'item', item=None)\
+                                 .qs_set(filter_data)
             buttons = [
                 dict(button,
                      mode="save-and-continue"),
                 dict(button,
                      mode="save-and-add",
                      cls="add",
+                     url=add_url,
                      title=u"… и создать новый"),
                 dict(button,
                      mode="save-and-back",
+                     url=stream_url,
                      cls="back",
                      title=u"… и закрыть"),]
         return buttons

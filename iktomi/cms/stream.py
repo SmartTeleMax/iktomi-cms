@@ -100,10 +100,8 @@ class Stream(object):
         self.module_name = module_name
         self.actions = [x.bind(self) for x in self.actions]
 
-    def get_item_buttons(self, env):
-        buttons = sum([x.get_item_buttons() for x in self.actions], [])
-        buttons = [dict(x, url=self.url_for(env, x['action'], item="ITEM_ID"))
-                   for x in buttons]
+    def get_item_buttons(self, env, data):
+        buttons = sum([x.get_item_buttons(env, data) for x in self.actions], [])
         buttons.sort(key=lambda x: -x['order_position'])
         new_buttons = []
         while buttons:

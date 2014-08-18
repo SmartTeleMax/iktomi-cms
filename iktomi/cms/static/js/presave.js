@@ -105,11 +105,7 @@ var PreSaveHooks = new Class({
     this.hooks.push(hook_instance);
   },
 
-  apply: function(button) {
-    if(!button.hasClass('button')) {
-      button = button.getParent('.button');
-    }
-
+  apply: function(title) {
     var length = this.hooks.length;
     var common_text = [];
 
@@ -120,7 +116,7 @@ var PreSaveHooks = new Class({
     }
 
     if(common_text.length > 0) {
-      var popup = new ConfirmPopup(common_text, button.get('text'), 'Вернуться к редактированию');
+      var popup = new ConfirmPopup(common_text, title, 'Вернуться к редактированию');
       popup.addEvent('close', function(){
             if (popup.result){
               this.delayed();

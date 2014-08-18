@@ -15,6 +15,7 @@
       enctype="multipart/form-data"
       data-block-name="item-form"
       data-buttons="{{ item_buttons }}"
+      data-state="{{ item_state }}"
       {%- if autosave_allowed %} data-autosave="true"{% endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}
       data-json="{{ form.json() }}">

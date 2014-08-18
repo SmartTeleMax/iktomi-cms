@@ -47,12 +47,16 @@ class StreamAction(web.WebHandler):
                 getattr(stream.config, 'item_lock', None) == False:
             self.item_lock = False
 
-    def get_item_buttons(self):
+    def get_item_buttons(self, env, data):
         if self.display and self.for_item:
             props = ['action', 'title', 'hint', 'item_lock',
                      'item_form', 'order_position',
                      'cls', 'allowed_for_new', 'group', 'mode']
-            return [dict((x, getattr(self, x)) for x in props)]
+            buttons = [dict((x, getattr(self, x)) for x in props)]
+            buttons = [dict(x, url=self.stream.url_for(
+                                        env, x['action'], item="ITEM_ID"))
+                       for x in buttons]
+            return buttons
         return []
 
     def bind(self, stream):

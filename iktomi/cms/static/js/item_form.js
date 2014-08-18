@@ -59,7 +59,7 @@ function _mergeObjects(value, newValue){
     this.attachHooks();
 
     var form = FieldSet.fromJSON(frm.dataset.json);
-    var buttons = ButtonPanel.fromJSON(this, frm.dataset.buttons)
+    var buttons = ButtonPanel.fromJSON(this, frm.dataset.buttons, frm.dataset.state)
 
     window.props = form.props;
     window.dataCopy = _clone(form.props.data);
@@ -111,20 +111,21 @@ function _mergeObjects(value, newValue){
       //this.frm.addEvent('keydown', this.changeHandler);
     },
 
-    submit: function(button, callback, url) {
-      button = button || null; // If no button, this is autosave
-      callback = callback || function(){};
-      url = url || this.frm.getAttribute('action');
+    submit: function(options) {
+      console.log(options);
+      options = options || {};
+      var callback = options.callback || function(){};
+      var url = options.url || this.frm.getAttribute('action');
 
       this.doSubmit = function(){
         var valueToPost = {};
-        if(button == null || button.dataset.itemForm){
+        if(options.itemForm){
             valueToPost.json = JSON.stringify(this.reactForm.getValue());
         }
         if(this.frm.getElement('[name=edit_session]')){
             valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
         }
-        if(!button){
+        if(options.autosave){
             valueToPost.autosave = true;
         }
 
@@ -172,10 +173,10 @@ function _mergeObjects(value, newValue){
 
               if (this._callback_hook) {
                 this._callback_hook(result, function(){
-                  callback.call(this, result, button);
+                  callback.call(this, result, options);
                 });
               } else {
-                callback.call(this, result, button);
+                callback.call(this, result, options);
               }
             } else if (result.error == 'draft') {
               this.statusElement.setAttribute('data-status', 'draft');
@@ -198,10 +199,9 @@ function _mergeObjects(value, newValue){
         }).post(valueToPost) // XXX Post to IFRAME!
       }.bind(this);
 
-      // XXX is this correct
-      if (button){
+      if (!options.autosave){
         var hooks = this.frm.retrieve('hooks');
-        hooks.apply(button);
+        hooks.apply(options.title);
       } else {
         this.doSubmit()
       }
@@ -218,15 +218,16 @@ function _mergeObjects(value, newValue){
       }
     },
 
-    redirectHandler: function(e){
-      e.preventDefault(); e.stopPropagation();
-      this.submit(e.target, function(result, button){
-        //if (e.target.dataset.itemLock){
-          // the action, we are redirecting to, needs a lock, do not release it
-        //  this.holdLock();
-        //}
-        this.load(button.getProperty('href'));
-      }.bind(this));
+    redirectHandler: function(options){
+      this.submit(Object.merge({}, options, {
+        callback: function(result, options){
+          //if (e.target.dataset.itemLock){
+            // the action, we are redirecting to, needs a lock, do not release it
+            //this.holdLock();
+          //}
+         this.load(options.redirect);
+        }.bind(this)
+      }));
     },
 
     //holdLock: function(){
@@ -238,32 +239,32 @@ function _mergeObjects(value, newValue){
     //  this.frm.getElement('.item-lock').retrieve('item-lock').stop();
     //},
 
-    postHandler: function(props){
-      e.preventDefault(); e.stopPropagation();
-
-      var button = e.target;
+    postHandler: function(options){
       var _doSubmit = function(){
-        this.submit(button, function(result){
-          renderPage(result, this.container);
-        }, props.url);
-      }.bind(this);
+        this.submit(Object.merge({}, options, {
+          callback: function(result){
+            renderPage(result, this.container);
+          }.bind(this)
+        }));
+      };
 
-      if (!button.dataset.itemForm){
+      if (!options.itemForm){
         this.autoSaveHandler(_doSubmit);
       } else {
         _doSubmit();
       }
     },
 
-    saveHandler: function(e){
-      e.preventDefault(); e.stopPropagation();
-      this.submit(e.target, function(result, button){
-        if(this.is_popup){
-          this.popup.retrieve('popup').empty().hide();
-        } else {
-          this.load(button.getProperty('href'));
-        }
-      }.bind(this));
+    saveHandler: function(options){
+      this.submit(Object.merge({}, options, {
+        'callback': function(result, options){
+          if(this.is_popup){
+            this.popup.retrieve('popup').empty().hide();
+          } else {
+            this.load(options.redirect);
+          }
+        }.bind(this)
+      }));
     },
 
     autoSaveHandler: function(callback){
@@ -293,12 +294,11 @@ function _mergeObjects(value, newValue){
       // * BLOCKING. When data must be updated from server
       // * NON-BLOCKING. Just save a data and show errors, do not upgrade a form
 
-      this.submit();
+      this.submit({autosave: true});
     },
 
-    saveAndContinueHandler: function(e) {
-      e.preventDefault(); e.stopPropagation();
-      this.submit(e.target);
+    saveAndContinueHandler: function(options) {
+      this.submit(options);
     },
 
     hasChanges: function(){
