@@ -24,6 +24,8 @@
   -o-transition: 0.25s;
   transition: 0.25s;
   -webkit-backface-visibility: hidden;
+
+  white-space: pre-line;
 }
 .no-animation,
 .no-animation *{
@@ -347,3 +349,28 @@
   .header:hover .compact-toggle{
     opacity: 1;
     }
+
+
+.buttons-group{
+    display: inline-block;
+    overflow: hidden;
+    height: 30px;
+    vertical-align: top;
+  }
+.buttons-group>div{
+    background: #fff;
+    overflow:hidden;
+    }
+.buttons-group:hover{
+    overflow: visible;
+    }
+.buttons-group .button{
+  display: block;
+  float: right;
+  clear: both;
+  }
+  .button.hidden{
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.3;
+  }

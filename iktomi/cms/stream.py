@@ -146,7 +146,8 @@ class Stream(object):
     def item_state(self, env, action, item):
         return {'action': action.action,
                 'id': item.id or '',
-                'stream': self.module_name}
+                'stream': self.module_name,
+                'permissions': ''.join(self.get_permissions(env))}
 
     def get_edit_url(self, env, item):
         '''

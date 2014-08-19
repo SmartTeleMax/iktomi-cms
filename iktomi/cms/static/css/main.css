@@ -95,34 +95,7 @@ input.infilter { width: 10em; }
     text-align: right;
     }
   .header .line { background-color: #e3e6e8; }
-  .buttons__save-actions{
-    display: inline-block;
-    overflow: hidden;
-    height: 30px;
-    vertical-align: top;
-  }
-  .buttons__save-actions:hover{
-    height: 60px;
-  }
-  .buttons__save-hidden{
-    position: absolute;
-    background: #fff;
-    top: 27px;
-    right: 0px;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity .4s, visibility .1s linear .4s;
-    padding: 0 0 15px 15px;
-    }
-  .buttons__save-hidden .button{
-    display: block;
-    margin-top: 10px;
-    }
-  .buttons__save-actions:hover .buttons__save-hidden{
-    visibility: visible;
-    opacity: 1;
-    transition: opacity .4s, visibility 0s;
-    }
+
 
 .header+.text{
   margin-top: 73px !important;

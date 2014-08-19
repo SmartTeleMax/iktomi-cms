@@ -372,6 +372,13 @@ class PublishStreamNoState(Stream):
         kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
         return Stream.url_for(self, env, name, **kwargs)
 
+    def item_state(self, env, action, item):
+        return dict(Stream.item_state(self, env, action, item),
+                    version=item.models.db,
+                    has_unpublished_changes=item.has_unpublished_changes,
+                    existing=item.id is not None,
+                    public=item.id is not None)
+
 
 class PublishStream(PublishStreamNoState):
 
@@ -392,4 +399,10 @@ class PublishStream(PublishStreamNoState):
             Model = self.get_model(env)
             return query.filter(Model.existing)
         return query
+
+    def item_state(self, env, action, item):
+        return dict(PublishStreamNoState.item_state(self, env, action, item),
+                    state=item.state,
+                    public=item.public,
+                    existing=item.existing)
 

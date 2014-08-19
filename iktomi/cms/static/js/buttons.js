@@ -9,7 +9,7 @@
             return state;
         },
         onClick: function(e){
-            e.preventDefault();
+            e.preventDefault(); e.stopPropagation();
             var options = this.submitOptions();
             this.act(options);
         },
@@ -17,14 +17,18 @@
             return {title: this.props.title,
                     itemForm: this.props.item_form};
         },
+        isVisible: function(){ return true; },
+        getUrl: function(){
+            return this.props.url.replace('ITEM_ID', this.state.id || '+');
+        },
         render: function() {
             var action = this.props;
+            var visible = this.isVisible();
             var className = "button action-" + action.action + 
                                   (action.cls? " icon-" + action.cls: "");
-            var url = this.state ?action.url.replace('ITEM_ID', this.state.id) : "";
-            return <a href={url}
-                      rel={action.mode}
-                      title={action.hint || undefined}
+            className += visible ? '' : ' hidden';
+            return <a href={this.getUrl()}
+                      title={visible ? (action.hint || undefined) : undefined}
                       onClick={this.onClick}
                       className={className}>{action.title}</a>
         }
@@ -38,20 +42,20 @@
 
     var postProto = Object.merge({}, buttonProto, {
         act: function(options){
-            options.url = this.props.url;
+            options.url = this.getUrl();
             this.props.form.postHandler(options);
         }
     });
 
     var saveAndBackProto = Object.merge({}, buttonProto, {
         act: function(options){
-            options.redirect = this.props.url;
+            options.redirect = this.getUrl();
             this.props.form.saveHandler(options);
         }
     });
     var redirectProto = Object.merge({}, buttonProto, {
         act: function(options){
-            options.redirect = this.props.url;
+            options.redirect = this.getUrl();
             this.props.form.redirectHandler(options);
         }
     });
@@ -59,11 +63,47 @@
         onClick: function(e){}
     });
 
+
+    var publishProto = Object.merge({}, postProto, {
+        isVisible: function(){
+          var s = this.state;
+          return s.existing && 
+                  (s.has_unpublished_changes || !s.public) &&
+                  (s.permissions.indexOf('p') != -1) &&
+                  (s.version == 'admin');
+        }
+    });
+
+    var unpublishProto = Object.merge({}, postProto, {
+        isVisible: function(){
+          var s = this.state;
+          return s.public &&
+                  (s.permissions.indexOf('p') != -1) &&
+                  (s.version == 'admin');
+        }
+    });
+
+    var revertProto = Object.merge({}, postProto, {
+        isVisible: function(){
+          var s = this.state;
+          return s.existing &&
+                  (s.has_unpublished_changes || s.draft) &&
+                  (s.permissions.indexOf('p') != -1) &&
+                  (s.version == 'admin');
+        }
+    });
+
+
     var GetButton = React.createClass(getProto);
     var PostButton = React.createClass(postProto);
     var RedirectButton = React.createClass(redirectProto);
     var SaveAndContinueButton = React.createClass(saveAndContinueProto);
     var SaveAndBackButton = React.createClass(saveAndBackProto);
+
+
+    var PublishButton = React.createClass(publishProto);
+    var UnpublishButton = React.createClass(unpublishProto);
+    var RevertButton = React.createClass(revertProto);
 
     window.ItemButtons = {
         "custom": PostButton,
@@ -71,7 +111,11 @@
         "post": PostButton,
         "save-and-continue": SaveAndContinueButton,
         "save-and-add": RedirectButton,
-        "save-and-back": SaveAndBackButton
+        "save-and-back": SaveAndBackButton,
+
+        'publish': PublishButton,
+        'unpublish': UnpublishButton,
+        'revert': RevertButton
     }
 
 
@@ -104,7 +148,7 @@
                 if (buttons.length > 1) {
                     ws.push(<div key={buttons[0].props.key+'-group'}
                                  className="buttons-group">
-                              {buttons}
+                              <div>{buttons}</div>
                             </div>);
                 } else {
                     ws.push(buttons[0])

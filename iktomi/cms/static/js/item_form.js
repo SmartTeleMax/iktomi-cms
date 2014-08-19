@@ -246,7 +246,7 @@ function _mergeObjects(value, newValue){
             renderPage(result, this.container);
           }.bind(this)
         }));
-      };
+      }.bind(this);
 
       if (!options.itemForm){
         this.autoSaveHandler(_doSubmit);
