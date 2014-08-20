@@ -2,10 +2,10 @@
 /* Dashboard CSS for Calendar (navigation: 1), Copyright (c) 2007 Aeron Glemann <http://electricprism.com/aeron> */
 
 input.calendar {
-    width: 11en;
+    width: 100px;
 }
 input.timeinput {
-    width: 6en;
+    width: 60px;
 }
 
 select.calendar {
