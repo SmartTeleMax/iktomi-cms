@@ -84,10 +84,13 @@ class EditLogHandler(GetAction):
             raise HTTPNotFound()
 
         rel_stream_name, params = decode_stream_uid(log.stream_name)
-        if rel_stream_name not in env.streams:
+        if rel_stream_name in env.streams:
+            rel_stream = env.streams[rel_stream_name]
+        elif rel_stream_name in env.loners:
+            rel_stream = env.loners[rel_stream_name]
+        else:
             # Deleted or renamed stream
-            raise NotImplementedError
-        rel_stream = env.streams[rel_stream_name]
+            raise NotImplementedError("Deleted or renamed stream", rel_stream_name)
         rel_env = VersionedStorage(**params)
         rel_env._storage._parent_storage = env
 
