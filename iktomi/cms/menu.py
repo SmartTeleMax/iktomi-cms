@@ -78,8 +78,11 @@ class Menu(object):
             menu=self, url=self.url, active=self.active,
             title=self.title, **self.template_vars))
 
+    def child_count(self):
+        return len(self.items)
+
     def max_childs(self):
-        return reduce(max, [len(x.items) for x in self.items], 1)
+        return reduce(max, [x.child_count() for x in self.items], 1)
 
 
 class StreamMenu(Menu):
