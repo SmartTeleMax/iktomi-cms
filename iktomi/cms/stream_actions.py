@@ -12,6 +12,7 @@ class StreamAction(web.WebHandler):
     allowed_for_new = False
     display = True
     hint = None
+    xhr = True
 
     def is_available(self, env, item=None):
         """ Rewrite this method to add condition when action is avalible

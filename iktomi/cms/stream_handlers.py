@@ -186,7 +186,8 @@ class PrepareItemHandler(web.WebHandler):
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
-        insure_is_xhr(env)
+        if self.action.xhr:
+            insure_is_xhr(env)
 
         stream = self.action.stream
         stream.insure_has_permission(env, 'r')
