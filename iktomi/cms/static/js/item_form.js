@@ -112,7 +112,6 @@ function _mergeObjects(value, newValue){
     },
 
     submit: function(options) {
-      console.log(options);
       options = options || {};
       var callback = options.callback || function(){};
       var url = options.url || this.frm.getAttribute('action');
@@ -130,15 +129,23 @@ function _mergeObjects(value, newValue){
         }
 
         var applyResult = function (result){
-          this.reactForm.setErrors(result.form.errors);
+          if (result.form) {
+            this.reactForm.setErrors(result.form.errors);
 
-          var newValue = JSON.stringify(this.reactForm.getValue());
+            var newValue = valueToPost.json!==undefined?
+                                JSON.stringify(this.reactForm.getValue()):
+                                undefined;
 
-          // XXX is this ok?
-          if (result.form.data && newValue == valueToPost.json) {
-            // nothing changed on client side
-            this.reactForm.setValue(result.form.data);
-            this.frm.store('savedData', this.formHash());
+            // XXX is this ok?
+            if (result.form.data && newValue == valueToPost.json) {
+              // nothing changed on client side
+              this.reactForm.setValue(result.form.data);
+              this.frm.store('savedData', this.formHash());
+            }
+          }
+          if(result.state){
+            delete result.state.action;
+            this.buttons.setItemState(result.state);    
           }
         }.bind(this);
 
@@ -148,6 +155,7 @@ function _mergeObjects(value, newValue){
         new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
           onSuccess: function(result){
+            console.log('Save result', result)
             try {
               if (typeof result == 'string') {
                 result = JSON.decode(result);
@@ -294,7 +302,8 @@ function _mergeObjects(value, newValue){
       // * BLOCKING. When data must be updated from server
       // * NON-BLOCKING. Just save a data and show errors, do not upgrade a form
 
-      this.submit({autosave: true});
+      this.submit({autosave: true,
+                   itemForm: true});
     },
 
     saveAndContinueHandler: function(options) {

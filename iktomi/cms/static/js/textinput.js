@@ -16,6 +16,9 @@ MutableString.prototype = {
     },
     copy: function(){
         return new MutableString(this.text);
+    },
+    indexOf: function(i){
+      return this.text.indexOf(i);
     }
 };
 

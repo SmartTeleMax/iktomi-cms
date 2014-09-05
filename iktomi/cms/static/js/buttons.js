@@ -6,7 +6,7 @@
         getInitialState: function() {
             var state = this.props.state;
             delete this.props.state;
-            return state;
+            return {'item': state};
         },
         onClick: function(e){
             e.preventDefault(); e.stopPropagation();
@@ -19,7 +19,7 @@
         },
         isVisible: function(){ return true; },
         getUrl: function(){
-            return this.props.url.replace('ITEM_ID', this.state.id || '+');
+            return this.props.url.replace('ITEM_ID', this.state.item.id || '+');
         },
         render: function() {
             var action = this.props;
@@ -66,7 +66,7 @@
 
     var publishProto = Object.merge({}, postProto, {
         isVisible: function(){
-          var s = this.state;
+          var s = this.state.item;
           return s.existing && 
                   (s.has_unpublished_changes || !s.public) &&
                   (s.permissions.indexOf('p') != -1) &&
@@ -76,7 +76,7 @@
 
     var unpublishProto = Object.merge({}, postProto, {
         isVisible: function(){
-          var s = this.state;
+          var s = this.state.item;
           return s.public &&
                   (s.permissions.indexOf('p') != -1) &&
                   (s.version == 'admin');
@@ -85,7 +85,7 @@
 
     var revertProto = Object.merge({}, postProto, {
         isVisible: function(){
-          var s = this.state;
+          var s = this.state.item;
           return s.existing &&
                   (s.has_unpublished_changes || s.draft) &&
                   (s.permissions.indexOf('p') != -1) &&
@@ -123,7 +123,11 @@
         getInitialState: function() {
             var state = this.props.state;
             delete this.props.state;
-            return state;
+            return {'item': state};
+        },
+        setItemState: function(itemState){
+            itemState = _mergeObjects(this.state.item, itemState);
+            this.setState({'item': itemState});
         },
         render: function() {
             //this.widgetsByName = {};
@@ -137,7 +141,7 @@
                     props.form = this.props.form;
                     props.parent = this;
                     props.key = props.action + '-' + props.mode;
-                    props.state = this.props.state || this.state;
+                    props.state = this.props.state || this.state.item;
 
                     var Component = ItemButtons[props.action]||ItemButtons[props.mode];
                     var button = Component(props);

@@ -106,10 +106,9 @@ class PublishAction(PostAction):
         data.item.publish()
         flash(env, u'Объект «%s» опубликован' % data.item, 'success')
         env.db.commit()
-
-        url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
-                         'location': url})
+        state = self.stream.item_state(env, self, data.item)
+        return env.json({'success': True,
+                         'state': state})
     __call__ = admin_publish
 
     def is_available(self, env, item):
@@ -157,9 +156,9 @@ class UnpublishAction(PostAction):
         flash(env, u'Объект «%s» снят с публикации' % data.item, 'success')
         env.db.commit()
 
-        url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
-                         'location': url})
+        state = self.stream.item_state(env, self, data.item)
+        return env.json({'success': True,
+                         'state': state})
     __call__ = unpublish
 
     def is_available(self, env, item):
@@ -227,10 +226,12 @@ class RevertAction(PostAction):
             log.after = self._clean_item_data(self.stream, env, data.item)
             env.db.commit()
 
-
-        url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
-                         'location': url})
+        state = self.stream.item_state(env, self, data.item)
+        form_cls = self.stream.config.ItemForm
+        form = form_cls.load_initial(env, data.item)
+        return env.json({'success': True,
+                         'form': form.json_data(),
+                         'state': state})
     __call__ = revert
 
     def is_available(self, env, item):
@@ -265,8 +266,7 @@ class DeleteFlagHandler(DeleteItemHandler):
 
         stream_url = self.stream.url_for(env).qs_set(
                             data.filter_form.get_mdict())
-
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': stream_url})
     __call__ = delete_flag_handler
 

@@ -382,7 +382,8 @@ class EditItemHandler(StreamAction):
                 result = {'success': True,
                           'item_id': item.id,
                           'form': form.json_data(),
-                          'item_url': item_url}
+                          'item_url': item_url,
+                          'state': stream.item_state(env, self, item)}
                 if need_lock:
                     try:
                         gid = ItemLock.item_global_id(item)
@@ -416,12 +417,14 @@ class EditItemHandler(StreamAction):
                                  'error': 'draft',
                                  'draft_id': draft.id,
                                  'form': form.json_data(),
+                                 'state': stream.item_state(env, self, item),
                                  })
             else:
                 stream.rollback_due_form_errors(env, item, silent=False)
                 return env.json({'success': False,
                                  'error': 'errors',
                                  'form': form.json_data(),
+                                 'state': stream.item_state(env, self, item),
                                  })
 
         filter_data = filter_form.get_mdict()
