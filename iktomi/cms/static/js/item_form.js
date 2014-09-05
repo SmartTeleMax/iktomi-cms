@@ -18,7 +18,9 @@
   }
 
   ItemForm.prototype = {
-    saveInProgress: false,
+    saveInProgress: function(){
+        return this.saveRequest && this.saveRequest.running;    
+    },
 
     attachHooks: function(){
       var hooks = new PreSaveHooks(this.frm);
@@ -63,7 +65,7 @@
       url = url || this.frm.getAttribute('action');
 
       this.doSubmit = function(){
-        if (this.saveInProgress){
+        if (this.saveInProgress()){
             console.log('Race condition: save in progress. Re-run in 500ms');
             window.setTimeout(this.doSubmit, 500);
             return;
@@ -76,11 +78,9 @@
         }
 
         document.body.addClass('loading');
-        this.saveInProgress = true;
-        new Request({
+        this.saveRequest = new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
           onSuccess: function(result){
-            this.saveInProgress = false;
             try {
               if (typeof result == 'string') {
                 result = JSON.decode(result);
@@ -173,7 +173,7 @@
 
     autoSaveHandler: function(callback){
       var url = this.frm.dataset.autosave;
-      if (! url || this.saveInProgress) {
+      if (! url || this.saveInProgress()) {
         if (callback) { callback(); }
         return;
       }
@@ -196,11 +196,10 @@
 
       this.statusElement.setAttribute('data-status', 'saving');
 
-      this.saveInProgress = true;
-      new Request.JSON({
+      this.saveRequest = new Request.JSON({
         url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
+
         onSuccess: function(result){
-          this.saveInProgress = false;
           $$('.autosave-errors').removeClass('autosave-errors');
           if (result.success || result.error == 'draft'){
             this.frm.store('savedData', newData);
