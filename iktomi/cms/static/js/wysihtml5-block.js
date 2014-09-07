@@ -1,75 +1,4 @@
-(function(){
-  window.wysihtml5Init = function(el){
-    el = $(el);
-    var config = JSON.parse(el.dataset.config);
-    var editor = new wysihtml5.Editor(el.id, { // id of textarea element
-      stylesheets: config.stylesheets,
-      useLineBreaks: false,
-      toolbar: $(el.id + '-toolbar'), // id of toolbar element
-      //parser: function(elementOrHtml, rules, context, cleanUp) {
-      //  // XXX Temporary disabled html cleanup. 
-      //  //     To enable, remove parser from config and define parserRules
-      //  context           = context || elementOrHtml.ownerDocument || document;
-      //  var isString      = typeof(elementOrHtml) === "string",
-      //      element;
-      //  
-      //  if (isString) {
-      //    element = wysihtml5.dom.getAsDom(elementOrHtml, context);
-      //  } else {
-      //    element = elementOrHtml;
-      //  }
-      //  
-      //  return isString ? wysihtml5.quirks.getCorrectInnerHTML(element) : element;
-      //}
-      parserRules: config.parserRules // defined in parser rules set 
-    });
-    var iframe = editor.composer.iframe;
-
-
-
-    function attachIFrame(){
-      editor.composer.iframe.contentDocument.addEventListener('click', function(e){
-        e.preventDefault(); // do not handle clicks, especially on links
-        $$('.wysihtml5-dialog').setStyle('display', 'none');
-      }, true);
-      extendRange(editor.composer.iframe.contentWindow)
-    }
-    iframe.addEventListener('load', attachIFrame, false);
-    attachIFrame();
-
-    el.store('widget', editor);
-
-    var toolbar = $(el.id + '-toolbar');
-    if (toolbar) {
-      toolbar.getElements('.btn').each(function(btn){
-        btn.set('title', btn.get('text'));
-      });
-    }
-
-    if (window.LongPress){
-      window.setTimeout(function(){
-        LongPress(editor.composer.element);
-
-        if (el.getProperty('readonly')){
-          // Do not change styles for disabled (readonly) elements
-          editor.composer.disabledStylesHost = document.createElement('div');
-          editor.composer.disable();
-        }
-
-      }, 500); // XXX delay is not good solution here
-    }
-  }
-
-  Blocks.register('wysihtml5', window.wysihtml5Init);
-
-  document.addEvent('click', function(e){
-    if(!e.target.hasClass('wysihtml5-dialog') && 
-        !e.target.getParent('.wysihtml5-toolbar') &&
-        !e.target.getParent('.wysihtml5-dialog')){
-      $$('.wysihtml5-dialog').setStyle('display', 'none');
-    }
-  }, true)
-})();
+/** @jsx React.DOM */
 
 (function(){
     // monkeypatching wysihtml5 Toolbar
@@ -317,4 +246,140 @@
     }
   }
 })(wysihtml5);
+
+
+(function() {
+
+    // XXX how to do component inheritance in right way?
+    var WysiHtml5Proto = {
+        getInitialState: function() {
+            if (this.props.data){
+                var value = this.props.data;
+                delete this.props.data;
+            } else {
+                var value = {}
+            }
+
+            if (this.props.initial) {
+                // Value object must be mutable.
+                // As I understand, this is react's method to collect
+                // changes from children.
+                var initial = {'text': this.props.initial};
+            } else {
+                var initial = {'text': ''};
+            }
+            var init = JSON.stringify(initial);
+            initial = _mergeObjects(initial, value);
+            return {'value': _mergeObjects(value, initial),
+                    'errors': this.props.errors}
+        },
+
+        componentDidMount: function(){
+            var el = this.refs.textarea.getDOMNode();
+            var config = this.props;
+            var editor = new wysihtml5.Editor(el.id, { // id of textarea element
+              stylesheets: config.stylesheets,
+              useLineBreaks: false,
+              toolbar: $(el.id + '-toolbar'), // id of toolbar element
+              parserRules: config.parserRules // defined in parser rules set 
+            });
+            //scribe.on('content-changed', updateData);
+            var iframe = editor.composer.iframe;
+
+            function attachIFrame(){
+              editor.composer.iframe.contentDocument.addEventListener('click', function(e){
+                e.preventDefault(); // do not handle clicks, especially on links
+                $$('.wysihtml5-dialog').setStyle('display', 'none');
+              }, true);
+              extendRange(editor.composer.iframe.contentWindow)
+            }
+            iframe.addEventListener('load', attachIFrame, false);
+            attachIFrame();
+
+            el.store('widget', editor);
+
+            var toolbar = $(el.id + '-toolbar');
+            if (toolbar) {
+              toolbar.getElements('.btn').each(function(btn){
+                btn.set('title', btn.get('text'));
+              });
+            }
+
+            if (window.LongPress){
+              window.setTimeout(function(){
+                LongPress(editor.composer.element);
+
+                if (el.getProperty('readonly')){
+                  // Do not change styles for disabled (readonly) elements
+                  editor.composer.disabledStylesHost = document.createElement('div');
+                  editor.composer.disable();
+                }
+
+              }, 500); // XXX delay is not good solution here
+            }
+
+        },
+
+        getError: function(){
+            return this.state.errors['.'] || '';
+        },
+        setValue: function(newValue){
+            var value = _mergeObjects(this.state.value, {'text': newValue});
+            this.setState({'value': value});
+        },
+        getValue: function(){
+            return this.state.value.text;
+        },
+
+        onChange: function(e){
+            this.setValue(e.target.value);
+        },
+        render: function() {
+            var toolbar = '';
+            if(!this.props.readonly){
+              var buttons = [];
+              for(var i=0; i<this.props.buttons.length; i++){
+                var btns = this.props.buttons[i];
+                for(var j=0; j<btns.length; j++){
+                  var props = {};
+                  for(var k in this.props) if (this.props.hasOwnProperty(k)) {
+                      props[k] = this.props[k];
+                  }
+                  props.key = btns[j];
+                  var btn = WysiHtml5.Buttons[btns[j]](props);
+                  buttons.push(btn);
+                }
+                buttons.push(<span key={'sep'+i} className="separator"></span>);
+              }
+              toolbar = <div id={this.props.id +"-toolbar"}
+                             className="wysihtml5-toolbar"
+                             style={{display: "none"}}>{buttons}</div>
+            }
+            var className = "wysihtml5-widget " + (this.props.classname || "");
+            return <div className={className}>
+                {toolbar}
+                <textarea id={this.props.id}
+                          name={this.props.input_name }
+                          className="init-wysihtml5"
+                          readonly={this.props.readonly?readonly:null}
+                          defaultValue={this.getValue()}
+                          ref="textarea">
+                </textarea>
+              </div>
+        }
+    }
+
+
+    window.WysiHtml5 = React.createClass(WysiHtml5Proto);
+})();
+
+(function(){
+  document.addEvent('click', function(e){
+    if(!e.target.hasClass('wysihtml5-dialog') && 
+        !e.target.getParent('.wysihtml5-toolbar') &&
+        !e.target.getParent('.wysihtml5-dialog')){
+      $$('.wysihtml5-dialog').setStyle('display', 'none');
+    }
+  }, true)
+})();
 

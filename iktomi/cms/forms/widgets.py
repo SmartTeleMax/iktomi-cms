@@ -5,7 +5,7 @@ from iktomi.forms import widgets_json as widgets
 from datetime import datetime
 from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
-import json
+
 
 class WysiHtml5(Widget):
 
@@ -52,10 +52,10 @@ class WysiHtml5(Widget):
     stylesheets = ("/static/css/wysihtml5-content.css",)
 
     def render(self):
-        return dict(super(Select, self).render(),
+        return dict(super(WysiHtml5, self).render(),
                     parserRules=self.parser_rules,
                     stylesheets=self.stylesheets,
-                    allowed_elements=self.allowed_elements,
+                    allowed_elements=list(self.allowed_elements),
                     buttons=self.real_buttons)
 
     @cached_property

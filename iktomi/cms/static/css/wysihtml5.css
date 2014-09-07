@@ -25,6 +25,13 @@ textarea.wysihtml5{
   /*height: 32px !important;*/
   border-bottom: 1px solid #bbb;
   }
+  .wysihtml5-toolbar:after {
+    content: "";
+    display: block;
+    clear: both;
+    height: 0px;
+    visibility: hidden;
+  }
   .wysihtml5-toolbar a.btn {
     display: block;
     float: left;

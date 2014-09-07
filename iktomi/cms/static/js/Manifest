@@ -20,7 +20,8 @@ presave/Files
 range
 wysihtml5-0.4.0pre
 wysihtml5-mce-table
-wysihtml5-block
+text/jsx:wysihtml5-block
+text/jsx:wysihtml5-buttons
 wysihtml5-link
 dragupload
 progressbar
