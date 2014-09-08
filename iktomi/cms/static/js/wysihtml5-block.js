@@ -274,7 +274,12 @@
                     'errors': this.props.errors}
         },
 
+        onChange: function(){
+          this.setValue(this.editor.getValue());
+        },
+
         componentDidMount: function(){
+            window.WYSIWYG = this;
             var el = this.refs.textarea.getDOMNode();
             var config = this.props;
             var editor = new wysihtml5.Editor(el.id, { // id of textarea element
@@ -283,6 +288,8 @@
               toolbar: $(el.id + '-toolbar'), // id of toolbar element
               parserRules: config.parserRules // defined in parser rules set 
             });
+            this.editor = editor;
+            editor.on('change', this.onChange.bind(this));
             //scribe.on('content-changed', updateData);
             var iframe = editor.composer.iframe;
 
@@ -331,10 +338,11 @@
             return this.state.value.text;
         },
 
-        onChange: function(e){
-            this.setValue(e.target.value);
-        },
         render: function() {
+            if (this.isMounted() && this.getDOMNode()){
+              this.editor.setValue(this.getValue())
+              // XXX how to return if nothing changed??
+            }
             var toolbar = '';
             if(!this.props.readonly){
               var buttons = [];
@@ -360,7 +368,7 @@
                 {toolbar}
                 <textarea id={this.props.id}
                           name={this.props.input_name }
-                          className="init-wysihtml5"
+                          className="wysihtml5"
                           readonly={this.props.readonly?readonly:null}
                           defaultValue={this.getValue()}
                           ref="textarea">

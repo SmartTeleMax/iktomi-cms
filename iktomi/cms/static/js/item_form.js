@@ -155,7 +155,7 @@ function _mergeObjects(value, newValue){
         new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
           onSuccess: function(result){
-            console.log('Save result', result)
+            //console.log('Save result', result)
             try {
               if (typeof result == 'string') {
                 result = JSON.decode(result);
@@ -288,6 +288,7 @@ function _mergeObjects(value, newValue){
       }
 
       var newData = this.formHash();
+
       if(this.frm.retrieve('savedData') == newData){
         //console.log('AUTOSAVE no changes');
         if (this.statusElement.getAttribute('data-status') != 'draft') {
@@ -296,6 +297,10 @@ function _mergeObjects(value, newValue){
         if (callback) { callback(); }
         return;
       }
+
+      //console.log('OLD', this.frm.retrieve('savedData'));
+      //console.log('NEW', newData);
+      //console.log('OLD==NEW', this.frm.retrieve('savedData')==newData);
 
       this.statusElement.setAttribute('data-status', 'saving');
       // XXX must be two types of autosave:
@@ -335,9 +340,9 @@ function _mergeObjects(value, newValue){
             // XXX provide an interface for widgets that can track their changes
             // themselves
 
-        if (el.dataset.blockName == 'wysihtml5'){
+        if (el.hasClass('wysihtml5')){
           var widget = el.retrieve('widget');
-          if (widget) {
+          if (widget && widget.composer.undoManager) {
             widget.composer.undoManager.transact();
             var value = ''+widget.composer.undoManager.version;
           } else {
