@@ -508,7 +508,7 @@ def _get_all_classes(model):
 def _get_referers(db, item):
     '''Returns a dictionary mapping referer model class to query of all
     objects of this class refering to current object.'''
-    cls, ident = identity_key(instance=item)
+    cls = type(item)
     result = {}
     for other_class in _get_all_classes(cls):
         queries = {}
