@@ -38,6 +38,10 @@
     border-color: #d7342e;
     color: #d7342e;
 }
+.flashmessage.warning{
+    border-color: #d7842e;
+    color: #d7842e;
+}
 .flashmessage .close{
     float: right;
     color: inherit;
