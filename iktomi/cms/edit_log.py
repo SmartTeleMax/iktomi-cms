@@ -86,8 +86,6 @@ class EditLogHandler(GetAction):
         rel_stream_name, params = decode_stream_uid(log.stream_name)
         if rel_stream_name in env.streams:
             rel_stream = env.streams[rel_stream_name]
-        elif rel_stream_name in env.loners:
-            rel_stream = env.loners[rel_stream_name]
         else:
             # Deleted or renamed stream
             raise NotImplementedError("Deleted or renamed stream", rel_stream_name)

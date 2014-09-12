@@ -161,40 +161,18 @@ class ActionMenu(Menu):
         return self.stream.url_for(self.env, self.action)(self.filters)
 
 
-class LonerMenu(Menu):
+class LonerMenu(StreamMenu):
 
-    def __init__(self, loner_name, title=None, items=None,
+    #template = 'menu/loner_menu'
+
+    def __init__(self, stream_name, title=None, items=None,
                  template_vars={}, env=None, template=None):
-        self.loner_name = loner_name
-        if title is not None:
-            self.title = title
-        self.items = items or []
-        self.template = template or self.template
-        self.template_vars = template_vars
-        self._env = env
-        for item in self.items:
-            item.parent = weakproxy(self)
-
-    @cached_property
-    def loner(self):
-        return self.env.loners[self.loner_name]
-
-    @cached_property
-    def title(self):
-        return self.loner.title
-
-    @cached_property
-    def url(self):
-        return self.loner.url_for(self.env)
-
-    @cached_property
-    def get_permissions(self):
-        return self.loner.get_permissions(self.env)
-
-    @cached_property
-    def endpoint_name(self):
-        return 'loners.'+self.loner_name
-
+        StreamMenu.__init__(self, stream_name,
+                            title=title, items=items,
+                            template_vars=template_vars, env=env,
+                            template=template)
+        self.filters = {}
+        self.create = False
 
 
 class DashCol(Menu):
