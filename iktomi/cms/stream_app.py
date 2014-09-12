@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from importlib import import_module
 from iktomi.cms.stream import Stream
-from iktomi.cms.loner import Loner
 from iktomi import web
 
 
 class Streams(dict):
 
     @classmethod
-    def from_list(cls, stream_list, package):
-        return cls((name, cls.get_stream(name, package)) \
+    def from_list(cls, stream_list, package, **kwargs):
+        return cls((name, cls.get_stream(name, package, **kwargs)) \
                    for name in stream_list)
 
     @classmethod
@@ -23,9 +22,10 @@ class Streams(dict):
         return cls.from_list(stream_list, package, **kwargs)
 
     @staticmethod
-    def get_stream(name, package):
+    def get_stream(name, package, stream_class=Stream):
         module = import_module('.' + name, package)
-        stream_class = getattr(module, 'Stream', Stream)
+        stream_class = getattr(module, 'Loner', stream_class)
+        stream_class = getattr(module, 'Stream', stream_class)
         return stream_class(name, module)
 
     def to_app(self):
@@ -60,26 +60,5 @@ class Streams(dict):
             result.append('.'.join(parts))
             parts.pop()
         return result
-
-
-class Loners(Streams):
-
-    get_stream = None
-
-    @classmethod
-    def from_list(cls, stream_list, package, loner_class):
-        return cls((name, cls.get_loner(name, package, loner_class)) \
-                   for name in stream_list)
-
-    @staticmethod
-    def get_loner(name, package, loner_class=Loner):
-        module = import_module('.' + name, package)
-        loner_class = getattr(module, 'Loner', loner_class)
-        return loner_class(name, module)
-
-    def to_app(self):
-        return web.prefix('/loners', name='loners') | self._create_subapp()
-
-
 
 
