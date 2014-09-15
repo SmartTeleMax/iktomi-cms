@@ -5,7 +5,18 @@ from iktomi.forms import widgets
 from datetime import datetime
 from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
+from iktomi.cms.models.edit_log import make_diff
+from lxml.html.diff import htmldiff
 import json
+
+class _LazyHtmlDiff(object):
+    def __init__(self, value1, value2):
+        self.value1, self.value2 = value1, value2
+
+    @cached_property
+    def value(self):
+        return htmldiff(self.value1, self.value2)
+
 
 class WysiHtml5(Widget):
 
@@ -126,6 +137,47 @@ class WysiHtml5(Widget):
             else:
                 button_blocks.append((name, btns))
         return self(button_blocks=button_blocks)
+
+    def prepare_data(self):
+        return dict(Widget.prepare_data(self),
+                    js_config=self.js_config)
+
+    def render_as_diff(self, diff, marker):
+        '''
+        Renders widget to template
+        '''
+        data = self.prepare_data()
+        data['value'] = diff
+        rev_marker = 'ins' if marker == 'del' else 'del'
+        parser_rules = dict(self.parser_rules)
+        parser_rules['tags'] = dict(self.parser_rules['tags'],
+                            **{rev_marker: {'remove': 1},
+                               marker: {}})
+        data['js_config'] = json.dumps({'parserRules': parser_rules,
+                                        'stylesheets': self.stylesheets})
+        if self.field.readable:
+            return self.env.template.render(self.template, **data)
+        return ''
+
+    @staticmethod
+    def get_diff(field1, field2):
+        data1 = field1.from_python(field1.clean_value)
+        data2 = field2.from_python(field2.clean_value)
+
+        if field1 is None or field2 is None:
+            if data1 != data2:
+                return make_diff(field1, field2,
+                                 changed=True)
+        elif data1 != data2:
+            diff = _LazyHtmlDiff(data1, data2)
+            before=lambda: field1.widget.render_as_diff(diff.value, 'del')
+            after=lambda: field2.widget.render_as_diff(diff.value, 'ins')
+            return dict(label=field1.label or field1.name,
+                        name=field1.name,
+                        before=before,
+                        after=after,
+                        changed=True)
+
 
 
 class PopupStreamSelect(Select):

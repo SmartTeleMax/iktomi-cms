@@ -14,7 +14,7 @@
   <textarea id="{{ widget.id }}"  name="{{ widget.input_name }}"
     class="init-block wysihtml5"
     {%- if readonly %} readonly="readonly"{% endif %}
-    data-block-name="wysihtml5" data-config="{{ widget.js_config|forceescape }}">
+    data-block-name="wysihtml5" data-config="{{ js_config|forceescape }}">
     {{- value|forceescape }}
   </textarea>
 </div>
