@@ -9,6 +9,57 @@ from iktomi.cms.loner import Loner
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
 
 
+def global_log(env, data):
+    insure_is_xhr(env)
+
+    stream_names = [k for (k, s) in env.streams.items()
+                    if 'r' in s.get_permissions(env)]
+
+    EditLog = env.edit_log_model
+    cond = EditLog.stream_name.in_(stream_names)
+    for stream_name in stream_names:
+        cond |= EditLog.stream_name.startswith(stream_name + ':')
+
+    query = env.db.query(EditLog).filter(cond)
+#    url = env.root.build_subreverse(env.current_location)
+    paginator = ModelPaginator(env.request, query,
+                               impl=FancyPageRange(),
+                               limit=30,
+                               #url=url
+                               )
+
+    def expand(obj):
+        # XXX all this is like a hack!
+        stream_name = obj.stream_name.split(':')[0]
+        if stream_name not in env.streams:
+            return {}
+        stream = env.streams[stream_name]
+        lang = decode_stream_uid(obj.stream_name)[1].get('lang')
+        stream_env = VersionedStorage(version="admin", lang=lang)
+        stream_env._storage._parent_storage = env
+        stream_env.models = env.models.admin
+        if lang:
+            stream_env.models = getattr(stream_env.models, lang)
+
+        assert 'r' in stream.get_permissions(stream_env)
+        item = stream.item_query(stream_env).filter_by(id=obj.object_id).first()
+        return {"obj": obj,
+                "stream": stream,
+                "item": item,
+                "item_title": getattr(item, 'title', unicode(item)),
+                "lang": lang,
+                "type": stream.edit_log_action.log_type_title(obj)}
+
+
+    paginator.items = [expand(obj) for obj in paginator.items]
+
+    return env.render_to_response('edit_log/global_log',
+                                  dict(paginator=paginator,
+                                       #stream=self.stream,
+                                       log_type_title=EditLogHandler.log_type_title, # XXX
+                                       ))
+
+
 class EditLogHandler(GetAction):
 
     item_lock = False

@@ -94,7 +94,8 @@ class PublishAction(PostAction):
             return env.json({})
 
         EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and self.stream.edit_log
+        log_enabled = EditLog is not None and \
+                      self.stream.edit_log_action is not None
         if log_enabled:
             log = EditLog(stream_name=self.stream.uid(env),
                           type="publish",
@@ -143,7 +144,8 @@ class UnpublishAction(PostAction):
             return env.json({})
 
         EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and self.stream.edit_log
+        log_enabled = EditLog is not None and \
+                      self.stream.edit_log_action is not None
         if log_enabled:
             log = EditLog(stream_name=self.stream.uid(env),
                           type="unpublish",
@@ -196,7 +198,8 @@ class RevertAction(PostAction):
             return env.json({})
 
         EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and self.stream.edit_log
+        log_enabled = EditLog is not None and \
+                      self.stream.edit_log_action is not None
         if log_enabled:
             before = self._clean_item_data(self.stream, env, data.item)
             log = EditLog(stream_name=self.stream.uid(env),
