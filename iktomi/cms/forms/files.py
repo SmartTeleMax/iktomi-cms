@@ -9,7 +9,7 @@ from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.utils.image_resizers import ResizeFit
 from iktomi.utils import cached_property
 from iktomi.cms.forms import convs, widgets
-from PIL import Image # pragma: no cover
+from PIL import Image
 
 
 class AjaxFileField(FileFieldSet):

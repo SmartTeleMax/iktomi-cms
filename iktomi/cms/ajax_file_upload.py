@@ -9,7 +9,7 @@ from iktomi.cms.forms.fields import AjaxImageField
 from iktomi.cms.stream_handlers import PrepareItemHandler, NoneIntConv
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
-from PIL import Image # pragma: no cover
+from PIL import Image
 
 logger = logging.getLogger(__file__)
 
