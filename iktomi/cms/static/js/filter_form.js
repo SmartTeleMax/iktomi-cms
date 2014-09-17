@@ -13,6 +13,7 @@
     this.$events = {};
     this.changeUrl = !this.form.getParent('.popup');
     form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
+    form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
   }
  
   FilterForm.prototype = {
@@ -55,8 +56,23 @@
     onSubmitClick: function(e){
       e.preventDefault();
       this.form.retrieve('submitFilter')();
+    },
+
+    onClearClick: function(e) {
+      e.preventDefault();
+      this.form.getElements('.w-popup-stream-select').each(function(item) {
+          item.getElements('input').each(function(item) {
+              item.destroy();
+          });
+          item.getElements('.item').each(function(item) {
+              item.destroy();
+          });
+      });
+
+      this.form.reset();
+      this.form.retrieve('submitFilter')();
     }
-  }
+  };
 
   function liveSearch(input){
     var items = input.getParent('.stream').getElement('.items').getElements('.item');
