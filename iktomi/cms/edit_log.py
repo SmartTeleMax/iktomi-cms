@@ -2,25 +2,108 @@
 from webob.exc import HTTPNotFound
 from iktomi import web
 from iktomi.utils.storage import VersionedStorage
-from iktomi.cms.stream import decode_stream_uid
+from iktomi.cms.stream import decode_stream_uid, FilterForm
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
+from iktomi.cms.forms import convs, widgets
+from iktomi.cms.forms.fields import Field, DateFromTo, SortField
 from iktomi.cms.loner import Loner
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
+
+
+def all_by_default(conv, value):
+    if not value:
+        return [k for k, v in conv.conv.choices]
+    return value
+
+
+
+class EditLogItemFilterForm(FilterForm):
+
+    def __init__(self, *args, **kwargs):
+        # XXX hack! do not do in this way. Use class_factory
+        streams = kwargs.pop('streams', None)
+        types = kwargs.pop('types')
+        models = kwargs.pop('models')
+        fields = []
+        for field in self.fields:
+            field = field()
+            if field.name == 'users':
+                field = field(conv=convs.ModelChoice(model=models.AdminUser,
+                                                     title_field="login"))
+            if field.name == 'streams':
+                field = field(conv=convs.ListOf(convs.EnumChoice(choices=streams),
+                                                all_by_default))
+            if field.name == 'type':
+                field = field(conv=convs.EnumChoice(choices=types))
+            fields.append(field)
+        self.fields = fields
+        FilterForm.__init__(self, *args, **kwargs)
+
+    fields = [
+        Field('object_id',
+              label=u"ID",
+              widget=widgets.TextInput(classname="small")),
+        Field('type',
+              label=u'Тип',
+              #conv=convs.EnumChoice(),
+              widget=widgets.PopupFilteredSelect()),
+        Field('users',
+              label=u'Пользователь',
+              #conv=convs.ModelChoice(model=models.AdminUser),
+              widget=widgets.PopupFilteredSelect()),
+        DateFromTo('creation_time'),
+        SortField('sort',
+                  choices=(('id', 'id'),
+                           ('type', 'type'),
+                           ('title', 'title'),
+                           ('date', 'date')),
+                  initial='-id'),
+    ]
+
+    def filter_by__streams(self, query, field, value):
+        EditLog = self.model
+        cond = EditLog.stream_name.in_(value)
+        for stream_name in value:
+            cond |= EditLog.stream_name.startswith(stream_name + ':')
+        return query.filter(cond)
+
+    def filter_by__users(self, query, field, value):
+        return query.filter(self.model.users.contains(value))
+
+
+class EditLogFilterForm(EditLogItemFilterForm):
+
+    fields = [
+        Field('streams',
+              label=u'Потоки',
+              #conv=convs.ListOf(convs.EnumChoice()),
+              widget=widgets.PopupFilteredSelect())
+    ] + EditLogItemFilterForm.fields
 
 
 def global_log(env, data):
     insure_is_xhr(env)
 
     stream_names = [k for (k, s) in env.streams.items()
-                    if 'r' in s.get_permissions(env)]
+                    if 'r' in s.get_permissions(env) and s.edit_log_action is not None]
+    stream_choices = [(k, env.streams[k].title)
+                      for k in stream_names]
+    types = {}
+    for k in stream_names:
+        types.update(env.streams[k].edit_log_action.log_types)
+    types = types.items()
 
     EditLog = env.edit_log_model
-    cond = EditLog.stream_name.in_(stream_names)
-    for stream_name in stream_names:
-        cond |= EditLog.stream_name.startswith(stream_name + ':')
+    filter_form = EditLogFilterForm(env,
+                                    streams=stream_choices,
+                                    models=env.models.admin,
+                                    types=types)
+    filter_form.model = EditLog
+    filter_form.accept(env.request.GET)
 
-    query = env.db.query(EditLog).filter(cond)
+    query = env.db.query(EditLog)
+    query = filter_form.filter(query)
 #    url = env.root.build_subreverse(env.current_location)
     paginator = ModelPaginator(env.request, query,
                                impl=FancyPageRange(),
@@ -37,6 +120,7 @@ def global_log(env, data):
         lang = decode_stream_uid(obj.stream_name)[1].get('lang')
         stream_env = VersionedStorage(version="admin", lang=lang)
         stream_env._storage._parent_storage = env
+        # XXX only for multi db! will fail on single db
         stream_env.models = env.models.admin
         if lang:
             stream_env.models = getattr(stream_env.models, lang)
@@ -52,11 +136,16 @@ def global_log(env, data):
 
 
     paginator.items = [expand(obj) for obj in paginator.items]
+    current_url = env.root.build_subreverse(env.current_location, **data.as_dict())
 
-    return env.render_to_response('edit_log/global_log',
+    return env.render_to_response('edit_log/index',
                                   dict(paginator=paginator,
+                                       title=u"Журнал изменений",
                                        #stream=self.stream,
                                        log_type_title=EditLogHandler.log_type_title, # XXX
+                                       filter_form=filter_form,
+                                       current_url=current_url,
+                                       no_layout='__no_layout' in env.request.GET,
                                        ))
 
 
@@ -68,6 +157,10 @@ class EditLogHandler(GetAction):
     cls = 'edit-log'
     action = 'edit_log'
     title = u'Журнал изменений'
+    log_types = {'edit': u'Правка',
+                 'publish': u'Опубликовано',
+                 'unpublish': u'Снято с публикации',
+                 'revert': u'Откат'}
 
     @property
     def PrepareItemHandler(self):
@@ -86,19 +179,25 @@ class EditLogHandler(GetAction):
 
     @classmethod
     def log_type_title(cls, log):
-        return {'edit': u'Правка',
-                'publish': u'Опубликовано',
-                'unpublish': u'Снято с публикации',
-                'revert': u'Откат'}[log.type]
+        return cls.log_types[log.type]
 
     def edit_log(self, env, data):
         insure_is_xhr(env)
+        # XXX DRY with global edit log
 
         if getattr(env, 'version', None) == 'front':
             raise HTTPNotFound()
 
         EditLog = env.edit_log_model
         query = EditLog.query_for_item(env.db, data.item)
+
+        EditLog = env.edit_log_model
+        filter_form = EditLogItemFilterForm(env,
+                                            models=env.models,
+                                            types=self.log_types.items())
+        filter_form.model = EditLog
+        filter_form.accept(env.request.GET)
+        query = filter_form.filter(query)
 
         stream = self.stream
         log_url = stream.url_for(env, self.action, item=data.item.id)
@@ -107,16 +206,39 @@ class EditLogHandler(GetAction):
                                    limit=30,
                                    url=log_url)
 
-        def get_lang(obj):
-            return decode_stream_uid(obj.stream_name)[1].get('lang')
-        #paginator.items = [expand_stream(env, obj) for obj in paginator.items]
+        def expand(obj):
+            # XXX all this is like a hack!
+            stream_name = obj.stream_name.split(':')[0]
+            if stream_name not in env.streams:
+                return {}
+            stream = env.streams[stream_name]
+            lang = decode_stream_uid(obj.stream_name)[1].get('lang')
+            stream_env = env
+
+            assert 'r' in stream.get_permissions(stream_env)
+            item = stream.item_query(stream_env).filter_by(id=obj.object_id).first()
+            return {"obj": obj,
+                    "stream": stream,
+                    "item": item,
+                    "item_title": getattr(item, 'title', unicode(item)),
+                    "lang": lang,
+                    "type": stream.edit_log_action.log_type_title(obj)}
+
+
+        paginator.items = [expand(obj) for obj in paginator.items]
+        # XXX hack!
+        reverse_data = dict(data.as_dict(),
+                            item=data.item.id)
+        current_url = env.root.build_subreverse(env.current_location, **reverse_data)
 
         return env.render_to_response('edit_log/index',
                                       dict(paginator=paginator,
+                                           title=u"Журнал изменений",
                                            stream=self.stream,
-                                           get_lang=get_lang,
                                            item=data.item,
-                                           log_type_title=self.log_type_title))
+                                           filter_form=filter_form,
+                                           no_layout='__no_layout' in env.request.GET,
+                                           current_url=current_url))
 
     __call__ = edit_log
 
