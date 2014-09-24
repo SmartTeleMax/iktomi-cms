@@ -118,8 +118,8 @@ class FieldList(FieldList):
                     if diff is not None:
                         diffs.append(diff)
                 else:
-                    data1 = _get_field_data(form1, field1)
-                    data2 = _get_field_data(form2, field2)
+                    data1 = _get_field_data(fieldlist1, field1)
+                    data2 = _get_field_data(fieldlist2, field2)
                     if data1 != data2:
                         diff = make_diff(field1, field2,
                                         changed=True)
