@@ -25,15 +25,18 @@ class EditLogItemFilterForm(FilterForm):
         streams = kwargs.pop('streams', None)
         types = kwargs.pop('types')
         models = kwargs.pop('models')
+        env = args[0]
         fields = []
         for field in self.fields:
             field = field()
             if field.name == 'users':
-                field = field(conv=convs.ModelChoice(model=models.AdminUser,
+                AdminUser = env.auth_model
+                field = field(conv=convs.ModelChoice(model=AdminUser,
                                                      title_field="login"))
             if field.name == 'streams':
-                field = field(conv=convs.ListOf(convs.EnumChoice(choices=streams),
-                                                all_by_default))
+                field = field(conv=convs.ListOf(
+                            convs.EnumChoice(choices=streams),
+                            all_by_default))
             if field.name == 'type':
                 field = field(conv=convs.EnumChoice(choices=types))
             fields.append(field)
