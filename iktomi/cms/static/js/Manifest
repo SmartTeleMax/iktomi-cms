@@ -7,6 +7,11 @@ lib/popup
 lib/request.IFRAME
 lib/range
 
+init_blocks
+menu
+app
+flashmessages
+
 lib/longpress
 lib/pixastic
 lib/canvas-to-blob
@@ -21,14 +26,14 @@ text/jsx:buttons
 text/jsx:widgets/fieldset
 text/jsx:widgets/fieldlist
 
-init_blocks
-menu
-app
-flashmessages
-filter_form
-tab_select
-collapsable_block
 
+lib/longpress
+lib/pixastic
+lib/canvas-to-blob
+lib/crop
+lib/range
+
+filter_form
 item_form
 item_lock
 presave
@@ -36,17 +41,17 @@ presave/Files
 text/jsx:widgets/wysihtml5-block
 text/jsx:widgets/wysihtml5-buttons
 text/jsx:widgets/textinput
-dragupload
 progressbar
-calendar.compat
-popup_stream_select
-popup_filtered_select
-tabbed_fieldset
-label_select
+widgets/dragupload
+widgets/calendar.compat
+widgets/popup_stream_select
+widgets/popup_filtered_select
+widgets/tabbed_fieldset
+widgets/label_select
+widgets/id_field
+widgets/sort_field
+widgets/editor_notes
 version_switcher
-id_field
-sort_field
-editor_notes
 tray
 stream_sortable
 preview
