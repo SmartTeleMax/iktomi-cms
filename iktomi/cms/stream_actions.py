@@ -15,6 +15,7 @@ class StreamAction(web.WebHandler):
     order_position = 0
     mode = 'custom'
     group = None
+    xhr = True
 
     def is_available(self, env, item=None):
         """ Rewrite this method to add condition when action is avalible

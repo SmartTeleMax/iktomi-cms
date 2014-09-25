@@ -67,7 +67,7 @@ class Loner(Stream):
         if name and name[:5] in ['item.', 'item']:
             name = name[5:] # XXX
         name = name and '%s.%s' % (self.module_name, name) or self.module_name
-        return env.url_for('loners.' + name, **kwargs)
+        return env.url_for(name, **kwargs)
 
     @cached_property
     def perms(self):

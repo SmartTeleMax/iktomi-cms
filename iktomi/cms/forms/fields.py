@@ -37,6 +37,10 @@ class DiffFieldSetMixIn(object):
                 child_diff = field1.get_diff(field2)
                 if child_diff is not None:
                     diffs.append(child_diff)
+            elif hasattr(field1.widget, 'get_diff'):
+                child_diff = field1.widget.get_diff(field1, field2)
+                if child_diff is not None:
+                    diffs.append(child_diff)
             else:
                 data1 = field1.get_data()
                 data2 = field2.get_data()
@@ -109,9 +113,13 @@ class FieldList(FieldList):
                     diff = field1.get_diff(field2)
                     if diff is not None:
                         diffs.append(diff)
+                elif hasattr(field1.widget, 'get_diff'):
+                    diff = field1.widget.get_diff(field1, field2)
+                    if diff is not None:
+                        diffs.append(diff)
                 else:
-                    data1 = _get_field_data(form1, field1)
-                    data2 = _get_field_data(form2, field2)
+                    data1 = _get_field_data(fieldlist1, field1)
+                    data2 = _get_field_data(fieldlist2, field2)
                     if data1 != data2:
                         diff = make_diff(field1, field2,
                                         changed=True)

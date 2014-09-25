@@ -72,6 +72,9 @@ function _mergeObjects(value, newValue){
 
   ItemForm.prototype = {
     autoSaveInterval: null,
+    saveInProgress: function(){
+        return this.saveRequest && this.saveRequest.running;    
+    },
 
     attachHooks: function(){
       var hooks = new PreSaveHooks(this.frm);
@@ -116,6 +119,11 @@ function _mergeObjects(value, newValue){
       var url = options.url || this.frm.getAttribute('action');
 
       this.doSubmit = function(){
+        if (this.saveInProgress()){
+            console.log('Race condition: save in progress. Re-run in 500ms');
+            window.setTimeout(this.doSubmit, 500);
+            return;
+        }
         var valueToPost = {};
         if(options.itemForm){
             valueToPost.json = JSON.stringify(this.reactForm.getValue());
@@ -151,7 +159,7 @@ function _mergeObjects(value, newValue){
         document.body.addClass('loading'); // XXX only for blocking requests
         this.statusElement.setAttribute('data-status', 'saving');
 
-        new Request({
+        this.saveRequest = new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
           onSuccess: function(result){
             //console.log('Save result', result)
@@ -275,7 +283,7 @@ function _mergeObjects(value, newValue){
     },
 
     autoSaveHandler: function(callback){
-      if (! this.frm.dataset.autosave) {
+      if (! this.frm.dataset.autosave || this.saveInProgress()) {
         if (callback) { callback(); }
         return;
       }

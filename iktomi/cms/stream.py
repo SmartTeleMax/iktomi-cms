@@ -10,6 +10,7 @@ from collections import OrderedDict
 from iktomi.utils.storage import VersionedStorage
 from iktomi import web
 from iktomi.cms.forms import Form
+from iktomi.utils.deprecation import deprecated
 from . import stream_handlers as handlers
 from .flashmessages import flash
 from .filter_form import FilterForm
@@ -166,6 +167,7 @@ class Stream(object):
         return getattr(self.config, 'autosave', True)
 
     @cached_property
+    @deprecated("use `stream.edit_log_action is not None` instead")
     def edit_log(self):
         return any(x for x in self.actions if x.action=='edit_log')
 
@@ -201,6 +203,12 @@ class Stream(object):
     def preview_action(self):
         for action in self.actions:
             if action.action=='preview':
+                return action
+
+    @cached_property
+    def edit_log_action(self):
+        for action in self.actions:
+            if action.action=='edit_log':
                 return action
 
     @cached_property

@@ -9,10 +9,7 @@ from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.utils.image_resizers import ResizeFit
 from iktomi.utils import cached_property
 from iktomi.cms.forms import convs, widgets
-try:
-    import Image
-except ImportError:       # pragma: no cover
-    from PIL import Image # pragma: no cover
+from PIL import Image
 
 
 class AjaxFileField(FileFieldSet):
@@ -163,14 +160,18 @@ class AjaxImageField(AjaxFileField):
                 self.clean_value and \
                 not self.conv.autocrop:
             resizer = ResizeFit()
-            img = Image.open(self.clean_value.path)
-            img = resizer(img, (100, 100))
-            img = img.convert('RGB')
-            img_file = StringIO()
-            img.save(img_file, format='jpeg')
-            data = "data:image/jpeg;base64," + \
-                    img_file.getvalue().encode('base64').replace('\n', '')
-            raw_data[self.prefix+'image'] = data
+            try:
+                img = Image.open(self.clean_value.path)
+            except IOError:
+                pass
+            else:
+                img = resizer(img, (100, 100))
+                img = img.convert('RGB')
+                img_file = StringIO()
+                img.save(img_file, format='jpeg')
+                data = "data:image/jpeg;base64," + \
+                        img_file.getvalue().encode('base64').replace('\n', '')
+                raw_data[self.prefix+'image'] = data
 
     def get_diff(field1, field2):
         path1 = field1.form.raw_data.get(field1.prefix+'path')

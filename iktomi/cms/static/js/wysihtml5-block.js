@@ -83,14 +83,17 @@
           }.bind(this));
         }
       } else {
-        var abbr = this.createElement(value);
+        var abbr = this.createElement(value, composer);
 
         composer.selection.getRange().nativeRange.wrapInlineSelection(abbr, composer.element);
       }
     },
 
-    createElement: function(value){
-      return new Element(this.tagName, {'title': this.propertyName + ":" + value});
+    createElement: function(value, composer){
+      var win = composer.iframe.contentWindow;
+      var elem = win.document.createElement(this.tagName);
+      elem.setAttribute('title', this.propertyName + ":" + value);
+      return elem;
     },
 
     elementMatches: function(el){

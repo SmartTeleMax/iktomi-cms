@@ -121,6 +121,14 @@
           -webkit-transition: left .5s ease;
           -moz-transition: left .5ms ease;
           }
+    .w-popup-stream-select-items tr:active td{
+          -webkit-transition: left .5s ease .5s,
+                              border-top 0s ease .5s,
+                              border-bottom 0s ease .5s;
+          -moz-transition: left .5ms ease .5s,
+                              border-top 0s ease .5s,
+                              border-bottom 0s ease .5s;
+          }
 
 .w-popup-stream-select-items .field_has_unpublished_changes,
 .w-popup-stream-select-items .field_locked {

@@ -1,5 +1,3 @@
-<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
-<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
 {% macro paginate(paginator) %}
   {% if paginator %}
@@ -19,52 +17,82 @@
 
 {% set pager = paginate(paginator) %}
 
-<div class="content itemlist">
-  <div class="stream">
-    <div class="header">
-      <h1>Журнал изменений<br/>
-          <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
-      </h1>
-    </div>
-    <div class="stream-items">
-      <div class="table">
-        <div class="line"></div>
-          {{ pager }}
-          <table class="items">
-            <thead>
-              <th></th>
-              <th></th>
-              <th>Тип</th>
-              <th>Автор</th>
-              <th>Дата</th>
-            </thead>
-            <tbody>
-            {% if not paginator.items %}
-              <td colspan="5">История пуста</td>
+{% macro stream_content() %}
+  {{ pager }}
+  <table class="items">
+    <thead>
+      <th></th>
+      <th></th>
+      <th>Тип</th>
+      <th>Объект</th>
+      <th>Автор</th>
+      <th>Дата</th>
+    </thead>
+    <tbody>
+    {% if not paginator.items %}
+      <td colspan="5">История пуста</td>
+    {% endif %}
+    {%- for entry in paginator.items %}
+      {% if entry and entry.item %}
+          {% set obj=entry.obj %}
+          {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id) -%}
+          <tr class="item {{ loop.cycle('odd', 'even') }} edit-log-{{obj.type}}">
+            <td class="field_id"><a href="{{ url }}">{{ obj.id }}</a></td>
+            <td>
+              {% if entry.lang %}<span class="lang-{{ entry.lang }}"></span>{% endif -%}
+            </td>
+            <td><a href="{{ url }}">{{ entry.type }}</a></td>
+            {% if not item is defined %}
+              <td><a href="{{ url }}">{{ entry.item_title }}</a></td>
             {% endif %}
-            {%- for obj in paginator.items %}
-              {%- set url = stream.url_for(env, 'edit_log.entry', item=item.id, log_id=obj.id) -%}
-              <tr class="item {{ loop.cycle('odd', 'even') }} edit-log-{{obj.type}}">
-                <td class="field_id"><a href="{{ url }}">{{ obj.id }}</a></td>
-                <td>
-                  {%- set lang = get_lang(obj) -%}
-                  {% if lang %}<span class="lang-{{ lang }}"></span>{% endif -%}
-                </td>
-                <td><a href="{{ url }}">{{ log_type_title(obj) }}</a></td>
-                <td><a href="{{ url }}">
-                  {%- for user in obj.users %}
-                    {{- user.name or user.login }}
-                  {% endfor -%}
-                </a></td>
-                <td><a href="{{ url }}">
-                    {{ obj.update_time.strftime("%d.%m.%Y %H:%M") }}
-                </a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-          {{ pager }}
-      </div>
+            <td><a href="{{ url }}">
+              {%- for user in obj.users %}
+                {{- user.name or user.login }}
+              {% endfor -%}
+            </a></td>
+            <td><a href="{{ url }}">
+                {{ obj.update_time.strftime("%d.%m.%Y %H:%M") }}
+            </a></td>
+          </tr>
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+  {{ pager }}
+{% endmacro %}
+
+{% if no_layout %}
+    {{ stream_content() }}
+{% else %}
+  <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+  <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+  <div class="content itemlist">
+    <div class="header">
+      <h1 class="stream_title nowrap">{{ title }}</h1>
+      {% if item is defined %}
+        <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
+      {% endif %}
     </div>
+    <div>
+      <div class="stream">
+        <div class="line"></div>
+        <div class="sidefilter">
+          <form id="{{ filter_form.id }}" action="{{ current_url }}" class="filter-form init-block" data-block-name="filter-form">
+            <fieldset>
+              <legend>Фильтры</legend>
+              {{ filter_form.render() }}
+  
+              <button type="submit" class="button sidefilter__submit">
+                Применить
+              </button>
+            </fieldset>
+          </form>
+        </div>
+  
+        <div class="stream-items with-sidefilter">
+          {{ stream_content() }}
+        </div>
+      </div>
+    <div>
   </div>
-</div>
+{% endif %}

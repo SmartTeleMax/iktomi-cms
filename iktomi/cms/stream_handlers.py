@@ -185,7 +185,8 @@ class PrepareItemHandler(web.WebHandler):
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
-        insure_is_xhr(env)
+        if self.action.xhr:
+            insure_is_xhr(env)
 
         stream = self.action.stream
         stream.insure_has_permission(env, 'r')
@@ -498,14 +499,54 @@ class EditItemHandler(StreamAction):
         return template_data
 
 
-def _iter_subclasses(cls, _seen=None):
-    if _seen is None: _seen = set()
-    for sub in cls.__subclasses__():
-        if sub not in _seen:
-            _seen.add(sub)
-            yield sub
-            for sub in _iter_subclasses(sub, _seen):
+def _get_all_classes(model):
+    metadata = model.metadata
+    models = [x for x in inspect.getmro(model)
+              if hasattr(x, 'metadata') and x.metadata is metadata]
+    set_models = set(models)
+    base_models = set(models)
+    for m in models:
+        if set(m.__bases__) & set_models:
+            base_models.remove(m)
+
+    _seen = set()
+    def _iter_subclasses(cls):
+        for sub in cls.__subclasses__():
+            if sub not in _seen:
+                _seen.add(sub)
                 yield sub
+                for sub in _iter_subclasses(sub):
+                    yield sub
+
+    models = set()
+    for m in base_models:
+        models |= set([x for x in _iter_subclasses(m)
+                       if not x.__dict__.get('__abstract__', False)])
+    return models
+
+def _get_referers(db, item):
+    '''Returns a dictionary mapping referer model class to query of all
+    objects of this class refering to current object.'''
+    cls = type(item)
+    result = {}
+    for other_class in _get_all_classes(cls):
+        queries = {}
+        for prop in class_mapper(other_class).iterate_properties:
+            if not (isinstance(prop, RelationshipProperty) and \
+                    issubclass(cls, prop.mapper.class_)):
+                continue
+            query = db.query(prop.parent)
+            comp = prop.comparator
+            if prop.uselist:
+                query = query.filter(comp.contains(item))
+            else:
+                query = query.filter(comp==item)
+            count = query.count()
+            if count:
+                queries[prop] = (count, query)
+        if queries:
+            result[other_class] = queries
+    return result
 
 
 class _ReferrersAction(StreamAction):
@@ -514,7 +555,7 @@ class _ReferrersAction(StreamAction):
         if exclude is None:
             exclude = set()
         result = {}
-        for cls, props in self._get_referers(env, obj).items():
+        for cls, props in _get_referers(env.db, obj).items():
             for prop, (count, query) in props.items():
                 left = limit - len(result)
                 if left <= 0:
@@ -550,47 +591,6 @@ class _ReferrersAction(StreamAction):
                     #                   ref)
                     result.update(indirect_referers)
                     assert obj not in result
-        return result
-
-    def _get_all_classes(self, model):
-        metadata = model.metadata
-        models = [x for x in inspect.getmro(model)
-                  if hasattr(x, 'metadata') and x.metadata is metadata]
-        set_models = set(models)
-        base_models = set(models)
-        for m in models:
-            if set(m.__bases__) & set_models:
-                base_models.remove(m)
-
-        models = set()
-        for m in base_models:
-            models |= set([x for x in _iter_subclasses(m)
-                           if not x.__dict__.get('__abstract__', False)])
-        return models
-
-    def _get_referers(self, env, item):
-        '''Returns a dictionary mapping referer model class to query of all
-        objects of this class refering to current object.'''
-        # XXX not implemented
-        cls, ident = identity_key(instance=item)
-        result = {}
-        for other_class in self._get_all_classes(cls):
-            queries = {}
-            for prop in class_mapper(other_class).iterate_properties:
-                if not (isinstance(prop, RelationshipProperty) and \
-                        issubclass(cls, prop.mapper.class_)):
-                    continue
-                query = env.db.query(prop.parent)
-                comp = prop.comparator
-                if prop.uselist:
-                    query = query.filter(comp.contains(item))
-                else:
-                    query = query.filter(comp==item)
-                count = query.count()
-                if count:
-                    queries[prop] = (count, query)
-            if queries:
-                result[other_class] = queries
         return result
 
 
