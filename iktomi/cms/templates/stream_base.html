@@ -46,10 +46,11 @@
       <div class="line"></div>
       {% if filter_form %}
       <div class="sidefilter">
-        <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}" class="filter-form init-block" data-block-name="filter-form">
+        <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}"
+              class="filter-form init-block" data-block-name="filter-form"
+              data-json="{{ filter_form.json() }}">
           <fieldset>
             <legend>Фильтры</legend>
-            {{ filter_form.render() }}
 
             <button type="submit" class="button sidefilter__submit">
               Применить

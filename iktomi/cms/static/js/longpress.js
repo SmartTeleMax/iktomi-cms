@@ -42,6 +42,7 @@
 
 
   function onKeyDown(e) {
+    if (e.which == 229) { return; }
 
     // Arrow key with popup visible
     if (popup.classList.contains('show') && (e.which==37 || e.which==39)) {
@@ -79,7 +80,6 @@
   }
 
   function onTimer() {
-    console.log(moreChars);
     if (moreChars[typedChar]) {
       showPopup(typedChar + moreChars[typedChar]);
     } else {
@@ -198,8 +198,16 @@
     }
   }
 
+  function onInput(e){
+    if (popup.classList.contains('show')){
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }
+
   function LongPress(element) {
     element.addEventListener('keydown', onKeyDown, false);
+    element.addEventListener('input', onInput, true);
     //element.addEventListener('keyup', onKeyUp, false);
     if (! element.ownerDocument.longPressActive){
       element.ownerDocument.addEventListener('mousewheel', onWheel, false);

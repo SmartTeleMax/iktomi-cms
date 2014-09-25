@@ -71,6 +71,7 @@ function _mergeObjects(value, newValue){
   }
 
   ItemForm.prototype = {
+    autoSaveInterval: null,
 
     attachHooks: function(){
       var hooks = new PreSaveHooks(this.frm);
@@ -86,9 +87,7 @@ function _mergeObjects(value, newValue){
         }
       }
 
-      if (this.frm.dataset.autosave){
-        this.autoSaveInterval = window.setInterval(this.autoSaveHandler, 5000);
-      }
+      this.runAutosave();
     },
 
     bindEventHandlers: function(){
@@ -282,8 +281,7 @@ function _mergeObjects(value, newValue){
       }
 
       if (! this.frm.getParent('body') ) {
-        console.log('AUTOSAVE stop')
-        window.clearInterval(this.autoSaveInterval);
+        this.stopAutosave();
         return;
       }
 
@@ -323,7 +321,23 @@ function _mergeObjects(value, newValue){
     stopAutosave: function(){
       console.log('AUTOSAVE off')
       window.clearInterval(this.autoSaveInterval);
+      this.autoSaveInterval = null;
       this.statusElement.dataset.autosaveOff = 'true';
+    },
+
+    delayAutosave: function(){
+      if (this.autoSaveInterval != null){
+        console.log('delay AUTOSAVE')
+        this.stopAutosave();
+        this.runAutosave();
+      }
+    },
+
+    runAutosave: function(){
+      if (this.frm.dataset.autosave){
+        this.autoSaveInterval = window.setInterval(this.autoSaveHandler, 5000);
+        delete this.statusElement.dataset.autosaveOff;
+      }
     },
 
     formHash: function(){

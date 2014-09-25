@@ -16,6 +16,24 @@ class Form(Form):
         time_part = struct.pack('!d', time())[3:]
         return 'form'+(time_part+os.urandom(1)).encode('hex')
 
+    def json_data(self):
+        errors = _defaultdict()
+        for key, err in self.errors.items():
+            d = errors
+            for part in key.split('.'):
+                d = d[part]
+            d['.'] = err
+
+        # do not use raw_value to get actual transformed data
+        data = self.get_data()
+
+        return {'data': data,
+                'errors': errors,
+                'widgets': [x.widget.render() for x in self.fields]}
+
+    def json(self):
+        return json.dumps(self.json_data(), ensure_ascii=False)
+
 
 class ModelForm(Form, DiffFieldSetMixIn):
 
@@ -59,24 +77,6 @@ class ModelForm(Form, DiffFieldSetMixIn):
             elif field.name:
                 initial[field.name] = getattr(item, field.name)
         return initial
-
-    def json_data(self):
-        errors = _defaultdict()
-        for key, err in self.errors.items():
-            d = errors
-            for part in key.split('.'):
-                d = d[part]
-            d['.'] = err
-
-        # do not use raw_value to get actual transformed data
-        data = self.get_data()
-
-        return {'data': data,
-                'errors': errors,
-                'widgets': [x.widget.render() for x in self.fields]}
-
-    def json(self):
-        return json.dumps(self.json_data(), ensure_ascii=False)
 
 
 def _defaultdict():

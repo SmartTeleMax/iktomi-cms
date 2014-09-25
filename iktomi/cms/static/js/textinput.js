@@ -66,6 +66,13 @@ function makeMutable(obj){
                     'errors': this.props.errors}
         },
 
+        componentDidMount: function(){
+            var el = this.getDOMNode();
+            if (window.LongPress){
+                LongPress(el);
+            }
+        },
+
         getError: function(){
             return this.state.errors['.'] || '';
         },
@@ -80,6 +87,9 @@ function makeMutable(obj){
 
         onChange: function(e){
             this.setValue(e.target.value);
+        },
+        onKeyDown: function(){
+          debugger;
         },
         render: function() {
             return <input type="text"
