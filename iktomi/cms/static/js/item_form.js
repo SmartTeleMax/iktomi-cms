@@ -126,6 +126,7 @@ function _mergeObjects(value, newValue){
         }
         var valueToPost = {};
         if(options.itemForm){
+            //this.reactForm.flush();
             valueToPost.json = JSON.stringify(this.reactForm.getValue());
         }
         if(this.frm.getElement('[name=edit_session]')){
@@ -226,10 +227,14 @@ function _mergeObjects(value, newValue){
       loadPage(url, true, this.container);
     },
 
+    setChanged: function(){
+      this.statusElement.setAttribute('data-status', 'changed');
+    },
+
     changeHandler: function(e){
       var newData = this.formHash(); // XXX works only on blur, have to check form hash each time
       if(this.frm.retrieve('savedData') != newData){
-        this.statusElement.setAttribute('data-status', 'changed');
+        this.setChanged();
       }
     },
 

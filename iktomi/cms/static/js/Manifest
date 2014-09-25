@@ -23,6 +23,7 @@ lib/wysihtml5-link
 
 # ReactJS
 text/jsx:buttons
+text/jsx:widgets/base
 text/jsx:widgets/fieldset
 text/jsx:widgets/fieldlist
 

@@ -252,37 +252,22 @@
 
 
 (function() {
-
     // XXX how to do component inheritance in right way?
-    var WysiHtml5Proto = {
-        getInitialState: function() {
-            if (this.props.data){
-                var value = this.props.data;
-                delete this.props.data;
-            } else {
-                var value = {}
-            }
-
-            if (this.props.initial) {
-                // Value object must be mutable.
-                // As I understand, this is react's method to collect
-                // changes from children.
-                var initial = {'text': this.props.initial};
-            } else {
-                var initial = {'text': ''};
-            }
-            var init = JSON.stringify(initial);
-            initial = _mergeObjects(initial, value);
-            return {'value': _mergeObjects(value, initial),
-                    'errors': this.props.errors}
-        },
-
+    var WysiHtml5Proto = Object.merge({}, window.WidgetProto, {
         onChange: function(){
           this.setValue(this.editor.getValue());
+          var itemForm = this.getItemForm();
+          if (itemForm) {
+            itemForm.setChanged();
+          }
+        },
+
+        flush: function(){
+            this.setValue(this.editor.getValue());
         },
 
         componentDidMount: function(){
-            window.WYSIWYG = this;
+            var this_ = this;
             var el = this.refs.textarea.getDOMNode();
             var config = this.props;
             var editor = new wysihtml5.Editor(el.id, { // id of textarea element
@@ -297,10 +282,19 @@
             var iframe = editor.composer.iframe;
 
             function attachIFrame(){
-              editor.composer.iframe.contentDocument.addEventListener('click', function(e){
+              var doc = editor.composer.iframe.contentDocument;
+              doc.addEventListener('click', function(e){
                 e.preventDefault(); // do not handle clicks, especially on links
                 $$('.wysihtml5-dialog').setStyle('display', 'none');
               }, true);
+              doc.body.addEventListener('input', function(e){
+                  console.log('CHANGE');
+                  var itemForm = this_.getItemForm();
+                  if (itemForm) {
+                      itemForm.setChanged();
+                      itemForm.delayAutosave();
+                  }
+              });
               extendRange(editor.composer.iframe.contentWindow)
             }
             iframe.addEventListener('load', attachIFrame, false);
@@ -324,21 +318,9 @@
                   editor.composer.disabledStylesHost = document.createElement('div');
                   editor.composer.disable();
                 }
-
               }, 500); // XXX delay is not good solution here
             }
 
-        },
-
-        getError: function(){
-            return this.state.errors['.'] || '';
-        },
-        setValue: function(newValue){
-            var value = _mergeObjects(this.state.value, {'text': newValue});
-            this.setState({'value': value});
-        },
-        getValue: function(){
-            return this.state.value.text;
         },
 
         render: function() {
@@ -378,7 +360,7 @@
                 </textarea>
               </div>
         }
-    }
+    });
 
 
     window.WysiHtml5 = React.createClass(WysiHtml5Proto);

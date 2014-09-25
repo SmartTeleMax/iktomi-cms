@@ -21,7 +21,7 @@
           <a data-wysihtml5-command="createLink" className="btn">Вставить ссылку</a>
           <div className="wysihtml5-dialog"
                style={{display: "none"}}
-               id="{{ widget.id }}-create-link">
+               id={this.props.id + "-create-link"}>
             <label>
               Ссылка:
               <input data-wysihtml5-dialog-field="href"
@@ -29,6 +29,7 @@
             </label>
             <div className="nowrap">
               <a data-wysihtml5-dialog-action="save">Применить</a>
+              {' '}
               <a data-wysihtml5-command="unlink">Удалить ссылку</a>
             </div>
           </div>
