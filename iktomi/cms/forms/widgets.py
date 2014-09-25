@@ -161,8 +161,8 @@ class WysiHtml5(Widget):
 
     @staticmethod
     def get_diff(field1, field2):
-        data1 = field1.from_python(field1.clean_value)
-        data2 = field2.from_python(field2.clean_value)
+        data1 = field1.conv.from_python(field1.clean_value)
+        data2 = field2.conv.from_python(field2.clean_value)
 
         if field1 is None or field2 is None:
             if data1 != data2:
