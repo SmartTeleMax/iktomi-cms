@@ -5,25 +5,33 @@
 
     var ItemRowProto = {
       componentDidMount: function(){
-          var el = this.getDOMNode();
-          var html = this.props.parent.props.row_by_value[this.props.value];
+          var widget = this.props.parent.props;
+          var html = widget.row_by_value[this.props.value];
           if (html){
-            // XXX makeLinksExternal
-            var div = document.createElement('table');
-            div.innerHTML = html;
-            var tds = div.getElements('td');
-            for (var i=tds.length; i--;){
-              this.makeLinksExternal(tds[i]);
-              tds[i].inject(el, 'top');
-            }
-            el.className = div.getElement('tr').className;
+            this.setHtml();
+          } else {
+            var url = addUrlParams(widget.url, {'__item_row': this.props.value});
+            new Request({
+                'url': url,
+                'onSuccess': function(result) {
+                    widget.row_by_value[this.props.value] = result;
+                    this.setHtml();
+                }.bind(this)
+            }).get();
           }
+      },
 
-          //if (html) {
-          //  el.set('html', html);
-          //} else {
-          //  // make AJAX call t get row HTML
-          //}
+      setHtml: function(){
+          var el = this.getDOMNode();
+          var html = this.props.parent.props.row_by_value[this.props.value] || '';
+          var div = document.createElement('table');
+          div.innerHTML = html;
+          var tds = div.getElements('td');
+          for (var i=tds.length; i--;){
+            this.makeLinksExternal(tds[i]);
+            tds[i].inject(el, 'top');
+          }
+          el.className = div.getElement('tr').className;
       },
 
       makeLinksExternal: function(el) {
@@ -144,8 +152,10 @@
                 var row = e.target.getParent('tr');
                 this.add(id, row);
             }
-            if (!this.multiple){
+            if (!this.props.multiple){
                 this.popup.hide();
+            } else {
+                this.markSelectedItems();
             }
         },
 
@@ -194,8 +204,11 @@
         markSelectedItems: function() {
             var idLinks = this.popup.el.getElements('.itemlist .item a[data-id]');
             for (var i=idLinks.length; i--;){
+                var row = idLinks[i].getParent('.item');
                 if (this.hasValue(idLinks[i].dataset.id)) {
-                    idLinks[i].getParent('.item').addClass('selected');
+                    row.addClass('selected');
+                } else {
+                    row.removeClass('selected');
                 }
             }
         }
@@ -266,13 +279,12 @@
         },
 
         remove: function(id) {
-            var index = e.target.getParent('tr').getAllPrevious('tr').length;
             if (this.props.multiple){
                 var value = this.state.value;
-                for (var i=this.state.value.length; i--;){
-                    if (val == this.state.value[i].text) { break; }
+                for (var index=this.state.value.length; index--;){
+                    if (id == this.state.value[index].text) { break; }
                 }
-                if (i!= -1) {
+                if (index!= -1) {
                   value.splice(index, 1);
                   this.setValue(value);
                 }

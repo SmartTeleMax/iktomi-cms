@@ -204,18 +204,8 @@ class PopupStreamSelect(Select):
     def stream(self):
         return self.env.streams[self.stream_name]
 
-    def render_row_template(self, **data):
-        return self.env.render_to_string(self.stream.row_template_name,
-                                         **dict(self.stream.template_data, **data))
-
-    def item_row(self, item, row_cls=''):
-        url = self.stream.url_for(self.env, 'item', item=item.id)
-        read_allowed=self.stream.has_permission(self.env, 'r')
-        return self.render_row_template(stream=self.stream,
-                                        item=item,
-                                        list_fields=self.list_fields,
-                                        read_allowed=read_allowed,
-                                        url=url, row_cls=row_cls)
+    def item_row(self, item):
+        return self.stream.list_action.render_item_row(self.env, item)
 
     @cached_property
     def list_fields(self):

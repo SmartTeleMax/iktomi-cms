@@ -2,7 +2,9 @@
 import inspect
 import json
 from datetime import datetime
+from functools import partial
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
+from webob import Response
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy.orm.util import identity_key
@@ -70,32 +72,46 @@ class StreamListHandler(StreamAction):
     def app(self):
         return web.match() | self
 
+    def render_item_row(self, env, item, url=None, list_fields=None, **kw):
+        stream = self.stream
+        list_fields = list_fields or stream.list_fields
+        read_allowed=self.stream.has_permission(env, 'r')
+        url = self.stream.url_for(env, 'item', item=item.id)
+        template_name = stream.row_template_name
+        template_data = stream.template_data
+        return env.render_to_string(template_name,
+                                    dict(template_data,
+                                         item=item,
+                                         list_fields=list_fields,
+                                         url=url,
+                                         read_allowed=read_allowed,
+                                         stream=stream,
+                                         **kw))
+
     def list_handler(self, env, data):
         insure_is_xhr(env)
 
         stream = self.stream
         stream.insure_has_permission(env, 'x')
-        read_allowed = stream.has_permission(env, 'r')
-        template_name = stream.row_template_name
-        template_data = stream.template_data
         no_layout = ('__no_layout' in env.request.GET)
 
-        def item_row(item, list_fields=None, url='#', row_cls='', **kw):
-            return env.render_to_string(template_name, dict(template_data,
-                                             item=item,
-                                             list_fields=list_fields,
-                                             url=url,
-                                             row_cls=row_cls,
-                                             read_allowed=read_allowed,
-                                             stream=stream,
-                                             **kw))
+        if '__item_row' in env.request.GET:
+            try:
+                id = int(env.request.GET['__item_row'])
+            except ValueError:
+                raise HTTPNotFound()
+            item = stream.item_query(env).filter_by(id=id).first()
+            if item is None:
+                raise HTTPNotFound()
+            rendered = self.render_item_row(env, item)
+            return Response(rendered, content_type="text/html")
 
         data = dict(self.prepare_data(env, data),
                     is_popup=('__popup' in env.request.GET),
                     no_layout=no_layout,
                     menu=stream.module_name,
                     title=stream.title,
-                    item_row=item_row,
+                    item_row=partial(self.render_item_row, env),
                     live_search=stream.live_search,
                     base_template=self.base_template)
 
@@ -126,11 +142,6 @@ class StreamListHandler(StreamAction):
                                    limit=getattr(stream.config, 'limit', None),
                                    url=stream.url_for(env).qs_set(filter_data))
 
-        def item_url(item=None):
-            item_id = item.id if item is not None else None
-            return stream.url_for(env, 'item', item=item_id).qs_set(
-                                                                filter_data)
-
         try:
             paginator.items = stream.config.modify_items(paginator.items)
         except AttributeError:
@@ -140,12 +151,10 @@ class StreamListHandler(StreamAction):
         result = dict(stream.template_data,
                       paginator=paginator,
                       stream=stream,
-                      item_url=item_url,
                       list_fields=stream.list_fields,
                       title=stream.config.title,
                       filter_form=filter_form,
-                      allow_add=stream.has_permission(env, 'c'),
-                      repr=repr)
+                      allow_add=stream.has_permission(env, 'c'))
         result.update(self.list_form_data(env, paginator, filter_data))
         result = stream.process_list_template_data(env, result)
         return result

@@ -188,6 +188,12 @@ class Stream(object):
         return p
 
     @cached_property
+    def list_action(self):
+        for action in self.actions:
+            if isinstance(action, handlers.StreamListHandler):
+                return action
+
+    @cached_property
     def edit_action(self):
         for action in self.actions:
             if action.action=='item':

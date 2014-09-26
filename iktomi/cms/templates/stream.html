@@ -50,11 +50,10 @@
 
         <tbody>
           {% block item_rows %}
-          {% for item in paginator.items %}
-          {{ item_row(item, list_fields=list_fields, url=item_url(item),
-                      row_cls=loop.cycle('odd', 'even'),
-                      row_index=loop.index, list_item_form=list_item_form) }}
-          {% endfor %}
+              {% for item in paginator.items %}
+              {{ item_row(item, list_fields=list_fields,
+                          row_index=loop.index, list_item_form=list_item_form) }}
+              {% endfor %}
           {% endblock %}
         </tbody>
       </table>
