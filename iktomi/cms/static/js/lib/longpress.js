@@ -169,6 +169,9 @@
       activeElement.ownerDocument.execCommand('delete', false, null);
       activeElement.ownerDocument.execCommand('insertHTML', false, newChar);
     }
+    var inputEvent = document.createEvent('Event');
+    inputEvent.initEvent('input', true, true);
+    activeElement.dispatchEvent(inputEvent);
   }
 
   function getCaretPosition (ctrl) {
@@ -200,7 +203,7 @@
 
   function onInput(e){
     if (popup.classList.contains('show')){
-      e.stopPropagation();
+      //e.stopPropagation();
       e.preventDefault();
     }
   }

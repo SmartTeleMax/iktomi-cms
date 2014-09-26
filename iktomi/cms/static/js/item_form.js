@@ -58,7 +58,7 @@ function _mergeObjects(value, newValue){
     this.addEvents();
     this.attachHooks();
 
-    var form = FieldSet.fromJSON(frm.dataset.json);
+    var form = ReactForm.fromJSON(frm.dataset.json);
     var buttons = ButtonPanel.fromJSON(this, frm.dataset.buttons, frm.dataset.state)
 
     window.props = form.props;
@@ -126,7 +126,7 @@ function _mergeObjects(value, newValue){
         }
         var valueToPost = {};
         if(options.itemForm){
-            //this.reactForm.flush();
+            this.reactForm.flush();
             valueToPost.json = JSON.stringify(this.reactForm.getValue());
         }
         if(this.frm.getElement('[name=edit_session]')){
@@ -332,7 +332,6 @@ function _mergeObjects(value, newValue){
     },
 
     stopAutosave: function(){
-      console.log('AUTOSAVE off')
       window.clearInterval(this.autoSaveInterval);
       this.autoSaveInterval = null;
       this.statusElement.dataset.autosaveOff = 'true';
@@ -340,7 +339,6 @@ function _mergeObjects(value, newValue){
 
     delayAutosave: function(){
       if (this.autoSaveInterval != null){
-        console.log('delay AUTOSAVE')
         this.stopAutosave();
         this.runAutosave();
       }

@@ -26,7 +26,7 @@
         }
     });
 
-    window.FieldSet = React.createClass({
+    var FieldSetProto = {
         getInitialState: function() {
             var state = {'value': this.props.data,
                          'errors': this.props.errors};
@@ -54,12 +54,6 @@
             return this.state.value;
         },
 
-        setErrors: function(newErrors){
-            newErrors = makeMutable(newErrors);
-            var errors = _mergeObjects(this.state.errors, newErrors);
-            this.setState({'errors': errors});
-        },
-
         onChange: function(){
             this.forceUpdate();
         },
@@ -83,13 +77,40 @@
                                   'onChange': this.onChange},
                                   ws);
         }
+    }
+
+    var ReactFormProto = Object.merge({}, FieldSetProto, {
+        setErrors: function(newErrors){
+            newErrors = makeMutable(newErrors);
+            var errors = _mergeObjects(this.state.errors, newErrors);
+            this.setState({'errors': errors});
+        },
+
+        flush: function(){
+          function map(element){
+            if (!element._renderedComponent) { return; }
+            var chs = element._renderedComponent._renderedChildren;
+            for (var key in chs) if (chs.hasOwnProperty(key)){
+              var el = chs[key];
+              if (el.flush != undefined){
+                el.flush();
+              }
+              map(el);
+            }
+          }
+          map(this);
+        }
+
     });
 
-    window.FieldSet.fromJSON = function(json){
+    window.FieldSet = React.createClass(FieldSetProto);
+    window.ReactForm = React.createClass(ReactFormProto);
+
+    window.ReactForm.fromJSON = function(json){
         var props = JSON.parse(json);
         props.data = makeMutable(props.data);
         props.errors = makeMutable(props.errors || {});
-        return FieldSet(props)
+        return ReactForm(props);
     }
 
 })();
