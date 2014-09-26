@@ -26,6 +26,7 @@ text/jsx:buttons
 text/jsx:widgets/base
 text/jsx:widgets/fieldset
 text/jsx:widgets/fieldlist
+text/jsx:widgets/popup_stream_select
 
 
 lib/longpress
@@ -45,7 +46,6 @@ text/jsx:widgets/textinput
 progressbar
 widgets/dragupload
 widgets/calendar.compat
-widgets/popup_stream_select
 widgets/popup_filtered_select
 widgets/tabbed_fieldset
 widgets/label_select

@@ -164,11 +164,6 @@ def SplitDateTimeField(name, label, required=True,
         label=label)
 
 
-class FieldBlock(fields.FieldBlock):
-
-    widget = widgets.FieldBlockWidget
-
-
 class DateFromTo(FieldSet):
 
     conv=convs.DateIntervalConv

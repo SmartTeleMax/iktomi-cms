@@ -2,6 +2,7 @@
 
 function MutableString(text){
     this.text = text;
+    this._key = text; // XXX is this ok?
 }
 
 MutableString.prototype = {
@@ -48,16 +49,16 @@ function makeMutable(obj){
                 var value = this.props.data;
                 delete this.props.data;
             } else {
-                var value = {}
+                var value = this.props.multiple? [] : {};
             }
 
             if (this.props.initial) {
                 // Value object must be mutable.
                 // As I understand, this is react's method to collect
                 // changes from children.
-                var initial = {'text': this.props.initial};
+                var initial = this.props.multiple? this.props.initial: {'text': this.props.initial};
             } else {
-                var initial = {'text': ''};
+                var initial = this.props.multiple? []: {'text': ''};
             }
             var init = JSON.stringify(initial);
             initial = _mergeObjects(initial, value);
@@ -75,27 +76,42 @@ function makeMutable(obj){
         },
 
         setValue: function(newValue){
-            var value = _mergeObjects(this.state.value, {'text': newValue});
+            var value = _mergeObjects(this.state.value, makeMutable(newValue));
             this.setState({'value': value});
+
+            var itemForm = this.getItemForm();
+            if (itemForm) {
+              itemForm.setChanged();
+            }
         },
         getValue: function(){
             return this.state.value.text;
         },
+        hasValue: function(val){
+            val += '';
+            if (this.props.multiple){
+                for (var i=this.state.value.length; i--;){
+                    if (val == this.state.value[i].text) { return true; }
+                }
+                return false
+            } else {
+                return val == this.getValue();
+            }
+        },
+
+        reset: function(){
+            this.setValue(this.props.multiple? []: '');
+        },
 
         onBlur: function(e){
-          var itemForm = this.getItemForm();
-          if (itemForm) {
-            itemForm.autoSaveHandler();
-          }
+            var itemForm = this.getItemForm();
+            if (itemForm) {
+                itemForm.autoSaveHandler();
+            }
         },
 
         onChange: function(e){
-          this.setValue(e.target.value);
-
-          var itemForm = this.getItemForm();
-          if (itemForm) {
-            itemForm.setChanged();
-          }
+            this.setValue(e.target.value);
         }
     }
 

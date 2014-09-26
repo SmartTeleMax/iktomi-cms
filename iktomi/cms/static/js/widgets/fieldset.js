@@ -57,12 +57,17 @@
         onChange: function(){
             this.forceUpdate();
         },
+
+        getPropsData: function(){
+            return this.props.data;
+        },
+
         render: function() {
             //this.widgetsByName = {};
             var ws = [];
             for (var i=0; i<this.props.widgets.length; i++){
                 var prop = _clone(this.props.widgets[i]);
-                prop.data = this.props.data[prop.key];
+                prop.data = this.getPropsData()[prop.key];
                 prop.errors = this.props.errors[prop.key] || {};
                 prop.parent = this;
 
@@ -103,7 +108,15 @@
 
     });
 
+    var FieldBlockProto = Object.merge({}, FieldSetProto, {
+        getPropsData: function(){
+            return this.props.parent.props.data;
+        }
+    });
+
+
     window.FieldSet = React.createClass(FieldSetProto);
+    window.FieldBlock = React.createClass(FieldBlockProto);
     window.ReactForm = React.createClass(ReactFormProto);
 
     window.ReactForm.fromJSON = function(json){

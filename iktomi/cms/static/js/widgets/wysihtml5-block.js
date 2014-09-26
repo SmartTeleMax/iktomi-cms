@@ -277,7 +277,7 @@
               parserRules: config.parserRules // defined in parser rules set 
             });
             this.editor = editor;
-            editor.on('change', this.onChange.bind(this));
+            editor.on('change', this.onChange);
             //scribe.on('content-changed', updateData);
             var iframe = editor.composer.iframe;
 

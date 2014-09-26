@@ -155,13 +155,6 @@
       }
 
 
-.items .odd td {
-    background: #E2E4E6;
-}
-.items .even td {
-    background: #F0F1F2;
-}
-
 .id-field button{
   display: inline-block;
   margin-left: 5px;
@@ -189,36 +182,38 @@
   border: none;
 }
 
-.items .odd td {
+.w-popup-stream-select-items tr:nth-child(2n+1) td,
+.items tr:nth-child(2n+1) td {
     background: hsl(0,0%,91%);
 }
-.items .even td {
+.w-popup-stream-select-items tr:nth-child(2n) td,
+.items tr:nth-child(2n) td {
     background: hsl(0,0%,93%);
 }
 
 /* Стили для родительских tr */
-tr.odd.published td {
+tr:nth-child(2n+1).published td {
     background-color: hsl(120,80%,91%);
     }
-tr.even.published td {
+tr:nth-child(2n).published td {
     background-color: hsl(120,80%,93%);
     }
 
-tr.odd.unpublished td {
+tr:nth-child(2n+1).unpublished td {
     background-color: hsl(20,80%,91%);
     }
-tr.even.unpublished td {
+tr:nth-child(2n).unpublished td {
     background-color: hsl(20,80%,93%);
     }
 
-tr.odd.deleted td{
+tr:nth-child(2n+1).deleted td{
     color: #fff;
     background-color: hsl(0,80%,15%);
     }
-tr.even.deleted td {
+tr:nth-child(2n).deleted td {
     background-color: hsl(0,80%,18%);
     }
-tr.deleted td ,
+tr.deleted td,
 tr.deleted td a{
     color: #fff;
     }

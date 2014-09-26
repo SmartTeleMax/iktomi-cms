@@ -233,8 +233,12 @@ class PopupStreamSelect(Select):
             'container': self.id,
             'input_name': self.input_name,
             'allow_delete': self.allow_delete,
+            'allow_create': self.allow_create,
+            'allow_select': self.allow_select,
             'sortable': self.sortable,
             'unshift': self.unshift,
+            'open_btn_text': self.open_btn_text,
+            'create_btn_text': self.create_btn_text,
         }
         if self.rel is not None:
             data['rel'] = self.rel
@@ -243,20 +247,18 @@ class PopupStreamSelect(Select):
         return data
 
     def get_options(self):
-        options = []
+        options = {}
         values = self.field.clean_value
         if not self.multiple:
             values = [values]
 
         for value in values:
-            options.append(dict(value=unicode(value),
-                                title=label,
-                                html=self.item_row(value)))
+            options[str(value.id)] = unicode(self.item_row(value))
         return options
 
     def render(self):
         return dict(Widget.render(self),
-                    options=this.get_options(self.field),
+                    row_by_value=self.get_options(),
                     **self.js_config())
 
 

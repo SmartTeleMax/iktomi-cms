@@ -89,6 +89,21 @@ var CollapsableForm = new Class({
   }
 });
 
+//<div class="form text init-block collapsable
+//            {%- if widget.closed %} closed{% endif %}
+//            {%- if widget.classname %} {{ widget.classname }}{% endif %}"
+//     {%- if widget.title_selectors %} data-title-selectors="{{ widget.title_selectors }}"{% endif %}
+//     data-block-name="collapsable-block">
+//  {%- if field.hint -%}
+//    <div class="hint hint-right">{{ field.hint }}</div>
+//  {%- endif -%}
+//  <h2 class="block_title">{{ field.title }}</h2>
+//  {% set form = field %}
+//  <div class="collapsable-content">
+//    {% include "forms/default.html" %}
+//  </div>
+//</div>
+
 Blocks.register('collapsable-block', function(el){
     new CollapsableForm(el, el.dataset);
 });
