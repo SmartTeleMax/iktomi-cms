@@ -91,7 +91,10 @@
       var widget = this.props;
       var hint = '';
       if (widget.hint){
-          hint = <div className="hint hint-right">{widget.hint}</div>
+          hint = <Hint safe_hint={widget.safe_hint}
+                       hint={widget.hint}
+                       key={widget.key}
+                       className="hint hint-right"/>
       }
       var fieldset = Widgets.FieldSetProto.render.call(this);
       return <div className={"form text init-block collapsable " + (widget.classname ||'')}

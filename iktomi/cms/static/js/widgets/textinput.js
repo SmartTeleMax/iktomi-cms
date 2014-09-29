@@ -1,6 +1,13 @@
 /** @jsx React.DOM */
 
 (function() {
+    var HiddenInputProto = Object.merge({}, Widgets.WidgetProto, {
+        render: function() {
+            return <input type="hidden"
+                          name={this.props.input_name}
+                          value={this.state.value}/>;
+        }
+    });
     var TextInputProto = Object.merge({}, Widgets.WidgetProto, {
         componentDidMount: function(){
             var el = this.getDOMNode();
@@ -35,6 +42,7 @@
         }
     });
 
+    Widgets.HiddenInput = React.createClass(HiddenInputProto);
     Widgets.TextInput = React.createClass(TextInputProto);
     Widgets.Textarea = React.createClass(TextareaProto);
 

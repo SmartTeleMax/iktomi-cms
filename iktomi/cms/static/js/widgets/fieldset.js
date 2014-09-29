@@ -2,6 +2,19 @@
 
 (function(){
 
+    var Hint = React.createClass({
+        render: function() {
+            var className = this.props.className || "hint";
+            if (this.props.safe_hint){
+                return <p className={className} dangerouslySetInnerHTML={{__html: this.props.hint}}/>;
+            } else {
+                return <p className={className}>{this.props.hint}</p>;
+            }
+        }
+    })
+
+    window.Hint = Hint;
+
     var FormRow = React.createClass({
         render: function() {
             var children = [];
@@ -11,8 +24,10 @@
                             <label htmlFor={widget.props.id}>{widget.props.label}</label> :
                             '');
             var hint = '';
-            if (widget.props.hint && !widget.renders_hint){
-                hint = <p className="hint" key={widget.props.key + '-hint'}>{widgets.props.hint}</p>;
+            if (widget.props.hint && !widget.props.renders_hint){
+                hint = <Hint safe_hint={widget.props.safe_hint}
+                             hint={widget.props.hint}
+                             key={widget.props.key}/>
             }
 
             var widgetErrors = fieldset.state.errors[widget.props.key];
@@ -41,7 +56,12 @@
                           hint];
             }
 
-            return <div className={'form-row '+(widget.props.render_type=="full-width"?'full-width ': '')}>
+            var className = 'form-row';
+            var styles = null;
+            if (widget.props.render_type=="full-width") { className += ' full-width';}
+            if (widget.props.render_type=="hidden") { styles = {'display': 'none'};}
+
+            return <div className={className} style={styles}>
                       {children}
                    </div>;
         }
@@ -91,6 +111,10 @@
                 prop.data = this.getPropsData()[prop.key];
                 prop.errors = this.props.errors[prop.key] || {};
                 prop.parent = this;
+                prop.id = this.props.id + '.' + prop.name;
+                prop.input_name = this.props.input_name ? 
+                                  this.props.input_name + '.' + prop.name :
+                                  prop.name;
 
                 var el = (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
                 //this.widgetsByName[prop.key] = el;

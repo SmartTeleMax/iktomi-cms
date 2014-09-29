@@ -6,6 +6,7 @@ from datetime import datetime
 from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
 from iktomi.cms.models.edit_log import make_diff
+from iktomi.forms.widgets import AggregateWidget
 from lxml.html.diff import htmldiff
 import json
 
@@ -220,8 +221,6 @@ class PopupStreamSelect(Select):
         data = {
             'url': self.stream.url_for(self.env).qs_set(self.default_filters),
             'title': self.stream.title,
-            'container': self.id,
-            'input_name': self.input_name,
             'allow_delete': self.allow_delete,
             'allow_create': self.allow_create,
             'allow_select': self.allow_select,
@@ -243,7 +242,9 @@ class PopupStreamSelect(Select):
             values = [values]
 
         for value in values:
-            options[str(value.id)] = unicode(self.item_row(value))
+            # XXX
+            if value is not None:
+                options[str(value.id)] = unicode(self.item_row(value))
         return options
 
     def render(self):
@@ -328,6 +329,7 @@ class CollapsableFieldBlock(widgets.FieldBlockWidget):
     closed = False
     title_selectors=''
     open_with_data = False
+    renders_hint = True
 
     def render(self):
         return dict(widgets.FieldBlockWidget.render(self),
@@ -336,4 +338,8 @@ class CollapsableFieldBlock(widgets.FieldBlockWidget):
                     title_selectors=self.title_selectors,
                     open_with_data=self.open_with_data)
 
+
+class FieldListWidget(AggregateWidget):
+
+    pass
 

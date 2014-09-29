@@ -30,6 +30,10 @@ Widgets.FieldList = Widgets.FieldListWidget = React.createClass({
             this.key = this.key || -1;
             prop.data._key = this.key--;
         }
+        prop.parent = this;
+        prop.id = this.props.id + '.' + prop.data._key;
+        prop.input_name = this.props.input_name + '.'  + prop.data._key;
+        prop.errors = this.props.errors[prop.data._key] || {};
  
         return (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
     },
@@ -51,10 +55,11 @@ Widgets.FieldList = Widgets.FieldListWidget = React.createClass({
             ws.push(row);
         }
         this.subWidgets = ws.slice(1);
-        var fields = React.DOM.div({'className': 'fieldlist'}, ws);
-        var addButton = React.DOM.button({onClick: this.onAddClick}, 'Add');
-        return React.DOM.div({},
-                             fields, addButton)
+        var fields = <div className='fieldlist'>{ws}</div>;
+        var addButton = <button className="button w-button"
+                                type="button"
+                                onClick={this.onAddClick}>Добавить</button>;
+        return <div>{fields} {addButton}</div>
     },
     setValue: function(newValue){
         var value = _mergeObjects(this.state.value, newValue);
@@ -99,8 +104,8 @@ Widgets.FieldList = Widgets.FieldListWidget = React.createClass({
     onAddClick: function(e){
         var value = this.getValue();
         var params = this.props.subwidget;
-        var newRowValue = this.subWidget().getInitialState().value;
-        value.push(newRowValue)
+        //var newRowValue = this.subWidget().getInitialState().value;
+        value.push({})
         this.setValue(value);
  
         //this.fireChange();
