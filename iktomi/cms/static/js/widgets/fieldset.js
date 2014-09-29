@@ -10,7 +10,10 @@
             var label = (widget.props.label? 
                             <label htmlFor={widget.props.id}>{widget.props.label}</label> :
                             '');
-
+            var hint = '';
+            if (widget.props.hint && !widget.renders_hint){
+                hint = <p className="hint" key={widget.props.key + '-hint'}>{widgets.props.hint}</p>;
+            }
 
             var widgetErrors = fieldset.state.errors[widget.props.key];
             var errorMsg = widgetErrors && widgetErrors['.']
@@ -18,11 +21,29 @@
                             <div className="error">{errorMsg}</div> :
                             '');
 
-            children = [error,
-                        <div className="form-label" key={widget.props.key + '-label'}>{label}</div>,
-                        widget];
+            if (widget.props.render_type == 'checkbox') {
+              children = [error,
+                          widget,
+                          label,
+                          hint];
 
-            return React.DOM.div({'className': 'form-row'}, children);
+            } else if (widget.props.render_type == 'hidden'){
+              children = [error, widget];
+            } else if (widget.props.render_type == 'full-width'){
+              children = [error,
+                          label,
+                          widget,
+                          hint];
+            } else {
+              children = [error,
+                          <div className="form-label" key={widget.props.key + '-label'}>{label}</div>,
+                          widget,
+                          hint];
+            }
+
+            return <div className={'form-row '+(widget.props.render_type=="full-width"?'full-width ': '')}>
+                      {children}
+                   </div>;
         }
     });
 
