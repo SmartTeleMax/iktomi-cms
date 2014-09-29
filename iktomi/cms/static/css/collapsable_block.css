@@ -25,11 +25,11 @@
     white-space: nowrap;
 }
 
-.collapsable.closed h2.block_title{
+.collapsable[data-closed] h2.block_title{
     background-position: 3px 3px;
 }
 
-.collapsable.closed .collapsable-content{
+.collapsable[data-closed] .collapsable-content{
     display:none;
 }
 .form .collapsable-content>.form-row:last-child,

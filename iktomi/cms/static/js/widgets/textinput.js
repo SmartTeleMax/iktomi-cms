@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 (function() {
-    var TextInputProto = Object.merge({}, window.WidgetProto, {
+    var TextInputProto = Object.merge({}, Widgets.WidgetProto, {
         componentDidMount: function(){
             var el = this.getDOMNode();
             if (window.LongPress){
@@ -35,7 +35,7 @@
         }
     });
 
-    window.TextInput = React.createClass(TextInputProto);
-    window.Textarea = React.createClass(TextareaProto);
+    Widgets.TextInput = React.createClass(TextInputProto);
+    Widgets.Textarea = React.createClass(TextareaProto);
 
 })();

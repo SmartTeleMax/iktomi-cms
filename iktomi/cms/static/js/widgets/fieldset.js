@@ -71,7 +71,7 @@
                 prop.errors = this.props.errors[prop.key] || {};
                 prop.parent = this;
 
-                var el = (React.DOM[prop.widget]||window[prop.widget])(prop);
+                var el = (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
                 //this.widgetsByName[prop.key] = el;
                 ws.push(FormRow({fieldset: this,
                                  widget: el,
@@ -114,9 +114,11 @@
         }
     });
 
+    Widgets.FieldSetProto = FieldSetProto;
+    Widgets.FieldBlockProto = FieldBlockProto;
 
-    window.FieldSet = React.createClass(FieldSetProto);
-    window.FieldBlock = React.createClass(FieldBlockProto);
+    Widgets.FieldSetWidget = Widgets.FieldSet = React.createClass(FieldSetProto);
+    Widgets.FieldBlockWidget = Widgets.FieldBlock = React.createClass(FieldBlockProto);
     window.ReactForm = React.createClass(ReactFormProto);
 
     window.ReactForm.fromJSON = function(json){

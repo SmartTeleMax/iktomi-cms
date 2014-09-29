@@ -253,7 +253,7 @@
 
 (function() {
     // XXX how to do component inheritance in right way?
-    var WysiHtml5Proto = Object.merge({}, window.WidgetProto, {
+    var WysiHtml5Proto = Object.merge({}, Widgets.WidgetProto, {
         onChange: function(){
           this.setValue(this.editor.getValue());
           var itemForm = this.getItemForm();
@@ -339,7 +339,7 @@
                       props[k] = this.props[k];
                   }
                   props.key = btns[j];
-                  var btn = WysiHtml5.Buttons[btns[j]](props);
+                  var btn = Widgets.WysiHtml5.Buttons[btns[j]](props);
                   buttons.push(btn);
                 }
                 buttons.push(<span key={'sep'+i} className="separator"></span>);
@@ -363,7 +363,7 @@
     });
 
 
-    window.WysiHtml5 = React.createClass(WysiHtml5Proto);
+    Widgets.WysiHtml5 = React.createClass(WysiHtml5Proto);
 })();
 
 (function(){

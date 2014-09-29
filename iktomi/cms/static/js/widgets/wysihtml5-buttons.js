@@ -1,21 +1,22 @@
 /** @jsx React.DOM */
 
 (function(){
-  WysiHtml5.Buttons = {};
+  var Buttons = {}
+  Widgets.WysiHtml5.Buttons = Buttons;
 
-  WysiHtml5.Buttons.blockquote = React.createClass({
+  Buttons.blockquote = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="blockquote" className="btn">Цитата</a>;
     }
   });
 
-  WysiHtml5.Buttons.bold = React.createClass({
+  Buttons.bold = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="bold" className="btn">Полужирный</a>;
     }
   });
 
-  WysiHtml5.Buttons.createLink = React.createClass({
+  Buttons.createLink = React.createClass({
     render: function(){
         return <div className="wysihtml5-dialog-place">
           <a data-wysihtml5-command="createLink" className="btn">Вставить ссылку</a>
@@ -37,7 +38,7 @@
     }
   });
 
-  WysiHtml5.Buttons.extrachars = React.createClass({
+  Buttons.extrachars = React.createClass({
     render: function(){
         return <div className="wysihtml5-dialog-place">
           <a data-wysihtml5-command="extrachars" className="btn">Специальные символы</a>
@@ -67,7 +68,7 @@
   });
 
 
-  WysiHtml5.Buttons.headings = React.createClass({
+  Buttons.headings = React.createClass({
     render: function(){
       var buttons = [];
       for (var i=1; i<7; i++){
@@ -87,21 +88,21 @@
     }
   });
 
-  WysiHtml5.Buttons.html = React.createClass({
+  Buttons.html = React.createClass({
     render: function(){
         return <a data-wysihtml5-action="change_view"
                   title="Show HTML" className="btn"></a>;
     }
   });
 
-  WysiHtml5.Buttons.indent = React.createClass({
+  Buttons.indent = React.createClass({
     render: function(){
         return <a data-wysihtml5-command="indent"
                   className="btn disabled">Увеличить отступ</a>;
     }
   });
 
-  WysiHtml5.Buttons.insertImage = React.createClass({
+  Buttons.insertImage = React.createClass({
     render: function(){
         return <div className="wysihtml5-dialog-place">
           <a data-wysihtml5-command="insertImage"
@@ -120,52 +121,52 @@
     }
   });
 
-  WysiHtml5.Buttons.insertorderedlist = React.createClass({
+  Buttons.insertorderedlist = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="insertorderedlist"
                 className="btn">Нумерованный список</a>;
     }
   });
 
-  WysiHtml5.Buttons.insertunorderedlist = React.createClass({
+  Buttons.insertunorderedlist = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="insertunorderedlist"
                 className="btn">Список</a>;
     }
   });
 
-  WysiHtml5.Buttons.italic = React.createClass({
+  Buttons.italic = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="italic" className="btn">Курсив</a>;
     }
   });
 
-  WysiHtml5.Buttons.outdent = React.createClass({
+  Buttons.outdent = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="outdent"
                 className="btn disabled">Уменьшить отступ</a>
     }
   });
 
-  WysiHtml5.Buttons.redo = React.createClass({
+  Buttons.redo = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="redo" className="btn disabled">Повторить</a>;
     }
   });
 
-  WysiHtml5.Buttons.sub = React.createClass({
+  Buttons.sub = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="sub" className="btn">Верхний индекс</a>;
     }
   });
 
-  WysiHtml5.Buttons.sup = React.createClass({
+  Buttons.sup = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="sup" className="btn">Верхний индекс</a>;
     }
   });
 
-  WysiHtml5.Buttons.table = React.createClass({
+  Buttons.table = React.createClass({
     render: function(){
       return <div className="wysihtml5-dialog-place">
           <a data-wysihtml5-command="table" className="btn">Вставить таблицу</a>
@@ -211,13 +212,13 @@
     }
   });
 
-  WysiHtml5.Buttons.underline = React.createClass({
+  Buttons.underline = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="underline" className="btn">Подчеркнутый</a>;
     }
   });
 
-  WysiHtml5.Buttons.undo = React.createClass({
+  Buttons.undo = React.createClass({
     render: function(){
       return <a data-wysihtml5-command="undo" className="btn disabled">Отменить</a>;
     }

@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-window.FieldList = React.createClass({
+Widgets.FieldList = Widgets.FieldListWidget = React.createClass({
     getInitialState: function() {
         var value;
         if (this.props.data){
@@ -31,7 +31,7 @@ window.FieldList = React.createClass({
             prop.data._key = this.key--;
         }
  
-        return (React.DOM[prop.widget]||window[prop.widget])(prop);
+        return (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
     },
  
     fieldListRow: function(data){

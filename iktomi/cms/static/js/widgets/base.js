@@ -115,6 +115,8 @@ function makeMutable(obj){
         }
     }
 
-    window.WidgetProto = WidgetProto;
+
+    window.Widgets = {};
+    Widgets.WidgetProto = WidgetProto;
 
 })();

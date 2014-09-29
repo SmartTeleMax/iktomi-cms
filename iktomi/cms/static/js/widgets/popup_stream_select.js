@@ -214,7 +214,7 @@
         }
     }
 
-    var PopupStreamSelectProto = Object.merge({}, window.WidgetProto, PopupStreamSelectInternals, {
+    var PopupStreamSelectProto = Object.merge({}, Widgets.WidgetProto, PopupStreamSelectInternals, {
         // Reactive part of PopupStreamSelect
 
         componentDidMount: function(){
@@ -340,7 +340,7 @@
         }
     });
 
-    window.PopupStreamSelect = React.createClass(PopupStreamSelectProto);
+    Widgets.PopupStreamSelect = React.createClass(PopupStreamSelectProto);
     var ItemRow = React.createClass(ItemRowProto);
 
     function addUrlParams(url, params, replace_params){

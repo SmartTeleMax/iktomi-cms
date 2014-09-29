@@ -3,7 +3,7 @@
 (function(){
   CollapsableProto = {
     getInitialState: function() {
-        var state = FieldSetProto.getInitialState.call(this);
+        var state = Widgets.FieldSetProto.getInitialState.call(this);
         state = Object.merge(state, {'closed': this.props.closed,
                                      'title': this.props.title});
         //delete this.props.data;
@@ -11,11 +11,7 @@
     },
 
     componentDidMount: function(){
-      this.block = block;
-      this.setTitle = this.setTitle.bind(this);
-
-
-      block.getElement('h2').addEvent('click', this.toggle.bind(this));
+      var block = this.getDOMNode();
 
       this.titleSelectors = [];
       if (this.props.title_selectors){
@@ -26,7 +22,7 @@
       // XXX hack to run after setTitle
       //     we run this immediatelly to avoid artefacts on page load
       //     and after setTitle to be always correct
-      this.restoreState.bind(this).delay(20);
+      this.restoreState.delay(20);
     },
 
     toggle: function(e){
@@ -36,7 +32,7 @@
       this.saveState();
     },
 
-    getBlockKey: function (block) {
+    getBlockKey: function () {
       var blockTitle = this.state.title;
 
       var form = this.getDOMNode().getParent('form');
@@ -50,24 +46,22 @@
       return null;
     },
 
-    saveState: function (block) {
-      var key = this.getBlockKey(block);
+    saveState: function () {
+      var key = this.getBlockKey();
       if (key) {
         var value = this.state.closed ? 'closed': 'open';
         lscache.set(key, value, 7 * 24 * 60);
       }
     },
 
-    restoreState: function (block) {
-      var key = this.getBlockKey(block);
-      if (key) {
+    restoreState: function () {
+      var key = this.getBlockKey();
+      if (Object.getLength(this.state.errors) > 0){
+        // XXX
+        this.setState({'closed': false});
+      } else if (key) {
         var value = lscache.get(key);
-        if (value) {
-          this.block.toggleClass('closed', value == 'closed');
-        }
-      }
-      if (this.block.getElements('.error').length > 0){
-        this.block.removeClass('closed');
+        this.setState({'closed': value == 'closed'});
       }
     },
 
@@ -99,19 +93,25 @@
       if (widget.hint){
           hint = <div className="hint hint-right">{widget.hint}</div>
       }
-      var fieldset = FieldSetProto.render.call(this);
+      var fieldset = Widgets.FieldSetProto.render.call(this);
       return <div className={"form text init-block collapsable " + (widget.classname ||'')}
-                  data-closed={this.state.closed || null}
+                  data-closed={this.state.closed?"true": null}
                   onChange={this.setTitle}>
                 {hint}
                 <h2 className="block_title"
                     onClick={this.toggle}>{this.state.title}</h2>
-                <div class="collapsable-content">
+                <div className="collapsable-content">
                   {fieldset}
                 </div>
              </div>;
     }
   }
+
+  var CollapsableFieldSetProto = Object.merge({}, Widgets.FieldSetProto, CollapsableProto);
+  var CollapsableFieldBlockProto = Object.merge({}, Widgets.FieldBlockProto, CollapsableProto);
+
+  Widgets.CollapsableFieldSet = React.createClass(CollapsableFieldSetProto);
+  Widgets.CollapsableFieldBlock = React.createClass(CollapsableFieldBlockProto);
 })();
 
 

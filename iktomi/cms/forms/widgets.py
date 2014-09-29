@@ -322,8 +322,18 @@ class Calendar(TextInput):
                     size=self.size)
 
 
-class FieldBlockWidget(widgets.FieldBlockWidget):
+class CollapsableFieldBlock(widgets.FieldBlockWidget):
 
     classname = 'collapsable'
     closed = False
+    title_selectors=''
+    open_with_data = False
+
+    def render(self):
+        return dict(widgets.FieldBlockWidget.render(self),
+                    closed=self.closed,
+                    title=self.field.title,
+                    title_selectors=self.title_selectors,
+                    open_with_data=self.open_with_data)
+
 
