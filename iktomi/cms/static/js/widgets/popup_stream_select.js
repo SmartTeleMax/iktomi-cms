@@ -3,7 +3,7 @@
 (function() {
     // XXX make draggable!
 
-    var ItemRowProto = {
+    var ItemRow = React.createClass({
       componentDidMount: function(){
           var widget = this.props.parent.props;
           var html = widget.row_by_value[this.props.value];
@@ -72,7 +72,7 @@
                  {removeBtn}
                </tr>;
       }
-    }
+    });
 
     var PopupStreamSelectInternals = {
         // A lot of non-react imperative staff
@@ -214,7 +214,7 @@
         }
     }
 
-    var PopupStreamSelectProto = Object.merge({}, Widgets.WidgetProto, PopupStreamSelectInternals, {
+    Widgets.PopupStreamSelect = Widgets.create(Widgets.Widget, PopupStreamSelectInternals, {
         // Reactive part of PopupStreamSelect
 
         componentDidMount: function(){
@@ -223,7 +223,9 @@
             this.popup.contentEl.addEvent('load', this.patchItemForm);
         },
         getValueAsList: function(){
-            if (this.props.multiple) { return this.state.value };
+            if (this.props.multiple) {
+                return this.state.value;
+            }
             var value = this.state.value +'';
             if (value) { return [value]; }
             return [];
@@ -339,9 +341,6 @@
                    </div>;
         }
     });
-
-    Widgets.PopupStreamSelect = React.createClass(PopupStreamSelectProto);
-    var ItemRow = React.createClass(ItemRowProto);
 
     function addUrlParams(url, params, replace_params){
       var p = '';

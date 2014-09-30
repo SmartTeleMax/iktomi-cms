@@ -3,7 +3,7 @@
 (function(){
   CollapsableProto = {
     getInitialState: function() {
-        var state = Widgets.FieldSetProto.getInitialState.call(this);
+        var state = Widgets.FieldSet.proto.getInitialState.call(this);
         state = Object.merge(state, {'closed': this.props.closed,
                                      'title': this.props.title});
         //delete this.props.data;
@@ -96,7 +96,7 @@
                        key={widget.key}
                        className="hint hint-right"/>
       }
-      var fieldset = Widgets.FieldSetProto.render.call(this);
+      var fieldset = Widgets.FieldSet.proto.render.call(this);
       return <div className={"form text init-block collapsable " + (widget.classname ||'')}
                   data-closed={this.state.closed?"true": null}
                   onChange={this.setTitle}>
@@ -110,11 +110,8 @@
     }
   }
 
-  var CollapsableFieldSetProto = Object.merge({}, Widgets.FieldSetProto, CollapsableProto);
-  var CollapsableFieldBlockProto = Object.merge({}, Widgets.FieldBlockProto, CollapsableProto);
-
-  Widgets.CollapsableFieldSet = React.createClass(CollapsableFieldSetProto);
-  Widgets.CollapsableFieldBlock = React.createClass(CollapsableFieldBlockProto);
+  Widgets.CollapsableFieldSet = Widgets.create(Widgets.FieldSet, CollapsableProto);
+  Widgets.CollapsableFieldBlock = Widgets.create(Widgets.FieldBlock, CollapsableProto);
 })();
 
 

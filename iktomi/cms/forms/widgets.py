@@ -6,7 +6,6 @@ from datetime import datetime
 from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
 from iktomi.cms.models.edit_log import make_diff
-from iktomi.forms.widgets import AggregateWidget
 from lxml.html.diff import htmldiff
 import json
 
@@ -338,8 +337,4 @@ class CollapsableFieldBlock(widgets.FieldBlockWidget):
                     title_selectors=self.title_selectors,
                     open_with_data=self.open_with_data)
 
-
-class FieldListWidget(AggregateWidget):
-
-    pass
 

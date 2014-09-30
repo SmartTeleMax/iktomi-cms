@@ -80,12 +80,18 @@
 }
 
 .w-button,
-.w-buttons .button {
+.w-buttons .button,
+.w-button:focus,
+.w-buttons .button:focus {
   font-size: 11px;
   font-weight: normal;
   background: #fff;
   color: #525B5C;
   border: 1px solid #cacfd2;
+  }
+  .w-button:focus,
+  .w-buttons .button:focus {
+    border-color: #aaafb2;
   }
   .w-button:hover,
   .w-buttons .button:hover {

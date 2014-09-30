@@ -68,6 +68,10 @@
     });
 
     var FieldSetProto = {
+        getDefault: function(){
+            // called with no context (no `this`) before object creation
+            return {};
+        },
         getInitialState: function() {
             var state = {'value': this.props.data,
                          'errors': this.props.errors};
@@ -106,9 +110,16 @@
         render: function() {
             //this.widgetsByName = {};
             var ws = [];
+            var data = this.getPropsData();
             for (var i=0; i<this.props.widgets.length; i++){
                 var prop = _clone(this.props.widgets[i]);
-                prop.data = this.getPropsData()[prop.key];
+                if (data[prop.key] == undefined){
+                    var default_ = Widgets.getDefaultValue(prop);
+                    if (default_ !== null){
+                        data[prop.key] = default_;
+                    }
+                }
+                prop.data = data[prop.key];
                 prop.errors = this.props.errors[prop.key] || {};
                 prop.parent = this;
                 prop.id = this.props.id + '.' + prop.name;
@@ -153,19 +164,17 @@
 
     });
 
-    var FieldBlockProto = Object.merge({}, FieldSetProto, {
+    Widgets.FieldSetWidget = Widgets.FieldSet = Widgets.create(FieldSetProto);
+    Widgets.FieldBlockWidget = Widgets.FieldBlock = Widgets.create(Widgets.FieldSet, {
+        getDefault: function(){
+            return null;
+        },
         getPropsData: function(){
             return this.props.parent.props.data;
         }
     });
 
-    Widgets.FieldSetProto = FieldSetProto;
-    Widgets.FieldBlockProto = FieldBlockProto;
-
-    Widgets.FieldSetWidget = Widgets.FieldSet = React.createClass(FieldSetProto);
-    Widgets.FieldBlockWidget = Widgets.FieldBlock = React.createClass(FieldBlockProto);
     window.ReactForm = React.createClass(ReactFormProto);
-
     window.ReactForm.fromJSON = function(json){
         var props = JSON.parse(json);
         props.data = makeMutable(props.data);

@@ -252,8 +252,7 @@
 
 
 (function() {
-    // XXX how to do component inheritance in right way?
-    var WysiHtml5Proto = Object.merge({}, Widgets.WidgetProto, {
+    Widgets.WysiHtml5 = Widgets.create(Widgets.Widget, {
         onChange: function(){
           this.setValue(this.editor.getValue());
           var itemForm = this.getItemForm();
@@ -361,9 +360,6 @@
               </div>
         }
     });
-
-
-    Widgets.WysiHtml5 = React.createClass(WysiHtml5Proto);
 })();
 
 (function(){

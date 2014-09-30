@@ -1,8 +1,10 @@
 /** @jsx React.DOM */
 
 function MutableString(text){
-    this.text = text;
-    this._key = text; // XXX is this ok?
+    if (text !== undefined) {
+        this.text = text;
+        this._key = text; // XXX is this ok?
+    }
 }
 
 MutableString.prototype = {
@@ -40,16 +42,47 @@ function makeMutable(obj){
     throw "Can not convert to mutable JS object";
 }
 
+
 (function() {
 
-    // XXX how to do component inheritance in right way?
-    var WidgetProto = {
+    function createWidget(){
+        var proto = {};
+        for (var i=0; i<arguments.length; i++){
+            var arg = arguments[i];
+            arg = arg._widget_proto || arg; // XXX
+
+            proto = Object.merge(proto, arg);
+        }
+        var component = React.createClass(proto);
+        component.getDefault = proto.getDefault || function(){ return null;};
+        component.proto = component._widget_proto = proto;
+        return component;
+    }
+
+    function getDefaultValue(prop){
+        var Subwidget = Widgets[prop.widget];
+        if (Subwidget && Subwidget.getDefault){
+            //prop = _clone(prop);
+            return Subwidget.getDefault(prop);
+        }
+        return {};
+    }
+
+    window.Widgets = {create: createWidget,
+                      getDefaultValue: getDefaultValue};
+
+    Widgets.Widget = createWidget({
+        getDefault: function(props){
+            // called with no context (no `this`) before object creation
+            return props.multiple? [] : new MutableString();
+        },
         getInitialState: function() {
             if (this.props.data){
                 var value = this.props.data;
                 delete this.props.data;
             } else {
-                var value = this.props.multiple? [] : {};
+                // XXX is this correct??
+                var value = this.getDefault(this.props);
             }
 
             if (this.props.initial) {
@@ -58,7 +91,7 @@ function makeMutable(obj){
                 // changes from children.
                 var initial = this.props.multiple? this.props.initial: {'text': this.props.initial};
             } else {
-                var initial = this.props.multiple? []: {'text': ''};
+                var initial = this.props.multiple? []: new MutableString('');
             }
             var init = JSON.stringify(initial);
             initial = _mergeObjects(initial, value);
@@ -112,11 +145,10 @@ function makeMutable(obj){
 
         onChange: function(e){
             this.setValue(e.target.value);
+        },
+        render: function(){
+            return <div>{this.getValue()}</div>
         }
-    }
-
-
-    window.Widgets = {};
-    Widgets.WidgetProto = WidgetProto;
+    });
 
 })();

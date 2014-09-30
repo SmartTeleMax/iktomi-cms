@@ -76,6 +76,8 @@ class FieldBlock(FieldBlock, DiffFieldSetMixIn):
 
 class FieldList(FieldList):
 
+    widget = widgets.FieldListWidget
+
     @staticmethod
     def _is_pair(field1, field2):
         if field1.conv.__class__ == field2.conv.__class__:

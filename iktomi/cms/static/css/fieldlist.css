@@ -10,20 +10,28 @@ table.fieldlist td a.remove {
   text-decoration: none;
 }
 
-table.fieldlist td a.sort {
+table.fieldlist td .sort {
   text-decoration: none;
   font-weight: bold;
   font-size: 18px;
   padding: 0 4px;
+  outline: none;
+  background: none;
+  display: inline;
+  border: none;
 }
 
-table.fieldlist td a.sort:hover {
+table.fieldlist td .sort:hover {
   background: #fefeca;
 }
 
-table.fieldlist tr:first-child>td>a.sort-up,
-table.fieldlist tr:last-child>td>a.sort-down {
+table.fieldlist tr:first-child>td>.sort-up,
+table.fieldlist tr:last-child>td>.sort-down {
   visibility: hidden;
+}
+
+.fieldlist-order{
+    white-space: nowrap;
 }
 
 table.fieldlist table {
