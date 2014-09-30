@@ -176,7 +176,7 @@ class RevertAction(PostAction):
     accepts_item_form = False
     action = 'revert'
     cls = 'revert'
-    title = Markup(u'Восстановить<br/> из фронтальной')
+    title = Markup(u'Восстановить<br/> из опубликованной')
     hint = u'Отменить изменения, сделанные после публикации'
     PrepareItemHandler = PrepareItemHandler
 
@@ -220,7 +220,7 @@ class RevertAction(PostAction):
             if draft is not None:
                 env.db.delete(draft)
 
-        flash(env, u'Объект «%s» восстановлен из фронтальной версии' 
+        flash(env, u'Объект «%s» восстановлен из опубликованной версии' 
                     % data.item, 'success')
         env.db.commit()
 
@@ -305,7 +305,7 @@ class PublishStreamNoState(Stream):
     list_base_template = 'lang_publish_stream.html'
 
     versions = (('admin', u'Редакторская версия'),
-                ('front', u'Фронтальная версия'),)
+                ('front', u'Опубликованная версия'),)
     versions_dict = dict(versions)
 
     def uid(self, env, version=True):
