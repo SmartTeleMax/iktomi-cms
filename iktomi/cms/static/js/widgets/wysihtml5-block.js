@@ -81,7 +81,8 @@
       var commandObj = this.commandMapping[command + ":" + commandValue];
 
       // Show dialog when available
-      if (commandObj && commandObj.dialog) { // this line is changed
+      if (commandObj && commandObj.dialog) {                    // this line is changed
+        $$('.wysihtml5-dialog').setStyle('display', 'none');    // this line is changed
         if (wysihtml5.commands[command] && wysihtml5.commands[command].showDialog){
           wysihtml5.commands[command].showDialog(commandObj.dialog, this.composer, command);
         } else {
@@ -141,7 +142,9 @@
       var dropdown = this._init(composer);
       var streamSelect = dropdown.retrieve('widget');
       if (!value){
-        dropdown.setStyle('display', dropdown.style.display == 'none'? '': 'none');
+        var display = dropdown.style.display == 'none'? '': 'none';
+        $$('.wysihtml5-dialog').setStyle('display', 'none');
+        dropdown.setStyle('display', display);
       } else if(value == 'select'){
         streamSelect.show();
       } else if(value == 'create'){
