@@ -62,8 +62,9 @@
     loadPage(null, true);
   });
 
-  function loadPage(url, force, contentBlock){
+  function loadPage(url, force, contentBlock, pushState){
     contentBlock = contentBlock || $('app-content');
+    pushState = pushState === undefined? true: pushState;
     var isMain = contentBlock == $('app-content');
     if (!url){
       url = window.location.pathname + window.location.search;
@@ -82,8 +83,10 @@
         if (isMain) {
           currentUrl = url;
           var _url = window.location.pathname + window.location.search;
-          if (_url != url) {
+          if (pushState && _url != url) {
             history.pushState(null, null, url);
+          } else {
+            history.replaceState(null, null, url);
           }
         }
         console.log('loadPage success', url);
@@ -131,7 +134,7 @@
 
 
     if (result.location){
-      loadPage(result.location, true, contentBlock);
+      loadPage(result.location, true, contentBlock, false);
     } else {
       document.body.removeClass('loading');
 
