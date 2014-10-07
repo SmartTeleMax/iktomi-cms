@@ -46,7 +46,7 @@ class ModelForm(Form, DiffFieldSetMixIn):
             if isinstance(field, FieldBlock):
                 self._update_instance(obj, field.fields)
             else:
-                if 'w' in field.permissions:
+                if field.writable:
                     method = getattr(self, 'update__' + field.name, self.update_default)
                     method(obj, field.name, self.python_data[field.name])
 
