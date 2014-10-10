@@ -152,8 +152,7 @@ class Stream(object):
 
     lock_back_title = None
     lock_back_help = None
-    use_list_form_with_filters = False
-    
+
     def __init__(self, module_name, config):
         self.config = config
         self.module_name = module_name

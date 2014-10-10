@@ -154,7 +154,7 @@ class StreamListHandler(StreamAction):
     def list_form_data(self, env, paginator, filter_data):
         use_list_form = self.stream.ListItemForm and \
                 self.stream.list_edit_action.save_allowed(env)
-        if not self.stream.use_list_form_with_filters:
+        if use_list_form and not self.stream.ListItemForm.use_with_filters:
             use_list_form = use_list_form and not filter_data
         
         if use_list_form:
