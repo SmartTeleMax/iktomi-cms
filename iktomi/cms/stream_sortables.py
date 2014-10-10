@@ -23,6 +23,7 @@ class ListItemForm(Form):
 
     ordering_field = 'order'
     template = 'stream_sortables.html'
+    use_with_filters = False
 
     def __init__(self, *args, **kwargs):
         self.ordering_field = kwargs.pop('ordering_field', self.ordering_field)
