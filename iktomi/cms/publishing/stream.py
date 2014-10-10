@@ -91,7 +91,9 @@ class PublishAction(PostAction):
         self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
-            return env.json({})
+            return env.json({'success': False,
+                             'error': 'item_lock',
+                             'lock_message': data.lock_message})
 
         EditLog = getattr(env, 'edit_log_model', None)
         log_enabled = EditLog is not None and \
@@ -141,7 +143,9 @@ class UnpublishAction(PostAction):
         self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
-            return env.json({})
+            return env.json({'success': False,
+                             'error': 'item_lock',
+                             'lock_message': data.lock_message})
 
         EditLog = getattr(env, 'edit_log_model', None)
         log_enabled = EditLog is not None and \
@@ -195,7 +199,9 @@ class RevertAction(PostAction):
         self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
-            return env.json({})
+            return env.json({'success': False,
+                             'error': 'item_lock',
+                             'lock_message': data.lock_message})
 
         EditLog = getattr(env, 'edit_log_model', None)
         log_enabled = EditLog is not None and \

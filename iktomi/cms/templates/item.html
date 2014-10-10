@@ -70,6 +70,7 @@
       method="post"
       enctype="multipart/form-data"
       data-block-name="item-form"
+      data-item-id="{{ item.id or '' }}"
       {%- if autosave_allowed %}
       data-autosave="{{ stream.url_for(env, 'item.autosave', item=item.id).qs_set(filter_form.get_data()) }}"
       {%- endif %}

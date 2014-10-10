@@ -210,6 +210,7 @@
             this.statusElement.setAttribute('data-status', 'saved');
             this.frm.setAttribute('action', result.item_url);
             this.frm.dataset.autosave = result.autosave_url;
+            this.frm.dataset.itemId = result.item_id;
             if(!this.is_popup){
               history.replaceState(null, null, result.item_url);
             }
