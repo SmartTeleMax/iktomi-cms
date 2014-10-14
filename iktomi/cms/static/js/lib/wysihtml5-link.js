@@ -79,6 +79,14 @@
         var value = dropdown.getElement('[data-wysihtml5-dialog-field="href"]').value;
         composer.commands.exec('createLink', value);
       });
+
+      dropdown.getElement('[data-wysihtml5-dialog-field="href"]').addEvent('keydown', function(event) {
+         if (event.key == 'enter') {
+           var value = dropdown.getElement('[data-wysihtml5-dialog-field="href"]').value;
+           composer.commands.exec('createLink', value);
+         }
+      });
+
       return dropdown;
     },
 
