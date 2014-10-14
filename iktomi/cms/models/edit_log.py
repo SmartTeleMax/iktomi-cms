@@ -62,11 +62,11 @@ def EditLogAdminUser(models):
 def EditLog(models):
 
     id = Column(Integer, primary_key=True)
-    stream_name = Column(String(50), nullable=False, default='')
+    stream_name = Column(String(100), nullable=False, default='')
     type = Column(String(50), nullable=False, default='edit')
     # object id can be string, so we use string here
-    object_id = Column(String(50), nullable=True)
-    global_id = Column(String(50), nullable=False, default='')
+    object_id = Column(String(100), nullable=True)
+    global_id = Column(String(100), nullable=False, default='')
     edit_session = Column(String(50), nullable=False, default='')
 
     before = Column(MediumPickleType, default=list)
