@@ -1,41 +1,30 @@
 # -*- coding: utf-8 -*-
-
-from iktomi import web
-from iktomi.utils import cached_property
-from iktomi.forms import Form, Field, FieldSet, FieldList
+from iktomi.forms import Field, FieldSet, FieldList
 from iktomi.cms.forms import convs
+from iktomi.cms.list_edit import ListItemForm as BaseListItemForm, \
+        ListEditAction as BaseListEditAction, ListItemModelChoice
 
-from .stream_actions import StreamAction
 from .item_lock import ModelLockedByOther, ModelLockError
 from .flashmessages import flash
 from webob.exc import HTTPForbidden
 
-#BR = '\n'
 
-class ListItemModelChoice(convs.ModelChoice):
-
-    @property
-    def model(self):
-        return self.env.stream.get_model(self.env)
-
-
-class ListItemForm(Form):
+class ListItemForm(BaseListItemForm):
 
     ordering_field = 'order'
     template = 'stream_sortables.html'
-    use_with_filters = False
 
     def __init__(self, *args, **kwargs):
         self.ordering_field = kwargs.pop('ordering_field', self.ordering_field)
-        Form.__init__(self, *args, **kwargs)
+        BaseListItemForm.__init__(self, *args, **kwargs)
 
     fields = [
             FieldList(
-                'items', 
+                'items',
                 widget=FieldList.widget(
                     template='list_item_form'),
                 field=FieldSet(
-                    'item', 
+                    'item',
                     fields=[
                         Field('item',
                               conv=ListItemModelChoice(required=False),
@@ -48,33 +37,17 @@ class ListItemForm(Form):
             ),
         ]
 
-    @classmethod
-    def for_items(cls, env, items):
-        initial = {'items': [{'item': item, 
-                              "order": getattr(item, cls.ordering_field)}
-                             for item in items]}
-        return cls(env, initial=initial)
+    def initial_for_item(self, item):
+        return {"item": item,
+                "order": getattr(item, self.ordering_field)}
 
 
-class ListEditAction(StreamAction):
-
-    action='list_edit'
-    item_lock=True
-    display = False
-    for_item = False
-    title=u'Редактировать'
-
-    def save_allowed(self, env):
-        return self.stream.has_permission(env, 'w')
-
-    @cached_property
-    def ListItemForm(self):
-        return getattr(self.stream.config, 'ListItemForm', ListItemForm)
+class ListEditAction(BaseListEditAction):
 
     def set_order(self, item, ordering_field, position):
         setattr(item, ordering_field, position)
 
-    def __call__(self, env, data):
+    def list_edit(self, env, data):
         if not self.save_allowed(env):
             raise HTTPForbidden()
 
@@ -118,9 +91,5 @@ class ListEditAction(StreamAction):
                     '\n'.join(list_item_form.errors), 'failure')
 
         return env.json({'success': False})
-
-    @property
-    def app(self):
-        return web.method('POST') | web.match('/edit', 'list_edit') | self
-
+    __call__ = list_edit
 
