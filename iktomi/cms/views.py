@@ -97,7 +97,8 @@ class AdminAuth(SqlaModelAuth):
                                                 env, **form.python_data)
                     if user_identity is not None:
                         response = env.json({'success': True})
-                        return self.login_identity(user_identity, response=response)
+                        return self.login_identity(user_identity,
+                                                   response=response)
 
                 return env.json({'success': False, 'errors': form.errors})
             raise HTTPMethodNotAllowed()
@@ -110,10 +111,11 @@ class AdminAuth(SqlaModelAuth):
 
 object_ref_fields = [
     Field('stream_name',
-          conv=convs.Char(convs.limit(0, 50), required=True)),
+          conv=convs.Char(convs.length(0, 100), required=True)),
     Field('object_id',
-          conv=convs.Char(convs.limit(0, 50), required=True)),
-    ]
+          conv=convs.Char(convs.length(0, 100), required=True)),
+]
+
 
 class PostNote(web.WebHandler):
 
@@ -137,7 +139,6 @@ class PostNote(web.WebHandler):
         env.db.commit()
         return env.json({'success': True})
     __call__ = post_note
-
 
 
 class TrayView(web.WebHandler):
@@ -248,4 +249,3 @@ class TrayView(web.WebHandler):
             menu = env.current_location,
             title = tray.title,
         ))
-
