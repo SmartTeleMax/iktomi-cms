@@ -16,7 +16,7 @@ def ObjectTray(models):
     id = Column(Integer, primary_key=True)
     stream_name = Column(String(50), nullable=False, default='')
     # object id can be string, so we use string here
-    object_id = Column(String(50), nullable=True)
+    object_id = Column(String(100), nullable=True)
 
     tray_id = Column(Integer, ForeignKey('Tray.id'))
     tray = relationship('Tray')
