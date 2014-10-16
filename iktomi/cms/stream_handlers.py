@@ -348,7 +348,7 @@ class EditItemHandler(StreamAction):
         log_enabled = (item.id is not None and 
                        EditLog is not None and
                        getattr(env, 'version', 'admin') == 'admin' and
-                       stream.edit_log)
+                       stream.edit_log_action is not None)
 
         if request.method == 'POST':
             if not save_allowed:
