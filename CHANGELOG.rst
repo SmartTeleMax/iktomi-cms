@@ -13,6 +13,8 @@
 **Minor features**
 
 * Styles for warning flash-messages
+* Allow to redefine stream row className
+* ListEdit refactoring, option to enable/disable ListItemForm for filtered streams
 
 **Minor bugfixes**
 
@@ -24,4 +26,12 @@
 * Fixed styles for draggable item in PopupStreamSelect
 * Fixed edit log for cases there is a Field (not FieldSet) in FieldList
 * Fixed history for front models
+* Fixed PopupStreamSelect item removal on ENTER in input
+* replaceState instead of pushState on JSON redirections
+* Fixed action parameters rendering in HTML for list_edit buttons
+* Perform by-field permissions check on model instance update in ModelForm
+* WYSIWYG: handle Enter in create link input
+* Bigger limits for string DB fields in EditLog and ObjectTray
+
+
 
