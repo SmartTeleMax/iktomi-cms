@@ -6,7 +6,10 @@ from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
 from iktomi.cms.item_lock import ItemLock
+from iktomi.cms.publishing.model import _AdminReplicated
 from iktomi.utils import cached_property
+from iktomi.utils.storage import VersionedStorage
+from iktomi.unstable.db.sqla.factories import LangModelProxy
 from jinja2 import Markup
 
 
@@ -33,11 +36,17 @@ class PublishItemHandler(EditItemHandler):
         return td
 
     def get_front_item_form(self, env, item):
-        #front_env = VersionedStorage()
-        #front_env._storage._parent_storage = env
+        front_models = _AdminReplicated.front
+        if getattr(env, "lang", None):
+            front_models = getattr(front_models, env.lang)
 
-        form_cls = self.stream.config.ItemForm
-        # XXX should a form be created in front environment or it is ok now?
+        front_env = VersionedStorage(db=env.db,
+                                     models=front_models,
+                                     user=env.user,
+                                     version='front')
+        front_env._storage._parent_storage = env
+
+        form_cls = self.stream.config.ItemForm(front_env, {}, item._front_item)
         form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
         form.model = self.stream.get_model(env)
         return form
@@ -226,7 +235,7 @@ class RevertAction(PostAction):
             if draft is not None:
                 env.db.delete(draft)
 
-        flash(env, u'Объект «%s» восстановлен из опубликованной версии' 
+        flash(env, u'Объект «%s» восстановлен из опубликованной версии'
                     % data.item, 'success')
         env.db.commit()
 
