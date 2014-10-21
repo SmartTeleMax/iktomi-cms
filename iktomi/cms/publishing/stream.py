@@ -44,6 +44,7 @@ class PublishItemHandler(EditItemHandler):
                                      models=front_models,
                                      user=env.user,
                                      version='front')
+        front_env._storage._parent_storage = env
 
         form_cls = self.stream.config.ItemForm(front_env, {}, item._front_item)
         form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
