@@ -35,11 +35,8 @@
     {%- for entry in paginator.items %}
       {% if entry and entry.item %}
           {% set obj=entry.obj %}
-          {% if entry.lang %}
-            {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id, lang=entry.lang) -%}
-          {% else %}
-            {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id) -%}
-          {% endif %}
+          {% set lang_kw = {'lang': entry.lang } if entry.lang else {} %}
+          {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id, **lang_kw) -%}
           <tr class="item {{ loop.cycle('odd', 'even') }} edit-log-{{obj.type}}">
             <td class="field_id"><a href="{{ url }}">{{ obj.id }}</a></td>
             <td>
