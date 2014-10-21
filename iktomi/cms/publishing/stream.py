@@ -37,12 +37,12 @@ class PublishItemHandler(EditItemHandler):
 
     def get_front_item_form(self, env, item):
         front_models = _AdminReplicated.front
-        front_models_proxy = LangModelProxy(front_models,
-                                            env.models.langs,
-                                            env.lang)
+        if getattr(env, "lang", None):
+            front_models = LangModelProxy(front_models,
+                                          env.models.langs,
+                                          env.lang)
         front_env = VersionedStorage(db=env.db,
-                                     lang=env.lang,
-                                     models=front_models_proxy,
+                                     models=front_models,
                                      user=env.user,
                                      version='front')
 
