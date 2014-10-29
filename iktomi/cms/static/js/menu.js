@@ -11,7 +11,7 @@
          var links = [].slice.call(element.getElementsByTagName('A'));
        }
        return links.some(function(link){
-          linkFilters = (link.get('href').split('?')[1] || '').split('&');
+          var linkFilters = (link.get('href').split('?')[1] || '').split('&');
           return filterQuery.some(function(filter){
             return linkFilters.indexOf(filter) >= 0;
           })
