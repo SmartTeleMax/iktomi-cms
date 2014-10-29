@@ -2,23 +2,23 @@
   function menu(elem){
     if(! elem.getParent('.popup')){
       $$('.navigation li.active').removeClass('active');
-      var filter_query = location.search.substr(1).split('&');
-      var menu_items = $$('.navigation [data-endpoint="'+elem.dataset.menu+'"]');
-      menu_items = menu_items.filter(function(element){
+      var filterQuery = location.search.substr(1).split('&');
+      var menuItems = $$('.navigation [data-endpoint="'+elem.dataset.menu+'"]');
+      menuItems = menuItems.filter(function(element){
        if(element.tagName == 'A'){
          var links = [element];
        }else{
          var links = [].slice.call(element.getElementsByTagName('A'));
        }
        return links.some(function(link){
-          link_filters = (link.get('href').split('?')[1] || '').split('&');
-          return filter_query.some(function(filter){
-            return link_filters.indexOf(filter) >= 0;
+          linkFilters = (link.get('href').split('?')[1] || '').split('&');
+          return filterQuery.some(function(filter){
+            return linkFilters.indexOf(filter) >= 0;
           })
         });
       });
-      if(menu_items){
-        menu_items.forEach(function(item){
+      if(menuItems.length > 0){
+        menuItems.forEach(function(item){
           makeActive(item);
         });
       }
