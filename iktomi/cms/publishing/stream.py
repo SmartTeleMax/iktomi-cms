@@ -125,7 +125,7 @@ class PublishAction(PostAction):
     __call__ = admin_publish
 
     def is_available(self, env, item):
-        return item.id and \
+        return item.id is not None and \
             (not hasattr(item, 'state') or item.existing) and \
             (item.has_unpublished_changes or \
                 (hasattr(item, 'state') and not item.public)) and \
