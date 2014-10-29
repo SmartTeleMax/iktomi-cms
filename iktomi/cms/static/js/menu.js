@@ -8,7 +8,7 @@
        if(element.tagName == 'A'){
          var links = [element];
        }else{
-         var links = [].slice.call(element.getElementsByTagName('A'));
+         var links = Array.prototype.slice.call(element.getElementsByTagName('A'));
        }
        return links.some(function(link){
           var linkFilters = (link.get('href').split('?')[1] || '').split('&');
