@@ -32,10 +32,12 @@
   }
     
   function makeActive(item){
-    if (item.tagName == 'LI'){
-        item.addClass('active');
+    if(item){
+      if (item.tagName == 'LI'){
+          item.addClass('active');
       }
-    item.getParents('li').addClass('active');
+      item.getParents('li').addClass('active');
+    }
   }
 
   function title(elem){
