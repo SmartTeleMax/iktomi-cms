@@ -194,8 +194,8 @@
       url: "",
       input_name: 'file',
       image: false,
-      thumb_size: null,
-      canvas_thumb_preview: true
+      thumb_size: null
+      //canvas_thumb_preview: true
     },
 
     initialize: function(element, options){
@@ -275,35 +275,24 @@
       this.pb_container.setStyle('display', '');
 
       // Render a thumbnail if the file is an image
-      if (this.fileReaderSupport && this.thumb && this.options.canvas_thumb_preview){
+      if (this.fileReaderSupport && this.thumb){
         if(this.sourceImage) { this.sourceImage.destroy(); }
-        this.thumb.set('src', '#').setStyle('display', 'none');
+        this.thumb.setStyle('display', 'none');
         //delete this.reader; //XXX?
         this.reader = new FileReader();
 
         // Closure to capture the file information.
         this.reader.onload = (function(ev) {
           var thumb_size = this.options.thumb_size || (600, 600);
-          var transient_img = new Element('img').setStyles({
+          var transient_img = new Element('img', {'class': 'thumbnail'}).setStyles({
               'max-width': thumb_size[0],
               'max-height': thumb_size[1],
-              'visibility': 'hidden',
-              'position': 'fixed'
-          }).inject(document.body);
-          transient_img.addEvent('load', function(){
-            var cnv = new Element('canvas', {'width': transient_img.width,
-                                             'height': transient_img.height})
-                                 .inject(this.thumb, 'after');
-            var scale = Math.min(transient_img.height / transient_img.naturalHeight,
-                                 transient_img.width / transient_img.naturalWidth)
-            var ctx = cnv.getContext('2d');
-            ctx.scale(scale, scale);
-            ctx.drawImage(transient_img, 0, 0);
-            transient_img.destroy();
-            this.thumb.destroy();
+              'src': ev.target.result,
+          }).inject(this.thumb, 'after');
+          this.thumb.destroy();
+          this.thumb = transient_img;
+          transient_img.set('src', ev.target.result);
 
-            this.thumb = cnv;
-          }.bind(this)).set('src', ev.target.result);
         }).bind(this);
         // Read in the image file as a data URL.
         this.reader.readAsDataURL(this.uploading_file);
@@ -350,7 +339,7 @@
         new Element('p').set('html', 'загружен временный файл: <br/>').adopt(
         new Element('a', {href: data.file_url, text: data.file, target: "_blank"})
       ));
-      if (this.thumb && this.thumb.nodeName == 'IMG'){
+      if (this.thumb){
         var oldThumb = this.thumb;
         this.thumb = this.thumb.clone()
                                .setStyle('display', '')
@@ -412,6 +401,7 @@
 
           }.bind(this));
         }
+        console.log("Data", data);
         this.thumb.set('src', data.file_url);
       }
 
@@ -491,7 +481,7 @@
                    input_name: el.dataset.inputName}
     if (el.dataset.image){
       options.image = true;
-      options.canvasThumbPreview = el.dataset.canvasThumbPreview;
+      //options.canvas_thumb_preview = el.dataset.canvasThumbPreview;
       if (el.dataset.thumbWidth){
         options.thumb_size = [el.dataset.thumbWidth, el.dataset.thumbHeight];
       }

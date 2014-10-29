@@ -69,7 +69,7 @@ class AjaxImageField(AjaxFileField):
     show_thumbnail = True
     show_size = True
     #: use js pre-upload thumbnail generation by canvas
-    canvas_thumb_preview = False
+    #canvas_thumb_preview = False
     conv = ImageFieldSetConv()
     retina = False
     crop = True
