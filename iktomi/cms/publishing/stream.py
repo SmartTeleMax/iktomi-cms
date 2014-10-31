@@ -77,7 +77,9 @@ class PublishItemHandler(EditItemHandler):
 
     def edit_item_handler(self, env, data):
         # XXX hack!
-        data._has_unpublished_changes = data.item.has_unpublished_changes
+        data._has_unpublished_changes = False
+        if data.item is not None:
+            data._has_unpublished_changes = data.item.has_unpublished_changes
         return EditItemHandler.edit_item_handler(self, env, data)
     __call__ = edit_item_handler
 
