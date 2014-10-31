@@ -294,6 +294,35 @@ class EditItemHandler(StreamAction):
                                   .qs_set(filter_form.get_data())
         return item, item_url, autosave_url
 
+    def get_log_item(self, env, data, item):
+        EditLog = env.edit_log_model
+        stream = self.stream
+        log = EditLog.last_for_item(
+                env.db, stream.uid(env), item, 
+                env.user, data.edit_session)
+        if log is None:
+            before = self._clean_item_data(stream, env, item)
+            log = EditLog(stream_name=stream.uid(env),
+                          type="edit",
+                          object_id=item.id,
+                          global_id=ItemLock.item_global_id(item),
+                          edit_session=data.edit_session,
+                          users=[env.user],
+                          before=before)
+        return log
+
+    def save_log_item(self, env, data, log, item):
+        env.db.commit()
+        # do not write form.raw_data directly, because it can be
+        # different for same data stored in db.
+        # Assume form raw data generated from item as canonical
+        # representation
+        log.after = self._clean_item_data(self.stream, env, item)
+        if log.data_changed:
+            log.update_time = datetime.now()
+            env.db.add(log)
+            env.db.commit()
+
     def edit_item_handler(self, env, data):
         '''View for item page.'''
 
@@ -356,20 +385,7 @@ class EditItemHandler(StreamAction):
 
             log = None
             if log_enabled:
-                log = EditLog.last_for_item(
-                        env.db, stream.uid(env), item, 
-                        env.user, data.edit_session)
-                if log is None:
-                    before = self._clean_item_data(stream, env, item)
-                    log = EditLog(stream_name=stream.uid(env),
-                                  type="edit",
-                                  object_id=item.id,
-                                  global_id=ItemLock.item_global_id(item),
-                                  edit_session=data.edit_session,
-                                  users=[env.user],
-                                  before=before)
-                if draft is not None:
-                    log.users = list(set(log.users + draft.users))
+                log = self.get_log_item(env, data, item)
 
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
@@ -379,16 +395,7 @@ class EditItemHandler(StreamAction):
                                        item, draft, autosave)
 
                 if log is not None:
-                    env.db.commit()
-                    # do not write form.raw_data directly, because it can be
-                    # different for same data stored in db.
-                    # Assume form raw data generated from item as canonical
-                    # representation
-                    log.after = self._clean_item_data(stream, env, item)
-                    if log.after != log.before:
-                        log.update_time = datetime.now()
-                        env.db.add(log)
-                        env.db.commit()
+                    self.save_log_item(env, data, log, item)
 
                 result = {'success': True,
                           'item_id': item.id,

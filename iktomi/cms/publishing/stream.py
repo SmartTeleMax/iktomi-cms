@@ -9,7 +9,6 @@ from iktomi.cms.item_lock import ItemLock
 from iktomi.cms.publishing.model import _AdminReplicated
 from iktomi.utils import cached_property
 from iktomi.utils.storage import VersionedStorage
-from iktomi.unstable.db.sqla.factories import LangModelProxy
 from jinja2 import Markup
 
 
@@ -75,6 +74,20 @@ class PublishItemHandler(EditItemHandler):
         if diff is None:
             return []
         return self._collect_changed_fields(diff)
+
+    def edit_item_handler(self, env, data):
+        # XXX hack!
+        data._has_unpublished_changes = data.item.has_unpublished_changes
+        return EditItemHandler.edit_item_handler(self, env, data)
+    __call__ = edit_item_handler
+
+    def save_log_item(self, env, data, log, item):
+        EditItemHandler.save_log_item(self, env, data, log, item)
+        if not log.data_changed:
+            # if there were no changes, revert has_unpublished_changes to
+            # initial state
+            item.has_unpublished_changes = data._has_unpublished_changes
+            env.db.commit()
 
 
 class PublishAction(PostAction):

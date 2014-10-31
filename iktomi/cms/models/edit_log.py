@@ -5,6 +5,7 @@ from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from iktomi.cms.item_lock import ItemLock
+from iktomi.utils import cached_property
 from webob.multidict import MultiDict
 from .base import register_model
 
@@ -80,6 +81,10 @@ def EditLog(models):
     # if draft has been made by one user and than corrected and saved by other
     users = relationship(models.AdminUser,
                           secondary=models.EditLogAdminUser.__table__)
+
+    @cached_property
+    def data_changed(self):
+        return self.before != self.after
 
     @classmethod
     def query_for_item(cls, db, item):
