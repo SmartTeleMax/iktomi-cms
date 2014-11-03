@@ -21,6 +21,7 @@ setup(
                        'templates/*/*.html',
                        'templates/*/*/*.html',
                        'static/js/*.js',
+                       'static/js/*.json',
                        'static/js/*/*.js',
                        'static/js/Manifest',
                        'static/css/*.css',

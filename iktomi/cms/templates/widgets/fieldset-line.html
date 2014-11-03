@@ -1,30 +1,34 @@
 <table class="fieldset fieldset-line">
   <tr class="error-row">
-    {% for subfield in field.fields %}
-      {% if subfield.error %}
-        <td class="invalid">
-          <span class="error">{{ subfield.error }}</span>
-        </td>
-      {% else %}
-        <td class="empty">&nbsp;</td>
-      {% endif %}
-    {% endfor %}
+    {%- for subfield in field.fields %}
+      {%- if subfield.readable %}
+        {%- if subfield.error -%}
+          <td class="invalid">
+            <span class="error">{{ subfield.error }}</span>
+          </td>
+        {%- else -%}
+          <td class="empty">&nbsp;</td>
+        {%- endif %}
+      {%- endif %}
+    {%- endfor %}
   </tr>
   <tr class="subfields">
-      {% for subfield in field.fields %}
+      {%- for subfield in field.fields %}
+        {%- if subfield.readable %}
 
-        {%- set changed = field.form.changed_fields is defined and 
-                          subfield.input_name in field.form.changed_fields %}
-        <td class="{% if subfield.error %} invalid{% endif %}
-                   {%- if changed %} changed-after-publication{% endif %}">
-          {% if subfield.label %}
-            <label for="{{ subfield.id }}">{{ subfield.label }}</label>
-          {% endif %}
-          {{ subfield.widget.render() }}
-          {%- if field.hint and not field.widget.renders_hint %}
-            <span class="hint">{{ field.hint }}</span>
-          {%- endif -%}
-        </td>
-      {% endfor %}
+          {%- set changed = field.form.changed_fields is defined and 
+                            subfield.input_name in field.form.changed_fields %}
+          <td class="{% if subfield.error %} invalid{% endif %}
+                     {%- if changed %} changed-after-publication{% endif %}">
+            {% if subfield.label %}
+              <label for="{{ subfield.id }}">{{ subfield.label }}</label>
+            {% endif %}
+            {{ subfield.widget.render() }}
+            {%- if field.hint and not field.widget.renders_hint %}
+              <span class="hint">{{ field.hint }}</span>
+            {%- endif -%}
+          </td>
+        {%- endif %}
+      {%- endfor %}
   </tr>
 </table>

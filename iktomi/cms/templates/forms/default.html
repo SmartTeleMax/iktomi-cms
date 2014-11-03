@@ -14,36 +14,38 @@
 {% endmacro -%}
 
 {% for field in form.fields %}
-{%- set widget=field.widget -%}
-{%- set changed = field.form.changed_fields is defined and 
-                  field.input_name in field.form.changed_fields %}
-<div class="form-row
-            {%- if changed %} changed-after-publication{% endif %}
-            {%- if field.error %} with-error{% endif %}
-            {%- if widget.render_type == 'full-width' %} full-width{% endif %}"
-      {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
-    {% if field.error %}
-      <div class="error">{{ field.error }}</div>
-    {% endif %}
-
-    {%- if widget.render_type == 'checkbox' %}
-      {{- widget.render()|safe }}
-      {{- label(field, changed) }}
-      {{- hint(field) -}}
-    {%- elif widget.render_type == 'hidden' %}
-      {{- widget.render()|safe }}
-    {%- elif widget.render_type == 'full-width' %}
-      {{- label(field, changed) }}
-      {{- widget.render()|safe }}
-      {{- hint(field) -}}
-    {% else %}
-      {%- if field.label -%}
-        <div class="form-label">
-          {{- label(field, changed) -}}
-        </div>
-      {%- endif -%}
-      {{ widget.render()|safe }}
-      {{- hint(field) -}}
-    {% endif -%}
-</div>
+  {%- set widget=field.widget -%}
+  {%- set changed = field.form.changed_fields is defined and 
+                    field.input_name in field.form.changed_fields %}
+  {% if field.readable %}
+    <div class="form-row
+                {%- if changed %} changed-after-publication{% endif %}
+                {%- if field.error %} with-error{% endif %}
+                {%- if widget.render_type == 'full-width' %} full-width{% endif %}"
+          {%- if widget.render_type == 'hidden' %} style="display: none"{% endif %}>
+        {% if field.error %}
+          <div class="error">{{ field.error }}</div>
+        {% endif %}
+    
+        {%- if widget.render_type == 'checkbox' %}
+          {{- widget.render()|safe }}
+          {{- label(field, changed) }}
+          {{- hint(field) -}}
+        {%- elif widget.render_type == 'hidden' %}
+          {{- widget.render()|safe }}
+        {%- elif widget.render_type == 'full-width' %}
+          {{- label(field, changed) }}
+          {{- widget.render()|safe }}
+          {{- hint(field) -}}
+        {% else %}
+          {%- if field.label -%}
+            <div class="form-label">
+              {{- label(field, changed) -}}
+            </div>
+          {%- endif -%}
+          {{ widget.render()|safe }}
+          {{- hint(field) -}}
+        {% endif -%}
+    </div>
+  {%- endif %}
 {%- endfor %}
