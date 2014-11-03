@@ -281,6 +281,7 @@ class PopupFilteredSelect(Select):
             'multiple': self.multiple,
             'required': self.field.conv.required,
             'disable_unpublished': self.disable_unpublished,
+            'readonly': not self.field.writable,
         })
 
 

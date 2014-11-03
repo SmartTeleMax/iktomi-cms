@@ -7,24 +7,25 @@ var PopupFilteredSelect = new Class({
         this.field.store('widget', this);
         this.field.set('value', null);
         this.multiple = options.multiple;
+        this.readonly = options.readonly;
         this.required = options.required;
-        this.disable_unpublished = options.disable_unpublished;
-        this.field_id = this.field.id;
+        this.disableUnpublished = options.disable_unpublished;
+        this.fieldId = this.field.id;
         this.values = this.field.getElement('.selected_values');
-        this.listbutton = $(this.field_id+'-listbutton');
+        this.listButton = $(this.fieldId+'-listbutton');
 
         this.options = new Hash();
-        this.disabled_options = new Hash();
-        this.selected_options = new Hash();
+        this.disabledOptions = new Hash();
+        this.selectedOptions = new Hash();
 
         this.popup = new Popup();
 
-        this.filter_by = '';
-        if (this.listbutton) {
-            this.listbutton.addEvent('click', function(){
-                this.draw_list(this.popup);
+        this.filterBy = '';
+        if (this.listButton) {
+            this.listButton.addEvent('click', function(){
+                this.drawList(this.popup);
                 this.popup.show();
-                $(this.field_id+'-search').focus();
+                $(this.fieldId+'-search').focus();
             }.bind(this));
         }
 
@@ -34,67 +35,69 @@ var PopupFilteredSelect = new Class({
               'selected':(opt.checked)
               });
           if(opt.checked){
-          this.selected_options.set(opt.value, opt.value);
+            this.selectedOptions.set(opt.value, opt.value);
           }
           opt.addEvent('change', function(e){
             if(!e.target.get('checked')){
-              this.deselect_value(e.target.value);
+              this.deselectValue(e.target.value);
             }
           }.bind(this));
-          opt_label = opt.getNext('label');
-          if(this.disable_unpublished && !opt_label.hasClass('published')){
-            this.disabled_options.set(opt.value, opt_label);
+          optLabel = opt.getNext('label');
+          if(this.disableUnpublished && !optLabel.hasClass('published')){
+            this.disabledOptions.set(opt.value, optLabel);
           }
-          opt_label.addEvent('click', function(e){
-            e.preventDefault();
-            this.draw_list(this.popup);
-            this.popup.show();
-            $(this.field_id+'-search').focus();
-          }.bind(this));
+          if (!this.readonly){
+            optLabel.addEvent('click', function(e){
+              e.preventDefault();
+              this.drawList(this.popup);
+              this.popup.show();
+              $(this.fieldId+'-search').focus();
+            }.bind(this));
+          }
 
-          if(this.multiple || !this.required){
+          if(!this.readonly && (this.multiple || !this.required)){
             opt.getNext('span').addEvent('click', function(e){
-              this.deselect_value(e.target.getPrevious('input').value);
+              this.deselectValue(e.target.getPrevious('input').value);
             }.bind(this));
           } else {
             opt.getNext('label').addClass('right_round');
             opt.getNext('span').destroy();
           }
         }.bind(this));
-        if(this.selected_options.getLength()>0){
-          this.field.value=this.selected_options.getValues()[this.selected_options.getLength()-1];
+        if(this.selectedOptions.getLength()>0){
+          this.field.value=this.selectedOptions.getValues()[this.selectedOptions.getLength()-1];
         }
     },
 
-    select_value: function(value){
+    selectValue: function(value){
         if (!this.multiple){
-            this.selected_options=new Hash();
+            this.selectedOptions=new Hash();
             this.values.getElements('.selected').removeClass('selected');
         }
 
-        this.selected_options.set(value, value);
-        var checkbox = $(this.field_id+'-'+value);
+        this.selectedOptions.set(value, value);
+        var checkbox = $(this.fieldId+'-'+value);
         checkbox.set('checked', true);
         checkbox.getParent().addClass('selected');
-        this.change_value(value);
+        this.changeValue(value);
         if(!this.multiple)
         this.popup.hide();
     },
 
-    deselect_value: function(value){
-        this.selected_options.erase(value);
-        var checkbox = $(this.field_id+'-'+value);
+    deselectValue: function(value){
+        this.selectedOptions.erase(value);
+        var checkbox = $(this.fieldId+'-'+value);
         checkbox.set('checked', false);
         checkbox.getParent().removeClass('selected');
-        this.change_value(value);
+        this.changeValue(value);
     },
 
-    deselect_all: function(){
-        this.selected_options.each(this.deselect_value.bind(this));
+    deselectAll: function(){
+        this.selectedOptions.each(this.deselectValue.bind(this));
     },
 
-    change_value: function(value){
-        if(this.selected_options.get(value)) {
+    changeValue: function(value){
+        if(this.selectedOptions.get(value)) {
         this.field.set('value', value);
         } else {
         this.field.set('value', null);
@@ -102,79 +105,82 @@ var PopupFilteredSelect = new Class({
         this.field.fireEvent('value_changed', this.field);
     },
 
-    filter_handler: function(e){
-        this.filter_by = e.target.value;
+    filterHandler: function(e){
+        this.filterBy = e.target.value;
         var options = this.options;
-        var visible_options = new Hash();
+        var visibleOptions = new Hash();
 
         options.each(function(opt){
-            var start = opt.title.toLowerCase().search(this.filter_by.toLowerCase())
+            var start = opt.title.toLowerCase().search(this.filterBy.toLowerCase())
             if (start >-1){
-                visible_options.set(opt.value, {'title':opt.title, 'value':opt.value, 'start':start});
+                visibleOptions.set(opt.value, {'title':opt.title, 'value':opt.value, 'start':start});
             }
         }.bind(this));
-        this.build_selectable(this.popup, visible_options, this.filter_by.length);
+        this.buildSelectable(this.popup, visibleOptions, this.filterBy.length);
 
     },
 
-    build_selectable: function(popup, new_options, hl_len){
+    buildSelectable: function(popup, newOptions, hlLen){
         popup.contentEl.empty();
-        new_options.each(function(opt, value){
-            if(hl_len) {
-            var opt_title = opt.title.substring(0, opt.start)+'<b>'+opt.title.substring(opt.start, opt.start+hl_len)+'</b>'+opt.title.substring(opt.start+hl_len);
+        newOptions.each(function(opt, value){
+            if(hlLen) {
+                var optTitle = opt.title.substring(0, opt.start)+
+                                '<b>'+opt.title.substring(opt.start, opt.start+hlLen)+'</b>'+
+                                opt.title.substring(opt.start+hlLen);
             } else {
-            var opt_title = opt.title;
+                var optTitle = opt.title;
             }
-            var new_opt = new Element('div', {
-                'html': opt_title,
-                'id':this.field_id+'-'+opt.value+'-list',
+
+            var newOpt = new Element('div', {
+                'html': optTitle,
+                'id':this.fieldId+'-'+opt.value+'-list',
                 'class':'filter-list-value'}).addEvents({
                     'mouseenter':function(){this.addClass('hover')},
                     'mouseleave': function(){this.removeClass('hover')}
                 });
 
 
-            if(this.disabled_options.get(value)==null){
-            new_opt.addEvent('click', function(e){
-                var target = e.target.hasClass('filter-list-value')?
-                                e.target:
-                                e.target.getParent('.filter-list-value');
-                var id = target.id.replace('-list', '').replace(this.field_id+'-', '');
-                if(target.hasClass('selected')){
-                    this.deselect_value(id);
-                    target.removeClass('selected');
-                } else {
-                    if(!this.multiple){
-                        popup.contentEl.getElements('.selected').removeClass('selected');
+            if(this.disabledOptions.get(value)==null){
+                newOpt.addEvent('click', function(e){
+                    var target = e.target.hasClass('filter-list-value')?
+                                    e.target:
+                                    e.target.getParent('.filter-list-value');
+                    var id = target.id.replace('-list', '').replace(this.fieldId+'-', '');
+                    if(target.hasClass('selected')){
+                        this.deselectValue(id);
+                        target.removeClass('selected');
+                    } else {
+                        if(!this.multiple){
+                            popup.contentEl.getElements('.selected').removeClass('selected');
+                        }
+                        this.selectValue(id);
+                        target.addClass('selected');
                     }
-                    this.select_value(id);
-                    target.addClass('selected');
-                }
-                }.bind(this));
+                    }.bind(this));
             } else {
-                new_opt.addClass('disabled');
+                newOpt.addClass('disabled');
             }
-            if($(this.field_id+'-'+opt.value).getNext('label').hasClass('published')){
-                new_opt.addClass('published');
+            if($(this.fieldId+'-'+opt.value).getNext('label').hasClass('published')){
+                newOpt.addClass('published');
             }
-            if (this.selected_options.get(opt.value)){
-                new_opt.addClass('selected');
+            if (this.selectedOptions.get(opt.value)){
+                newOpt.addClass('selected');
             }
-            popup.adopt(new_opt);
+            popup.adopt(newOpt);
         }.bind(this));
         popup.onWindowResize();
 
     },
 
-    draw_list: function(popup){
-        popup.setFixedContent(new Element('label', {'for':this.field_id+'-search', 'text':'поиск', 'class':'search_label'}),
-                  new Element('input', {'type':'text', 'id':this.field_id+'-search'})
+    drawList: function(popup){
+        popup.setFixedContent(new Element('label', {'for':this.fieldId+'-search', 'text':'поиск', 'class':'search_label'}),
+                  new Element('input', {'type':'text', 'id':this.fieldId+'-search'})
                   .addEvents({
-                      'keydown': this.filter_handler.bind(this),
-                      'keyup': this.filter_handler.bind(this)
+                      'keydown': this.filterHandler.bind(this),
+                      'keyup': this.filterHandler.bind(this)
                       })
                   );
-        this.build_selectable(popup, this.options);
+        this.buildSelectable(popup, this.options);
     }
 });
 
