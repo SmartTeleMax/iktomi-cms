@@ -50,6 +50,7 @@
             var href = addButton.get('href').split('?')[0] + (qs? '?' + qs: '');
             addButton.set('href', href);
           }
+          this.form.getParent('.sidefilter').removeClass('is-open');
           this.setFilters();
 
         }.bind(this)
@@ -57,7 +58,6 @@
     },
 
     'setFilters': function(){
-      this.form.getParent('.sidefilter').removeClass('is-open');
       var tags = this.form.getElement('.sidefilter-tags');
       tags.empty();
 

@@ -501,7 +501,7 @@ var PopupStreamSelectMultiple = new Class({
 
       new Element('label', {'for': input.id,
                             'text': item.dataset.title || ''
-                            }).inject(this.container.getElement('.input_place'));
+                            }).inject(this.container.getElement('.input-place'));
       return input;
   },
 
@@ -521,7 +521,7 @@ var PopupStreamSelectMultiple = new Class({
         this._map[key] += 1;
       }
       this._map[id] = 0;
-      var input = this.newInput(item, value);
+      var input = this.newInput(item, id);
       input.inject(this._inputs[0], 'before');
       this._inputs.unshift(input);
       this._selected_items.unshift(id);
@@ -530,7 +530,7 @@ var PopupStreamSelectMultiple = new Class({
     } else {
       // add to the end
       this._map[id] = this._inputs.length;
-      var input = this.newInput(item, value);
+      var input = this.newInput(item, id);
       input.inject(this.inputPlace);
       this._inputs.push(input);
       this._selected_items.push(id);
