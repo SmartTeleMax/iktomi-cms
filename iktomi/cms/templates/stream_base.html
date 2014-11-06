@@ -50,8 +50,10 @@
       {% if filter_form %}
       <div class="sidefilter">
         <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}" class="filter-form init-block" data-block-name="filter-form">
-          <fieldset>
+          <a class="sidefilter-close">
             <legend>Фильтры</legend>
+          </a>
+          <fieldset>
             {{ filter_form.render() }}
             <button type="reset" class="button sidefilter__clear">
               Сбросить
@@ -60,6 +62,7 @@
               Применить
             </button>
           </fieldset>
+          <div class="sidefilter-tags"></div>
         </form>
       </div>
 

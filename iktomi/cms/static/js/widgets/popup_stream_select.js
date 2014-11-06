@@ -48,6 +48,7 @@ var PopupStreamSelect = new Class({
     this.setOptions(options);
     this.container = $(this.options.container);
     this.container.store('widget', this);
+    this.inputPlace = this.container.getElement('.input-place');
     this.readonly = readonly;
     this.btn = $(this.options.container + '-btn');
     this.createBtn = $(this.options.container + '-create');
@@ -115,16 +116,13 @@ var PopupStreamSelect = new Class({
     }
   },
 
+
+  getLabel: function() {
+    return this.container.getElement('.input-place label');
+  },
+
   getInput: function() {
-    if (!this._input) {
-      if ($(this.options.container + '-input')) {
-        this._input = $(this.options.container + '-input');
-      } else {
-        this._input = new Element('input', {type: 'hidden', name: this.options.input_name});
-        this._input.inject(this.container);
-      }
-    }
-    return this._input;
+    return this.container.getElement('.input-place input');
   },
 
   getItemsDiv: function() {
@@ -291,7 +289,8 @@ var PopupStreamSelect = new Class({
   },
 
   reset: function() {
-    this.getInput().destroy();
+    this.getInput().value = '';
+    this.getLabel().set('text', '');
     this.getItemsDiv().empty();
     delete this._input;
     delete this._items_div;
@@ -299,7 +298,10 @@ var PopupStreamSelect = new Class({
 
   onItemClicked: function(item, id) {
     this.getInput().value = id;
+    this.getLabel().set('text', item.dataset.title||'');
+
     var clone = item.clone();
+    clone.getElements('input,select,textarea').destroy();
     this.makeLinksExternal(clone);
     this.getItemsDiv().empty().adopt(clone);
     this.popup.hide();
@@ -350,6 +352,7 @@ var PopupStreamSelectMultiple = new Class({
 
   _selected_items: [],
   _inputs: [],
+  _labels: [],
   _map: {},
   _rows: [],
   _multiple: true,
@@ -366,6 +369,8 @@ var PopupStreamSelectMultiple = new Class({
       this._rows.push(row);
       i++;
     }
+    this._inputCounter = i;
+
     if (!this.readonly) {
       this.addControls();
     }
@@ -486,36 +491,48 @@ var PopupStreamSelectMultiple = new Class({
 
   },
 
+  newInput: function(item, value){
+
+      var input = new Element('input', {type: 'checkbox',
+                                        checked: 'checked',
+                                        name: this.options.input_name,
+                                        id: this.container.id + '-input-' + (this._inputCounter++) });
+      input.value = value || '';
+
+      new Element('label', {'for': input.id,
+                            'text': item.dataset.title || ''
+                            }).inject(this.container.getElement('.input_place'));
+      return input;
+  },
+
   getInput: function(index) {
-    if (index >= this._inputs.length) {
-      var input = new Element('input', {type: 'hidden', name: this.options.input_name});
-      this._inputs.push(input);
-      input.inject(this.container);
-    }
     return this._inputs[index];
+  },
+  getLabel: function(index) {
+    return this.container.getElement('label[for="'+this.getInput(index).id+'"]');
   },
 
   add: function(item, id) {
     var row = item.clone();
     this.makeLinksExternal(row);
-    if (this.options.unshift) {
+    if (this.options.unshift && this._inputs.length > 0) {
+      // add to the first position
       for (key in this._map) {
-        this._map[key] = this._map[key] + 1;
+        this._map[key] += 1;
       }
       this._map[id] = 0;
-      if (this._inputs.length > 0) {
-        var input = new Element('input', {type: 'hidden', name: this.options.input_name, value: id});
-        input.inject(this._inputs[0], 'before');
-        this._inputs.unshift(input);
-      } else {
-        this.getInput(0).value = id;
-      }
+      var input = this.newInput(item, value);
+      input.inject(this._inputs[0], 'before');
+      this._inputs.unshift(input);
       this._selected_items.unshift(id);
       this._rows.unshift(row);
       row.inject(this.getItemsDiv(), 'top');
     } else {
+      // add to the end
       this._map[id] = this._inputs.length;
-      this.getInput(this._map[id]).value = id;
+      var input = this.newInput(item, value);
+      input.inject(this.inputPlace);
+      this._inputs.push(input);
       this._selected_items.push(id);
       this._rows.push(row);
       this.getItemsDiv().adopt(row);
@@ -533,7 +550,8 @@ var PopupStreamSelectMultiple = new Class({
     link, item,
     index = this._map[id],
     remove = (function() {
-      this.getInput(index).destroy();
+      var input = this.getInput(index).destroy();
+      $('label[for="'+input.id+'"]').destroy();
       this._rows[index].destroy();
       delete this._inputs[index];
       delete this._selected_items[index];

@@ -6,11 +6,29 @@
      {%- if widget.unshift %} data-unshift="true"{%- endif -%}
      {%- if readonly %} data-readonly="true"{% endif %}
      data-config="{{ widget.js_config() }}">
-  {% for v in options %}
-    {%- if v.existing is not defined or v.existing %}
-      <input type="hidden" id="{{ widget.id }}-input{% if widget.multiple %}-{{ loop.index }}{% endif %}" name="{{ widget.input_name }}" value="{{ v.id }}" />
-    {%- endif -%}
-  {% endfor %}
+
+  {% macro option(id='', title='', index=None) %}
+    {%- if title is defined -%}{# XXX I don't like this forced interface #}
+      <label for="{{ widget.id }}-input{% if widget.multiple %}-{{ index }}{% endif %}">
+        {{ title }}
+      </label>
+    {% endif -%}
+    <input type="checkbox"
+           checked="checked"
+           id="{{ widget.id }}-input{% if widget.multiple %}-{{ index }}{% endif %}"
+           name="{{ widget.input_name }}"
+           value="{{ id }}" />
+  {% endmacro %}
+
+  <div style="display: none" class="input-place">
+    {% for v in options %}
+      {%- if v.existing is not defined or v.existing %}
+        {{ option(v.id, v.title, loop.index) }}
+      {%- endif -%}
+    {% endfor %}
+    {% if not widget.multiple and not options %}{{ option() }}{% endif %}
+  </div>
+
   <div>
     <table class="w-popup-stream-select-items">
       <tbody id="{{ widget.id }}-div">
@@ -30,7 +48,10 @@
     </a>
     {% endif %}
     {% if widget.allow_create %}
-      <a class="button hide" id="{{ widget.id }}-create" href="{{ widget.create_url }}" target="{{ widget.id }}_create_window">
+      <a class="button hide"
+         id="{{ widget.id }}-create"
+         href="{{ widget.create_url }}"
+         target="{{ widget.id }}_create_window">
         {{ widget.create_btn_text }}
       </a>
     {% endif %}

@@ -30,7 +30,8 @@
       {%- if item.state == item.DELETED %} deleted{% endif %}
       {%- if item.state == item.ABSENT %} absent{% endif %}
     {%- endif %}"
-  {%- endblock %}>
+  {%- endblock %}
+  {%- if item.title is defined %} data-title="{{ item.title }}"{% endif %}>
 
   {%- block list_fields %}
     {%- for name, field in list_fields.items() %}

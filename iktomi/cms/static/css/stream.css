@@ -18,13 +18,14 @@
     border-collapse:collapse;
     vertical-align: top;
     background-color:#F0F1F2;
+    position: relative;
   }
   .stream table {
       border-collapse: collapse;
   }
-  
+
 .stream .line { background-color: #dedede; }
-.stream th, .stream thead td { 
+.stream th, .stream thead td {
     background-color: #F0F1F2;
     color: #000000;
     text-align: left;
@@ -52,50 +53,150 @@
     }
 
 .stream-items.with-sidefilter {
-  margin-right: 350px;
+  margin-right: 30px;
   }
 
-  .sidefilter {
-    width:320px;
-    float: right;
-    background-color:#F0F1F2;
-    padding:0px 10px 0px 20px;
+.sidefilter{
+  position: absolute;
+  right: 0;
+  top: 0;
+  min-height: 100%;
+  box-sizing: border-box;
+  width: 30px;
+  overflow: hidden;
+  background-color:#F0F1F2;
+  padding: 15px 0 0 0;
+  -webkit-transition: width .2s ease-in;
+  -moz-transition: width .2s ease-in;
+  transition: width .2s ease-in;
+  }
+  .sidefilter.is-open{
+    width:335px;
     }
-  
+  .sidefilter>form{
+    width:320px;
+    padding: 0 15px;
+    }
+
   .sidefilter fieldset {
-      border: 1px solid #ccc;
+      border: none;
+      padding-top: 15px;
       margin: 5px 0;
       -moz-border-radius: 5px;
       -webkit-border-radius: 5px;
-  }
-  
+      }
+
   .sidefilter legend {
-      padding: 2px 4px;
-      border: 1px solid #ccc;
-      -moz-border-radius: 5px;
-      -webkit-border-radius: 5px;
-  }
-  
+      padding: 2px 8px;
+      border: none;
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      font-size: 16px;
+      -webkit-transform: rotate(90deg) translate(70px, 25px);
+      -moz-transform: rotate(90deg) translate(70px, 25px);
+      transform: rotate(90deg) translate(70px, 25px);
+
+      -webkit-transition: .2s ease-in;
+      -moz-transition: .2s ease-in;
+      transition: .2s ease-in;
+
+      cursor: pointer;
+    }
+    .sidefilter.is-open legend {
+      -webkit-transform: translate(30px, 10px);
+      -moz-transform: translate(30px, 10px);
+      transform: translate(30px, 10px);
+      }
+    .sidefilter-close{
+      display: none;
+      }
+
+    .sidefilter-close{
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 30px;
+        height: 100%;
+        display: block;
+        cursor: pointer;
+        }
+        .sidefilter-close:before{
+          content: "<";
+          font-size: 25;
+          font-weight: bold;
+          display: block;
+          color: #555;
+          width: 30px;
+          margin-top: 6px;
+          text-align: center;
+          }
+        .is-open .sidefilter-close:before{
+          content: ">";
+        }
+        .sidefilter:hover .sidefilter-close{
+          background-color: #ddd;
+        }
+
+      .sidefilter.is-open:hover .sidefilter-close{
+        background-color: transparent;
+        }
+        .sidefilter.is-open .sidefilter-close:hover{
+          background-color: #ddd;
+        }
+        .sidefilter-close:hover:before,
+        .sidefilter-close:hover legend{
+            color: #000;
+          }
+
+  .sidefilter-tags{
+    padding: 2px 8px;
+    border: none;
+    position: absolute;
+    left: 15px;
+    top: 120px;
+    font-size: 14px;
+    -webkit-transform: translateX(-50%) rotate(90deg) translateX(50%);
+    -moz-transform: translateX(-50%) rotate(90deg) translateX(50%);
+    transform: translateX(-50%) rotate(90deg) translateX(50%);
+    white-space: nowrap;
+    cursor: pointer;
+    }
+    .sidefilter-tags span{
+        background-color: #1abc9c;
+        padding: 2px 4px;
+        color: #fff;
+        border-radius: 3px;
+        max-width: 150px;
+        text-overflow: ellipsis;
+        display: inline-block;
+        overflow: hidden;
+        margin-right: 5px;
+        }
+  .sidefilter.is-open .sidefilter-tags{
+    display: none;
+    }
+
   .sidefilter .form-row {
       border-bottom:1px solid #ccc;
   }
-  
+
   .sidefilter .form-row.last {
       border-bottom:none;
   }
-  
+
   .sidefilter .form-row.hidden {
       display: none;
   }
-  
+
   .sidefilter input, .sidefilter select {
       width: 75%;
   }
-  
+
   .sidefilter .form-row input[type=checkbox] {
     width:15px;
   }
-  
+
   .sidefilter__submit {
       margin: 10px 0;
       float:right;
@@ -112,15 +213,11 @@
     display:block;
     margin:10px 0px 5px 0px ;
   }
-  
+
   .sidefilter select{
     width:200px;
     border: 1px solid #ccc;
   }
-  
-  /*.sidefilter .go {
-    margin:10px 0px;
-    }*/
 
 .filter-form>fieldset>.form-row{
     padding: 5px 0 5px 20px;

@@ -14,11 +14,22 @@
     this.changeUrl = !this.form.getParent('.popup');
     form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
     form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
+    form.getElement('.sidefilter-close').addEvent('click', function(e){
+      this.form.getParent('.sidefilter').toggleClass('is-open');
+    }.bind(this));
+    form.getElement('.sidefilter-tags').addEvent('click', function(e){
+      this.form.getParent('.sidefilter').toggleClass('is-open');
+    }.bind(this));
+
+    this.setFilters();
+
+    //form.getParent('.sidefilter').addEvent('click', function(){
+    //  this.form.getParent('.sidefilter').addClass('is-open');
+    //}.bind(this));
   }
  
   FilterForm.prototype = {
     'submit': function(url){
-      console.log('SUBMIT')
 
       var form = this.form;
       new Request({
@@ -39,8 +50,45 @@
             var href = addButton.get('href').split('?')[0] + (qs? '?' + qs: '');
             addButton.set('href', href);
           }
+          this.setFilters();
+
         }.bind(this)
       }).get();
+    },
+
+    'setFilters': function(){
+      this.form.getParent('.sidefilter').removeClass('is-open');
+      var tags = this.form.getElement('.sidefilter-tags');
+      tags.empty();
+
+      var inputs = this.form.getElements('input,select,textarea').each(function(el){
+        var label = null;
+        if (! el.get('value') || ! el.name || el.name == 'sort') { return; }
+
+        if (el.tagName == 'INPUT') {
+          if (el.type == 'checkbox' || el.type=='radio'){
+            if (! el.checked){ return; }
+            if (el.id){
+              var labelElement = document.getElement('label[for="'+el.id+'"]');
+              label = label || (labelElement? labelElement.get('text'): null);
+            }
+          }
+          if (el.type == 'text'){
+            label = el.get('value');
+          }
+        }
+        if (el.tagName == 'TEXTAREA'){
+          label = el.get('value');
+        }
+        if (el.tagName == 'SELECT') {
+          var labelElement = el.getElement('option[value="'+el.get('value')+'"]');
+          label = label ||  (labelElement? labelElement.get('text'): null);
+        }
+        if (!label){
+          label = el.get('name') + '=' + el.get('value');
+        }
+        tags.appendChild(new Element('span', {'text': label}));
+      });
     },
 
     'paginator': function(){

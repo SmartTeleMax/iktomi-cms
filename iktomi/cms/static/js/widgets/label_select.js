@@ -1,29 +1,23 @@
-var LabelSelect = new Class({
-    initialize: function(el) {
-      var multiple = el.hasClass('multiple');
-      var input = el.getElements('.value')[0];
-      var name = input.name;
+(function(){
+  var LabelSelect = function(el) {
+      this.element = el;
+      this.multiple = this.element.dataset.multiple;
+      this.element.getElements('input').addEvent('change', this.update.bind(this));
+      this.update()
+  }
 
-      el.getElements('.label-select__option').addEvent('click', function(e){
-        var value = this.getNext().value;
-        if (!multiple) {
-            el.getElements('.label-select__option').removeClass('selected');
-            input.value = this.getNext().value;
-            this.addClass('selected');
-        } else {
-            if (this.hasClass('selected')){
-                el.getElement('input[value="' + value + '"]').destroy();
-            } else {
-                new Element('input', {
-                    'value': value, 'name': name, 'type': 'hidden'
-                }).inject(el, 'top');
-            }
-            this.toggleClass('selected');
-        }
-      });
+  LabelSelect.prototype = {
+    update: function(){
+      var labels = this.element.getElements('label');
+      for (var i=labels.length;i--;){
+        var label = labels[i];
+        var isOn = label.getElement('input').checked;
+        label[isOn?'addClass':'removeClass']('selected');
+      }
     }
-});
+  }
 
-Blocks.register('label-select', function(e){
+  Blocks.register('label-select', function(e){
     new LabelSelect(e);
-});
+  });
+})();
