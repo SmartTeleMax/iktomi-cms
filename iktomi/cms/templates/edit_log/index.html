@@ -1,19 +1,4 @@
-
-{% macro paginate(paginator) %}
-  {% if paginator %}
-    <div class="pages">
-      {% for p, u in paginator.pages %}
-        {% if p==paginator.page  %}
-          <div class="active">{{ p }}</div>
-        {% elif p==None %}
-          <div>&hellip;</div>
-        {% else %}
-          <a href="{{ u }}"><div>{{ p }}</div></a>
-        {% endif %}
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endmacro %}
+{% from "macros/filter_form.html" import sidefilter, paginate %}
 
 {% set pager = paginate(paginator) %}
 
@@ -77,22 +62,8 @@
     <div>
       <div class="stream">
         <div class="line"></div>
-        <div class="sidefilter">
-          <form id="{{ filter_form.id }}" action="{{ current_url }}" class="filter-form init-block" data-block-name="filter-form">
-            <fieldset>
-              <legend>Фильтры</legend>
-              {{ filter_form.render() }}
-  
-              <button type="reset" class="button sidefilter__clear">
-                Сбросить
-              </button>
-              <button type="submit" class="button sidefilter__submit">
-                Применить
-              </button>
-            </fieldset>
-          </form>
-        </div>
-  
+        {{ sidefilter(filter_form, current_url) }}
+
         <div class="stream-items with-sidefilter">
           {{ stream_content() }}
         </div>

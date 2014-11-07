@@ -1,12 +1,2 @@
-{% block extrahead %}
-  {% if form is defined %}
-    {% for media in form.get_media() %}
-      {{ media.render() }}
-    {% endfor %}
-  {% endif %}
-{% endblock %}
-{#% if redirect_url is defined %}
-<input type="hidden" id="redirect_url" value="{{ redirect_url }}" />
-{% endif %#}
 {% block content %}
 {% endblock %}
