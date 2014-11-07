@@ -36,7 +36,7 @@ var ProgressBar = new Class({
 			'style': 'width:0px;' 
 		}).inject(this.box).addClass(this.options.progress_class);
 		if(this.options.displayText) { 
-			this.display = new Element('div').inject(this.options.container)
+			this.display = new Element('div').inject(this.box)
 							.addClass(this.options.text_class);
 		}
 		this.set(this.options.startPercentage);

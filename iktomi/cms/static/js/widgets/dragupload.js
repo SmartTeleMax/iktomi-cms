@@ -227,18 +227,19 @@
       this.uploader.bindfile(this.fileinput);
 
       this.el.addClass('active');
-      this.pb_container = new Element('div').setStyle('display', 'none')
+      this.pb_container = new Element('div', {'class': 'progress_container'})
+                                            .setStyle('display', 'none')
                                             .inject(element);
       this.progressbar = new ProgressBar({
         container: this.pb_container,
         displayText: true
       });
-      this.cancelButton = new Element('a', {'href': '#', 'text': 'отмена'})
+      this.cancelButton = new Element('a', {'href': '#', 'text': 'отмена', 'class': "progress_cancel"})
                 .addEvent('click', function(e){
                   e.stop();
                   this.cancel();
                 }.bind(this))
-                 .inject(this.pb_container);
+                 .inject(this.pb_container, 'top');
 
       this.clrbtn = new Element('a', {
         'href': "#clear",
@@ -269,10 +270,10 @@
           this.uploader.cancel(this.uploading_file);
       }
       this.uploading_file = e.file;
-      this.file_data.adopt(new Element('p').set('text', 'Загрузка файла: ' + e.fileName));
+      //this.file_data.adopt(new Element('p').set('text', 'Загрузка файла: ' + e.fileName));
       this.progressbar.set(0);
       //this.uploader.disable();
-      this.pb_container.setStyle('display', '');
+      this.pb_container.setStyles({'display': '', 'visibility': 'visible'});
 
       // Render a thumbnail if the file is an image
       if (this.fileReaderSupport && this.thumb){
@@ -332,7 +333,7 @@
 
       this.progressbar.set(100);
       (function(){
-          this.pb_container.setStyle('display', 'none');
+          this.pb_container.setStyle('visibility', 'hidden');
       }.bind(this)).delay(2000);
 
       this.file_data.empty().adopt(
@@ -430,7 +431,7 @@
       this.uploading_file = null;
           this.canceled = true;
       }
-      this.pb_container.setStyle('display', 'none');
+      this.pb_container.setStyle('visibility', 'hidden');
       var text = 'Отмена загрузки';
       if(reason){
           text += ': ' + reason;
@@ -467,7 +468,7 @@
       if (!this.canceled){
         this.file_data.adopt(new Element('p').set('text', 'Загрузка файла прервана'));
       }
-      this.pb_container.setStyle('display', 'none');
+      this.pb_container.setStyle('visibility', 'hidden');
       this.canceled = false;
       this.clrbtn.setStyle('display', '');
     },
