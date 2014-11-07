@@ -242,6 +242,10 @@ class PopupStreamSelect(Select):
             data['create_url'] = self.create_url
         return json.dumps(data) # XXX escape_js
 
+    @cached_property
+    def show_create_button(self):
+        return self.allow_create and self.stream.has_permission(self.env, 'c')
+
     def get_options(self, value):
         choice_conv = self.field.conv
         if isinstance(choice_conv, convs.ListOf):
