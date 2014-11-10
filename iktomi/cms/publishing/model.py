@@ -305,6 +305,7 @@ class AdminReplicated(ReplicatedVersions, _AdminReplicated):
     def has_unpublished_changes(self):
         '''Was the object updated after publishing? Does it differ from
         published version?'''
-        return Column(Boolean, nullable=False, default=True,
+        # XXX why default was set to True?
+        return Column(Boolean, nullable=False, default=False,
                       server_default='0')#, onupdate=True)
 

@@ -374,8 +374,12 @@ class PublishStreamNoState(Stream):
                     return self.url_for(env, 'item', item=item.id)
 
     def commit_item_transaction(self, env, item, **kwargs):
-        item.has_unpublished_changes = True
         item._create_versions()
+        if item._front_item is not None and (\
+                not hasattr(item._front_item, 'state') or \
+                item._front_item.state in [item.PRIVATE, item.PUBLIC]):
+            # Do not mark NEW items as changed
+            item.has_unpublished_changes = True
         Stream.commit_item_transaction(self, env, item, **kwargs)
 
     def url_for(self, env, name=None, **kwargs):
