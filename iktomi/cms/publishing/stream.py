@@ -233,7 +233,7 @@ class RevertAction(PostAction):
                     % data.item, 'success')
         env.db.commit()
 
-        if log_enabled:
+        if log is not None:
             log.after = self._clean_item_data(self.stream, env, data.item)
             env.db.commit()
 
