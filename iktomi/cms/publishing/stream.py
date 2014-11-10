@@ -119,15 +119,8 @@ class PublishAction(PostAction):
                              'error': 'item_lock',
                              'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="publish",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          users=[env.user])
+        log = self.stream.create_log_entry(env, data.item, 'publish')
+        if log is not None:
             env.db.add(log)
 
         data.item.publish()
@@ -171,15 +164,8 @@ class UnpublishAction(PostAction):
                              'error': 'item_lock',
                              'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="unpublish",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          users=[env.user])
+        log = self.stream.create_log_entry(env, data.item, 'unpublish')
+        if log is not None:
             env.db.add(log)
 
         data.item.unpublish()
@@ -227,17 +213,10 @@ class RevertAction(PostAction):
                              'error': 'item_lock',
                              'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            before = self._clean_item_data(self.stream, env, data.item)
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="revert",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          before=before,
-                          users=[env.user])
+
+        log = self.stream.create_log_entry(env, data.item, 'revert')
+        if log is not None:
+            log.before = self._clean_item_data(self.stream, env, data.item)
             env.db.add(log)
 
         data.item.revert_to_published()

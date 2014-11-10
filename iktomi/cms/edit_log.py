@@ -17,7 +17,6 @@ def all_by_default(conv, value):
     return value
 
 
-
 class EditLogItemFilterForm(FilterForm):
 
     def __init__(self, *args, **kwargs):

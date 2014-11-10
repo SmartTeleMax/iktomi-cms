@@ -9,7 +9,9 @@
       <th></th>
       <th></th>
       <th>Тип</th>
-      <th>Объект</th>
+      {% if not item is defined %}
+        <th>Объект</th>
+      {% endif %}
       <th>Автор</th>
       <th>Дата</th>
     </thead>
