@@ -17,6 +17,9 @@
 {% block extra_js_options %}
   data-image="true"
   {#data-canvas-thumb-preview="{{ 'true' if field.canvas_thumb_preview else '' }}"#}
+  {%- if field.crop_url is defined and field.crop_url %}
+    data-crop-url="{{ field.crop_url }}"
+  {% endif %}
   {%- if field.thumb_size %}
     data-thumb-width="{{ field.thumb_size[0] }}"
     data-thumb-height="{{ field.thumb_size[1] }}"
