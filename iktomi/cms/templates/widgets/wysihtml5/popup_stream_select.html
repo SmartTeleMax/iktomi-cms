@@ -17,9 +17,11 @@
 {% endmacro %}
 
 {% macro select(widget, property_name) %}
-   <div style="display: none"> 
+   <div style="display: none" class='input-place'> 
      <a id="{{ widget.id }}-{{ property_name }}-btn"></a>
      <a id="{{ widget.id }}-{{ property_name }}-create"></a>
+     <label></label>
+     <input type="hidden" value="" />
      <table class="w-popup-stream-select-items">
        <tbody id="{{ widget.id }}-{{ property_name }}-div"></tbody>
      </table>
