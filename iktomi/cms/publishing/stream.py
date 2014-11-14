@@ -128,7 +128,7 @@ class PublishAction(PostAction):
         env.db.commit()
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': url})
     __call__ = admin_publish
 
@@ -173,7 +173,7 @@ class UnpublishAction(PostAction):
         env.db.commit()
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': url})
     __call__ = unpublish
 
@@ -239,7 +239,7 @@ class RevertAction(PostAction):
 
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': url})
     __call__ = revert
 
@@ -276,7 +276,7 @@ class DeleteFlagHandler(DeleteItemHandler):
         stream_url = self.stream.url_for(env).qs_set(
                             data.filter_form.get_data())
 
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': stream_url})
     __call__ = delete_flag_handler
 
