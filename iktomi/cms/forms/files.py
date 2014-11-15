@@ -88,6 +88,15 @@ class AjaxImageField(AjaxFileField):
                                       field_name=self.input_name)
         return env.root.load_tmp_file
 
+    @property
+    def crop_url(self):
+        env = self.env
+        # XXX looks like a hack
+        if any(x for x in env.stream.actions if x.action=="image_upload"):
+            return env.stream.url_for(env, 'image_upload.crop',
+                                      item=self.form.item.id,
+                                      field_name=self.input_name)
+
     @cached_property
     def name_parent(self):
         parent = self.parent

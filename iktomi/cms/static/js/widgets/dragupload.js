@@ -305,7 +305,12 @@
     },
 
     onLoad: function(e){
-      var data = JSON.decode(e.target.responseText);
+      if (typeof(e) == 'string') {
+        var data = JSON.decode(e);
+      } else {
+        var data = JSON.decode(e.target.responseText);
+      }
+
       if (data.status != 'ok' || !data.file){
         var error = data.status != 'ok'? data.error : "ответ сервера не содержит имени файла";
         alert("Ошибка: " + error)
@@ -368,7 +373,6 @@
 
             data.transformations.push(['resize', [this.thumb.clientWidth, this.thumb.clientHeight]]);
 
-            console.log(left, top, width, height, srcWidth, srcHeight)
             for (var i=0; i<data.transformations.length; i++){
               var transform = data.transformations[i];
               var params = transform[1];
@@ -387,7 +391,6 @@
                 left += params[0];
                 top += params[1];
               }
-              console.log(transform[0], left, top, width, height, srcWidth, srcHeight)
             }
             this.sourceImage = new Element('img', {
               'src': fillFrom.dataset.currentFile,
@@ -402,7 +405,6 @@
 
           }.bind(this));
         }
-        console.log("Data", data);
         this.thumb.set('src', data.file_url);
       }
 
@@ -514,14 +516,20 @@
       el.getElement('.icon-crop').addEvent('click', function(){
         var form = el.getParent('form');
         var label = form.getElement('label[for="'+form.id+'-'+el.dataset.inputName+'"]');
-        new Cropper({src: form.getElement('[data-input-name="'+el.dataset.fillFrom+'"]')
-                              .dataset.currentFile,
+
+        var source = form.getElement('[data-input-name="'+el.dataset.fillFrom+'"]')
+        new Cropper({src: source.dataset.currentFile,
                      targetHeight: el.dataset.cropHeight,
                      targetWidth: el.dataset.cropWidth,
                      title: label? label.get('text') : null,
+                     cropUrl: el.dataset.cropUrl,
+                     postData: {mode: source.getElement('input[name$=".mode"]').value,
+                                transient_name: source.getElement('input[name$=".transient_name"]').value},
                      onCrop: function(file){
                        fm.uploader.uploadFile(file);
-                     }});
+                     },
+                     onAjaxCrop: fm.onLoad.bind(fm)
+                    });
       });
     }
     //alert(frm.retrieve('hooks'));

@@ -119,15 +119,8 @@ class PublishAction(PostAction):
                              'error': 'item_lock',
                              'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="publish",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          users=[env.user])
+        log = self.stream.create_log_entry(env, data.item, 'publish')
+        if log is not None:
             env.db.add(log)
 
         data.item.publish()
@@ -135,7 +128,7 @@ class PublishAction(PostAction):
         env.db.commit()
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': url})
     __call__ = admin_publish
 
@@ -171,15 +164,8 @@ class UnpublishAction(PostAction):
                              'error': 'item_lock',
                              'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="unpublish",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          users=[env.user])
+        log = self.stream.create_log_entry(env, data.item, 'unpublish')
+        if log is not None:
             env.db.add(log)
 
         data.item.unpublish()
@@ -187,7 +173,7 @@ class UnpublishAction(PostAction):
         env.db.commit()
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': url})
     __call__ = unpublish
 
@@ -227,17 +213,10 @@ class RevertAction(PostAction):
                              'error': 'item_lock',
                              'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            before = self._clean_item_data(self.stream, env, data.item)
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="revert",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          before=before,
-                          users=[env.user])
+
+        log = self.stream.create_log_entry(env, data.item, 'revert')
+        if log is not None:
+            log.before = self._clean_item_data(self.stream, env, data.item)
             env.db.add(log)
 
         data.item.revert_to_published()
@@ -254,13 +233,13 @@ class RevertAction(PostAction):
                     % data.item, 'success')
         env.db.commit()
 
-        if log_enabled:
+        if log is not None:
             log.after = self._clean_item_data(self.stream, env, data.item)
             env.db.commit()
 
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': url})
     __call__ = revert
 
@@ -297,7 +276,7 @@ class DeleteFlagHandler(DeleteItemHandler):
         stream_url = self.stream.url_for(env).qs_set(
                             data.filter_form.get_data())
 
-        return env.json({'result': 'success',
+        return env.json({'success': True,
                          'location': stream_url})
     __call__ = delete_flag_handler
 
@@ -395,8 +374,12 @@ class PublishStreamNoState(Stream):
                     return self.url_for(env, 'item', item=item.id)
 
     def commit_item_transaction(self, env, item, **kwargs):
-        item.has_unpublished_changes = True
         item._create_versions()
+        if item._front_item is not None and (\
+                not hasattr(item._front_item, 'state') or \
+                item._front_item.state in [item.PRIVATE, item.PUBLIC]):
+            # Do not mark NEW items as changed
+            item.has_unpublished_changes = True
         Stream.commit_item_transaction(self, env, item, **kwargs)
 
     def url_for(self, env, name=None, **kwargs):
