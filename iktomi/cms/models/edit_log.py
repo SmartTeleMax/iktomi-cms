@@ -38,7 +38,7 @@ def make_diff(field1, field2, changed=False):
 
 def _get_field_data(form, field):
     md = MultiDict()
-    rv = field.from_python(form.python_data[field.name])
+    rv = field.from_python(form.python_data.get(field.name))
     field.set_raw_value(md, rv)
     return md
 
