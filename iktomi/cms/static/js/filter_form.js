@@ -3,12 +3,7 @@
     this.form = form;
     this.$events = {}; // XXX is not copied
     form.store('filterForm', this);
-    form.store('submitFilter', function(){
-      var qs = form.toQueryString();
-      qs = qs.replace(/[^&]+=\.?(?:&|$)/g, '').replace(/&$/, '');
-      var url = form.getProperty('action') + '?' + qs;
-      this.submit(url);
-    }.bind(this));
+    form.store('submitFilter', this.submit.bind(this));
     this.paginator();
     this.$events = {};
     this.changeUrl = !this.form.getParent('.popup');
@@ -29,7 +24,13 @@
   }
  
   FilterForm.prototype = {
+    'getSubmitUrl': function() {
+      var qs = this.form.toQueryString();
+      qs = qs.replace(/[^&]+=\.?(?:&|$)/g, '').replace(/&$/, '');
+      return this.form.getProperty('action') + '?' + qs;
+    },
     'submit': function(url){
+      url = (url === undefined? this.getSubmitUrl(): url);
 
       var form = this.form;
       new Request({
