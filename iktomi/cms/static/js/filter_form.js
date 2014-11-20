@@ -10,7 +10,10 @@
     form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
     form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
     form.getElement('.sidefilter-close').addEvent('click', function(e){
-      this.form.getParent('.sidefilter').toggleClass('is-open');
+      var sidefilter = this.form.getParent('.sidefilter');
+      sidefilter.toggleClass('is-open');
+      var minHeight = sidefilter.getElement('form').getHeight() + 30;
+      this.form.getParent('.popup-body').setStyle('min-height', minHeight);
     }.bind(this));
     form.getElement('.sidefilter-tags').addEvent('click', function(e){
       this.form.getParent('.sidefilter').toggleClass('is-open');
