@@ -241,7 +241,7 @@ class TrayView(web.WebHandler):
             raise HTTPNotFound()
         objects = env.db.query(self.ObjectTray).filter_by(tray=tray).all()
         items = [expand_stream(env, obj) for obj in objects]
-
+        items = [item for item in items if item is not None]
         #changed.sort(key=lambda x: x.date_changed)
         return env.render_to_response('tray', dict(
             tray = tray,

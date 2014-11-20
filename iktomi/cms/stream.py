@@ -405,6 +405,6 @@ def expand_stream(env, obj):
             stream_title = I18nLabel(stream_title, params['lang'])
         url = stream.url_for(stream_env, 'item', 
                              item=obj.object_id, **params)
-    return (url, stream_title, stream, obj, item)
+        return (url, stream_title, stream, obj, item)
 
 
