@@ -602,7 +602,10 @@ class DeleteItemHandler(_ReferrersAction):
                 self.stream.has_permission(env, 'd')
 
     def clear_tray(self, env, item):
-        ObjectTray = env.models.ObjectTray
+        if hasattr(env, 'version'):
+            ObjectTray = env.models.ObjectTray
+        else:
+            ObjectTray = env.models.admin.ObjectTray
         stream_name = env.stream.uid(env, version=False)
         tray_objects = env.db.query(ObjectTray)\
                              .filter_by(object_id=item.id)\
