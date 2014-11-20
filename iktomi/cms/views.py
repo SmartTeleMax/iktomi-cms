@@ -232,6 +232,13 @@ class TrayView(web.WebHandler):
         env.db.commit()
         return env.json({'success': True})
 
+    # XXX deleting on GET 
+    def clear_tray(self, env, obj_items):
+        for obj, item in obj_items:
+            if item is None:
+                env.db.delete(obj)
+        env.db.commit()
+
     def tray(self, env, data):
         insure_is_xhr(env)
         env.models = env.models.admin
@@ -241,6 +248,8 @@ class TrayView(web.WebHandler):
             raise HTTPNotFound()
         objects = env.db.query(self.ObjectTray).filter_by(tray=tray).all()
         items = [expand_stream(env, obj) for obj in objects]
+        if None in items:
+            self.clear_tray(env, zip(objects, items))
         items = [item for item in items if item is not None]
         #changed.sort(key=lambda x: x.date_changed)
         return env.render_to_response('tray', dict(

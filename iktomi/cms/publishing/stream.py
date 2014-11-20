@@ -271,6 +271,7 @@ class DeleteFlagHandler(DeleteItemHandler):
         self.stream.insure_has_permission(env, 'd')
 
         data.item.delete()
+        self.clear_tray(env, data.item)
         env.db.commit()
 
         stream_url = self.stream.url_for(env).qs_set(
