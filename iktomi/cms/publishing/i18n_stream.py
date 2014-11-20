@@ -109,8 +109,8 @@ class I18nStreamMixin(object):
                version_prefix | lang_prefix | set_models
 
     def url_for(self, env, name=None, **kwargs):
-        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
-        kwargs.setdefault('lang', getattr(env, 'lang', self.langs[0][0]))
+        kwargs.setdefault('version', getattr(env, 'version', None) or self.versions[0][0])
+        kwargs.setdefault('lang', getattr(env, 'lang', None) or self.langs[0][0])
         return Stream.url_for(self, env, name, **kwargs)
 
 
