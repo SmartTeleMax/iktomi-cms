@@ -12,8 +12,8 @@
     form.getElement('.sidefilter-close').addEvent('click', function(e){
       var sidefilter = this.form.getParent('.sidefilter');
       sidefilter.toggleClass('is-open');
-      var minHeight = sidefilter.getElement('form').getHeight() + 30;
-      this.form.getParent('.popup-body').setStyle('min-height', minHeight);
+      var minHeight = sidefilter.getElement('form').getHeight();
+      this.form.getParent('.stream').setStyle('min-height', minHeight);
     }.bind(this));
     form.getElement('.sidefilter-tags').addEvent('click', function(e){
       this.form.getParent('.sidefilter').toggleClass('is-open');
