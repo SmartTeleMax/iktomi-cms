@@ -601,6 +601,16 @@ class DeleteItemHandler(_ReferrersAction):
         return StreamAction.is_available(self, env, item) and \
                 self.stream.has_permission(env, 'd')
 
+    def clear_tray(self, env, item):
+        ObjectTray = env.object_tray_model
+        stream_name = env.stream.uid(env, version=False)
+        tray_objects = env.db.query(ObjectTray)\
+                             .filter_by(object_id=item.id)\
+                             .filter_by(stream_name=stream_name)\
+                             .all()
+        for obj in tray_objects:
+            env.db.delete(obj)
+
     def delete_item_handler(self, env, data):
         insure_is_xhr(env)
         item, edit_session, lock_message, filter_form = \
@@ -617,6 +627,7 @@ class DeleteItemHandler(_ReferrersAction):
         if env.request.method == 'POST':
             env.db.delete(item)
             try:
+                self.clear_tray(env, item)
                 env.db.commit()
             except IntegrityError:
                 env.db.rollback()
