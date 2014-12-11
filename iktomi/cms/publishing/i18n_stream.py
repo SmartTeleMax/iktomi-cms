@@ -6,6 +6,7 @@ from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.cms.publishing.stream import PublishItemHandler, \
         PublishStreamNoState, PublishStream
 from iktomi.cms.stream import Stream
+from iktomi.utils import cached_property
 
 
 class PrepareI18nItemHandler(PrepareItemHandler):
@@ -72,7 +73,10 @@ class I18nStreamMixin(object):
 
     langs = [('ru', u'Русский'),
              ('en', u'Английский')]
-    langs_dict = dict(langs)
+
+    @cached_property
+    def langs_dict(self):
+        return dict(self.langs)
 
     # If any item in one language have a pair in other language
     # Basically, if it is instance of iktomi.cms.publishing.model.WithLanguage
