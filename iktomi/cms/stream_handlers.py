@@ -590,12 +590,13 @@ class DeleteItemHandler(_ReferrersAction):
     action = 'delete'
     cls = 'delete'
     title = u'Удалить'
+    PrepareItemHandler = PrepareItemHandler
 
     @property
     def app(self):
         return web.match('/<noneint:item>/delete', 'delete',
                          convs={'noneint': NoneIntConv}) | \
-            PrepareItemHandler(self) | self
+            self.PrepareItemHandler(self) | self
 
     def is_available(self, env, item):
         return StreamAction.is_available(self, env, item) and \

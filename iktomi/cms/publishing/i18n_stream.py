@@ -11,10 +11,11 @@ from iktomi.utils import cached_property
 
 class PrepareI18nItemHandler(PrepareItemHandler):
 
-    def __call__(self, env, data):
+    def prepare_item_handler(self, env, data):
         # XXX Dirty hack to support object creation
         env.absent_items = True
         return PrepareItemHandler.__call__(self, env, data)
+    __call__ = prepare_item_handler
 
 
 class I18nItemHandler(PublishItemHandler):

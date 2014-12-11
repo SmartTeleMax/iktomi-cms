@@ -175,7 +175,7 @@ class AdminWithLanguage(WithLanguage):
             db.flush()
 
         if hasattr(self, 'state'): # XXX or isinstance check?
-            if self.state is None or self.state == item.ABSENT:
+            if self.state is None or self.state in (self.ABSENT, self.DELETED):
                 self.state = self.PRIVATE
 
 
@@ -273,9 +273,9 @@ class _AdminReplicated(object):
             self._create_front_object()
         # the item is created, we set PRIVATE state as default
         # XXX hasattr looks hacky
-        if hasattr(self, 'state') and (
-                self.state is None or self.state == self.ABSENT):
-            self.state = self.PRIVATE
+        if hasattr(self, 'state'):
+            if self.state is None or self.state in (self.ABSENT, self.DELETED):
+                self.state = self.PRIVATE
 
     def _create_front_object(self):
         replicate(self, self._front_model)
