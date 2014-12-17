@@ -18,41 +18,15 @@ logger = logging.getLogger(__file__)
 
 class FileUploadHandler(web.WebHandler):
 
-    def get_length(self, request):
-        length = int(request.environ.get('CONTENT_LENGTH', 0))
-        if not length:
-            from StringIO import StringIO
-            from pprint import pprint
-            sio = StringIO()
-            sio.write('No content-length provided! \nHeaders:\n')
-            pprint(request.headers.items(), sio)
-            sio.write('\nEnviron:\n')
-            pprint(request.environ, sio)
-            sio.write('\nTrying to read directly from headers...')
-            logger.warning(sio.getvalue())
-
-            if request.headers.get('Content-Length'):
-                length = int(request.headers.get('Content-Length'))
-                logger.warning('YES! The Content-Length is in headers, '\
-                               'but it can not be found in WSGI env!\n')
-            elif 'content-length' in request.GET:
-                length = int(request.GET['content-length'])
-                logger.warning('Using a value from GET args: %s\n' % \
-                                                                length)
-            else:
-                logger.warning('There is no Content-Length either in '\
-                               'headers or in get args\n')
-        return length
-
     def _save_file(self, env, data, length):
         request = env.request
         return env.file_manager.create_transient(
-                                   request.body_file_raw,\
-                                   request.GET["file"],\
+                                   request.POST['file'].file,\
+                                   request.POST['name'],\
                                    length=length)
 
     def save_file(self, env, data, length):
-        original_name = env.request.GET["file"]
+        original_name = env.request.POST["name"]
         transient = self._save_file(env, data, length)
         return {
             "file": transient.name,
@@ -66,7 +40,7 @@ class FileUploadHandler(web.WebHandler):
         if request.method != "POST":
             raise HTTPMethodNotAllowed()
 
-        length = self.get_length(request)
+        length = int(request.POST['size'])
         if not length:
             return env.json({'status': 'failure',
                              'error': 'No Content-Length provided'})

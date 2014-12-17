@@ -116,51 +116,34 @@
 
     upload: function(file){
       if (this.uploading_count < this.options.parallel_uploads){
-        var fileSize = file.size;// || file.fileSize;
-
-        this.fireEvent('start', file);
+        var self = this;
         this.uploading_count++;
-
-        var url = this.options.url+"?file="+(file.fileName || file.name) + this.options.extra_query_string;
-        url += '&content-length=' + fileSize; //since a bug with Content-Length
-
-        var xhr = new XMLHttpRequest();
-        //xhr.setRequestHeader("Content-Length", fileSize);
-        file.xhr = xhr;
-        var progress = (function(e){
-          e.fileName = (file.fileName || file.name);
-          this.fireEvent('progress', e);
-        }).bind(this);
-
-        xhr.upload.addEventListener('progress', progress, false);
-        //xhr.addEventListener('progress', progress, false);
-
-        xhr.onload = function(e){
-          var status = e.target.status;
-          var statusGroup = Math.floor(status / 100);
-          if (statusGroup == 4 || statusGroup == 5){
-            this.fireEvent('error', e);
-          } else {
-            e.fileName = file.fileName || file.name;
-            this.uploading_count--;
-            var queue_file = this.queue.shift();
-            if (queue_file){
-                this.upload(queue_file);
-            }
-            this.fireEvent('complete', e);
-          }
-        }.bind(this);
-
-        xhr.onabort = function(e){
-          this.fireEvent('abort', e);
-        }.bind(this);
-
-        xhr.onerror = function(e){
-          this.fireEvent('error', e);
-        }.bind(this);
-
-        xhr.open('POST', url, true);
-        xhr.send(file);
+        
+        var url = this.options.url + this.options.extra_query_string;
+         
+        var data = new FormData();
+        data.append('file',  file);
+        data.append('name',  file.fileName || file.name);
+        data.append('size',  file.size);
+        file.xhr = new Request.Multipart({
+                               url:url,
+                               data:data,
+                               onSuccess:function(result){
+                                 self.fireEvent('complete', result);
+                                 self.uploading_count--;
+                                 var queue_file = self.queue.shift();
+                                 if (queue_file){
+                                    self.upload(queue_file);
+                                 }
+                               },
+                               onFailure: function(result){
+                                  self.fireEvent('error', result); 
+                               },
+                               onCancel: function(result){
+                                  self.fireEvent('abort', result);
+                               } 
+                   });
+        file.xhr.post();
       } else {
         this.queue.push(file);
       }
@@ -168,8 +151,7 @@
 
     cancel: function(file){
       if (file.xhr){
-        file.xhr.abort();
-        file.xhr.onreadystatechange = $empty;
+        file.xhr.cancel();
         this.uploading_count--; // XXX
       } else if (this.queue.contains(file)){
         // XXX: not debugged
