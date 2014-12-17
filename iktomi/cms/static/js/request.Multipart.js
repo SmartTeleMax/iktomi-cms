@@ -7,13 +7,13 @@
     /* slightly modificated original 'Request.send'*/
     /* post must recieve form element to create FormData */
     post: function(formElement){
-      
-      var data = new FormData(formElement);
-      
+      var options = {};
+      if(typeOf(formElement) == 'element'){
+        var data = new FormData(formElement);
+        options = {data: data};
+      }
       this.options.isSuccess = this.options.isSuccess || this.isSuccess;
       this.running = true;
-
-      var options = {data: data};
 
       var old = this.options;
       options = Object.append({data: old.data, url: old.url}, options);
@@ -47,7 +47,7 @@
       }, this);
 
       this.fireEvent('request');
-      xhr.send(data);
+      xhr.send(options.data);
       if (!this.options.async) this.onStateChange();
       else if (this.options.timeout) this.timer = this.timeout.delay(this.options.timeout, this);
       return this;
