@@ -131,14 +131,13 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
             return {'status': 'failure',
                     'error': 'Invalid image'}
 
-        original_name = env.request.GET["file"]
+        original_name = env.request.POST["name"]
         ext = os.path.splitext(original_name)[1]
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
 
         rel_images = self._collect_related_fields(env, field, image,
                                                   original_name, ext)
 
-        original_name = env.request.GET["file"]
         return {
             "file": transient.name,
             'file_url': env.file_manager.get_transient_url(transient, env),

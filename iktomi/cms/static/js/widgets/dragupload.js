@@ -188,7 +188,7 @@
       this.file_data = element.getElement('.file_data');
       var qs = '';
       if (this.options.image){
-        qs += '&image=1';
+        qs += '?image=1';
         this.thumb = this.el.getElement('.thumbnail');
       }
       this.uploader = new DragUpload(this.el, {
