@@ -84,8 +84,7 @@ class AjaxImageField(AjaxFileField):
         # XXX looks like a hack
         if any(x for x in env.stream.actions if x.action=="image_upload"):
             return env.stream.url_for(env, 'image_upload',
-                                      item=self.form.item.id,
-                                      field_name=self.input_name)
+                                      item=self.form.item.id)
         return env.root.load_tmp_file
 
     @property

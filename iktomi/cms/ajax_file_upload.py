@@ -62,13 +62,13 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
 
     @property
     def app(self):
-        prefix = web.prefix('/<noneint:item>/'+self.action+'/<field_name>',
+        prefix = web.prefix('/<noneint:item>/'+self.action,
                             name=self.action,
                             convs={'noneint': NoneIntConv})
         prepare = PrepareItemHandler(self)
         return prefix | web.cases(
                   web.match() | prepare | self,
-                  web.match('/crop', 'crop') | prepare | self.crop,
+                  web.match('/<field_name>/crop', 'crop') | prepare | self.crop,
                   )
 
     def _collect_related_fields(self, env, form_field, image,
@@ -119,7 +119,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
     def save_file(self, env, data, length):
         form = self._get_form(env, data)
         #form.model = self.stream.get_model(env)
-        field = form.get_field(data.field_name)
+        field = form.get_field(env.request.POST['field_name'])
         if not isinstance(field, AjaxImageField) or \
                 field.model is None:
             return FileUploadHandler.save_file(self, env, data, length)

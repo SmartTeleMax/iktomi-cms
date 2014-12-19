@@ -12,7 +12,7 @@
       disabled: false,
       parallel_uploads: 3,
       max_file_count: -1, //infinite by default
-      extra_query_string: ''
+      extraPostParameters: []
     },
 
     check_browser: function(){
@@ -119,12 +119,16 @@
         var self = this;
         this.uploading_count++;
         
-        var url = this.options.url + this.options.extra_query_string;
+        var url = this.options.url;
          
         var data = new FormData();
         data.append('file',  file);
         data.append('name',  file.fileName || file.name);
         data.append('size',  file.size);
+        var extraParams = this.options.extraPostParameters;
+        for(var i = 0; i < extraParams.length; i++){
+            data.append(extraParams[i][0], extraParams[i][1])
+        }
         file.xhr = new Request.Multipart({
                                url:url,
                                data:data,
@@ -189,15 +193,15 @@
       this.el.store('widget', this);
       this.uploading_file = null;
       this.file_data = element.getElement('.file_data');
-      var qs = '';
+      var postParameters = [];
       if (this.options.image){
-        qs += '?image=1';
+        postParameters.push(['field_name', 'image'])
         this.thumb = this.el.getElement('.thumbnail');
       }
       this.uploader = new DragUpload(this.el, {
           url: this.options.url,
           max_file_count: 1,
-          extra_query_string: qs
+          extraPostParameters: postParameters, 
       }).addEvents({
           addfile: this.onDrop.bind(this),
           progress: this.onProgress.bind(this),
