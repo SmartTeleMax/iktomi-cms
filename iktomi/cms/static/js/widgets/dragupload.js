@@ -124,7 +124,6 @@
         var data = new FormData();
         data.append('file',  file);
         data.append('name',  file.fileName || file.name);
-        data.append('size',  file.size);
         var extraParams = this.options.extraPostParameters;
         for(var i = 0; i < extraParams.length; i++){
             data.append(extraParams[i][0], extraParams[i][1])
