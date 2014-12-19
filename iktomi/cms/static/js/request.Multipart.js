@@ -6,7 +6,7 @@
     Extends: Request,
     /* slightly modificated original 'Request.send'*/
     /* post must recieve form element to create FormData */
-    post: function(formElement){
+    send: function(formElement){
       var options = {};
       if(typeOf(formElement) == 'element'){
         var data = new FormData(formElement);
@@ -30,7 +30,7 @@
       var xhr = this.xhr;
       if (progressSupport){
           xhr.onloadstart = this.loadstart.bind(this);
-          xhr.onprogress = this.progress.bind(this);
+          xhr.upload.onprogress = this.progress.bind(this);
       }
 
       xhr.open('POST', url, this.options.async, this.options.user, this.options.password);
@@ -67,7 +67,5 @@
         return this;
     }
   });
-
-
 
 })();

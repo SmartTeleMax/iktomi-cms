@@ -136,6 +136,9 @@
                                     self.upload(queue_file);
                                  }
                                },
+                               onProgress: function(event, xhr){
+                                 self.fireEvent('progress', event);
+                               },
                                onFailure: function(result){
                                   self.fireEvent('error', result); 
                                },
