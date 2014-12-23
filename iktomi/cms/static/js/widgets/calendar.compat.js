@@ -22,7 +22,8 @@ var Calendar = new Class({
         onShowComplete: Class.empty,
         pad: 1, // padding between multiple calendars
         container: null,
-        tweak: {x: 0, y: 0} // tweak calendar positioning
+        tweak: {x: 0, y: 0}, // tweak calendar positioning
+        todayButton: false,
     },
 
     // initialize: calendar constructor
@@ -115,6 +116,23 @@ var Calendar = new Class({
             this.rebuild(cal);
 
             this.calendars.push(cal); // add to cals array
+            if(this.options.todayButton){
+                var button = new Element('span', {'class': 'timecalendar-now'});
+                button.set('text', 'сегодня');
+                button.addEvent('click', function (e) {
+                    var date = new Date();
+                    var year = date.getFullYear();
+                    var month = date.getMonth();
+                    var day = date.getDate();
+                    cal.year = year;
+                    cal.month = month;
+                    cal.day = day;
+                    cal.val = new Date(year, month, day);
+                    this_.write(cal);
+                    this_.display(cal);
+                });
+                button.injectAfter(cal.button);
+            }
         }
     },
 
@@ -1117,7 +1135,8 @@ function init_ru_calendar(el) {
               'day_short':2,
       'classes': ['calendar'],
       'offset': 1,
-      'container': $('app-content')
+      'container': $('app-content'),
+      'todayButton': true
   });
 }
 

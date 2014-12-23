@@ -159,7 +159,7 @@ def SplitDateTimeField(name, label, required=True,
                       widget=widgets.Calendar),
                 Field('time',
                       conv=convs.Time(required=required),
-                      widget=widgets.TextInput(classname='timeinput'))],
+                      widget=widgets.TimeInput())],
         get_initial=get_initial,
         label=label)
 

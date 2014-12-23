@@ -1,0 +1,34 @@
+.timecalendar {
+    position: absolute;
+    background: #333;
+    padding: 4px;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.timecalendar td {
+    cursor: pointer;
+    color: #fefefe;
+    padding: 4px;
+}
+
+.timecalendar td:hover {
+    color: #cf0;
+}
+
+.timecalendar-now {
+    color: #3764A0;
+    margin: 0px 20px 0 5px;
+    cursor: pointer;
+}
+
+.timecalendar-toggle {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    margin-left: 10px;
+    margin-right: 5px;
+    vertical-align: middle;
+    background: url('../images/time.png') no-repeat;
+    background-size: 16px 16px;
+}
