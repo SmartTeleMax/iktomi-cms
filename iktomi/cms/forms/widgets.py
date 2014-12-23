@@ -349,3 +349,8 @@ class FieldBlockWidget(widgets.FieldBlockWidget):
     renders_hint = True
     closed = False
 
+
+class TimeInput(TextInput):
+
+    template = 'widgets/timeinput'
+    classname = 'timeinput'
