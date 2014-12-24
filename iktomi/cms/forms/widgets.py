@@ -328,6 +328,7 @@ class Calendar(TextInput):
 
     template = 'widgets/calendar'
     classname = 'calendar'
+    js_block = 'calendar'
 
     @cached_property
     def size(self):
@@ -348,9 +349,3 @@ class FieldBlockWidget(widgets.FieldBlockWidget):
     template = 'widgets/collapsable_block'
     renders_hint = True
     closed = False
-
-
-class TimeInput(TextInput):
-
-    template = 'widgets/timeinput'
-    classname = 'timeinput'
