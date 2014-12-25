@@ -68,10 +68,24 @@
       setItem(key, value);
       removeItem(key);
       cachedStorage = true;
-    } catch (exc) {
-      cachedStorage = false;
+    } catch (e) {
+        if (isOutOfSpace(e)) {    // If we hit the limit, then it means we have support, 
+            cachedStorage = true; // just maxed it out and even the set test failed.
+        } else {
+            cachedStorage = false;
+        }
     }
     return cachedStorage;
+  }
+
+  // Check to set if the error is us dealing with being out of space
+  function isOutOfSpace(e) {
+    if (e && e.name === 'QUOTA_EXCEEDED_ERR' || 
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || 
+            e.name === 'QuotaExceededError') {
+        return true;
+    }
+    return false;
   }
 
   // Determines if native JSON (de-)serialization is supported in the browser.
@@ -188,7 +202,7 @@
       try {
         setItem(key, value);
       } catch (e) {
-        if (e.name === 'QUOTA_EXCEEDED_ERR' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.name === 'QuotaExceededError') {
+        if (isOutOfSpace(e)) {
           // If we exceeded the quota, then we will sort
           // by the expire time, and then remove the N oldest
           var storedKeys = [];
@@ -289,15 +303,22 @@
     /**
      * Flushes all lscache items and expiry markers without affecting rest of localStorage
      */
-    flush: function(expired) {
+    flush: function() {
       if (!supportsStorage()) return;
 
       eachKey(function(key) {
-        if (expired) {
-          flushExpiredItem(key);
-        } else {
-          flushItem(key);
-        }
+        flushItem(key);
+      });
+    },
+
+    /**
+     * Flushes expired lscache items and expiry markers without affecting rest of localStorage
+     */
+    flushExpired: function() {
+      if (!supportsStorage()) return;
+
+      eachKey(function(key) {
+        flushExpiredItem(key);
       });
     },
 
