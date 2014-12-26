@@ -349,3 +349,7 @@ class FieldBlockWidget(widgets.FieldBlockWidget):
     template = 'widgets/collapsable_block'
     renders_hint = True
     closed = False
+
+
+class FieldSetWidget(widgets.FieldSetWidget):
+    js_block = None

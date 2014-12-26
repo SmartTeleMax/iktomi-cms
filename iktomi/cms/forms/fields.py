@@ -67,8 +67,7 @@ class DiffFieldSetMixIn(object):
 
 
 class FieldSet(FieldSet, DiffFieldSetMixIn):
-
-    js_block = None
+    pass
 
 
 class FieldBlock(FieldBlock, DiffFieldSetMixIn):
@@ -153,8 +152,8 @@ def SplitDateTimeField(name, label, required=True,
                        template='widgets/fieldset-line'):
     return FieldSet(
         name,
-        js_block='datetime',
-        widget=widgets.FieldSetWidget(template=template),
+        widget=widgets.FieldSetWidget(js_block='datetime',
+                                      template=template),
         conv=convs.SplitDateTime(required=required),
         fields=[Field('date',
                       conv=convs.Date(required=required),
