@@ -3,6 +3,9 @@
 
     var Time = function (el, options) {
 
+        var timeField = el.getElement('input.timeinput');
+        var dateField = el.getElement('input.calendar');
+
         function formatTime(hours, minutes) {
             return ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2);
         }
@@ -27,10 +30,23 @@
             var button = new Element('span', {'class': 'timecalendar-now'});
             button.set('text', 'сейчас');
             button.addEvent('click', function (e) {
+                // set time
                 var date = new Date();
                 var hh = date.getHours();
                 var mm = date.getMinutes();
-                el.value = formatTime(hh, mm);
+                this.timeField.value = formatTime(hh, mm);
+                // set date
+                var cal = this.dateField.calendar;
+                var control = this.dateField.calendarControl;
+                var year = date.getFullYear();
+                var month = date.getMonth();
+                var day = date.getDate();
+                cal.year = year;
+                cal.month = month;
+                cal.day = day;
+                cal.val = new Date(year, month, day);
+                control.write(cal);
+                control.display(cal);
             });
             return button;
         }
@@ -57,9 +73,12 @@
 
             return container;
         }
+        
 
-        var nowButton = createNowButton().inject(el, 'after');
-        var toggleButton = createToggleButton({click: toggle}).inject(el, 'after');
+        var nowButton = createNowButton().inject(timeField, 'after');
+        nowButton.timeField = timeField;
+        nowButton.dateField = dateField;
+        var toggleButton = createToggleButton({click: toggle}).inject(timeField, 'after');
         var widget = createWidget({
             columns: 8,
             rows: 6,
@@ -71,7 +90,7 @@
                 visibility: 'hidden'
             },
             click: function(e) {
-                el.value = e.target.innerText;
+                timeField.value = e.target.innerText;
                 widget.setStyle('visibility', 'hidden');
                 document.body.removeEvent('mousedown', close);
             }
@@ -100,7 +119,7 @@
 
     };
 
-    Blocks.register('time', function (el) {
+    Blocks.register('datetime', function (el) {
         return !el.get('readonly') && Time(el, {container: $('app-content')});
     });
 })();
