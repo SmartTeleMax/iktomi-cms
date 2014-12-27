@@ -8,6 +8,7 @@ init_blocks
 menu
 app
 flashmessages
+request.Multipart
 
 lib/longpress
 lib/pixastic

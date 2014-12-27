@@ -18,42 +18,18 @@ logger = logging.getLogger(__file__)
 
 class FileUploadHandler(web.WebHandler):
 
-    def get_length(self, request):
-        length = int(request.environ.get('CONTENT_LENGTH', 0))
-        if not length:
-            from StringIO import StringIO
-            from pprint import pprint
-            sio = StringIO()
-            sio.write('No content-length provided! \nHeaders:\n')
-            pprint(request.headers.items(), sio)
-            sio.write('\nEnviron:\n')
-            pprint(request.environ, sio)
-            sio.write('\nTrying to read directly from headers...')
-            logger.warning(sio.getvalue())
-
-            if request.headers.get('Content-Length'):
-                length = int(request.headers.get('Content-Length'))
-                logger.warning('YES! The Content-Length is in headers, '\
-                               'but it can not be found in WSGI env!\n')
-            elif 'content-length' in request.GET:
-                length = int(request.GET['content-length'])
-                logger.warning('Using a value from GET args: %s\n' % \
-                                                                length)
-            else:
-                logger.warning('There is no Content-Length either in '\
-                               'headers or in get args\n')
-        return length
-
-    def _save_file(self, env, data, length):
+    def _save_file(self, env, original_name):
         request = env.request
         return env.file_manager.create_transient(
-                                   request.body_file_raw,\
-                                   request.GET["file"],\
-                                   length=length)
+                                   request.POST['file'].file,\
+                                   original_name)
 
-    def save_file(self, env, data, length):
-        original_name = env.request.GET["file"]
-        transient = self._save_file(env, data, length)
+    def _get_original_file_name(self, env):
+        return env.request.POST.get('name') or env.request.POST['file'].filename
+
+    def save_file(self, env, data):
+        original_name = self._get_original_file_name(env)
+        transient = self._save_file(env, original_name)
         return {
             "file": transient.name,
             'file_url': env.file_manager.get_transient_url(transient, env),
@@ -66,13 +42,8 @@ class FileUploadHandler(web.WebHandler):
         if request.method != "POST":
             raise HTTPMethodNotAllowed()
 
-        length = self.get_length(request)
-        if not length:
-            return env.json({'status': 'failure',
-                             'error': 'No Content-Length provided'})
-
         result = dict(status="ok")
-        result.update(self.save_file(env, data, length))
+        result.update(self.save_file(env, data))
         return env.json(result)
 
 
@@ -88,13 +59,13 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
 
     @property
     def app(self):
-        prefix = web.prefix('/<noneint:item>/'+self.action+'/<field_name>',
+        prefix = web.prefix('/<noneint:item>/'+self.action,
                             name=self.action,
                             convs={'noneint': NoneIntConv})
         prepare = PrepareItemHandler(self)
         return prefix | web.cases(
                   web.match() | prepare | self,
-                  web.match('/crop', 'crop') | prepare | self.crop,
+                  web.match('/<field_name>/crop', 'crop') | prepare | self.crop,
                   )
 
     def _collect_related_fields(self, env, form_field, image,
@@ -142,29 +113,28 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
             item = self.stream.get_model(env)(**initial)
         return self.stream.config.ItemForm.load_initial(env, item, initial=initial)
 
-    def save_file(self, env, data, length):
+    def save_file(self, env, data):
         form = self._get_form(env, data)
         #form.model = self.stream.get_model(env)
-        field = form.get_field(data.field_name)
+        field = form.get_field(env.request.POST['field_name'])
         if not isinstance(field, AjaxImageField) or \
                 field.model is None:
-            return FileUploadHandler.save_file(self, env, data, length)
+            return FileUploadHandler.save_file(self, env, data)
 
-        transient = self._save_file(env, data, length)
+        original_name = self._get_original_file_name(env)
+        transient = self._save_file(env, original_name)
         try:
             image = Image.open(transient.path)
         except IOError:
             return {'status': 'failure',
                     'error': 'Invalid image'}
 
-        original_name = env.request.GET["file"]
         ext = os.path.splitext(original_name)[1]
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
 
         rel_images = self._collect_related_fields(env, field, image,
                                                   original_name, ext)
 
-        original_name = env.request.GET["file"]
         return {
             "file": transient.name,
             'file_url': env.file_manager.get_transient_url(transient, env),
