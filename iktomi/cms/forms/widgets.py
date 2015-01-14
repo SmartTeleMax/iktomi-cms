@@ -246,6 +246,10 @@ class PopupStreamSelect(Select):
                 options[str(value.id)] = unicode(self.item_row(value))
         return options
 
+    @cached_property
+    def show_create_button(self):
+        return self.allow_create and self.stream.has_permission(self.env, 'c')
+
     def render(self):
         return dict(Widget.render(self),
                     row_by_value=self.get_options(),
@@ -312,6 +316,7 @@ class AjaxFileInput(FileInput):
 class Calendar(TextInput):
 
     classname = 'calendar'
+    js_block = 'calendar'
 
     @cached_property
     def size(self):
@@ -338,3 +343,6 @@ class CollapsableFieldBlock(widgets.FieldBlockWidget):
                     open_with_data=self.open_with_data)
 
 
+
+class FieldSetWidget(widgets.FieldSetWidget):
+    js_block = None

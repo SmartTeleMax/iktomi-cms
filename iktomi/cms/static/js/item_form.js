@@ -110,6 +110,7 @@ function _mergeObjects(value, newValue){
       //this.frm.getElements('.buttons a[rel="save-and-continue"]').addEvent('click', this.saveAndContinueHandler);
       //this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
       this.frm.addEvent('change', this.changeHandler);
+      this.frm.addEvent('submit', function(e){ e.preventDefault(); });
       //this.frm.addEvent('keydown', this.changeHandler);
     },
 

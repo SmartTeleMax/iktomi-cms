@@ -10,6 +10,7 @@ from collections import OrderedDict
 from iktomi.utils.storage import VersionedStorage
 from iktomi import web
 from iktomi.cms.forms import Form
+from iktomi.cms.item_lock import ItemLock
 from iktomi.utils.deprecation import deprecated
 from . import stream_handlers as handlers
 from .flashmessages import flash
@@ -217,6 +218,17 @@ class Stream(object):
             if action.action=='edit_log':
                 return action
 
+    def create_log_entry(self, env, item, type_):
+        EditLog = getattr(env, 'edit_log_model', None)
+        log_enabled = EditLog is not None and \
+                      self.edit_log_action is not None
+        if log_enabled:
+            return EditLog(stream_name=self.uid(env),
+                           type=type_,
+                           object_id=item.id,
+                           global_id=ItemLock.item_global_id(item),
+                           users=[env.user])
+
     @cached_property
     def ListItemForm(self):
         if self.list_edit_action:
@@ -364,6 +376,6 @@ def expand_stream(env, obj):
             stream_title = I18nLabel(stream_title, params['lang'])
         url = stream.url_for(stream_env, 'item', 
                              item=obj.object_id, **params)
-    return (url, stream_title, stream, obj, item)
+        return (url, stream_title, stream, obj, item)
 
 

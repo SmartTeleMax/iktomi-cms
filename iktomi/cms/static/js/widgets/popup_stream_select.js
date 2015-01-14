@@ -353,8 +353,6 @@
             url = url.replace(/&+/g, '&').replace(/\?&+/g, '?');
           }
           p += name + '=' + params[name] + '&';
-
-
         } else {
           if(params[name]!==false){
             p += (new RegExp(name + '=' + params[name],"i").test(url)) ?

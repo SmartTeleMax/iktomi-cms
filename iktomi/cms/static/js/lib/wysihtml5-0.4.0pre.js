@@ -8648,10 +8648,10 @@ wysihtml5.views.View = Base.extend(
     }
 
     // --------- Show url in tooltip when hovering links or images ---------
-    var titlePrefixes = {
-      IMG: "Image: ",
-      A:   "Link: "
-    };
+    //var titlePrefixes = {
+    //  IMG: "Image: ",
+    //  A:   "Link: "
+    //};
 
     dom.observe(element, "mouseover", function(event) {
       var target   = event.target,
@@ -8660,11 +8660,11 @@ wysihtml5.views.View = Base.extend(
       if (nodeName !== "A" && nodeName !== "IMG") {
         return;
       }
-      var hasTitle = target.hasAttribute("title");
-      if(!hasTitle){
-        title = titlePrefixes[nodeName] + (target.getAttribute("href") || target.getAttribute("src"));
-        target.setAttribute("title", title);
-      }
+      //var hasTitle = target.hasAttribute("title");
+      //if(!hasTitle){
+      //  title = titlePrefixes[nodeName] + (target.getAttribute("href") || target.getAttribute("src"));
+      //  target.setAttribute("title", title);
+      //}
     });
   };
 })(wysihtml5);/**

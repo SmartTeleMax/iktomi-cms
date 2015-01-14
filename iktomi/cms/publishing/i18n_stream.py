@@ -6,14 +6,16 @@ from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.cms.publishing.stream import PublishItemHandler, \
         PublishStreamNoState, PublishStream
 from iktomi.cms.stream import Stream
+from iktomi.utils import cached_property
 
 
 class PrepareI18nItemHandler(PrepareItemHandler):
 
-    def __call__(self, env, data):
+    def prepare_item_handler(self, env, data):
         # XXX Dirty hack to support object creation
         env.absent_items = True
         return PrepareItemHandler.__call__(self, env, data)
+    __call__ = prepare_item_handler
 
 
 class I18nItemHandler(PublishItemHandler):
@@ -72,7 +74,10 @@ class I18nStreamMixin(object):
 
     langs = [('ru', u'Русский'),
              ('en', u'Английский')]
-    langs_dict = dict(langs)
+
+    @cached_property
+    def langs_dict(self):
+        return dict(self.langs)
 
     # If any item in one language have a pair in other language
     # Basically, if it is instance of iktomi.cms.publishing.model.WithLanguage
@@ -109,8 +114,8 @@ class I18nStreamMixin(object):
                version_prefix | lang_prefix | set_models
 
     def url_for(self, env, name=None, **kwargs):
-        kwargs.setdefault('version', getattr(env, 'version', self.versions[0][0]))
-        kwargs.setdefault('lang', getattr(env, 'lang', self.langs[0][0]))
+        kwargs.setdefault('version', getattr(env, 'version', None) or self.versions[0][0])
+        kwargs.setdefault('lang', getattr(env, 'lang', None) or self.langs[0][0])
         return Stream.url_for(self, env, name, **kwargs)
 
 

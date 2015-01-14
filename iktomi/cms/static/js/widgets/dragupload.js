@@ -194,8 +194,8 @@
       url: "",
       input_name: 'file',
       image: false,
-      thumb_size: null,
-      canvas_thumb_preview: true
+      thumb_size: null
+      //canvas_thumb_preview: true
     },
 
     initialize: function(element, options){
@@ -227,18 +227,19 @@
       this.uploader.bindfile(this.fileinput);
 
       this.el.addClass('active');
-      this.pb_container = new Element('div').setStyle('display', 'none')
+      this.pb_container = new Element('div', {'class': 'progress_container'})
+                                            .setStyle('display', 'none')
                                             .inject(element);
       this.progressbar = new ProgressBar({
         container: this.pb_container,
         displayText: true
       });
-      this.cancelButton = new Element('a', {'href': '#', 'text': 'отмена'})
+      this.cancelButton = new Element('a', {'href': '#', 'text': 'отмена', 'class': "progress_cancel"})
                 .addEvent('click', function(e){
                   e.stop();
                   this.cancel();
                 }.bind(this))
-                 .inject(this.pb_container);
+                 .inject(this.pb_container, 'top');
 
       this.clrbtn = new Element('a', {
         'href': "#clear",
@@ -269,41 +270,30 @@
           this.uploader.cancel(this.uploading_file);
       }
       this.uploading_file = e.file;
-      this.file_data.adopt(new Element('p').set('text', 'Загрузка файла: ' + e.fileName));
+      //this.file_data.adopt(new Element('p').set('text', 'Загрузка файла: ' + e.fileName));
       this.progressbar.set(0);
       //this.uploader.disable();
-      this.pb_container.setStyle('display', '');
+      this.pb_container.setStyles({'display': '', 'visibility': 'visible'});
 
       // Render a thumbnail if the file is an image
-      if (this.fileReaderSupport && this.thumb && this.options.canvas_thumb_preview){
+      if (this.fileReaderSupport && this.thumb){
         if(this.sourceImage) { this.sourceImage.destroy(); }
-        this.thumb.set('src', '#').setStyle('display', 'none');
+        this.thumb.setStyle('display', 'none');
         //delete this.reader; //XXX?
         this.reader = new FileReader();
 
         // Closure to capture the file information.
         this.reader.onload = (function(ev) {
           var thumb_size = this.options.thumb_size || (600, 600);
-          var transient_img = new Element('img').setStyles({
+          var transient_img = new Element('img', {'class': 'thumbnail'}).setStyles({
               'max-width': thumb_size[0],
               'max-height': thumb_size[1],
-              'visibility': 'hidden',
-              'position': 'fixed'
-          }).inject(document.body);
-          transient_img.addEvent('load', function(){
-            var cnv = new Element('canvas', {'width': transient_img.width,
-                                             'height': transient_img.height})
-                                 .inject(this.thumb, 'after');
-            var scale = Math.min(transient_img.height / transient_img.naturalHeight,
-                                 transient_img.width / transient_img.naturalWidth)
-            var ctx = cnv.getContext('2d');
-            ctx.scale(scale, scale);
-            ctx.drawImage(transient_img, 0, 0);
-            transient_img.destroy();
-            this.thumb.destroy();
+              'src': ev.target.result,
+          }).inject(this.thumb, 'after');
+          this.thumb.destroy();
+          this.thumb = transient_img;
+          transient_img.set('src', ev.target.result);
 
-            this.thumb = cnv;
-          }.bind(this)).set('src', ev.target.result);
         }).bind(this);
         // Read in the image file as a data URL.
         this.reader.readAsDataURL(this.uploading_file);
@@ -315,7 +305,12 @@
     },
 
     onLoad: function(e){
-      var data = JSON.decode(e.target.responseText);
+      if (typeof(e) == 'string') {
+        var data = JSON.decode(e);
+      } else {
+        var data = JSON.decode(e.target.responseText);
+      }
+
       if (data.status != 'ok' || !data.file){
         var error = data.status != 'ok'? data.error : "ответ сервера не содержит имени файла";
         alert("Ошибка: " + error)
@@ -343,14 +338,14 @@
 
       this.progressbar.set(100);
       (function(){
-          this.pb_container.setStyle('display', 'none');
+          this.pb_container.setStyle('visibility', 'hidden');
       }.bind(this)).delay(2000);
 
       this.file_data.empty().adopt(
         new Element('p').set('html', 'загружен временный файл: <br/>').adopt(
         new Element('a', {href: data.file_url, text: data.file, target: "_blank"})
       ));
-      if (this.thumb && this.thumb.nodeName == 'IMG'){
+      if (this.thumb){
         var oldThumb = this.thumb;
         this.thumb = this.thumb.clone()
                                .setStyle('display', '')
@@ -378,7 +373,6 @@
 
             data.transformations.push(['resize', [this.thumb.clientWidth, this.thumb.clientHeight]]);
 
-            console.log(left, top, width, height, srcWidth, srcHeight)
             for (var i=0; i<data.transformations.length; i++){
               var transform = data.transformations[i];
               var params = transform[1];
@@ -397,7 +391,6 @@
                 left += params[0];
                 top += params[1];
               }
-              console.log(transform[0], left, top, width, height, srcWidth, srcHeight)
             }
             this.sourceImage = new Element('img', {
               'src': fillFrom.dataset.currentFile,
@@ -440,7 +433,7 @@
       this.uploading_file = null;
           this.canceled = true;
       }
-      this.pb_container.setStyle('display', 'none');
+      this.pb_container.setStyle('visibility', 'hidden');
       var text = 'Отмена загрузки';
       if(reason){
           text += ': ' + reason;
@@ -477,7 +470,7 @@
       if (!this.canceled){
         this.file_data.adopt(new Element('p').set('text', 'Загрузка файла прервана'));
       }
-      this.pb_container.setStyle('display', 'none');
+      this.pb_container.setStyle('visibility', 'hidden');
       this.canceled = false;
       this.clrbtn.setStyle('display', '');
     },
@@ -491,7 +484,7 @@
                    input_name: el.dataset.inputName}
     if (el.dataset.image){
       options.image = true;
-      options.canvasThumbPreview = el.dataset.canvasThumbPreview;
+      //options.canvas_thumb_preview = el.dataset.canvasThumbPreview;
       if (el.dataset.thumbWidth){
         options.thumb_size = [el.dataset.thumbWidth, el.dataset.thumbHeight];
       }
@@ -523,14 +516,20 @@
       el.getElement('.icon-crop').addEvent('click', function(){
         var form = el.getParent('form');
         var label = form.getElement('label[for="'+form.id+'-'+el.dataset.inputName+'"]');
-        new Cropper({src: form.getElement('[data-input-name="'+el.dataset.fillFrom+'"]')
-                              .dataset.currentFile,
+
+        var source = form.getElement('[data-input-name="'+el.dataset.fillFrom+'"]')
+        new Cropper({src: source.dataset.currentFile,
                      targetHeight: el.dataset.cropHeight,
                      targetWidth: el.dataset.cropWidth,
                      title: label? label.get('text') : null,
+                     cropUrl: el.dataset.cropUrl,
+                     postData: {mode: source.getElement('input[name$=".mode"]').value,
+                                transient_name: source.getElement('input[name$=".transient_name"]').value},
                      onCrop: function(file){
                        fm.uploader.uploadFile(file);
-                     }});
+                     },
+                     onAjaxCrop: fm.onLoad.bind(fm)
+                    });
       });
     }
     //alert(frm.retrieve('hooks'));

@@ -16,9 +16,10 @@
       data-block-name="item-form"
       data-buttons="{{ item_buttons }}"
       data-state="{{ item_state }}"
+      data-json="{{ form.json() }}"
+      data-item-id="{{ item.id or '' }}"
       {%- if autosave_allowed %} data-autosave="true"{% endif %}
-      {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}
-      data-json="{{ form.json() }}">
+      {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
   <div class="content">
     <div class="header">
       <div style="float:left">

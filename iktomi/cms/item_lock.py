@@ -85,7 +85,7 @@ class ItemLock(object):
         for i in range(3):
             if cache.add(key, value, time=cfg.MODEL_LOCK_TIMEOUT):
                 return edit_session
-            old_value = cfg.CACHE.gets(key)
+            old_value = cache.gets(key)
             if old_value is None:
                 # Should try add() again
                 continue

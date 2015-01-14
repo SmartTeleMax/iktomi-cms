@@ -1,0 +1,38 @@
+{% macro sidefilter(filter_form, stream_url) %}
+  {% if filter_form %}
+    <div class="sidefilter">
+      <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}"
+            class="filter-form init-block" data-block-name="filter-form"
+            data-json="{{ filter_form.json() }}">
+        <fieldset>
+          <legend>Фильтры</legend>
+
+
+          <button type="reset" class="button sidefilter__clear">
+            Сбросить
+          </button>
+          <button type="submit" class="button sidefilter__submit">
+            Применить
+          </button>
+        </fieldset>
+      </form>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro paginate(paginator) %}
+  {% if paginator %}
+    <div class="pages">
+      {% for p, u in paginator.pages %}
+        {% if p==paginator.page  %}
+          <div class="active">{{ p }}</div>
+        {% elif p==None %}
+          <div>&hellip;</div>
+        {% else %}
+          <a href="{{ u }}"><div>{{ p }}</div></a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endmacro %}
+

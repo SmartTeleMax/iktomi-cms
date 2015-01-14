@@ -90,6 +90,7 @@ textarea.bigtext{
   .autosave-status>*{
     display: none;
     color: #bbb;
+    font-size: 13px;
     text-align: right;
     }
   .autosave-status[data-status="no-changes"] .autosave-status__no-changes,

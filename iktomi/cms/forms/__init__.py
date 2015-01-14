@@ -55,12 +55,12 @@ class ModelForm(Form, DiffFieldSetMixIn):
 
     def _update_instance(self, obj, fields):
         for field in fields:
-            if isinstance(field, FieldBlock):
-                self._update_instance(obj, field.fields)
-            else:
-                # XXX Check permissions?
-                method = getattr(self, 'update__' + field.name, self.update_default)
-                method(obj, field.name, self.python_data[field.name])
+            if field.writable:
+                if isinstance(field, FieldBlock):
+                    self._update_instance(obj, field.fields)
+                else:
+                    method = getattr(self, 'update__' + field.name, self.update_default)
+                    method(obj, field.name, self.python_data[field.name])
 
     @classmethod
     def load_initial(cls, env, item, initial=None, **kwargs):

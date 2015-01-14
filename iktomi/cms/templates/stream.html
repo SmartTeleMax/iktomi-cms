@@ -1,3 +1,5 @@
+{% from "macros/filter_form.html" import paginate %}
+
 {% if not no_layout %}
   {% extends base_template if base_template is defined else "stream_base.html" %}
 {% endif %}
@@ -10,22 +12,6 @@
   {%- set thead_content = empty_macro %}
   {%- set tfoot = empty_macro %}
 {%- endif %}
-
-{% macro paginate(paginator) %}
-  {% if paginator %}
-    <div class="pages">
-      {% for p, u in paginator.pages %}
-        {% if p==paginator.page  %}
-          <div class="active">{{ p }}</div>
-        {% elif p==None %}
-          <div>&hellip;</div>
-        {% else %}
-          <a href="{{ u }}"><div>{{ p }}</div></a>
-        {% endif %}
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endmacro %}
 
 {% set pager = paginate(paginator) %}
 

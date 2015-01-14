@@ -19,14 +19,17 @@
     </td>
 {% endmacro %}
 
-<tr class="item
-  {%- if item.public is defined -%}
-    {%- if item.public %} published{% else %} unpublished{% endif -%}
-  {%- endif %}
-  {%- if item.state is defined %}
-    {%- if item.state == item.DELETED %} deleted{% endif %}
-    {%- if item.state == item.ABSENT %} absent{% endif %}
-  {%- endif %}">
+<tr
+  {%- block row_class %} class="item {{ row_cls }}
+    {%- if item.public is defined -%}
+      {%- if item.public %} published{% else %} unpublished{% endif -%}
+    {%- endif %}
+    {%- if item.state is defined %}
+      {%- if item.state == item.DELETED %} deleted{% endif %}
+      {%- if item.state == item.ABSENT %} absent{% endif %}
+    {%- endif %}"
+  {%- endblock %}
+  {%- if item.title is defined %} data-title="{{ item.title }}"{% endif %}>
 
   {%- block list_fields %}
     {%- for name, field in list_fields.items() %}

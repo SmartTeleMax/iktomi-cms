@@ -160,10 +160,13 @@ class StreamListHandler(StreamAction):
         return result
 
     def list_form_data(self, env, paginator, filter_data):
-        if self.stream.ListItemForm and not filter_data and \
-                self.stream.list_edit_action.save_allowed(env):
-            return {'list_item_form':self.stream.ListItemForm.for_items(
-                                            env, paginator.items)}
+        use_list_form = self.stream.ListItemForm and \
+                self.stream.list_edit_action.save_allowed(env) and \
+                (self.stream.list_edit_action.use_with_filters or not filter_data)
+
+        if use_list_form:
+            return {'list_item_form':self.stream.ListItemForm(
+                                                 env, items=paginator.items)}
         return {}
 
 
@@ -295,6 +298,35 @@ class EditItemHandler(StreamAction):
                               .qs_set(filter_data)
         return item, item_url
 
+    def get_log_item(self, env, data, item):
+        EditLog = env.edit_log_model
+        stream = self.stream
+        log = EditLog.last_for_item(
+                env.db, stream.uid(env), item, 
+                env.user, data.edit_session)
+        if log is None:
+            before = self._clean_item_data(stream, env, item)
+            log = EditLog(stream_name=stream.uid(env),
+                          type="edit",
+                          object_id=item.id,
+                          global_id=ItemLock.item_global_id(item),
+                          edit_session=data.edit_session,
+                          users=[env.user],
+                          before=before)
+        return log
+
+    def save_log_item(self, env, data, log, item):
+        env.db.commit()
+        # do not write form.raw_data directly, because it can be
+        # different for same data stored in db.
+        # Assume form raw data generated from item as canonical
+        # representation
+        log.after = self._clean_item_data(self.stream, env, item)
+        if log.data_changed:
+            log.update_time = datetime.now()
+            env.db.add(log)
+            env.db.commit()
+
     def edit_item_handler(self, env, data):
         '''View for item page.'''
 
@@ -346,7 +378,7 @@ class EditItemHandler(StreamAction):
         log_enabled = (item.id is not None and 
                        EditLog is not None and
                        getattr(env, 'version', 'admin') == 'admin' and
-                       stream.edit_log)
+                       stream.edit_log_action is not None)
 
         if request.method == 'POST':
             if not save_allowed:
@@ -354,20 +386,7 @@ class EditItemHandler(StreamAction):
 
             log = None
             if log_enabled:
-                log = EditLog.last_for_item(
-                        env.db, stream.uid(env), item, 
-                        env.user, data.edit_session)
-                if log is None:
-                    before = self._clean_item_data(stream, env, item)
-                    log = EditLog(stream_name=stream.uid(env),
-                                  type="edit",
-                                  object_id=item.id,
-                                  global_id=ItemLock.item_global_id(item),
-                                  edit_session=data.edit_session,
-                                  users=[env.user],
-                                  before=before)
-                if draft is not None:
-                    log.users = list(set(log.users + draft.users))
+                log = self.get_log_item(env, data, item)
 
             post = json.loads(request.POST.get('json', '{}'))
             accepted = form.accept(post)
@@ -378,16 +397,7 @@ class EditItemHandler(StreamAction):
                                        item, draft, autosave)
 
                 if log is not None:
-                    env.db.commit()
-                    # do not write form.raw_data directly, because it can be
-                    # different for same data stored in db.
-                    # Assume form raw data generated from item as canonical
-                    # representation
-                    log.after = self._clean_item_data(stream, env, item)
-                    if log.after != log.before:
-                        log.update_time = datetime.now()
-                        env.db.add(log)
-                        env.db.commit()
+                    self.save_log_item(env, data, log, item)
 
                 result = {'success': True,
                           'item_id': item.id,
@@ -609,16 +619,27 @@ class DeleteItemHandler(_ReferrersAction):
     cls = 'delete'
     title = u'Удалить'
     order_position = 100
+    PrepareItemHandler = PrepareItemHandler
 
     @property
     def app(self):
         return web.match('/<noneint:item>/delete', 'delete',
                          convs={'noneint': NoneIntConv}) | \
-            PrepareItemHandler(self) | self
+            self.PrepareItemHandler(self) | self
 
     def is_available(self, env, item):
         return StreamAction.is_available(self, env, item) and \
                 self.stream.has_permission(env, 'd')
+
+    def clear_tray(self, env, item):
+        ObjectTray = env.object_tray_model
+        stream_name = env.stream.uid(env, version=False)
+        tray_objects = env.db.query(ObjectTray)\
+                             .filter_by(object_id=item.id)\
+                             .filter_by(stream_name=stream_name)\
+                             .all()
+        for obj in tray_objects:
+            env.db.delete(obj)
 
     def delete_item_handler(self, env, data):
         insure_is_xhr(env)
@@ -638,6 +659,7 @@ class DeleteItemHandler(_ReferrersAction):
         if env.request.method == 'POST':
             env.db.delete(item)
             try:
+                self.clear_tray(env, item)
                 env.db.commit()
             except IntegrityError:
                 env.db.rollback()

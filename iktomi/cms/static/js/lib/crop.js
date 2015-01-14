@@ -10,6 +10,9 @@
       this.targetHeight = options.targetHeight;
       this.targetRatio = this.targetWidth / this.targetHeight;
       this.onCrop = options.onCrop;
+      this.onAjaxCrop = options.onAjaxCrop;
+      this.cropUrl = options.cropUrl;
+      this.postData = options.postData;
       //this.saveRatio = options.saveRatio != undefined? this.options.saveRatio: true;
 
       this.popup = new Popup();
@@ -87,16 +90,35 @@
     },
 
     crop: function(){
-      var options = {
-        rect: {
-            left: this.left,
-            top: this.top,
-            width: this.width,
-            height: this.height
-        }
-      };
-      this.image.setStyles({width: 'auto', height: 'auto'});
-      Pixastic.process(this.image, "crop", options, this.onCropComplete.bind(this));
+
+
+      if (this.cropUrl) {
+        // serverside crop
+        var postData = Object.merge({
+          left: this.left,
+          top: this.top,
+          right: this.width + this.left,
+          bottom: this.height + this.top
+        }, this.postData);
+
+        new Request({
+          url: this.cropUrl,
+          onSuccess: this.onAjaxCropComplete.bind(this)
+        }).post(postData);
+
+      } else {
+        var options = {
+          rect: {
+              left: this.left,
+              top: this.top,
+              width: this.width,
+              height: this.height
+          }
+        };
+        // js crop
+        this.image.setStyles({width: 'auto', height: 'auto'});
+        Pixastic.process(this.image, "crop", options, this.onCropComplete.bind(this));
+      }
     },
 
     onCropComplete: function(canvas) {
@@ -109,6 +131,14 @@
         this.cropButton.destroy();
         this.popup.hide();
       }.bind(this), 'image/jpeg');
+    },
+
+    onAjaxCropComplete: function(e) {
+      this.onAjaxCrop(e);
+
+      this.area.destroy();
+      this.cropButton.destroy();
+      this.popup.hide();
     },
 
     onHide: function(){

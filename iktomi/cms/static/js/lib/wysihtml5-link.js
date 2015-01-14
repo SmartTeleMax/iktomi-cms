@@ -79,6 +79,14 @@
         var value = dropdown.getElement('[data-wysihtml5-dialog-field="href"]').value;
         composer.commands.exec('createLink', value);
       });
+
+      dropdown.getElement('[data-wysihtml5-dialog-field="href"]').addEvent('keydown', function(event) {
+         if (event.key == 'enter') {
+           var value = dropdown.getElement('[data-wysihtml5-dialog-field="href"]').value;
+           composer.commands.exec('createLink', value);
+         }
+      });
+
       return dropdown;
     },
 
@@ -86,7 +94,9 @@
       var dropdown = this._initDropdown(composer);
       var anchors = this.state(composer, command);
       if (!value){
-        dropdown.setStyle('display', dropdown.style.display == 'none'? '': 'none');
+        var display = dropdown.style.display == 'none'? '': 'none';
+        $$('.wysihtml5-dialog').setStyle('display', 'none');
+        dropdown.setStyle('display', display);
         if (anchors) {
           var a = anchors[0];
           dropdown.getElement('[data-wysihtml5-dialog-field="href"]').set('value', a.getAttribute('href'));

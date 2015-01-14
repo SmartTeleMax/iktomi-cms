@@ -1,3 +1,5 @@
+{% from "macros/filter_form.html" import sidefilter %}
+
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 <div class="content itemlist">
@@ -16,7 +18,10 @@
       {%- for action in stream.actions %}
         {%- if action.display and not action.for_item and action.action %}
           <a href="{{ stream.url_for(env, action.action) }}" 
-             class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}{% if action.classname %} {{ action.classname }}{% endif %}">
+            {%- if action.js_block %} data-block-name="{{ action.js_block }}" {% endif %}
+             class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}
+                          {%- if action.js_block %} init-block{% endif %}
+                          {% if action.classname %} {{ action.classname }}{% endif %}">
             {{- action.title -}}
           </a>
         {%- endif %}
@@ -38,28 +43,19 @@
   <div>
     <div class="stream">
       {%- if live_search -%}
-      <label class="livesearch">
-        {% set search_input_id = filter_form.id + '-livesearch' -%}
-        Поиск: <input type="text" class="init-block stream_search" id="{{ search_input_id }}" data-block-name="live-search"/>
-      </label>
+        <div class="livesearch-wrap">
+          <label class="livesearch">
+            {% set search_input_id = filter_form.id + '-livesearch' -%}
+            <i>Поиск:</i>
+            <input type="text" class="init-block" id="{{ search_input_id }}" data-block-name="live-search"/>
+          </label>
+        </div>
       {%- endif %}
+
       <div class="line"></div>
-      {% if filter_form %}
-      <div class="sidefilter">
-        <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}"
-              class="filter-form init-block" data-block-name="filter-form"
-              data-json="{{ filter_form.json() }}">
-          <fieldset>
-            <legend>Фильтры</legend>
 
-            <button type="submit" class="button sidefilter__submit">
-              Применить
-            </button>
-          </fieldset>
-        </form>
-      </div>
+      {{ sidefilter(filter_form, stream.url_for(env)) }}
 
-      {% endif %}
       <div class="stream-items{% if filter_form %} with-sidefilter{% endif %}">
         {% block stream_items %}{% endblock %}
       </div>

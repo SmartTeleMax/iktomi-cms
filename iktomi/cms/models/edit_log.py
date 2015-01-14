@@ -5,7 +5,8 @@ from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from iktomi.cms.item_lock import ItemLock
-from webob.multidict import MultiDict
+from iktomi.utils import cached_property
+#from webob.multidict import MultiDict
 from .base import register_model
 
 __all__ = ['EditLog']
@@ -35,6 +36,14 @@ def make_diff(field1, field2, changed=False):
                 changed=changed)
 
 
+#def _get_field_data(form, field):
+#    md = MultiDict()
+#    rv = field.from_python(form.python_data.get(field.name))
+#    field.set_raw_value(md, rv)
+#    return md
+
+
+
 # XXX MySQL-specific type. How to resulve this?
 class MediumPickleType(PickleType):
 
@@ -54,11 +63,11 @@ def EditLogAdminUser(models):
 def EditLog(models):
 
     id = Column(Integer, primary_key=True)
-    stream_name = Column(String(50), nullable=False, default='')
+    stream_name = Column(String(100), nullable=False, default='')
     type = Column(String(50), nullable=False, default='edit')
     # object id can be string, so we use string here
-    object_id = Column(String(50), nullable=True)
-    global_id = Column(String(50), nullable=False, default='')
+    object_id = Column(String(100), nullable=True)
+    global_id = Column(String(100), nullable=False, default='')
     edit_session = Column(String(50), nullable=False, default='')
 
     before = Column(MediumPickleType, default=list)
@@ -72,6 +81,10 @@ def EditLog(models):
     # if draft has been made by one user and than corrected and saved by other
     users = relationship(models.AdminUser,
                           secondary=models.EditLogAdminUser.__table__)
+
+    @cached_property
+    def data_changed(self):
+        return self.before != self.after
 
     @classmethod
     def query_for_item(cls, db, item):

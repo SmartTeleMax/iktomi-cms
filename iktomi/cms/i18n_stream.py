@@ -31,7 +31,7 @@ class I18nStream(Stream):
         return Stream.prefix_handler.fget(self) | lang_prefix | set_models
 
     def url_for(self, env, name=None, **kwargs):
-        kwargs.setdefault('lang', getattr(env, 'lang', self.langs[0][0]))
+        kwargs.setdefault('lang', getattr(env, 'lang', None) or self.langs[0][0])
         return Stream.url_for(self, env, name, **kwargs)
 
     def get_model(self, env):

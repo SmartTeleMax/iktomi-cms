@@ -22,7 +22,8 @@ var Calendar = new Class({
         onShowComplete: Class.empty,
         pad: 1, // padding between multiple calendars
         container: null,
-        tweak: {x: 0, y: 0} // tweak calendar positioning
+        tweak: {x: 0, y: 0}, // tweak calendar positioning
+        todayButton: true,
     },
 
     // initialize: calendar constructor
@@ -92,11 +93,13 @@ var Calendar = new Class({
                 visible: false,
                 year: d.getFullYear()
             };
-
+            
             // fix for bad element (naughty, naughty element!)
             if (!this.element(i, obj[i], cal)) { continue; }
 
             cal.el.addClass(this.classes.calendar);
+            cal.el.calendar = cal;
+            cal.el.calendarControl = this;
 
             var this_ = this;
             // create cal button
@@ -115,6 +118,26 @@ var Calendar = new Class({
             this.rebuild(cal);
 
             this.calendars.push(cal); // add to cals array
+            if(this.options.todayButton){
+                var button = new Element('span', {'class': 'timecalendar-now'});
+                button.set('text', 'сегодня');
+                button.addEvent('click', function (e) {
+                    var date = new Date();
+                    var year = date.getFullYear();
+                    var month = date.getMonth();
+                    var day = date.getDate();
+                    cal.year = year;
+                    cal.month = month;
+                    cal.day = day;
+                    cal.val = new Date(year, month, day);
+                    this_.write(cal);
+                    this_.display(cal);
+                });
+                button.injectAfter(cal.button);
+            }
+            else{
+                cal.button.setStyle('margin-right', '20px');
+            }
         }
     },
 
@@ -1091,13 +1114,8 @@ var Calendar = new Class({
 
 Calendar.implement(new Events, new Options);
 
-function init_ru_calendar(el) {
-  if (el.get('readonly')) { return }
-  var id = el.id;
-  var cfg = {};
-  cfg[id] = 'd.m.Y';
-  //$(id).addEvent = $(id).addEvents = function(){console.warn(arguments)};
-  return new Calendar(cfg, {
+function defaultCalendarConfig(){
+    return {
       'draggable': false,
       'months': [
           'Январь',
@@ -1117,8 +1135,31 @@ function init_ru_calendar(el) {
               'day_short':2,
       'classes': ['calendar'],
       'offset': 1,
-      'container': $('app-content')
-  });
+      'container': $('app-content'),
+    }
 }
 
+function init_ru_calendar(el) {
+  if (el.get('readonly')) { return }
+  var id = el.id;
+  var cfg = {};
+  cfg[id] = 'd.m.Y';
+  //$(id).addEvent = $(id).addEvents = function(){console.warn(arguments)};
+  return new Calendar(cfg, defaultCalendarConfig());
+}
+
+function init_ru_calendar_simple(el) {
+  if (el.get('readonly')) { return }
+  var id = el.id;
+  var cfg = {};
+  cfg[id] = 'd.m.Y';
+  var calendarConfig = defaultCalendarConfig();
+  calendarConfig['todayButton'] = false;
+  //$(id).addEvent = $(id).addEvents = function(){console.warn(arguments)};
+  return new Calendar(cfg, calendarConfig);
+}
+
+
+
 Blocks.register('calendar', init_ru_calendar);
+Blocks.register('calendar-simple', init_ru_calendar_simple);

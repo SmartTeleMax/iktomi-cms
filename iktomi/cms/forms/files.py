@@ -69,7 +69,7 @@ class AjaxImageField(AjaxFileField):
     show_thumbnail = True
     show_size = True
     #: use js pre-upload thumbnail generation by canvas
-    canvas_thumb_preview = False
+    #canvas_thumb_preview = False
     conv = ImageFieldSetConv()
     retina = False
     crop = True
@@ -87,6 +87,15 @@ class AjaxImageField(AjaxFileField):
                                       item=self.form.item.id,
                                       field_name=self.input_name)
         return env.root.load_tmp_file
+
+    @property
+    def crop_url(self):
+        env = self.env
+        # XXX looks like a hack
+        if any(x for x in env.stream.actions if x.action=="image_upload"):
+            return env.stream.url_for(env, 'image_upload.crop',
+                                      item=self.form.item.id,
+                                      field_name=self.input_name)
 
     @cached_property
     def name_parent(self):

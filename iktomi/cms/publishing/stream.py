@@ -5,8 +5,9 @@ from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler,\
 from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
-from iktomi.cms.item_lock import ItemLock
+from iktomi.cms.publishing.model import _AdminReplicated
 from iktomi.utils import cached_property
+from iktomi.utils.storage import VersionedStorage
 
 
 class PublishStreamListHandler(StreamListHandler):
@@ -32,11 +33,17 @@ class PublishItemHandler(EditItemHandler):
         return td
 
     def get_front_item_form(self, env, item):
-        #front_env = VersionedStorage()
-        #front_env._storage._parent_storage = env
+        front_models = _AdminReplicated.front
+        if getattr(env, "lang", None):
+            front_models = getattr(front_models, env.lang)
 
-        form_cls = self.stream.config.ItemForm
-        # XXX should a form be created in front environment or it is ok now?
+        front_env = VersionedStorage(db=env.db,
+                                     models=front_models,
+                                     user=env.user,
+                                     version='front')
+        front_env._storage._parent_storage = env
+
+        form_cls = self.stream.config.ItemForm(front_env, {}, item._front_item)
         form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
         form.model = self.stream.get_model(env)
         return form
@@ -66,6 +73,22 @@ class PublishItemHandler(EditItemHandler):
             return []
         return self._collect_changed_fields(diff)
 
+    def edit_item_handler(self, env, data):
+        # XXX hack!
+        data._has_unpublished_changes = False
+        if data.item is not None:
+            data._has_unpublished_changes = data.item.has_unpublished_changes
+        return EditItemHandler.edit_item_handler(self, env, data)
+    __call__ = edit_item_handler
+
+    def save_log_item(self, env, data, log, item):
+        EditItemHandler.save_log_item(self, env, data, log, item)
+        if not log.data_changed:
+            # if there were no changes, revert has_unpublished_changes to
+            # initial state
+            item.has_unpublished_changes = data._has_unpublished_changes
+            env.db.commit()
+
 
 class PublishAction(PostAction):
 
@@ -91,17 +114,12 @@ class PublishAction(PostAction):
         self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
-            return env.json({})
+            return env.json({'success': False,
+                             'error': 'item_lock',
+                             'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="publish",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          users=[env.user])
+        log = self.stream.create_log_entry(env, data.item, 'publish')
+        if log is not None:
             env.db.add(log)
 
         data.item.publish()
@@ -113,7 +131,7 @@ class PublishAction(PostAction):
     __call__ = admin_publish
 
     def is_available(self, env, item):
-        return item.id and \
+        return item.id is not None and \
             (not hasattr(item, 'state') or item.existing) and \
             (item.has_unpublished_changes or \
                 (hasattr(item, 'state') and not item.public)) and \
@@ -141,17 +159,12 @@ class UnpublishAction(PostAction):
         self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
-            return env.json({})
+            return env.json({'success': False,
+                             'error': 'item_lock',
+                             'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="unpublish",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          users=[env.user])
+        log = self.stream.create_log_entry(env, data.item, 'unpublish')
+        if log is not None:
             env.db.add(log)
 
         data.item.unpublish()
@@ -196,19 +209,14 @@ class RevertAction(PostAction):
         self.stream.insure_has_permission(env, 'p')
         if data.lock_message:
             self.stream.rollback_due_lock_lost(env, data.item)
-            return env.json({})
+            return env.json({'success': False,
+                             'error': 'item_lock',
+                             'lock_message': data.lock_message})
 
-        EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = EditLog is not None and \
-                      self.stream.edit_log_action is not None
-        if log_enabled:
-            before = self._clean_item_data(self.stream, env, data.item)
-            log = EditLog(stream_name=self.stream.uid(env),
-                          type="revert",
-                          object_id=data.item.id,
-                          global_id=ItemLock.item_global_id(data.item),
-                          before=before,
-                          users=[env.user])
+
+        log = self.stream.create_log_entry(env, data.item, 'revert')
+        if log is not None:
+            log.before = self._clean_item_data(self.stream, env, data.item)
             env.db.add(log)
 
         data.item.revert_to_published()
@@ -221,11 +229,11 @@ class RevertAction(PostAction):
             if draft is not None:
                 env.db.delete(draft)
 
-        flash(env, u'Объект «%s» восстановлен из фронтальной версии' 
+        flash(env, u'Объект «%s» восстановлен из опубликованной версии'
                     % data.item, 'success')
         env.db.commit()
 
-        if log_enabled:
+        if log is not None:
             log.after = self._clean_item_data(self.stream, env, data.item)
             env.db.commit()
 
@@ -265,6 +273,7 @@ class DeleteFlagHandler(DeleteItemHandler):
         self.stream.insure_has_permission(env, 'd')
 
         data.item.delete()
+        self.clear_tray(env, data.item)
         env.db.commit()
 
         stream_url = self.stream.url_for(env).qs_set(
@@ -307,7 +316,7 @@ class PublishStreamNoState(Stream):
     list_base_template = 'lang_publish_stream.html'
 
     versions = (('admin', u'Редакторская версия'),
-                ('front', u'Фронтальная версия'),)
+                ('front', u'Опубликованная версия'),)
     versions_dict = dict(versions)
 
     def uid(self, env, version=True):
@@ -367,8 +376,12 @@ class PublishStreamNoState(Stream):
                     return self.url_for(env, 'item', item=item.id)
 
     def commit_item_transaction(self, env, item, **kwargs):
-        item.has_unpublished_changes = True
         item._create_versions()
+        if item._front_item is not None and (\
+                not hasattr(item._front_item, 'state') or \
+                item._front_item.state in [item.PRIVATE, item.PUBLIC]):
+            # Do not mark NEW items as changed
+            item.has_unpublished_changes = True
         Stream.commit_item_transaction(self, env, item, **kwargs)
 
     def url_for(self, env, name=None, **kwargs):

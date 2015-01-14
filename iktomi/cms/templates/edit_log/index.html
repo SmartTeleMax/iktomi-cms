@@ -1,19 +1,4 @@
-
-{% macro paginate(paginator) %}
-  {% if paginator %}
-    <div class="pages">
-      {% for p, u in paginator.pages %}
-        {% if p==paginator.page  %}
-          <div class="active">{{ p }}</div>
-        {% elif p==None %}
-          <div>&hellip;</div>
-        {% else %}
-          <a href="{{ u }}"><div>{{ p }}</div></a>
-        {% endif %}
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endmacro %}
+{% from "macros/filter_form.html" import sidefilter, paginate %}
 
 {% set pager = paginate(paginator) %}
 
@@ -24,7 +9,9 @@
       <th></th>
       <th></th>
       <th>Тип</th>
-      <th>Объект</th>
+      {% if not item is defined %}
+        <th>Объект</th>
+      {% endif %}
       <th>Автор</th>
       <th>Дата</th>
     </thead>
@@ -35,7 +22,8 @@
     {%- for entry in paginator.items %}
       {% if entry and entry.item %}
           {% set obj=entry.obj %}
-          {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id) -%}
+          {% set lang_kw = {'lang': entry.lang } if entry.lang else {} %}
+          {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id, **lang_kw) -%}
           <tr class="item {{ loop.cycle('odd', 'even') }} edit-log-{{obj.type}}">
             <td class="field_id"><a href="{{ url }}">{{ obj.id }}</a></td>
             <td>
@@ -76,19 +64,8 @@
     <div>
       <div class="stream">
         <div class="line"></div>
-        <div class="sidefilter">
-          <form id="{{ filter_form.id }}" action="{{ current_url }}" class="filter-form init-block" data-block-name="filter-form">
-            <fieldset>
-              <legend>Фильтры</legend>
-              {{ filter_form.render() }}
-  
-              <button type="submit" class="button sidefilter__submit">
-                Применить
-              </button>
-            </fieldset>
-          </form>
-        </div>
-  
+        {{ sidefilter(filter_form, current_url) }}
+
         <div class="stream-items with-sidefilter">
           {{ stream_content() }}
         </div>

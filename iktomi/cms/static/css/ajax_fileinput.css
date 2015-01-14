@@ -4,13 +4,28 @@ a.remove {
     padding-left: 12px;
     text-decoration: none;
 }
+.progress_container{
+    width: 360px;
+    }
+    .progress_cancel{
+        float: right;
+        margin-top: 2px;
+        }
 .progress_box{
     width: 300px;
     height: 20px;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     background-color: #ddd;
-}
+    position: relative;
+    }
+    .progress_text{
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        color: #000;
+        text-shadow: 1px 1px #fff;
+        }
 .progress_percent{
     height: 20px;
     -webkit-border-radius: 3px;

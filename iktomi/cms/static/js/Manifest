@@ -45,6 +45,7 @@ text/jsx:widgets/wysihtml5-block
 text/jsx:widgets/wysihtml5-buttons
 text/jsx:widgets/textinput
 progressbar
+widgets/live_search
 widgets/dragupload
 widgets/calendar.compat
 widgets/popup_filtered_select
@@ -57,3 +58,4 @@ version_switcher
 tray
 stream_sortable
 preview
+time
