@@ -294,7 +294,7 @@ class LabelSelect(Select):
     hiddens = [] # hide these options if they are not set
 
     def render(self):
-        return dict(Widget.render(self),
+        return dict(Select.render(self),
                     hiddens=self.hiddens)
 
 

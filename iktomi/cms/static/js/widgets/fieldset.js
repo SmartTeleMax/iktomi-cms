@@ -127,6 +127,9 @@
                                   this.props.input_name + '.' + prop.name :
                                   prop.name;
 
+                if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
+                    throw "Component does not exist: " + prop.widget;
+                }
                 var el = (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
                 //this.widgetsByName[prop.key] = el;
                 ws.push(FormRow({fieldset: this,
@@ -137,6 +140,37 @@
             return React.DOM.div({'className': 'fieldset',
                                   'onChange': this.onChange},
                                   ws);
+        },
+
+        toQueryString: function(){
+
+            function toQueryString(object, base){
+                var queryString = [];
+
+                Object.each(object, function(value, key){
+                    if (base) key = base + '.' + key;
+                    var result;
+                    if (value instanceof MutableString){
+                      value = value.toString();
+                    }
+                    switch (typeOf(value)){
+                        case 'object': result = toQueryString(value, key); break;
+                        case 'array':
+                            var qs = {};
+                            value.each(function(val, i){
+                                qs[i] = val;
+                            });
+                            result = toQueryString(qs, key);
+                        break;
+                        default: result = key + '=' + encodeURIComponent(value);
+                    }
+                    if (value) { queryString.push(result); }
+                });
+
+                return queryString.join('&');
+            }
+
+            return toQueryString(this.state.value);
         }
     }
 

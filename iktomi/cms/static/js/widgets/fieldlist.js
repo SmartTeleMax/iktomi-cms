@@ -37,6 +37,9 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         prop.errors = this.props.errors[data._key] || {};
         prop.data = data;
  
+        if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
+            throw "Component does not exist: " + prop.widget;
+        }
         return (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
     },
  

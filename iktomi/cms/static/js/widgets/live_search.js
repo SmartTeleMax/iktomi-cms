@@ -4,12 +4,6 @@
     this.input.store('widget', this);
     this.filterForm = input.getParent('.stream').getElement('.filter-form');
 
-    this.searchInput = this.filterForm.getElement(this.filterForm.dataset.searchInput) ||
-                       this.filterForm.getElement('input[name=search]') ||
-                       this.filterForm.getElement('input[name=title]');
-    if (!this.searchInput) {
-      this.processSearchItems();    
-    }
     this._value = null; 
     this._submitTimeout = null;
 
@@ -24,6 +18,22 @@
 
 
   LiveSearch.prototype = {
+    init: function() {
+      if (this.reactForm) { return; }
+
+      this.reactForm = this.filterForm.retrieve('filterForm').reactForm;
+      var widgetNames = this.reactForm.props.widgets.map(function(widget){
+        return widget.key;
+      })
+
+      this.searchInput = this.filterForm.dataset.searchInput ||
+                         (widgetNames.indexOf('search') != -1? 'search': null) ||
+                         (widgetNames.indexOf('title') != -1? 'title': null);
+
+      if (!this.searchInput) {
+        this.processSearchItems();
+      }
+    },
 
     processSearchItems: function(){
       var items = this.input.getParent('.stream').getElements('.items .item');
@@ -51,8 +61,12 @@
     },
 
     search: function() {
+      this.init();
+
       if (this.searchInput){
-          this.searchInput.value = this.input.value;
+          var val = {};
+          val[this.searchInput] = this.input.value;
+          this.reactForm.setValue(val);
           this.filterForm.retrieve('filterForm').submit();
       } else {
           var value = this.input.value;
@@ -72,6 +86,8 @@
     },
 
     setFilters: function(){
+      this.init();
+
       var livesearch = this.input.getParent('.livesearch');
       livesearch.getElements('span').destroy();
       var tagsPlace = this.input;

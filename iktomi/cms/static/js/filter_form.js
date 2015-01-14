@@ -15,9 +15,17 @@
       var minHeight = sidefilter.getElement('form').getHeight();
       this.form.getParent('.stream').setStyle('min-height', minHeight);
     }.bind(this));
+
     //form.getElement('.sidefilter-tags').addEvent('click', function(e){
     //  this.form.getParent('.sidefilter').toggleClass('is-open');
     //}.bind(this));
+    //
+    var component = ReactForm.fromJSON(form.dataset.json);
+
+    window.props = component.props;
+    window.dataCopy = _clone(component.props.data);
+    window.form = this.reactForm = React.renderComponent(component, form.getElement('.form'));
+    //window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
 
     this.setFilters();
 
@@ -28,14 +36,14 @@
  
   FilterForm.prototype = {
     'getSubmitUrl': function() {
-      var qs = this.form.toQueryString();
-      qs = qs.replace(/[^&]+=\.?(?:&|$)/g, '').replace(/&$/, '');
+      var qs = this.reactForm.toQueryString();
       return this.form.getProperty('action') + '?' + qs;
     },
     'submit': function(url){
       url = (url === undefined? this.getSubmitUrl(): url);
 
       var form = this.form;
+
       new Request({
         'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax&__no_layout',
         'onSuccess': function(result){
@@ -84,16 +92,9 @@
 
     onClearClick: function(e) {
       e.preventDefault();
-      this.form.getElements('.w-popup-stream-select').each(function(item) {
-          item.getElements('input').each(function(item) {
-              item.destroy();
-          });
-          item.getElements('.item').each(function(item) {
-              item.destroy();
-          });
-      });
+      this.reactForm.reset();
 
-      this.form.reset();
+      //this.form.reset();
       this.form.retrieve('submitFilter')();
     }
   };

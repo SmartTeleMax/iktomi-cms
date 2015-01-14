@@ -2,26 +2,26 @@
 
 function MutableString(text){
     if (text !== undefined) {
-        this.text = text;
-        this._key = text; // XXX is this ok?
+        this.text = text || '';
+        this._key = text || ''; // XXX is this ok?
     }
 }
 
 MutableString.prototype = {
     toString: function(){
-        return this.text.toString();    
+        return this.text.toString();
     },
     toJSON: function(){
         return this.text;
     },
     set: function(value){
-        this.text = value;    
+        this.text = value;
     },
     copy: function(){
         return new MutableString(this.text);
     },
     indexOf: function(i){
-      return this.text.indexOf(i);
+        return this.text.indexOf(i);
     }
 };
 
