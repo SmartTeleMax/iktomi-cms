@@ -149,7 +149,7 @@
             color: #000;
           }
 
-  .sidefilter-tags{
+/*  .sidefilter-tags{
     padding: 2px 8px;
     border: none;
     position: absolute;
@@ -175,7 +175,7 @@
         }
   .sidefilter.is-open .sidefilter-tags{
     display: none;
-    }
+    }*/
 
   .sidefilter .form-row {
       border-bottom:1px solid #ccc;
@@ -282,10 +282,47 @@
 .pages DIV { padding: 0.2em 0.6em; font: bold 1em Arial, sans-serif; color: #4a5761; background-color: #fbfbfb; border: 1px solid #ebebeb; margin-right: 10px; float: left; }
 .pages .active { background-color: #c1c1c1; color: #ffffff; border: 1px solid #c1c1c1; }
 
-.livesearch{
-    padding: 2px 5px;
-    display: inline-block;
+.livesearch-wrap{
+    padding: 2px 35px 2px 50px;
+    position: relative;
     }
+
+.livesearch{
+    display: block;
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+    }
+    .livesearch i{
+        position: absolute;
+        left: 5px;
+        top: 50%;
+        margin-top: -0.5em;
+        font-style: normal;
+        }
+    .livesearch input{
+        padding: 0;
+        border: none;
+        outline: none;
+        max-width: 100%;
+        box-sizing: border-box;
+        }
+    .livesearch span{
+        background-color: #1abc9c;
+        padding: 2px 4px;
+        color: #fff;
+        border-radius: 3px;
+        max-width: 200px;
+        text-overflow: ellipsis;
+        display: inline-block;
+        overflow: hidden;
+        margin-right: 5px;
+        vertical-align: middle;
+        white-space: nowrap;
+        }
+
 
 .item img {
   border: none;

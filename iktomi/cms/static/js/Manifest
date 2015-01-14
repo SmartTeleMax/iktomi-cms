@@ -24,6 +24,7 @@ progressbar
 lib/wysihtml5-0.4.0pre
 lib/wysihtml5-mce-table
 lib/wysihtml5-link
+widgets/live_search
 widgets/wysihtml5-block
 widgets/dragupload
 widgets/calendar.compat

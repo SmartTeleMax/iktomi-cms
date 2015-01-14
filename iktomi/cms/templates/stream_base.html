@@ -43,10 +43,15 @@
   <div>
     <div class="stream">
       {%- if live_search -%}
-        <label class="livesearch">
-          {% set search_input_id = filter_form.id + '-livesearch' -%}
-          Поиск: <input type="text" class="init-block stream_search" id="{{ search_input_id }}" data-block-name="live-search"/>
-        </label>
+        <div class="livesearch-wrap">
+          <label class="livesearch">
+            {% set search_input_id = filter_form.id + '-livesearch' -%}
+            <i>Поиск:</i>
+            
+            <span>asdas</span>
+            <input type="text" class="init-block" id="{{ search_input_id }}" data-block-name="live-search"/>
+          </label>
+        </div>
       {%- endif %}
 
       <div class="line"></div>
