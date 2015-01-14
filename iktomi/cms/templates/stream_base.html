@@ -11,9 +11,8 @@
     {% block after_title %}{% endblock %}
     <div class="stream_buttons">
       {% if allow_add %}
-      <a href="{{ stream.url_for(env, 'item', item=None) }}" class="button js-button-add icon-add">
-        Создать
-      </a>
+      <a href="{{ stream.url_for(env, 'item', item=None) }}"
+         class="button js-button-add icon-add">Создать</a>
       {% endif %}
       {%- for action in stream.actions %}
         {%- if action.display and not action.for_item and action.action %}

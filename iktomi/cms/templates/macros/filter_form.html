@@ -1,19 +1,15 @@
 {% macro sidefilter(filter_form, stream_url) %}
   {% if filter_form %}
     <div class="sidefilter">
-      <form id="{{ filter_form.id }}" action="{{ stream.url_for(env) }}"
+      <form id="{{ filter_form.id }}" action="{{ stream_url }}"
             class="filter-form init-block" data-block-name="filter-form"
             data-json="{{ filter_form.json() }}">
-        <fieldset>
+        <a class="sidefilter-close">
           <legend>Фильтры</legend>
-
-
-          <button type="reset" class="button sidefilter__clear">
-            Сбросить
-          </button>
-          <button type="submit" class="button sidefilter__submit">
-            Применить
-          </button>
+        </a>
+        <fieldset>
+          <button type="reset" class="button sidefilter__clear">Сбросить</button>
+          <button type="submit" class="button sidefilter__submit">Применить</button>
         </fieldset>
       </form>
     </div>
