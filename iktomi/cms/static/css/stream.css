@@ -219,24 +219,25 @@
     border: 1px solid #ccc;
   }
 
-.filter-form>fieldset>.form-row{
+.filter-form div.form-row{
     padding: 5px 0 5px 20px;
     }
-    .filter-form>fieldset>.form-row.full-width{
+    .filter-form div.form-row.full-width{
       padding-left: 0;
       }
-    .filter-form label{
-      font-size: 13px;
-      padding-right: 10px;
-      color: #333;
-      }
-    .filter-form>fieldset>.form-row>.form-label{
+    .filter-form .form-row .form-label{
+      float: none;
       font-weight: bold;
       font-size: 13px;
       padding-bottom: 3px;
       margin-left: -20px;
       }
-
+      .filter-form .form-row .form-label>label{
+        font-size: 13px;
+        padding-right: 10px;
+        color: #333;
+        left: 0;
+        }
 
 
 .itemlist {

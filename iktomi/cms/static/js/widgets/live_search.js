@@ -95,8 +95,8 @@
       var inputs = this.filterForm.getElements('input,select,textarea').each(function(el){
         var label = null;
 
-        if (el == this.searchInput) {
-          this.input.value = this.input.value || this.searchInput.value;
+        if (el.name == this.searchInput) {
+          this.input.value = this.input.value || this.reactForm.getValue()[this.searchInput];
           this.adjustInput();
           return;
         }

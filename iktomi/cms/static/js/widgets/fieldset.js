@@ -122,10 +122,10 @@
                 prop.data = data[prop.key];
                 prop.errors = this.props.errors[prop.key] || {};
                 prop.parent = this;
-                prop.id = this.props.id + '.' + prop.name;
+                prop.id = this.props.id + '.' + prop.key;
                 prop.input_name = this.props.input_name ? 
-                                  this.props.input_name + '.' + prop.name :
-                                  prop.name;
+                                  this.props.input_name + '.' + prop.key :
+                                  prop.key;
 
                 if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
                     throw "Component does not exist: " + prop.widget;
