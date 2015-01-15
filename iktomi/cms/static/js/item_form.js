@@ -63,7 +63,7 @@ function _mergeObjects(value, newValue){
 
     window.props = form.props;
     window.dataCopy = _clone(form.props.data);
-    window.form = this.reactForm = React.renderComponent(form, frm.getElement('.form'));
+    window.form = this.form = React.renderComponent(form, frm.getElement('.form'));
     window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
 
     frm.store('savedData', this.formHash());
@@ -127,8 +127,8 @@ function _mergeObjects(value, newValue){
         }
         var valueToPost = {};
         if(options.itemForm){
-            this.reactForm.flush();
-            valueToPost.json = JSON.stringify(this.reactForm.getValue());
+            this.form.flush();
+            valueToPost.json = JSON.stringify(this.form.getValue());
         }
         if(this.frm.getElement('[name=edit_session]')){
             valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
@@ -139,16 +139,16 @@ function _mergeObjects(value, newValue){
 
         var applyResult = function (result){
           if (result.form) {
-            this.reactForm.setErrors(result.form.errors);
+            this.form.setErrors(result.form.errors);
 
             var newValue = valueToPost.json!==undefined?
-                                JSON.stringify(this.reactForm.getValue()):
+                                JSON.stringify(this.form.getValue()):
                                 undefined;
 
             // XXX is this ok?
             if (result.form.data && newValue == valueToPost.json) {
               // nothing changed on client side
-              this.reactForm.setValue(result.form.data);
+              this.form.setValue(result.form.data);
               this.frm.store('savedData', this.formHash());
             }
           }

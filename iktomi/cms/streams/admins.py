@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from iktomi.forms import shortcuts, Field
+from iktomi.forms import shortcuts_json as shortcuts
+from iktomi.forms.form_json import Field
 from iktomi.cms.forms import ModelForm, convs, widgets
 from iktomi.cms.stream import ListFields
 

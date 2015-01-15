@@ -41,3 +41,11 @@ Widgets.Textarea = Widgets.create(Widgets.TextInput, {
                          value={this.state.value.text}></textarea>;
     }
 });
+
+
+Widgets.PasswordInput = Widgets.create(Widgets.TextInput, {
+    render: function() {
+        return <input type="password"
+                      name={this.props.input_name} />;
+    }
+});
