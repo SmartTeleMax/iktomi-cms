@@ -46,6 +46,8 @@ Widgets.Textarea = Widgets.create(Widgets.TextInput, {
 Widgets.PasswordInput = Widgets.create(Widgets.TextInput, {
     render: function() {
         return <input type="password"
-                      name={this.props.input_name} />;
+                      onChange={this.onChange}
+                      name={this.props.input_name}
+                      value={this.state.value.text} />;
     }
 });
