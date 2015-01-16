@@ -31,10 +31,11 @@ Widgets.CheckBoxSelect = Widgets.create(Widgets.Widget, {
             var checked = textValues.indexOf(option.value) >= 0;
             return <label>
                         <input type="checkbox"
-                           name={this.props.input_name}
-                           value={option.value}
-                           onChange={this.onChange}
-                           checked={checked} />
+                               key={this.props.input_name+"."+option.value}  
+                               name={this.props.input_name}
+                               value={option.value}
+                               onChange={this.onChange}
+                               checked={checked} />
                         {option.title}
                    </label>;
 
