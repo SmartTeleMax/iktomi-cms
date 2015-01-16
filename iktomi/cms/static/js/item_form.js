@@ -58,12 +58,12 @@ function _mergeObjects(value, newValue){
     this.addEvents();
     this.attachHooks();
 
-    var form = ReactForm.fromJSON(frm.dataset.json);
+    var component = ReactForm.fromJSON(frm.dataset.json);
     var buttons = ButtonPanel.fromJSON(this, frm.dataset.buttons, frm.dataset.state)
 
-    window.props = form.props;
-    window.dataCopy = _clone(form.props.data);
-    window.form = this.form = React.renderComponent(form, frm.getElement('.form'));
+    window.props = component.props;
+    window.dataCopy = _clone(component.props.data);
+    window.form = this.reactForm = React.renderComponent(component, frm.getElement('.form'));
     window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
 
     frm.store('savedData', this.formHash());
@@ -127,8 +127,8 @@ function _mergeObjects(value, newValue){
         }
         var valueToPost = {};
         if(options.itemForm){
-            this.form.flush();
-            valueToPost.json = JSON.stringify(this.form.getValue());
+            this.reactForm.flush();
+            valueToPost.json = JSON.stringify(this.reactForm.getValue());
         }
         if(this.frm.getElement('[name=edit_session]')){
             valueToPost.edit_session = this.frm.getElement('[name=edit_session]').value;
@@ -139,16 +139,16 @@ function _mergeObjects(value, newValue){
 
         var applyResult = function (result){
           if (result.form) {
-            this.form.setErrors(result.form.errors);
+            this.reactForm.setErrors(result.form.errors);
 
             var newValue = valueToPost.json!==undefined?
-                                JSON.stringify(this.form.getValue()):
+                                JSON.stringify(this.reactForm.getValue()):
                                 undefined;
 
             // XXX is this ok?
             if (result.form.data && newValue == valueToPost.json) {
               // nothing changed on client side
-              this.form.setValue(result.form.data);
+              this.reactForm.setValue(result.form.data);
               this.frm.store('savedData', this.formHash());
             }
           }
