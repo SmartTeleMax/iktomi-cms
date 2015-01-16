@@ -1,49 +1,7 @@
-(function(){
-  var LabelSelect = function(el) {
-      this.element = el;
-      this.multiple = this.element.dataset.multiple;
-      this.element.getElements('input').addEvent('change', this.update.bind(this));
-      this.update()
-  }
+/** @jsx React.DOM */
 
-  LabelSelect.prototype = {
-    update: function(){
-      var labels = this.element.getElements('label');
-      for (var i=labels.length;i--;){
-        var label = labels[i];
-        var isOn = label.getElement('input').checked;
-        label[isOn?'addClass':'removeClass']('selected');
-      }
-    }
-  }
+Widgets.LabelSelect = Widgets.create(Widgets.Select, {
 
-  Blocks.register('label-select', function(e){
-    new LabelSelect(e);
-  });
-})();
-
-Widgets.LabelSelect = Widgets.create(Widgets.Widget, {
-    getValueAsList: function(){
-        if (this.props.multiple) {
-            return this.state.value;
-        }
-        var value = this.state.value +'';
-        if (value) { return [value]; }
-        return [];
-    },
-    onLabelClick: function(value){
-        if (this.props.multiple){
-            var index = this.state.value.indexOf(value);
-            if (index == -1) {
-              this.state.value.push(value);
-            } else {
-              this.state.value.splice(index, 1);
-            }
-            this.setValue(this.state.value);
-        } else {
-            this.setValue(value);
-        }
-    },
     render: function() {
         var widget = this.props;
         var values = this.getValueAsList();

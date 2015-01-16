@@ -91,7 +91,7 @@ def _from_multidict(items):
     while items:
         part = items[0][0][0]
         group = []
-        for item in items:
+        for item in list(items):
             k, v = item
             if k[0] == part:
                 items.remove(item)

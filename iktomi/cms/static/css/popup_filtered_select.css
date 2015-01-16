@@ -28,7 +28,7 @@
     background:#CAECC7 none repeat scroll 0% 0%;
     }
 
-  .popup-select .selected_values span {
+  .popup-select .selected_values .remove {
     border-left:1px solid #ffffff;
     color:ffffff;
     padding:0 5px;

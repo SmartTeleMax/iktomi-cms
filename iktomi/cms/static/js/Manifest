@@ -28,7 +28,9 @@ text/jsx:widgets/fieldset
 text/jsx:widgets/fieldlist
 text/jsx:widgets/popup_stream_select
 text/jsx:widgets/collapsable_block
+text/jsx:widgets/select
 text/jsx:widgets/label_select
+text/jsx:widgets/popup_filtered_select
 
 
 lib/longpress
@@ -49,7 +51,6 @@ progressbar
 widgets/live_search
 widgets/dragupload
 widgets/calendar.compat
-widgets/popup_filtered_select
 widgets/tabbed_fieldset
 widgets/id_field
 widgets/sort_field
