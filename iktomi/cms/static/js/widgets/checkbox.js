@@ -29,15 +29,15 @@ Widgets.CheckBoxSelect = Widgets.create(Widgets.Widget, {
                 return item.text
             });
             var checked = textValues.indexOf(option.value) >= 0;
-            return [<input type="checkbox"
+            return <div><input type="checkbox"
                            name={this.props.input_name}
                            value={option.value}
                            onChange={this.onChange}
-                           checked={checked} />,
+                           checked={checked} />
                     <label>{option.title}</label>
-                    ];
+                    </div>;
 
         }.bind(this));
-        return (<div>{checkBoxes}</div>);
+        return (<div className="select-checkbox">{checkBoxes}</div>);
     }
 });

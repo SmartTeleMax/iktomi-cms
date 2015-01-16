@@ -24,6 +24,7 @@ Widgets.TextInput = Widgets.create(Widgets.Widget, {
     },
     render: function() {
         return <input type="text"
+                      className={this.props.classname}
                       name={this.props.input_name}
                       value={this.state.value.text}
                       onKeyDown={this.onKeyDown}
