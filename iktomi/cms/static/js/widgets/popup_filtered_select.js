@@ -1,11 +1,15 @@
 /** @jsx React.DOM */
 
 Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
+    // TODO: disableUnpublished
+    //       unpublishedOptions (serverside?)
+    //       readonly
+    //       do not show close button for required
 
     showPopup: function(){
         this.drawList(this.props.popup);
         this.props.popup.show();
-        $(this.fieldId+'-search').focus(); // XXX
+        this.props.popup.fixedContent.getElement('input').focus();
     },
 
     render: function() {
@@ -44,17 +48,17 @@ Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
     },
 
     filterHandler: function(e){
-        this.filterBy = e.target.value;
+        var filterBy = e.target.value;
         var visibleOptions = [];
 
         this.props.options.each(function(opt){
-            var start = opt.title.toLowerCase().search(this.filterBy.toLowerCase())
+            var start = opt.title.toLowerCase().search(filterBy.toLowerCase())
             if (start >-1){
-                var option = Object.merge({'start':start, 'length': this.filterBy.length}, opt);
+                var option = Object.merge({'start':start, 'length': filterBy.length}, opt);
                 visibleOptions.push(option);
             }
         }.bind(this));
-        this.buildSelectable(visibleOptions, this.filterBy.length);
+        this.buildSelectable(visibleOptions, filterBy.length);
 
     },
 
@@ -107,18 +111,17 @@ Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
         var selected = this.getValueAsList().indexOf(value) != -1;
         target.toggleClass('selected', selected);
 
-        if(!this.multiple){
-            this.props.popup.hide()
+        if(!this.props.multiple){
+            this.props.popup.hide();
         }
     },
 
     drawList: function(){
-        this.props.popup.setFixedContent(new Element('label', {'for':this.fieldId+'-search', 'text':'поиск', 'class':'search_label'}),
-                  new Element('input', {'type':'text', 'id':this.fieldId+'-search'})
-                  .addEvents({
-                      'keydown': this.filterHandler.bind(this),
-                      'keyup': this.filterHandler.bind(this)
-                      })
+        this.props.popup.setFixedContent(
+                  new Element('input', {'type':'text',
+                                        'class': 'filter-list-search',
+                                        'placeholder': 'Поиск'})
+                        .addEvent('input', this.filterHandler)
                   );
         this.buildSelectable(this.props.options, 0);
     }
@@ -135,7 +138,6 @@ Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
 //        this.multiple = options.multiple;
 //        this.readonly = options.readonly;
 //        this.required = options.required;
-//        this.disableUnpublished = options.disable_unpublished;
 //        this.fieldId = this.field.id;
 //        this.values = this.field.getElement('.selected_values');
 //        this.listButton = $(this.fieldId+'-listbutton');
@@ -143,12 +145,6 @@ Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
 //        this.options = new Hash();
 //        this.disabledOptions = new Hash();
 //        this.selectedOptions = new Hash();
-//
-//
-//        this.filterBy = '';
-//        if (this.listButton) {
-//            this.listButton.addEvent('click', );
-//        }
 //
 //        this.values.getElements('input').each(function(opt){
 //          this.options.set(opt.value, {'value':opt.value,

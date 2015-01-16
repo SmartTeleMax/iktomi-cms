@@ -63,8 +63,8 @@ function _mergeObjects(value, newValue){
 
     window.props = form.props;
     window.dataCopy = _clone(form.props.data);
-    window.form = this.reactForm = React.renderComponent(form, frm.getElement('.form'));
-    window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
+    window.form = this.reactForm = React.render(form, frm.getElement('.form'));
+    window.buttons = this.buttons = React.render(buttons, frm.getElement('.buttons-place'));
 
     frm.store('savedData', this.formHash());
     window.scrollTo(window.scrollX, window.scrollY+1);

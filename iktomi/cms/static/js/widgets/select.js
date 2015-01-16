@@ -1,7 +1,7 @@
 Widgets.Select = Widgets.create(Widgets.Widget, {
     getValueAsList: function(){
         if (this.props.multiple) {
-            return this.state.value;
+            return this.state.value.map(function(x){return x+'';});
         }
         var value = this.state.value +'';
         if (value) { return [value]; }
@@ -27,7 +27,7 @@ Widgets.Select = Widgets.create(Widgets.Widget, {
         // common for all select/deselect widgets
         // selects value for single and toggles value for multiple
         if (this.props.multiple){
-            var index = this.state.value.indexOf(value);
+            var index = this.getValueAsList().indexOf(value);
             if (index == -1) {
               this.state.value.push(value);
             } else {
@@ -42,7 +42,7 @@ Widgets.Select = Widgets.create(Widgets.Widget, {
         // common for all select/deselect widgets
         // selects value for single and toggles value for multiple
         if (this.props.multiple){
-            var index = this.state.value.indexOf(value);
+            var index = this.getValueAsList().indexOf(value);
             if (index != -1) {
                 this.state.value.splice(index, 1);
                 this.setValue(this.state.value);

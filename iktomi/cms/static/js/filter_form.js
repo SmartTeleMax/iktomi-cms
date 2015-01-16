@@ -24,8 +24,8 @@
 
     window.props = component.props;
     window.dataCopy = _clone(component.props.data);
-    window.form = this.reactForm = React.renderComponent(component, form.getElement('.form'));
-    //window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
+    window.form = this.reactForm = React.render(component, form.getElement('.form'));
+    //window.buttons = this.buttons = React.render(buttons, frm.getElement('.buttons-place'));
 
     this.setFilters();
 

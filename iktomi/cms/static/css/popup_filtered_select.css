@@ -17,8 +17,8 @@
   .popup-select .selected_values label{
     padding: 0 5px;
     display: inline;
-    -moz-border-radius-topleft: 3px;
-    -moz-border-radius-bottomleft: 3px;
+    border-radius-topleft: 3px;
+    border-radius-bottomleft: 3px;
     background:#CCCCCC none repeat scroll 0% 0%;
     text-shadow: 1px 0 #fff;
     margin:0px;
@@ -34,8 +34,8 @@
     padding:0 5px;
     margin:0px;
     cursor:pointer;
-    -moz-border-radius-topright: 3px;
-    -moz-border-radius-bottomright: 3px;
+    border-radius-topright: 3px;
+    border-radius-bottomright: 3px;
     background:#CCCCCC none repeat scroll 0% 0%;
     }
 
@@ -44,7 +44,7 @@
     }
 
 .filter-list-value {
-  -moz-border-radius:5px;
+  border-radius:5px;
   cursor:pointer;
   padding:3px 5px;
   margin-bottom:3px;
@@ -66,6 +66,10 @@
     cursor: default;
     }
 
+.filter-list-search{
+    width: 100%;
+    }
+
 .filter-list-popup {
   min-width:600px;
   }
@@ -75,8 +79,8 @@
   }
 
 .right_round {
-    -moz-border-radius-topright: 3px;
-    -moz-border-radius-bottomright: 3px;
+    border-radius-topright: 3px;
+    border-radius-bottomright: 3px;
 }
 
 

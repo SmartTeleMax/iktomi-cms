@@ -40,7 +40,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
             throw "Component does not exist: " + prop.widget;
         }
-        return (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
+        return React.createElement(React.DOM[prop.widget]||Widgets[prop.widget], prop);
     },
  
     fieldListRow: function(data){

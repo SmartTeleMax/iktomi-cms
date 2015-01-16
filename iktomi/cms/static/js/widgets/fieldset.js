@@ -130,7 +130,7 @@
                 if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
                     throw "Component does not exist: " + prop.widget;
                 }
-                var el = (React.DOM[prop.widget]||Widgets[prop.widget])(prop);
+                var el = React.createElement(React.DOM[prop.widget]||Widgets[prop.widget], prop);
                 //this.widgetsByName[prop.key] = el;
                 ws.push(FormRow({fieldset: this,
                                  widget: el,

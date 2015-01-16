@@ -144,7 +144,7 @@
                     props.state = this.props.state || this.state.item;
 
                     var Component = ItemButtons[props.action]||ItemButtons[props.mode];
-                    var button = Component(props);
+                    var button = React.createElement(Component, props);
 
                     buttons.push(button);
                 }
