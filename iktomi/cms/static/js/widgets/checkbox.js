@@ -29,9 +29,8 @@ Widgets.CheckBoxSelect = Widgets.create(Widgets.Widget, {
                 return item.text
             });
             var checked = textValues.indexOf(option.value) >= 0;
-            return <label>
+            return <label key={option.value}>
                         <input type="checkbox"
-                               key={this.props.input_name+"."+option.value}  
                                name={this.props.input_name}
                                value={option.value}
                                onChange={this.onChange}
