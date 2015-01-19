@@ -31,6 +31,8 @@
         }
 .form .form-row>*>label {
     padding: 0 10px;
+    display: block;
+    margin-bottom:5px;
     }
 .form .form-row .form-label{
   float: left;

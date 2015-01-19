@@ -58,13 +58,13 @@ function _mergeObjects(value, newValue){
     this.addEvents();
     this.attachHooks();
 
-    var form = ReactForm.fromJSON(frm.dataset.json);
+    var component = ReactForm.fromJSON(frm.dataset.json);
     var buttons = ButtonPanel.fromJSON(this, frm.dataset.buttons, frm.dataset.state)
 
-    window.props = form.props;
-    window.dataCopy = _clone(form.props.data);
-    window.form = this.reactForm = React.render(form, frm.getElement('.form'));
-    window.buttons = this.buttons = React.render(buttons, frm.getElement('.buttons-place'));
+    window.props = component.props;
+    window.dataCopy = _clone(component.props.data);
+    window.form = this.reactForm = React.renderComponent(component, frm.getElement('.form'));
+    window.buttons = this.buttons = React.renderComponent(buttons, frm.getElement('.buttons-place'));
 
     frm.store('savedData', this.formHash());
     window.scrollTo(window.scrollX, window.scrollY+1);
