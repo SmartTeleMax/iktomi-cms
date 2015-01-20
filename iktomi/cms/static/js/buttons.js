@@ -150,7 +150,7 @@
                 }
 
                 if (buttons.length > 1) {
-                    ws.push(<div key={buttons[0].props.key+'-group'}
+                    ws.push(<div key={buttons[0].key+'-group'}
                                  className="buttons-group">
                               <div>{buttons}</div>
                             </div>);
