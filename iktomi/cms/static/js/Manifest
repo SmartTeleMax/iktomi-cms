@@ -32,6 +32,7 @@ text/jsx:widgets/select
 text/jsx:widgets/label_select
 text/jsx:widgets/popup_filtered_select
 text/jsx:widgets/checkbox
+text/jsx:widgets/calendar
 
 
 lib/longpress
