@@ -152,6 +152,9 @@ function _mergeObjects(value, newValue){
               this.frm.store('savedData', this.formHash());
             }
           }
+          if(result.item_url){
+            this.frm.set('action', result.item_url);
+          }
           if(result.state){
             delete result.state.action;
             this.buttons.setItemState(result.state);    
