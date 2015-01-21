@@ -226,7 +226,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         ext = os.path.splitext(source)[1]
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
         transient = env.file_manager.new_transient(ext)
-        image.save(transient.path)
+        image.save(transient.path, quality=100)
 
         rel_images = self._collect_related_fields(
                                     env, form_field, image, original_name, ext)
