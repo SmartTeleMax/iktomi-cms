@@ -309,8 +309,13 @@ class AjaxFileInput(FileInput):
                 'value': self.field.clean_value}
 
     def render(self):
-        return dict(Widget.render(self),
-                    **self.js_config())
+        result =  dict(Widget.render(self),
+                       **self.js_config())
+        file = result['value']
+        result['value'] = self.field.get_data()
+        if file is not None:
+            result['default_link'] = file.name
+        return result
 
 
 class Calendar(TextInput):

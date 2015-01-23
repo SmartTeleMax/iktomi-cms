@@ -3,6 +3,7 @@ from cStringIO import StringIO
 from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
+from iktomi.unstable.forms.files_json import FileFieldSet as JSONFileFieldSet
 from iktomi.unstable.db.files import PersistentFile
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
@@ -12,7 +13,7 @@ from iktomi.cms.forms import convs, widgets
 from PIL import Image
 
 
-class AjaxFileField(FileFieldSet):
+class _AjaxFileField(FileFieldSet):
 
     widget = widgets.FieldSetWidget(template='widgets/ajax_fileinput')
 
@@ -58,7 +59,7 @@ class ImageFieldSetConv(FileFieldSetConv):
         return FileFieldSetConv.to_python(self, value)
 
 
-class AjaxImageField(AjaxFileField):
+class AjaxImageField(_AjaxFileField):
 
     widget = widgets.FieldSetWidget(template='widgets/ajax_imageinput')
     #: used when file is uploaded
@@ -76,7 +77,7 @@ class AjaxImageField(AjaxFileField):
 
     def __init__(self, *args, **kwargs):
         kwargs['_label'] = kwargs.pop('label', kwargs.get('_label'))
-        AjaxFileField.__init__(self, *args, **kwargs)
+        _AjaxFileField.__init__(self, *args, **kwargs)
 
     @property
     def upload_url(self):
@@ -211,3 +212,6 @@ class AjaxImageField(AjaxFileField):
 
 
 
+class AjaxFileField(JSONFileFieldSet, _AjaxFileField):
+
+    widget = widgets.AjaxFileInput
