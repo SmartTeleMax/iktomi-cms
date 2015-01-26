@@ -314,7 +314,7 @@ class AjaxFileInput(FileInput):
         file = result['value']
         result['value'] = self.field.get_data()
         if file is not None:
-            result['default_link'] = file.name
+            result['default_url'] = file.url
         return result
 
 
