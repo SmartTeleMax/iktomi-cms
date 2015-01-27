@@ -6,8 +6,21 @@ Widgets.FileInput = Widgets.create(Widgets.Widget, {
     }
 });
 
+Widgets.ProgressBar = Widgets.create(Widgets.Widget,{
+    render: function(){
+        var percent = this.props.complete.toFixed(2) +"%";
+        var pb_style = {width: percent};
+        return <div className="progress_box" key="progress_box">
+                  <div className="progress_percent" key="progress_percent" style={pb_style}></div>
+                  <div className="progress_text" key="progress_text" >{percent}</div>
+               </div>;    
+    }
+});
 
 Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
+    onProgress:function(e){
+        this.setState({progress: e.loaded/e.total * 100});
+    },
     onChange:function(event){
         var form = event.target.form;
         var itemForm = form.retrieve('ItemForm');
@@ -30,10 +43,14 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                 current_url:fileUrl,
                 original_name:result.original_name,
             })
+            setTimeout(function(){this.setState({progress: false})}.bind(this), 2000);
           }
             
         }.bind(this);
 
+        xhr.upload.addEventListener('progress', this.onProgress.bind(this), false);
+
+        this.setState({progress: 0 });
         xhr.open('POST', url, true);
         xhr.send(file);
     },
@@ -64,6 +81,9 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                      Прикрепленный файл
                   </a>
             )
+        }
+        if(this.state.progress){
+          fileFields.push(<Widgets.ProgressBar complete={this.state.progress}/>);
         }
         return <div>{fileFields}</div>;
     }
