@@ -31,7 +31,6 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
 
         var xhr = new XMLHttpRequest();
         xhr.onload = function(e){
-          var status = e.target.status;
           var result = JSON.parse(e.target.response);
           if(result.status=='ok'){
             var fileUrl = result.file_url;
@@ -42,17 +41,27 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                 mode:"transient",
                 current_url:fileUrl,
                 original_name:result.original_name,
-            })
-            setTimeout(function(){this.setState({progress: false})}.bind(this), 2000);
+            });
+            setTimeout(function(){this.setState({xhr: false})}.bind(this), 2000);
           }
-            
         }.bind(this);
 
         xhr.upload.addEventListener('progress', this.onProgress.bind(this), false);
 
-        this.setState({progress: 0 });
+        this.setState({xhr: xhr, progress:0});
         xhr.open('POST', url, true);
         xhr.send(file);
+    },
+    cancelUploading: function(e){
+        e.preventDefault(); e.stopPropagation();
+        this.state.xhr.abort();
+        this.setState({xhr: false})
+        this.setValue({
+            transient_name: "",
+            mode:"empty",
+            current_url:"",
+            original_name:"",
+        });
     },
     render: function() {
         var fileFields = [
@@ -73,7 +82,7 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                          name="transient_name"
                          value={this.state.value.transient_name} />,
         ]
-        if(this.state.value.current_url){
+        if(this.state.value.current_url && this.state.value.current_url.text != ""){
             fileFields.push(
                   <a key="url"
                      target="_blank" 
@@ -82,8 +91,9 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                   </a>
             )
         }
-        if(this.state.progress){
-          fileFields.push(<Widgets.ProgressBar complete={this.state.progress}/>);
+        if(this.state.xhr){
+            fileFields.push(<Widgets.ProgressBar complete={this.state.progress}/>);
+            fileFields.push(<a href="#" key="cancel-button" onClick={this.cancelUploading}>Отмена</a>);
         }
         return <div>{fileFields}</div>;
     }
