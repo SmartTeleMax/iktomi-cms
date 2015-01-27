@@ -215,3 +215,18 @@ class AjaxImageField(_AjaxFileField):
 class AjaxFileField(JSONFileFieldSet, _AjaxFileField):
 
     widget = widgets.AjaxFileInput
+
+    def get_data(self):
+        data = {}
+        for field in self.fields:
+            data.update(field.get_data())
+        # XXX we must return actual file state even in draft form
+        # to avoid errors on autosave
+        if self.form.item.file:
+            data['mode'] = 'existing'
+            data['transient_name'] = None
+            data['original_name'] = None
+            data['current_url'] = self.form.item.file.url
+        return {self.name: data}
+
+

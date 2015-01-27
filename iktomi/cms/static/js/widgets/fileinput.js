@@ -27,7 +27,7 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
             this.setValue({
                 transient_name:transientName,
                 mode:"transient",
-                url:fileUrl,
+                current_url:fileUrl,
                 original_name:result.original_name,
             })
           }
@@ -38,29 +38,33 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
         xhr.send(file);
     },
     render: function() {
-        console.log(this.state.value.mode);
-        return (<div>
+        var fileFields = [
                   <input type="file"
                          key="file"
                          onChange={this.onChange}  
-                         name={this.props.input_name} />
+                         name={this.props.input_name} />,
                   <input type="hidden" 
                          name="original_name"
                          key="original_name"
-                         value={this.state.value.original_name} />
+                         value={this.state.value.original_name} />,
                   <input type="hidden" 
                          name="mode"
                          key="mode"
-                         value={this.state.value.mode} />
-                  <input type="hidden"
+                         value={this.state.value.mode} />,
+                 <input type="hidden"
                          key="transient_name"
                          name="transient_name"
-                         value={this.state.value.transient_name} />
-                  <a key="link"
+                         value={this.state.value.transient_name} />,
+        ]
+        if(this.state.value.current_url){
+            fileFields.push(
+                  <a key="url"
                      target="_blank" 
-                     href={this.state.value.url || this.props.default_url} >
-                     "Прикрепленный файл" 
+                     href={this.state.value.current_url.toString()} >
+                     Прикрепленный файл
                   </a>
-                </div>);
+            )
+        }
+        return <div>{fileFields}</div>;
     }
 });
