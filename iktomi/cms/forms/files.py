@@ -3,7 +3,8 @@ from cStringIO import StringIO
 from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
-from iktomi.unstable.db.files import PersistentFile
+from iktomi.unstable.forms.files_json import FileFieldSet
+from iktomi.unstable.db.files import PersistentFile, TransientFile
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.utils.image_resizers import ResizeFit
@@ -14,7 +15,7 @@ from PIL import Image
 
 class AjaxFileField(FileFieldSet):
 
-    widget = widgets.FieldSetWidget(template='widgets/ajax_fileinput')
+    widget = widgets.AjaxFileInput
 
     @property
     def upload_url(self):
@@ -27,14 +28,6 @@ class AjaxFileField(FileFieldSet):
             kwargs['conv'] = conv(required=required)
         FileFieldSet.__init__(self, *args, **kwargs)
 
-    def set_raw_value(self, raw_data, value):
-        FileFieldSet.set_raw_value(self, raw_data, value)
-        # XXX hack!
-        # XXX removing for_diff check breaks history logging, adding it breaks changed 
-        #     fields indication. Workaround is needed
-        if getattr(self.form, 'for_diff', False) and self.clean_value:
-            raw_data[self.prefix+'path'] = self.clean_value.name
-
     def get_diff(field1, field2):
         path1 = field1.form.raw_data.get(field1.prefix+'path')
         path2 = field2.form.raw_data.get(field2.prefix+'path')
@@ -44,6 +37,23 @@ class AjaxFileField(FileFieldSet):
                         before=lambda: path1,
                         after=lambda: path2,
                         changed=True)
+
+    def get_data(self):
+        data = {}
+        for field in self.fields:
+            data.update(field.get_data())
+        # XXX we must return actual file state even in draft form
+        # to avoid errors on autosave
+        file_obj = self.clean_value
+        if file_obj is not None:
+            data['mode'] = 'existing'
+            data['transient_name'] = None
+            data['original_name'] = None
+        if isinstance(file_obj, PersistentFile):
+            data['current_url'] = file_obj.url
+        if isinstance(file_obj, TransientFile):
+            data['current_url'] = file_obj.stored_to.url
+        return {self.name: data}
 
 
 class ImageFieldSetConv(FileFieldSetConv):

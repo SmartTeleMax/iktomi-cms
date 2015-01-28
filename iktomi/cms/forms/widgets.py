@@ -306,7 +306,7 @@ class AjaxFileInput(FileInput):
         return {'input': self.id,
                 'error': self.field.error,
                 'upload_url': self.upload_url,
-                'value': self.field.clean_value}
+                'value': self.field.get_data()}
 
     def render(self):
         return dict(Widget.render(self),
