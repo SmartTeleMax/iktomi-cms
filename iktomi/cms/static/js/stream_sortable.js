@@ -9,7 +9,7 @@
       this.itemsSelector = el.dataset.selector;
       this.items = this.itemsBlock.getChildren(this.itemsSelector);
       if(this.items.length > 1) {
-        if (Browser.Engine.webkit){
+        if (['chrome'].indexOf(Browser.name) >= 0){
           this.boxify();
           window.addEvent('resize', function(){
             this.unboxify();
