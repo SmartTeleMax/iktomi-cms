@@ -64,7 +64,34 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
         });
     },
     render: function() {
-        var fileFields = [
+        var fileFields = [];
+        var currentMode = this.state.value.mode.toString();
+        if(this.state.value.current_url){
+            if(currentMode == 'transient'){
+                fileFields.push(
+                      <div className="file_data">  
+                          <p>Заргужен временный файл<br />
+                              <a key="url"
+                                 target="_blank"
+                                 href={this.state.value.current_url.toString()} >
+                                 {this.state.value.transient_name}
+                              </a>
+                          </p>
+                      </div>);
+            }
+            else if(currentMode = 'existing'){
+                fileFields.push(
+                    <div className="file_data">
+                      <a key="url"
+                         target="_blank" 
+                         href={this.state.value.current_url.toString()} >
+                         Прикрепленный файл
+                      </a>
+                    </div>
+                );
+            }
+        }
+        fileFields = fileFields.concat([
                   <input type="file"
                          key="file"
                          onChange={this.onChange}  
@@ -81,20 +108,17 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                          key="transient_name"
                          name="transient_name"
                          value={this.state.value.transient_name} />,
-        ]
-        if(this.state.value.current_url && this.state.value.current_url.text != ""){
-            fileFields.push(
-                  <a key="url"
-                     target="_blank" 
-                     href={this.state.value.current_url.toString()} >
-                     Прикрепленный файл
-                  </a>
-            )
-        }
+        ]);
+        var progressChildren = [];
         if(this.state.xhr){
-            fileFields.push(<Widgets.ProgressBar complete={this.state.progress}/>);
-            fileFields.push(<a href="#" key="cancel-button" onClick={this.cancelUploading}>Отмена</a>);
+            progressChildren.push(<a href="#" 
+                               key="cancel-button"
+                               className="progress_cancel" 
+                               onClick={this.cancelUploading}>Отмена</a>);
+            progressChildren.push(<Widgets.ProgressBar complete={this.state.progress}/>);
         }
+        var progressContainer = <div key="progress" className="progress_container">{progressChildren}</div>;
+        fileFields.push(progressContainer);
         return <div>{fileFields}</div>;
     }
 });
