@@ -13,9 +13,9 @@ from iktomi.cms.forms import convs, widgets
 from PIL import Image
 
 
-class _AjaxFileField(FileFieldSet):
+class AjaxFileField(JSONFileFieldSet):
 
-    widget = widgets.FieldSetWidget(template='widgets/ajax_fileinput')
+    widget = widgets.AjaxFileInput
 
     @property
     def upload_url(self):
@@ -26,15 +26,7 @@ class _AjaxFileField(FileFieldSet):
         if required is not None:
             conv = kwargs.get('conv', self.conv)
             kwargs['conv'] = conv(required=required)
-        FileFieldSet.__init__(self, *args, **kwargs)
-
-    def set_raw_value(self, raw_data, value):
-        FileFieldSet.set_raw_value(self, raw_data, value)
-        # XXX hack!
-        # XXX removing for_diff check breaks history logging, adding it breaks changed 
-        #     fields indication. Workaround is needed
-        if getattr(self.form, 'for_diff', False) and self.clean_value:
-            raw_data[self.prefix+'path'] = self.clean_value.name
+        JSONFileFieldSet.__init__(self, *args, **kwargs)
 
     def get_diff(field1, field2):
         path1 = field1.form.raw_data.get(field1.prefix+'path')
@@ -45,6 +37,19 @@ class _AjaxFileField(FileFieldSet):
                         before=lambda: path1,
                         after=lambda: path2,
                         changed=True)
+
+    def get_data(self):
+        data = {}
+        for field in self.fields:
+            data.update(field.get_data())
+        # XXX we must return actual file state even in draft form
+        # to avoid errors on autosave
+        if self.form.item.file:
+            data['mode'] = 'existing'
+            data['transient_name'] = None
+            data['original_name'] = None
+            data['current_url'] = self.form.item.file.url
+        return {self.name: data}
 
 
 class ImageFieldSetConv(FileFieldSetConv):
@@ -59,7 +64,7 @@ class ImageFieldSetConv(FileFieldSetConv):
         return FileFieldSetConv.to_python(self, value)
 
 
-class AjaxImageField(_AjaxFileField):
+class AjaxImageField(AjaxFileField):
 
     widget = widgets.FieldSetWidget(template='widgets/ajax_imageinput')
     #: used when file is uploaded
@@ -77,7 +82,7 @@ class AjaxImageField(_AjaxFileField):
 
     def __init__(self, *args, **kwargs):
         kwargs['_label'] = kwargs.pop('label', kwargs.get('_label'))
-        _AjaxFileField.__init__(self, *args, **kwargs)
+        AjaxFileField.__init__(self, *args, **kwargs)
 
     @property
     def upload_url(self):
@@ -210,23 +215,5 @@ class AjaxImageField(_AjaxFileField):
                             after=lambda: path2,
                             changed=True)
 
-
-
-class AjaxFileField(JSONFileFieldSet, _AjaxFileField):
-
-    widget = widgets.AjaxFileInput
-
-    def get_data(self):
-        data = {}
-        for field in self.fields:
-            data.update(field.get_data())
-        # XXX we must return actual file state even in draft form
-        # to avoid errors on autosave
-        if self.form.item.file:
-            data['mode'] = 'existing'
-            data['transient_name'] = None
-            data['original_name'] = None
-            data['current_url'] = self.form.item.file.url
-        return {self.name: data}
 
 
