@@ -4,7 +4,7 @@ from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
 from iktomi.unstable.forms.files_json import FileFieldSet as JSONFileFieldSet
-from iktomi.unstable.db.files import PersistentFile
+from iktomi.unstable.db.files import PersistentFile, TransientFile
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.utils.image_resizers import ResizeFit
@@ -44,11 +44,15 @@ class AjaxFileField(JSONFileFieldSet):
             data.update(field.get_data())
         # XXX we must return actual file state even in draft form
         # to avoid errors on autosave
-        if self.form.item.file:
+        file_obj = self.clean_value
+        if file_obj is not None:
             data['mode'] = 'existing'
             data['transient_name'] = None
             data['original_name'] = None
-            data['current_url'] = self.form.item.file.url
+        if isinstance(file_obj, PersistentFile):
+            data['current_url'] = file_obj.url
+        if isinstance(file_obj, TransientFile):
+            data['current_url'] = file_obj.stored_to.url
         return {self.name: data}
 
 
