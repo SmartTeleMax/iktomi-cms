@@ -8,7 +8,7 @@ Widgets.FileInput = Widgets.create(Widgets.Widget, {
 
 Widgets.ProgressBar = Widgets.create(Widgets.Widget,{
     render: function(){
-        var percent = this.props.complete.toFixed(2) +"%";
+        var percent = Math.round(this.props.complete)+"%";
         var pb_style = {width: percent};
         return <div className="progress_box" key="progress_box">
                   <div className="progress_percent" key="progress_percent" style={pb_style}></div>
@@ -42,7 +42,7 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                 current_url:fileUrl,
                 original_name:result.original_name,
             });
-            setTimeout(function(){this.setState({xhr: false})}.bind(this), 2000);
+            //setTimeout(function(){this.setState({xhr: false})}.bind(this), 2000);
           }
         }.bind(this);
 
@@ -64,61 +64,59 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
         });
     },
     render: function() {
-        var fileFields = [];
         var currentMode = this.state.value.mode.toString();
+        var urlDiv = "";
         if(this.state.value.current_url){
             if(currentMode == 'transient'){
-                fileFields.push(
-                      <div className="file_data">  
-                          <p>Заргужен временный файл<br />
+                urlDiv = <div className="file_data">  
+                           <p>Заргужен временный файл<br />
                               <a key="url"
                                  target="_blank"
                                  href={this.state.value.current_url.toString()} >
                                  {this.state.value.transient_name}
                               </a>
-                          </p>
-                      </div>);
+                           </p>
+                         </div>;
             }
             else if(currentMode = 'existing'){
-                fileFields.push(
-                    <div className="file_data">
-                      <a key="url"
-                         target="_blank" 
-                         href={this.state.value.current_url.toString()} >
-                         Прикрепленный файл
-                      </a>
-                    </div>
-                );
+                urlDiv = <div className="file_data">
+                           <a key="url"
+                              target="_blank" 
+                              href={this.state.value.current_url.toString()} >
+                              Прикрепленный файл
+                           </a>
+                         </div>;
             }
         }
-        fileFields = fileFields.concat([
+        var progressContainer = ""; 
+        if(this.state.xhr){
+            progressContainer = <div key="progress" className="progress_container">
+                                  <a href="#" 
+                                     key="cancel-button"
+                                     className="progress_cancel" 
+                                     onClick={this.cancelUploading}>Отмена</a>
+                                     <Widgets.ProgressBar complete={this.state.progress}/>
+                                </div>;
+        }
+        return <div>
+                  {urlDiv}
                   <input type="file"
                          key="file"
                          onChange={this.onChange}  
-                         name={this.props.input_name} />,
+                         name={this.props.input_name} />
                   <input type="hidden" 
                          name="original_name"
                          key="original_name"
-                         value={this.state.value.original_name} />,
+                         value={this.state.value.original_name} />
                   <input type="hidden" 
                          name="mode"
                          key="mode"
-                         value={this.state.value.mode} />,
-                 <input type="hidden"
+                         value={this.state.value.mode} />
+                  <input type="hidden"
                          key="transient_name"
                          name="transient_name"
-                         value={this.state.value.transient_name} />,
-        ]);
-        var progressChildren = [];
-        if(this.state.xhr){
-            progressChildren.push(<a href="#" 
-                               key="cancel-button"
-                               className="progress_cancel" 
-                               onClick={this.cancelUploading}>Отмена</a>);
-            progressChildren.push(<Widgets.ProgressBar complete={this.state.progress}/>);
-        }
-        var progressContainer = <div key="progress" className="progress_container">{progressChildren}</div>;
-        fileFields.push(progressContainer);
-        return <div>{fileFields}</div>;
+                         value={this.state.value.transient_name} />
+                  {progressContainer}
+                </div>;
     }
 });
