@@ -46,13 +46,13 @@ class AjaxFileField(FileFieldSet):
         # to avoid errors on autosave
         file_obj = self.clean_value
         if file_obj is not None:
-            data['mode'] = 'existing'
-            data['transient_name'] = None
-            data['original_name'] = None
-        if isinstance(file_obj, PersistentFile):
-            data['current_url'] = file_obj.url
-        if isinstance(file_obj, TransientFile):
-            data['current_url'] = file_obj.stored_to.url
+            if isinstance(file_obj, PersistentFile):
+                data['current_url'] = file_obj.url
+            if isinstance(file_obj, TransientFile) and file_obj.stored_to:
+                data['mode'] = 'existing'
+                data['transient_name'] = None
+                data['original_name'] = None
+                data['current_url'] = file_obj.stored_to.url
         return {self.name: data}
 
 
