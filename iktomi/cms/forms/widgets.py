@@ -309,9 +309,8 @@ class AjaxFileInput(FileInput):
                 'value': self.field.get_data()}
 
     def render(self):
-        result =  dict(Widget.render(self),
-                       **self.js_config())
-        return result
+        return dict(Widget.render(self),
+                    **self.js_config())
 
 
 class Calendar(TextInput):

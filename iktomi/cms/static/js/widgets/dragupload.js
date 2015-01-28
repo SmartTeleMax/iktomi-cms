@@ -129,7 +129,7 @@
         file.xhr = xhr;
         var progress = (function(e){
           e.fileName = (file.fileName || file.name);
-            this.fireEvent('progress', e);
+          this.fireEvent('progress', e);
         }).bind(this);
 
         xhr.upload.addEventListener('progress', progress, false);

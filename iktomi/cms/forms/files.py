@@ -3,7 +3,7 @@ from cStringIO import StringIO
 from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
-from iktomi.unstable.forms.files_json import FileFieldSet as JSONFileFieldSet
+from iktomi.unstable.forms.files_json import FileFieldSet
 from iktomi.unstable.db.files import PersistentFile, TransientFile
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
@@ -13,7 +13,7 @@ from iktomi.cms.forms import convs, widgets
 from PIL import Image
 
 
-class AjaxFileField(JSONFileFieldSet):
+class AjaxFileField(FileFieldSet):
 
     widget = widgets.AjaxFileInput
 
@@ -26,7 +26,7 @@ class AjaxFileField(JSONFileFieldSet):
         if required is not None:
             conv = kwargs.get('conv', self.conv)
             kwargs['conv'] = conv(required=required)
-        JSONFileFieldSet.__init__(self, *args, **kwargs)
+        FileFieldSet.__init__(self, *args, **kwargs)
 
     def get_diff(field1, field2):
         path1 = field1.form.raw_data.get(field1.prefix+'path')
