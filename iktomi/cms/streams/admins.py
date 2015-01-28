@@ -38,7 +38,7 @@ class ItemForm(ModelForm):
               conv=convs.Char(convs.length(3, 250), required=False),
               label=u"Имя"),
         Field('email',
-              conv=convs.Char(convs.length(0, 200), required=False),
+              conv=convs.Email(convs.length(0, 200), required=False),
               label=u"E-mail"),
         Field('login',
               conv=convs.Char(
