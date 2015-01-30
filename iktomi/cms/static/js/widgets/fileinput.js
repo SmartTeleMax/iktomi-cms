@@ -63,7 +63,20 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
             original_name:"",
         });
     },
-    render: function() {
+    progressContainer:function(){
+        var progressContainer = ""; 
+        if(this.state.xhr){
+            progressContainer = <div key="progress" className="progress_container">
+                                  <a href="#" 
+                                     key="cancel-button"
+                                     className="progress_cancel" 
+                                     onClick={this.cancelUploading}>Отмена</a>
+                                     <Widgets.ProgressBar complete={this.state.progress}/>
+                                </div>;
+        }
+        return progressContainer;
+    },
+    urlDiv: function(){
         var currentMode = this.state.value.mode.toString();
         var urlDiv = "";
         if(this.state.value.current_url){
@@ -88,35 +101,31 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                          </div>;
             }
         }
-        var progressContainer = ""; 
-        if(this.state.xhr){
-            progressContainer = <div key="progress" className="progress_container">
-                                  <a href="#" 
-                                     key="cancel-button"
-                                     className="progress_cancel" 
-                                     onClick={this.cancelUploading}>Отмена</a>
-                                     <Widgets.ProgressBar complete={this.state.progress}/>
-                                </div>;
-        }
+        return urlDiv;
+    },
+    inputElements: function(){
+        return [<input type="file"
+                        key="file"
+                        onChange={this.onChange}  
+                        name={this.props.input_name} />,
+                 <input type="hidden" 
+                        name="original_name"
+                        key="original_name"
+                        value={this.state.value.original_name} />,
+                 <input type="hidden" 
+                        name="mode"
+                        key="mode"
+                        value={this.state.value.mode} />,
+                 <input type="hidden"
+                        key="transient_name"
+                        name="transient_name"
+                        value={this.state.value.transient_name} />]
+    },
+    render: function() {
         return <div>
-                  {urlDiv}
-                  <input type="file"
-                         key="file"
-                         onChange={this.onChange}  
-                         name={this.props.input_name} />
-                  <input type="hidden" 
-                         name="original_name"
-                         key="original_name"
-                         value={this.state.value.original_name} />
-                  <input type="hidden" 
-                         name="mode"
-                         key="mode"
-                         value={this.state.value.mode} />
-                  <input type="hidden"
-                         key="transient_name"
-                         name="transient_name"
-                         value={this.state.value.transient_name} />
-                  {progressContainer}
-                </div>;
+                  {this.urlDiv()}
+                  {this.inputElements()}
+                  {this.progressContainer()}
+               </div>;
     }
 });
