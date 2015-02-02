@@ -28,21 +28,23 @@ class AjaxFileField(FileFieldSet):
             kwargs['conv'] = conv(required=required)
         FileFieldSet.__init__(self, *args, **kwargs)
 
-    def get_data(self):
+    def get_data(self, recursive=False):
         data = {}
+
         for field in self.fields:
             data.update(field.get_data())
         # XXX we must return actual file state even in draft form
         # to avoid errors on autosave
-        file_obj = self.clean_value
+        form_cls = self.form.__class__
+        form_state = form_cls._load_initial(self.form.item,
+                                            initial={},
+                                            fields=self.form.fields)
+        file_obj = form_state[self.name]
         if file_obj is not None:
-            if isinstance(file_obj, PersistentFile):
-                data['current_url'] = file_obj.url
-            if isinstance(file_obj, TransientFile) and file_obj.stored_to:
-                data['mode'] = 'existing'
-                data['transient_name'] = None
-                data['original_name'] = None
-                data['current_url'] = file_obj.stored_to.url
+            data['mode'] = 'existing'
+            data['current_url'] = file_obj.url
+            data['transient_name'] = None
+            data['original_name'] = None
         return {self.name: data}
 
 
