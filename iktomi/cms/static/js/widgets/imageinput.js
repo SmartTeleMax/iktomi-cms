@@ -1,4 +1,20 @@
 Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
+    onXHRLoad:function(e){
+        // XXX refactor code duplication with fileinput
+        var result = JSON.parse(e.target.response);
+        if(result.status=='ok'){
+            var fileUrl = result.file_url;
+            var fileUrlSplitted= fileUrl.split("/");
+            var transientName = fileUrlSplitted[fileUrlSplitted.length-1];
+            this.setValue({
+                transient_name:transientName,
+                mode:"transient",
+                current_url:fileUrl,
+                original_name:result.original_name,
+            });
+            this.getItemForm().reactForm.setValue(result.related_files);
+        }
+    },
     image:function(){
         var currentMode = this.state.value.mode.toString();
         var image = '';

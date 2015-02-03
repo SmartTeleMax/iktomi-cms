@@ -21,18 +21,9 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
     onProgress:function(e){
         this.setState({progress: e.loaded/e.total * 100});
     },
-    onChange:function(event){
-        var form = event.target.form;
-        var itemForm = form.retrieve('ItemForm');
-        var file = event.target.files[0];
-        var fileSize = file.size;
-        var url = this.props.upload_url+"?file="+(file.fileName || file.name);
-        url += '&content-length=' + fileSize; 
-
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function(e){
-          var result = JSON.parse(e.target.response);
-          if(result.status=='ok'){
+    onXHRLoad:function(e){
+        var result = JSON.parse(e.target.response);
+        if(result.status=='ok'){
             var fileUrl = result.file_url;
             var fileUrlSplitted= fileUrl.split("/");
             var transientName = fileUrlSplitted[fileUrlSplitted.length-1];
@@ -42,9 +33,18 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                 current_url:fileUrl,
                 original_name:result.original_name,
             });
-            //setTimeout(function(){this.setState({xhr: false})}.bind(this), 2000);
-          }
-        }.bind(this);
+        }
+    },
+    onChange:function(event){
+        var form = event.target.form;
+        var itemForm = form.retrieve('ItemForm');
+        var file = event.target.files[0];
+        var fileSize = file.size;
+        var url = this.props.upload_url+"?file="+(file.fileName || file.name);
+        url += '&content-length=' + fileSize; 
+
+        var xhr = new XMLHttpRequest();
+        xhr.onload = this.onXHRLoad.bind(this);
 
         xhr.upload.addEventListener('progress', this.onProgress.bind(this), false);
 
