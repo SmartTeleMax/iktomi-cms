@@ -28,7 +28,7 @@ class AjaxFileField(FileFieldSet):
             kwargs['conv'] = conv(required=required)
         FileFieldSet.__init__(self, *args, **kwargs)
 
-    def get_data(self, recursive=False):
+    def get_data(self):
         data = {}
 
         for field in self.fields:
@@ -164,3 +164,16 @@ class AjaxImageField(AjaxFileField):
 
         return None
 
+    def get_data(self):
+        result = AjaxFileField.get_data(self)
+        data = result[self.name]
+
+        if self.fill_from:
+            # XXX Hack to get original image source for cropping
+            field = self.form.get_field(self.fill_from)
+            original_data = field.get_data()[self.fill_from]
+            if original_data['current_url']:
+                data['source_url'] = original_data['current_url']
+        data['sizes'] = self.model_field.image_sizes
+
+        return {self.name:data}
