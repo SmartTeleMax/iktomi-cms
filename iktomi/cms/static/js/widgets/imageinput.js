@@ -30,14 +30,14 @@ Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
             });
         }
     },
-    showPopup:function(e){
+    showCropper:function(e){
         new Cropper({src:this.state.value.source_url.toString(),
                      targetWidth:this.state.value.sizes[0].toString(),
                      targetHeight:this.state.value.sizes[1].toString(),
                      title:this.props.label,
-                     cropUrl:this.props.upload_url + "/crop",
-                     postData:{mode:this.state.value.mode.toString(),
-                               transient_name:this.state.value.transient_name.toString()},
+                     cropUrl:this.props.upload_url.toString() + "/crop",
+                     postData:{mode:this.state.value.source_mode.toString(),
+                               transient_name:this.state.value.source_transient.toString()},
                      onAjaxCrop:this.onAjaxCrop});
     },
     image:function(){
@@ -48,7 +48,7 @@ Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
                         <img className="thumbnail"
                               src={this.state.value.current_url.toString()} />
                         <a className="button icon-crop compact-button"
-                           onClick={this.showPopup} >Кадрировать</a>
+                           onClick={this.showCropper} >Кадрировать</a>
                     </div>;
         }
         return image;

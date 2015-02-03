@@ -172,8 +172,10 @@ class AjaxImageField(AjaxFileField):
             # XXX Hack to get original image source for cropping
             field = self.form.get_field(self.fill_from)
             original_data = field.get_data()[self.fill_from]
-            if original_data['current_url']:
+            if 'current_url' in original_data:
                 data['source_url'] = original_data['current_url']
+                data['source_mode'] = original_data['mode']
+                data['source_transient'] = original_data['transient_name']
         data['sizes'] = self.model_field.image_sizes
 
         return {self.name:data}

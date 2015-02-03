@@ -98,7 +98,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                   )
 
     def _collect_related_fields(self, env, form_field, image,
-                                original_name, ext):
+                                original_name, ext, source):
         rel_images = []
         for name in dir(form_field.model):
             rel_field = getattr(form_field.model, name)
@@ -133,11 +133,15 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                     "transient_name":rel_transient.name,
                     "original_name": original_name,
                     "mode":"transient",
+                    "source_url":source.url,
+                    "source_transient":source.name,
+                    "sizes": target_size,
                     }
                 })
                 rel_images += self._collect_related_fields(
                                         env, rel_form_field,
-                                        rel_image, original_name, ext)
+                                        rel_image, original_name, ext,
+                                        rel_transient)
         return rel_images
 
     def _get_form(self, env, data):
@@ -168,7 +172,8 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
 
         rel_images = self._collect_related_fields(env, field, image,
-                                                  original_name, ext)
+                                                  original_name, ext,
+                                                  transient)
         related_files = {}
         for image in rel_images:
             related_files.update(image)
@@ -237,7 +242,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         image.save(transient.path, quality=100)
 
         rel_images = self._collect_related_fields(
-                                    env, form_field, image, original_name, ext)
+                                    env, form_field, image, original_name, ext, transient)
 
         return env.json({
             'status': 'ok',
