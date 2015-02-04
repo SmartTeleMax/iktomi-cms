@@ -119,15 +119,6 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                 rel_transient = env.file_manager.new_transient(ext)
                 rel_image.save(rel_transient.path)
 
-                #rel_images.append({
-                #    "name": rel_form_field.input_name,
-                #    "file": rel_transient.name,
-                #    'file_url': env.file_manager.get_transient_url(rel_transient, env),
-                #    'fill_from': form_field.input_name,
-                #    'transformations': transforms,
-                #    'source_size': image.size,
-                #    'original_name': original_name,
-                #    })
                 rel_images.append({rel_form_field.input_name:{
                     "current_url":env.file_manager.get_transient_url(rel_transient, env),
                     "transient_name":rel_transient.name,
@@ -242,7 +233,8 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         image.save(transient.path, quality=100)
 
         rel_images = self._collect_related_fields(
-                                    env, form_field, image, original_name, ext, transient)
+                                    env, form_field, image,
+                                    original_name, ext, transient)
 
         related_files = {}
         for image in rel_images:
