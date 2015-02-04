@@ -199,6 +199,7 @@ class PrepareItemHandler(web.WebHandler):
         '''Item actions dispatcher'''
         if self.action.xhr:
             insure_is_xhr(env)
+
         stream = self.action.stream
         stream.insure_has_permission(env, 'r')
 
@@ -301,7 +302,7 @@ class EditItemHandler(StreamAction):
         EditLog = env.edit_log_model
         stream = self.stream
         log = EditLog.last_for_item(
-                env.db, stream.uid(env), item,
+                env.db, stream.uid(env), item, 
                 env.user, data.edit_session)
         if log is None:
             before = self._clean_item_data(stream, env, item)
@@ -374,7 +375,7 @@ class EditItemHandler(StreamAction):
 
         form = self.get_item_form(stream, env, item, initial, draft)
         EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = (item.id is not None and
+        log_enabled = (item.id is not None and 
                        EditLog is not None and
                        getattr(env, 'version', 'admin') == 'admin' and
                        stream.edit_log_action is not None)
