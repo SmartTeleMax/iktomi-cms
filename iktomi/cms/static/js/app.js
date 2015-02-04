@@ -66,6 +66,7 @@
     contentBlock = contentBlock || $('app-content');
     pushState = pushState === undefined? true: pushState;
     var isMain = contentBlock == $('app-content');
+    currentUrl = window.location.pathname + window.location.search;
     if (!url){
       url = window.location.pathname + window.location.search;
     }

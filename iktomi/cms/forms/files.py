@@ -176,6 +176,7 @@ class AjaxImageField(AjaxFileField):
                 data['source_url'] = original_data['current_url']
                 data['source_mode'] = original_data['mode']
                 data['source_transient'] = original_data['transient_name']
+        data['upload_url'] = self.upload_url
         data['sizes'] = self.model_field.image_sizes
 
         return {self.name:data}

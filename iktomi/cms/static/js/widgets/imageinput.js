@@ -1,42 +1,43 @@
 Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
     onXHRLoad:function(e){
-        // XXX refactor code duplication with fileinput
         var result = JSON.parse(e.target.response);
         if(result.status=='ok'){
-            var fileUrl = result.file_url;
-            var fileUrlSplitted= fileUrl.split("/");
-            var transientName = fileUrlSplitted[fileUrlSplitted.length-1];
-            this.setValue({
-                transient_name:transientName,
-                mode:"transient",
-                current_url:fileUrl,
-                original_name:result.original_name,
-            });
-            this.getItemForm().reactForm.setValue(result.related_files);
+            this.setResponse(result);
         }
     },
     onAjaxCrop:function(response){
-        // XXX refactor code duplication with fileinput
         var result = JSON.parse(response);
         if(result.status=='ok'){
-            var fileUrl = result.file_url;
-            var fileUrlSplitted= fileUrl.split("/");
-            var transientName = fileUrlSplitted[fileUrlSplitted.length-1];
-            this.setValue({
-                transient_name:transientName,
-                mode:"transient",
-                current_url:fileUrl,
-                original_name:result.original_name,
-            });
+            this.setResponse(result);
+        }
+    },
+    setResponse:function(result){
+        var fileUrl = result.file_url;
+        var fileUrlSplitted= fileUrl.split("/");
+        var transientName = fileUrlSplitted[fileUrlSplitted.length-1];
+        this.setValue({
+            transient_name:transientName,
+            mode:"transient",
+            current_url:fileUrl,
+            original_name:result.original_name,
+        });
+        this.getItemForm().reactForm.setValue(result.related_files);
+    },
+    cropUrl: function(){
+        if(this.state.value.upload_url){
+            return this.state.value.upload_url.toString() + "/crop";
+        }else{
+            return this.props.upload_url.toString() + "/crop";
         }
     },
     showCropper:function(e){
+        var sourceMode = this.state.value.source_mode ? this.state.value.source_mode.toString() : 'transient';
         new Cropper({src:this.state.value.source_url.toString(),
                      targetWidth:this.state.value.sizes[0].toString(),
                      targetHeight:this.state.value.sizes[1].toString(),
                      title:this.props.label,
-                     cropUrl:this.props.upload_url.toString() + "/crop",
-                     postData:{mode:this.state.value.source_mode.toString(),
+                     cropUrl:this.cropUrl(),
+                     postData:{mode:sourceMode,
                                transient_name:this.state.value.source_transient.toString()},
                      onAjaxCrop:this.onAjaxCrop});
     },
