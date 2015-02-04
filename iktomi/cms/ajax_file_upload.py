@@ -244,10 +244,13 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         rel_images = self._collect_related_fields(
                                     env, form_field, image, original_name, ext, transient)
 
+        related_files = {}
+        for image in rel_images:
+            related_files.update(image)
         return env.json({
             'status': 'ok',
             'file': transient.name,
             'file_url': env.file_manager.get_transient_url(transient, env),
             'original_name': original_name,
-            'related_files': rel_images,
+            'related_files': related_files,
             })
