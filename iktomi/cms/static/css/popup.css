@@ -7,7 +7,15 @@
     padding: 0;
     outline: none;
 }
-
+.popup.loading{
+  cursor: wait;
+}
+.popup.loading .popup-title,
+.popup.loading .popup-body-fixed,
+.popup.loading .popup-body {
+  pointer-events: none;
+  -webkit-filter: grayscale(80%);
+  }
 
 .popup-close-btn {
     width: 30px;

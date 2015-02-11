@@ -75,7 +75,7 @@
     }
     console.log('loadPage', url);
 
-    document.body.addClass('loading');
+    (contentBlock.getParent('.popup') || document.body).addClass('loading');
     new Request({
       // add __ajax to avoid caching with browser
       'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax',
@@ -124,7 +124,7 @@
       var bodyClass = contentBlock.getElement('[data-body-class]');
       document.body.set('class',
           bodyClass ? bodyClass.dataset.bodyClass : null);
-      //document.body.removeClass('loading');
+      (contentBlock.getParent('.popup') || document.body).removeClass('loading');
 
       var evt = document.createEvent("HTMLEvents");
       evt.initEvent("load", false, true);
@@ -136,8 +136,7 @@
     if (result.location){
       loadPage(result.location, true, contentBlock, false);
     } else {
-      document.body.removeClass('loading');
-
+      (contentBlock.getParent('.popup') || document.body).removeClass('loading');
     }
   }
 
@@ -219,7 +218,7 @@
   Request.prototype.onFailure = function(){
     flashRequestError(this.status);
     tempFailure.apply(this, arguments);
-    document.body.removeClass('loading');
+    $$('.loading').removeClass('loading'); // XXX
   }
   window.onerror = function(e){
     flash('Ошибка выполнения клиентской программы:\n'+e, 'failure', 10*1000);

@@ -78,7 +78,7 @@
             valueToPost = {'edit_session': this.frm.getElement('[name=edit_session]').value};
         }
 
-        document.body.addClass('loading');
+        (this.frm.getParent('.popup') || document.body).addClass('loading');
         this.saveRequest = new Request({
           url: url + (url.indexOf('?') == -1? '?': '&') + '__ajax' +(this.is_popup?'&__popup=':''),
           onSuccess: function(result){
