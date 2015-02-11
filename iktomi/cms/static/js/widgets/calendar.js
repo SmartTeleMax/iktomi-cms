@@ -3,16 +3,35 @@
 Widgets.Calendar = Widgets.create(Widgets.Widget, {
     componentDidMount: function(){
         if(this.props.readonly) { return; }
-        var el = this.getDOMNode();
         var calendarConfig = defaultCalendarConfig();
-        calendarConfig.container = el;
-        this.calendar = new Calendar(el, calendarConfig);
-        window.calendar = this.calendar;
 
+        var el = this.getDOMNode();
+        calendarConfig.container = el.getElement('.calendar-place');
+        this.calendar = new Calendar(calendarConfig);
+        this.calendar.addEvent('change', this.onCalendarChange);
+        //window.calendar = this.calendar;
+    },
+
+    onCalendarChange: function(val){
+        console.log(val);
+        var dt = this.calendar.format(val);
+        this.setValue(dt);
     },
 
     showCalendar: function(){
-        this.calendar.display();
+        if (this.calendar.isVisible()){
+            this.calendar.hide();
+        } else {
+            var value = this.calendar.unformat(this.state.value+'') || null;
+            value = (value && !isNaN(value.getTime()))? value: null;
+
+            this.calendar.val = value;
+            if (value){
+                this.calendar.month = value.getMonth();
+                this.calendar.year = value.getFullYear();
+            }
+            this.calendar.display();
+        }
     },
 
     render: function() {
@@ -33,6 +52,7 @@ Widgets.Calendar = Widgets.create(Widgets.Widget, {
                        className={"calendar "+(widget.readonly?'hidden':'')}
                        onClick={this.showCalendar}></button>
                {todayButton}
+               <div className="calendar-place"></div>
             </div>;
     }
 });
