@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-Widgets.Calendar = Widgets.create(Widgets.Widget, {
+Widgets.Datetime = Widgets.create(Widgets.Widget, {
     componentDidMount: function(){
         if(this.props.readonly) { return; }
         var calendarConfig = defaultCalendarConfig();
@@ -14,14 +14,27 @@ Widgets.Calendar = Widgets.create(Widgets.Widget, {
 
     onCalendarChange: function(val){
         var dt = this.calendar.format(val);
-        this.setValue(dt);
+        this.setValue({date: dt});
+    },
+
+    setNow: function(){
+        var val = new Date();
+        var dt = this.calendar.format(val);
+        var tm = val.getHours() + ':' + val.getMinutes();
+        this.setValue({date: dt, time: tm});
+    },
+
+    onChange: function(){
+        var el = this.getDOMNode();
+        this.setValue({date: el.getElement('input.calendar').value,
+                       time: el.getElement('input.timeinput').value });
     },
 
     showCalendar: function(){
         if (this.calendar.isVisible()){
             this.calendar.hide();
         } else {
-            var value = this.calendar.unformat(this.state.value+'') || null;
+            var value = this.calendar.unformat(this.state.value.date+'') || null;
             value = (value && !isNaN(value.getTime()))? value: null;
 
             this.calendar.val = value;
@@ -35,22 +48,41 @@ Widgets.Calendar = Widgets.create(Widgets.Widget, {
 
     render: function() {
         var widget = this.props;
-        var todayButton = widget.today_button?
-              <span className='timecalendar-now' onClick={this.setToday}>сегодня</span>: '';
+        var nowButton = widget.now_button && ! widget.readonly?
+              <span className='timecalendar-now'
+                    onClick={this.setNow}>
+                  {widget.now_button_text}
+              </span>: '';
+        var calendarButton = !widget.readonly?
+              <button type="button"
+                      className="calendar"
+                      onClick={this.showCalendar}></button>: '';
+        var timeButton = !widget.readonly?
+              <button type="button"
+                       className="timecalendar-toggle"
+                       onClick={this.showTime}></button>: '';
+
         return <div>
                <input type="text"
-                      name={widget.input_name}
-                      value={this.state.value.text}
-                      className={widget.classname||false}
+                      name={widget.input_name+".date"}
+                      value={this.state.value.date+""}
+                      className="calendar"
                       size={widget.size||false}
-                      readonly={widget.readonly||false}
+                      readOnly={widget.readonly||false}
                       //onBlur={this.onBlur}
                       onChange={this.onChange}
                       />
-               <button type="button"
-                       className={"calendar "+(widget.readonly?'hidden':'')}
-                       onClick={this.showCalendar}></button>
-               {todayButton}
+               {calendarButton}
+               <input type="text"
+                      name={widget.input_name+".time"}
+                      value={this.state.value.time+""}
+                      className="timeinput"
+                      readOnly={widget.readonly||false}
+                      //onBlur={this.onBlur}
+                      onChange={this.onChange}
+                      />
+               {timeButton}
+               {nowButton}
                <div className="calendar-place"></div>
             </div>;
     }

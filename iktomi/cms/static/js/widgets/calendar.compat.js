@@ -645,6 +645,11 @@ document.addEvent('domready', function(){
                 !e.target.getParent('.calendar')){
             $$('div.calendar').addClass('hidden');
         }
-    }, true)
+    }, true);
+    document.addEvent('keyup', function(e){
+        if (e.keyCode === 27) {
+            $$('div.calendar').addClass('hidden');
+        }
+    });
 })
 
