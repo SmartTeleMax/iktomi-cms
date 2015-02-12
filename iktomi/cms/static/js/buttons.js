@@ -169,7 +169,7 @@
         props = {form: form,
                  buttons: buttons,
                  state: state};
-        return ButtonPanel(props);
+        return React.createElement(ButtonPanel, props);
     }
 
 })();

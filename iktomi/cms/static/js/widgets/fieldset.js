@@ -21,19 +21,19 @@
             var widget = this.props.widget;
             var fieldset = this.props.fieldset;
             var label = (widget.props.label? 
-                            <label htmlFor={widget.props.id}>{widget.props.label}</label> :
+                            <label htmlFor={widget.props.id} key="label">{widget.props.label}</label> :
                             '');
             var hint = '';
             if (widget.props.hint && !widget.props.renders_hint){
                 hint = <Hint safe_hint={widget.props.safe_hint}
                              hint={widget.props.hint}
-                             key={widget.props.key}/>
+                             key="hint"/>
             }
 
             var widgetErrors = fieldset.state.errors[widget.props.key];
             var errorMsg = widgetErrors && widgetErrors['.']
             var error = (errorMsg? 
-                            <div className="error">{errorMsg}</div> :
+                            <div className="error" key="error">{errorMsg}</div> :
                             '');
 
             if (widget.props.render_type == 'checkbox') {
@@ -51,7 +51,7 @@
                           hint];
             } else {
               children = [error,
-                          <div className="form-label" key={widget.props.key + '-label'}>{label}</div>,
+                          <div className="form-label" key='label'>{label}</div>,
                           widget,
                           hint];
             }
@@ -132,9 +132,9 @@
                 }
                 var el = React.createElement(React.DOM[prop.widget]||Widgets[prop.widget], prop);
                 //this.widgetsByName[prop.key] = el;
-                ws.push(FormRow({fieldset: this,
-                                 widget: el,
-                                 key: prop.key+"-row"}));
+                ws.push(<FormRow fieldset={this}
+                                 widget={el}
+                                 key={prop.key+'-row'}></FormRow>);
             }
 
             return React.DOM.div({'className': 'fieldset',
@@ -213,7 +213,7 @@
         var props = JSON.parse(json);
         props.data = makeMutable(props.data);
         props.errors = makeMutable(props.errors || {});
-        return ReactForm(props);
+        return React.createElement(ReactForm, props);
     }
 
 })();

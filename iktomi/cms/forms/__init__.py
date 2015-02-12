@@ -29,7 +29,8 @@ class Form(Form):
 
         return {'data': data,
                 'errors': errors,
-                'widgets': [x.widget.render() for x in self.fields]}
+                'widgets': [x.widget.render() for x in self.fields],
+                'id': self.id}
 
     def json(self):
         return json.dumps(self.json_data(), ensure_ascii=False)

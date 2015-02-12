@@ -341,7 +341,8 @@
                       props[k] = this.props[k];
                   }
                   props.key = btns[j];
-                  var btn = Widgets.WysiHtml5.Buttons[btns[j]](props);
+                  var btnClass = Widgets.WysiHtml5.Buttons[btns[j]];
+                  var btn = React.createElement(btnClass, props);
                   buttons.push(btn);
                 }
                 buttons.push(<span key={'sep'+i} className="separator"></span>);
