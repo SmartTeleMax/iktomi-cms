@@ -3,13 +3,21 @@
 Widgets.Datetime = Widgets.create(Widgets.Widget, {
     componentDidMount: function(){
         if(this.props.readonly) { return; }
-        var calendarConfig = defaultCalendarConfig();
+        var el = this.getDOMNode().getElement('.calendar-place');
 
-        var el = this.getDOMNode();
-        calendarConfig.container = el.getElement('.calendar-place');
+        var calendarConfig = defaultCalendarConfig();
+        calendarConfig.container = el;
         this.calendar = new Calendar(calendarConfig);
         this.calendar.addEvent('change', this.onCalendarChange);
+
+        var clockConfig = {container: el,
+                           onChange: this.onClockChange}
+        this.clock = new ClockPicker(clockConfig);
         //window.calendar = this.calendar;
+    },
+
+    onClockChange: function(val){
+        this.setValue({time: this.clock.value});
     },
 
     onCalendarChange: function(val){
@@ -46,6 +54,15 @@ Widgets.Datetime = Widgets.create(Widgets.Widget, {
         }
     },
 
+    showClock: function(){
+        if (this.clock.isShown()){
+            this.clock.hide();
+        } else {
+            this.clock.value = this.state.value.time+'';
+            this.clock.show();
+        }
+    },
+
     render: function() {
         var widget = this.props;
         var nowButton = widget.now_button && ! widget.readonly?
@@ -60,7 +77,7 @@ Widgets.Datetime = Widgets.create(Widgets.Widget, {
         var timeButton = !widget.readonly?
               <button type="button"
                        className="timecalendar-toggle"
-                       onClick={this.showTime}></button>: '';
+                       onClick={this.showClock}></button>: '';
 
         return <div>
                <input type="text"
@@ -78,6 +95,7 @@ Widgets.Datetime = Widgets.create(Widgets.Widget, {
                       value={this.state.value.time+""}
                       className="timeinput"
                       readOnly={widget.readonly||false}
+                      onFocus={this.showClock}
                       //onBlur={this.onBlur}
                       onChange={this.onChange}
                       />

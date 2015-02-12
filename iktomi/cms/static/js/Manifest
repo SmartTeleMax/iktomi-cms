@@ -1,6 +1,6 @@
 lib/react
 lib/mootools-core-1.5.0-full-nocompat-yc
-lib/mootools-more-1.4.0.1
+lib/mootools-more-1.5.1
 lib/alert
 lib/lscache
 lib/popup
@@ -55,6 +55,7 @@ progressbar
 widgets/live_search
 widgets/dragupload
 widgets/calendar.compat
+widgets/clockpicker
 widgets/tabbed_fieldset
 widgets/id_field
 widgets/sort_field
@@ -63,4 +64,3 @@ version_switcher
 tray
 stream_sortable
 preview
-time
