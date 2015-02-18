@@ -49,12 +49,14 @@
     {% endif %}
     {% if widget.show_create_button %}
       <a class="button hide"
+         rel="create"
          id="{{ widget.id }}-create"
          href="{{ widget.create_url }}"
          target="{{ widget.id }}_create_window">
         {{ widget.create_btn_text }}
       </a>
     {% endif %}
+    {% block extra_buttons %}{% endblock %}
   </div>
   {%- endif %}
 </div>

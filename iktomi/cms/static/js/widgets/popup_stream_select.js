@@ -51,18 +51,8 @@ var PopupStreamSelect = new Class({
     this.inputPlace = this.container.getElement('.input-place');
     this.readonly = readonly;
     this.btn = $(this.options.container + '-btn');
-    this.createBtn = $(this.options.container + '-create');
-    // XXX disabled
-    if (this.options.create_url && this.createBtn) {
-      this.createBtn.addEvent('click', function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        this.load(this.options.create_url);
-        return false;
-      }.bind(this))
-    } else {
-      this.createBtn = null;
-    }
+    this.createBtns = this.container.getElements('[rel=create]');
+    this.createBtns.addEvent('click', this.createBtnClick.bind(this))
     this.popup = new Popup();
     this.setup();
     if (! this.readonly ){
@@ -74,6 +64,13 @@ var PopupStreamSelect = new Class({
     if (this.options.sortable){
       this._makeDragable();
     }
+  },
+
+  createBtnClick: function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    this.load(e.target.get('href'));
+    return false;
   },
 
   hasValue: function(v) {
@@ -93,9 +90,7 @@ var PopupStreamSelect = new Class({
     if (this.btn) {
       this.btn.removeClass('hide');
     }
-    if (this.createBtn) {
-      this.createBtn.removeClass('hide');
-    }
+    this.createBtns.removeClass('hide');
   },
 
   addControls: function() {
@@ -143,6 +138,18 @@ var PopupStreamSelect = new Class({
     }
     this.popup.contentEl.addEvent('load', this.patchItemForm.bind(this));
 
+    this.popup.contentEl.addEvent('click', function(e){
+        var a = e.target.match('a[data-id]') ?
+                    e.target:
+                    e.target.getParent('a[data-id]');
+        if (a){
+            e.preventDefault();
+            e.stopPropagation();
+            var item = a.getParent('.item');
+            this.onItemClicked(item, a.dataset.id);
+        }
+    }.bind(this), true);
+
     this.postSetup();
     this.setState();
   },
@@ -187,8 +194,8 @@ var PopupStreamSelect = new Class({
 
   onContentRecieved: function(result) {
     this.popup.hide_loader();
-    var frm = this.popup.contentEl.getElement('.item-form');
-    if (!frm) {
+    var stream = this.popup.contentEl.getElement('.stream');
+    if (stream) {
       var id = this._select_items.pop();
       while(id) {
         var item = this.popup.el.getElement('.itemlist .item a[data-id='+id+']').getParent('.item');
@@ -260,26 +267,10 @@ var PopupStreamSelect = new Class({
 
   attachContentEvents: function() {
     // XXX be careful! Called multiple times on each form
-
-    this.popup.el.getElements('.itemlist .item').each(function(item) {
-
-      item.getElements('a[data-id]').each(function(a) {
-
-        a.addEvent('click', function(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.onItemClicked(item, a.dataset.id);
-        }.bind(this));
-
-      }.bind(this));
-
-    }.bind(this));
-
     // XXX
     var frm = this.popup.el.getElement('.filter-form');
     if (frm) {
       frm.retrieve('filterForm').removeEvents('load').addEvent('load', function(){
-        console.log('loaded new content')
         this.attachContentEvents();
         this.markSelectedItems();
       }.bind(this));
@@ -321,7 +312,11 @@ var PopupStreamSelect = new Class({
 
   makeLinksExternal: function(el) {
     if (this.options.rel === null){
-      el.getElements('a').setProperty('target', '_blank');
+      el.getElements('a').each(function(a){
+          if (!a.get('rel')){
+              a.setProperty('target', '_blank');
+          }
+      })
     } else {
       el.getElements('a').setProperty('rel', this.options.rel);
     }
