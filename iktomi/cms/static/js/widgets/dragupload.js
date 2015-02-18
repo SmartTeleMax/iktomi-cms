@@ -32,6 +32,7 @@
       this.el = $(element);
       this.queue = new Array();
       this.uploading_count = 0;
+      this.uid = 0;
       if (! this.check_browser()){return false;}
 
       //patch Mootools events list
@@ -58,18 +59,20 @@
     },
 
     bindfile: function(fileinput){
-      var self = this;
-      fileinput.addEvent('change', function(e){
-        var file = this.files[0];
-        if (file.size!==undefined){
-          self.fireEvent('addfile', {
-            file: file,
-            fileName: file.fileName || file.name,
-            event: e.event
-          });
-          self.upload(file);
-        }
-      });
+        fileinput.addEvent('change', function(e){
+            Array.from(e.target.files).each(function(file){
+                if (file.size!==undefined){
+                    var uid = this.uid++;
+                    this.fireEvent('addfile', {
+                        file: file,
+                        fileName: file.fileName || file.name,
+                        uid: uid,
+                        event: e.event
+                    });
+                    this.upload(file, uid);
+                }
+            }.bind(this));
+        }.bind(this));
     },
 
     _leave: function(e){
@@ -106,15 +109,17 @@
 
     uploadFile: function(file, event) {
       if (file.size!==undefined){
+        var uid = this.uid++;
         this.fireEvent('addfile', {
             fileName: file.fileName || file.name,
+            uid: uid,
             file: file
         });
-        this.upload(file);
+        this.upload(file, uid);
       }
     },
 
-    upload: function(file){
+    upload: function(file, uid){
       if (this.uploading_count < this.options.parallel_uploads){
         var fileSize = file.size;// || file.fileSize;
 
@@ -129,6 +134,7 @@
         file.xhr = xhr;
         var progress = (function(e){
           e.fileName = (file.fileName || file.name);
+          e.uid = uid;
           this.fireEvent('progress', e);
         }).bind(this);
 
@@ -139,13 +145,15 @@
           var status = e.target.status;
           var statusGroup = Math.floor(status / 100);
           if (statusGroup == 4 || statusGroup == 5){
+            e.uid = uid;
             this.fireEvent('error', e);
           } else {
+            e.uid = uid;
             e.fileName = file.fileName || file.name;
             this.uploading_count--;
             var queue_file = this.queue.shift();
             if (queue_file){
-                this.upload(queue_file);
+                this.upload(queue_file.file, queue_file.uid);
             }
             this.fireEvent('complete', e);
           }
@@ -162,7 +170,7 @@
         xhr.open('POST', url, true);
         xhr.send(file);
       } else {
-        this.queue.push(file);
+        this.queue.push({file: file, uid: uid});
       }
     },
 
@@ -171,7 +179,7 @@
         file.xhr.abort();
         file.xhr.onreadystatechange = $empty;
         this.uploading_count--; // XXX
-      } else if (this.queue.contains(file)){
+      } else if (this.queue.any(function(x){ return x.file==file})){
         // XXX: not debugged
         this.queue.remove(file);
       }
@@ -536,4 +544,6 @@
     // btw, good idea!
     //frm.retrieve('hooks').append(CheckFilesUploaded);
   });
+
+  window.DragUpload = DragUpload;
 })();
