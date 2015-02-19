@@ -7,15 +7,7 @@ from .stream import Stream
 class PrepareLonerHandler(PrepareItemHandler):
 
     def retrieve_item(self, env, item):
-        stream = self.action.stream
-        Model = stream.get_model(env)
-        extra_filters = stream.extra_filters
-
-        item = env.db.query(Model)\
-                     .filter_by(**extra_filters).scalar()
-        if item is None:
-            item = Model(**extra_filters)
-        return item
+        return self.action.stream.retrieve_item(env, item)
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
@@ -79,4 +71,15 @@ class Loner(Stream):
 
     def lock_back_url(self, env, item, filter_form):
         return env.root.index
+
+    def retrieve_item(self, env, item):
+        Model = self.get_model(env)
+        extra_filters = self.extra_filters
+
+        item = env.db.query(Model)\
+                     .filter_by(**extra_filters).scalar()
+        if item is None:
+            item = Model(**extra_filters)
+        return item
+
 
