@@ -24,6 +24,7 @@ Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
                              id={widget.id+'input-'+option.value}
                              name={widget.input_name}
                              checked={selected}
+                             readOnly={true}
                              data-title={option.title}
                              data-published={option.published}
                              value={option.value}/>;

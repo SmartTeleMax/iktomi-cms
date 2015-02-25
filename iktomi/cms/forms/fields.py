@@ -150,19 +150,15 @@ class FieldList(FieldList):
 
 
 def SplitDateTimeField(name, label, required=True,
-                       get_initial=datetime.now,
-                       template='widgets/fieldset-line'):
+                       get_initial=datetime.now):
     return FieldSet(
         name,
-        widget=widgets.FieldSetWidget(js_block='datetime',
-                                      template=template),
+        widget=widgets.Datetime(),
         conv=convs.SplitDateTime(required=required),
         fields=[Field('date',
-                      conv=convs.Date(required=required),
-                      widget=widgets.Calendar(js_block='calendar-simple')),
+                      conv=convs.Date(required=required)),
                 Field('time',
-                      conv=convs.Time(required=required),
-                      widget=widgets.TextInput(classname='timeinput'))],
+                      conv=convs.Time(required=required))],
         get_initial=get_initial,
         label=label)
 

@@ -354,6 +354,12 @@ class CollapsableFieldBlock(widgets.FieldBlockWidget):
                     open_with_data=self.open_with_data)
 
 
+class Datetime(widgets.FieldSetWidget):
 
-class FieldSetWidget(widgets.FieldSetWidget):
-    js_block = None
+    now_button = True
+    now_button_text = u"сейчас"
+
+    def render(self):
+        return dict(Widget.render(self),
+                    now_button=self.now_button,
+                    now_button_text=self.now_button_text)

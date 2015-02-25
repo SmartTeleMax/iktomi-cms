@@ -1,6 +1,6 @@
 lib/react
 lib/mootools-core-1.5.0-full-nocompat-yc
-lib/mootools-more-1.4.0.1
+lib/mootools-more-1.5.1
 lib/alert
 lib/lscache
 lib/popup
@@ -33,6 +33,7 @@ text/jsx:widgets/label_select
 text/jsx:widgets/popup_filtered_select
 text/jsx:widgets/checkbox
 text/jsx:widgets/calendar
+text/jsx:widgets/datetime
 text/jsx:widgets/fileinput
 text/jsx:widgets/imageinput
 
@@ -55,6 +56,7 @@ progressbar
 widgets/live_search
 widgets/dragupload
 widgets/calendar.compat
+widgets/clockpicker
 widgets/tabbed_fieldset
 widgets/id_field
 widgets/sort_field
@@ -63,4 +65,3 @@ version_switcher
 tray
 stream_sortable
 preview
-time

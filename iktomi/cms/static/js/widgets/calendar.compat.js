@@ -43,29 +43,9 @@ var Calendar = new Class({
         }, this);
 
         // create cal element with css styles required for proper cal functioning
-        this.calendar = new Element('div').addClass(this.classes.calendar).inject(this.options.container || document.body);
-
-        // initialize fade method
-        this.fx = new Fx.Tween(this.calendar, {
-            onStart: function() {
-                if (this.calendar.getStyle('opacity') == 0) { // show
-                    this.calendar.setStyle('display', 'block');
-                    this.fireEvent('onShowStart');
-                }
-                else { // hide
-                    this.fireEvent('onHideStart');
-                }
-            }.bind(this),
-            onComplete: function() {
-                if (this.calendar.getStyle('opacity') == 0) { // hidden
-                    this.calendar.setStyle('display', 'none');
-                    this.fireEvent('onHideComplete');
-                }
-                else { // shown
-                    this.fireEvent('onShowComplete');
-                }
-            }.bind(this)
-        });
+        this.calendar = new Element('div', {
+            "class": this.classes.calendar + " hidden"
+        }).inject(this.options.container || document.body);
 
         var id = 0;
         var d = new Date(); // today
@@ -74,7 +54,6 @@ var Calendar = new Class({
 
         this.id = id++;
         this.month = d.getMonth();
-        this.visible = false;
         this.year = d.getFullYear();
 
         Object.merge(this, this.bounds()); // abs bounds of calendar
@@ -174,13 +153,6 @@ var Calendar = new Class({
             }
         }
 
-        // special case of improved navigation but months array with only 1 month we can disable all month navigation
-        if (typeof cal.months == 'array') {
-            if (cal.months.length == 1 && this.options.navigation == 2) {
-                navigation.prev.month = navigation.next.month = false;
-            }
-        }
-
         var caption = new Element('caption');
 
         var prev = new Element('a').addClass(this.classes.prev).appendText('\x3c'); // <
@@ -204,14 +176,20 @@ var Calendar = new Class({
             if (navigation.next.year) { next.clone().addEvent('click', function(cal) { this.navigate('y', 1); }.pass(cal, this)).inject(year); }
         }
         else { // 1 or 0
-            if (navigation.prev.month && this.options.navigation) { prev.clone().addEvent('click', function(cal) { this.navigate('m', -1); }.pass(cal, this)).inject(caption); }
+            if (navigation.prev.month && this.options.navigation) {
+                prev.clone().addEvent('click', this.navigate.bind(this, 'm', -1)).inject(caption);
+            }
 
-            caption.adopt(new Element('span').addClass(this.classes.month).appendText(this.options.months[cal.month]));
+            caption.adopt(new Element('span').addClass(this.classes.month)
+                                             .appendText(this.options.months[cal.month]));
 
-            caption.adopt(new Element('span').addClass(this.classes.year).appendText(cal.year));
+            caption.adopt(new Element('span').addClass(this.classes.year)
+                                             .appendText(cal.year));
 
-            if (navigation.next.month && this.options.navigation) { next.clone().addEvent('click', function(cal) { this.navigate('m', 1); }.pass(cal, this)).inject(caption); }
+            if (navigation.next.month && this.options.navigation) {
+                next.clone().addEvent('click', this.navigate.bind(this, 'm', 1)).inject(caption);
 
+            }
         }
 
         return caption;
@@ -244,7 +222,7 @@ var Calendar = new Class({
         // 1. header and navigation
         this.calendar.empty(); // init div
 
-        this.calendar.className = this.classes.calendar + ' ' + this.options.months[cal.month].toLowerCase();
+        //this.calendar.className = this.classes.calendar + ' ' + this.options.months[cal.month].toLowerCase();
 
         var div = new Element('div').inject(this.calendar); // a wrapper div to help correct browser css problems with the caption element
 
@@ -258,7 +236,7 @@ var Calendar = new Class({
         for (var i = 0; i <= 6; i++) {
             var th = this.options.days[(i + this.options.offset) % 7];
 
-            tr.adopt(new Element('th', { 'title': th }).appendText(th.substr(0, this.options.day_short)));
+            tr.adopt(new Element('th'/*, { 'title': th }*/).appendText(th.substr(0, this.options.day_short)));
         }
 
         // 3. day numbers
@@ -299,19 +277,9 @@ var Calendar = new Class({
             td.addClass(cls);
 
             if (valid.contains(day)) { // if it's a valid - clickable - day we add interaction
-                td.setProperty('title', this.format(date, 'D, jR M Y'));
+                //td.setProperty('title', this.format(date, 'D, jR M Y'));
 
-                td.addEvents({
-                    'click': function(td, day, cal) {
-                        this.clicked(td, day, cal);
-                    }.pass([td, day, cal], this),
-                    'mouseover': function(td, cls) {
-                        td.addClass(cls);
-                    }.pass([td, this.classes.hover]),
-                    'mouseout': function(td, cls) {
-                        td.removeClass(cls);
-                    }.pass([td, this.classes.hover])
-                });
+                td.addEvent('click', this.clicked.bind(this, td, day));
             }
 
             // pad calendar with last days of prev month and first days of next month
@@ -320,6 +288,8 @@ var Calendar = new Class({
 
             td.appendText(day);
         }
+
+        this.calendar.removeClass('hidden');
     },
 
 
@@ -334,7 +304,7 @@ var Calendar = new Class({
 
         if (date) {
             var j = date.getDate(); // 1 - 31
-      var w = date.getDay(); // 0 - 6
+            var w = date.getDay(); // 0 - 6
             var l = this.options.days[w]; // Sunday - Saturday
             var n = date.getMonth() + 1; // 1 - 12
             var f = this.options.months[n - 1]; // January - December
@@ -409,18 +379,19 @@ var Calendar = new Class({
     // @param type (str) m or y for month or year
     // @param n (int) + or - for next or prev
 
-    navigate: function(cal, type, n) {
+    navigate: function(type, n) {
+        var cal = this;
         switch (type) {
             case 'm': // month
                     if ($type(cal.months) == 'array') {
                         var i = cal.months.indexOf(cal.month) + n; // index of current month
 
-                        if (i < 0 || i == cal.months.length) { // out of range
+                        if (i < 0 || i == 12) { // out of range
                             if (this.options.navigation == 1) { // if type 1 nav we'll need to increment the year
                                 this.navigate('y', n);
                             }
 
-                            i = (i < 0) ? cal.months.length - 1 : 0;
+                            i = (i < 0) ? 12 - 1 : 0;
                         }
 
                         cal.month = cal.months[i];
@@ -429,10 +400,7 @@ var Calendar = new Class({
                         var i = cal.month + n;
 
                         if (i < 0 || i == 12) {
-                            if (this.options.navigation == 1) {
-                                this.navigate('y', n);
-                            }
-
+                            cal.year += (i < 0) ? -1: 1;
                             i = (i < 0) ? 11 : 0;
                         }
 
@@ -461,7 +429,7 @@ var Calendar = new Class({
         }
 
 
-        this.display(cal);
+        this.display();
     },
 
 
@@ -475,44 +443,21 @@ var Calendar = new Class({
     // toggle: show / hide calendar
     // @param cal (obj)
 
-    toggle: function(cal) {
-        document.removeEvent('mousedown', this.fn); // always remove the current mousedown script first
-
-        if (cal.visible) { // simply hide curr cal
-            cal.visible = false;
-
-            this.fx.start('opacity', 1, 0);
-        }
-        else { // otherwise show (may have to hide others)
-            // hide cal on out-of-bounds click
-            //this.fn = function(e, cal) {
-            //    var e = new Event(e);
-
-            //    var el = e.target;
-
-            //    var stop = false;
-
-            //    while (el != document.body && el.nodeType == 1) {
-            //        if (el == this.calendar) { stop = true; }
-
-            //        if (stop) {
-            //            e.stopPropagation(); e.preventDefault();
-            //            return false;
-            //        }
-            //        else { el = el.parentNode; }
-            //    }
-
-            //    this.toggle(cal);
-            //}.create({ 'arguments': cal, 'bind': this, 'event': true });
-
-            //document.addEvent('mousedown', this.fn);
-
-            this.display(cal);
-
-            this.fx.start('opacity', 0, 1);
+    toggle: function() {
+        if (this.calendar.hasClass('hidden')){
+            this.display();
+        } else {
+            this.hide();
         }
     },
 
+    isVisible: function(){
+        return !this.calendar.hasClass('hidden');
+    },
+
+    hide: function() {
+        this.calendar.addClass('hidden');
+    },
 
     // unformat: takes a value from an input and parses the d, m and y elements
     // @param val (string)
@@ -520,6 +465,7 @@ var Calendar = new Class({
     // @returns array
 
     unformat: function(val, f) {
+        f = f || this.options.format;
         f = f.escapeRegExp();
 
         var re = {
@@ -592,8 +538,8 @@ var Calendar = new Class({
                 }
             }, this);
         }
-
-        return dates;
+        console.log(dates[0], dates[1] , dates[2]);
+        return new Date(dates[0], dates[1] , dates[2]);
     },
 
 
@@ -601,11 +547,14 @@ var Calendar = new Class({
     // @param cal (obj)
     // @returns day (int) or null
 
-    value: function(cal) {
+    value: function() {
         var day = null;
 
-        if (cal.val) {
-            if (cal.year == cal.val.getFullYear() && cal.month == cal.val.getMonth()) { day = cal.val.getDate(); }
+        if (this.val) {
+            if (this.year == this.val.getFullYear() &&
+                    this.month == this.val.getMonth()) {
+                day = this.val.getDate();
+            }
         }
 
         return day;
@@ -690,4 +639,17 @@ var Calendar = new Class({
 
 Calendar.implement(new Events, new Options);
 
+document.addEvent('domready', function(){
+    document.addEvent('click', function(e){
+        if (!e.target.hasClass('calendar') && 
+                !e.target.getParent('.calendar')){
+            $$('div.calendar').addClass('hidden');
+        }
+    }, true);
+    document.addEvent('keyup', function(e){
+        if (e.keyCode === 27) {
+            $$('div.calendar').addClass('hidden');
+        }
+    });
+})
 
