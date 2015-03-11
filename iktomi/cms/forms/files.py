@@ -18,7 +18,13 @@ class AjaxFileField(FileFieldSet):
 
     @property
     def upload_url(self):
-        return self.env.root.load_tmp_file
+        env = self.env
+        # XXX looks like a hack
+        if any(x for x in env.stream.actions if x.action=="file_upload"):
+            return env.stream.url_for(env, 'file_upload',
+                                      item=self.form.item.id,
+                                      field_name=self.input_name)
+        return env.root.load_tmp_file
 
     def __init__(self, *args, **kwargs):
         required = kwargs.pop('required', None)

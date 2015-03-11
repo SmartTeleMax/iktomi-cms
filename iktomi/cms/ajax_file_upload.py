@@ -18,6 +18,9 @@ logger = logging.getLogger(__file__)
 
 class FileUploadHandler(web.WebHandler):
 
+    def __init__(self, file_manager):
+        self.file_manager = file_manager
+
     def get_length(self, request):
         length = int(request.environ.get('CONTENT_LENGTH', 0))
         if not length:
@@ -44,29 +47,31 @@ class FileUploadHandler(web.WebHandler):
                                'headers or in get args\n')
         return length
 
+    def _get_file_manager(self, env):
+        return self.file_manager
+
     def _save_file(self, env, data, length):
-        request = env.request
-        return env.file_manager.create_transient(
-                                   request.body_file_raw,\
-                                   request.GET["file"],\
+        file_manager = self._get_file_manager(env)
+        return file_manager.create_transient(
+                                   env.request.body_file_raw,\
+                                   env.request.GET["file"],\
                                    length=length)
 
     def save_file(self, env, data, length):
         original_name = env.request.GET["file"]
         transient = self._save_file(env, data, length)
+        file_manager = self._get_file_manager(env)
         return {
             "file": transient.name,
-            'file_url': env.file_manager.get_transient_url(transient, env),
+            'file_url': file_manager.get_transient_url(transient, env),
             'original_name': original_name,
             }
 
     def __call__(self, env, data):
-        request = env.request
-
-        if request.method != "POST":
+        if env.request.method != "POST":
             raise HTTPMethodNotAllowed()
 
-        length = self.get_length(request)
+        length = self.get_length(env.request)
         if not length:
             return env.json({'status': 'failure',
                              'error': 'No Content-Length provided'})
@@ -76,14 +81,31 @@ class FileUploadHandler(web.WebHandler):
         return env.json(result)
 
 
-
-class StreamImageUploadHandler(PostAction, FileUploadHandler):
+class StreamFileUploadHandler(PostAction, FileUploadHandler):
 
     item_lock = False
-    force_autocrop = True
     for_item = True
     allowed_for_new = True
-    display=False
+    display = False
+    action = 'file_upload'
+
+    @property
+    def app(self):
+        prefix = web.prefix('/<noneint:item>/'+self.action+'/<field_name>',
+                            name=self.action,
+                            convs={'noneint': NoneIntConv})
+        prepare = PrepareItemHandler(self)
+        return prefix | web.cases(
+                  web.match() | prepare | self,
+                  )
+
+    def _get_file_manager(self, env):
+        return env.db.find_file_manager(self.stream.get_model(env))
+
+
+class StreamImageUploadHandler(StreamFileUploadHandler):
+
+    force_autocrop = True
     action = 'image_upload'
 
     @property
@@ -117,13 +139,14 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                 target_size = rel_field.prop.image_sizes
                 transforms = resizer.transformations(image.size, target_size)
                 rel_image = resizer(image, target_size)
-                rel_transient = env.file_manager.new_transient(ext)
+                file_manager = self._get_file_manager(env)
+                rel_transient = file_manager.new_transient(ext)
                 rel_image.save(rel_transient.path)
 
                 rel_images.append({
                     "name": rel_form_field.input_name,
                     "file": rel_transient.name,
-                    'file_url': env.file_manager.get_transient_url(rel_transient, env),
+                    'file_url': file_manager.get_transient_url(rel_transient, env),
                     'fill_from': form_field.input_name,
                     'transformations': transforms,
                     'source_size': image.size,
@@ -165,9 +188,10 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                                                   original_name, ext)
 
         original_name = env.request.GET["file"]
+        file_manager = self._get_file_manager(env)
         return {
             "file": transient.name,
-            'file_url': env.file_manager.get_transient_url(transient, env),
+            'file_url': file_manager.get_transient_url(transient, env),
             'original_name': original_name,
             'related_files': rel_images,
             }
@@ -204,7 +228,8 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                 transient_name = check_file_path(None, transient_name)
             except convs.ValidationError:
                 raise HTTPBadRequest()
-            source = env.file_manager.get_transient(transient_name).path
+            file_manager = self._get_file_manager(env)
+            source = file_manager.get_transient(transient_name).path
         else:
             return fail('Invalid mode')
 
@@ -225,7 +250,8 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         image = image.crop(box)
         ext = os.path.splitext(source)[1]
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
-        transient = env.file_manager.new_transient(ext)
+        file_manager = self._get_file_manager(env)
+        transient = file_manager.new_transient(ext)
         image.save(transient.path, quality=100)
 
         rel_images = self._collect_related_fields(
@@ -234,7 +260,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         return env.json({
             'status': 'ok',
             'file': transient.name,
-            'file_url': env.file_manager.get_transient_url(transient, env),
+            'file_url': file_manager.get_transient_url(transient, env),
             'original_name': original_name,
             'related_files': rel_images,
             })
