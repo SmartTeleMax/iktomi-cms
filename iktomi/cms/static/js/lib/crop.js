@@ -125,7 +125,7 @@
         if(this.cropDataField){
             // left, top, right, bottom
             var cropData = [this.left, this.top, this.width + this.left, this.height + this.top];
-            this.cropDataField.value=String(cropData);
+            this.cropDataField.value=JSON.stringify(cropData);
         }
     },
 
