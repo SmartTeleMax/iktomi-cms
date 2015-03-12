@@ -531,6 +531,7 @@
                      targetWidth: el.dataset.cropWidth,
                      title: label? label.get('text') : null,
                      cropUrl: el.dataset.cropUrl,
+                     cropDataField:form.getElement('[name='+ el.dataset.inputName+'_crop]'),
                      postData: {mode: source.getElement('input[name$=".mode"]').value,
                                 transient_name: source.getElement('input[name$=".transient_name"]').value},
                      onCrop: function(file){
