@@ -204,7 +204,9 @@ var PopupStreamSelect = new Class({
       }
 
       this.markSelectedItems();
-      this.addSelectAllButtons()
+      if (this._multiple){
+          this.addSelectAllButtons();
+      }
     }
     this.attachContentEvents();
     this.popup.show();
