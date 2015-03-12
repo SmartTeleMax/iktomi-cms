@@ -13,6 +13,7 @@
       this.onAjaxCrop = options.onAjaxCrop;
       this.cropUrl = options.cropUrl;
       this.postData = options.postData;
+      this.cropDataField = options.cropDataField;  
       //this.saveRatio = options.saveRatio != undefined? this.options.saveRatio: true;
 
       this.popup = new Popup();
@@ -120,11 +121,19 @@
         Pixastic.process(this.image, "crop", options, this.onCropComplete.bind(this));
       }
     },
+    saveCropData:function(){
+        if(this.cropDataField){
+            // left, top, right, bottom
+            var cropData = [this.left, this.top, this.width + this.left, this.height + this.top];
+            this.cropDataField.value=String(cropData);
+        }
+    },
 
     onCropComplete: function(canvas) {
       canvas.toBlob(function(data){
         data.name = 'cropped.jpeg';
         this.onCrop(data);
+        this.saveCropData();
 
         canvas.setStyle('opacity', 1);
         this.area.destroy();
@@ -135,6 +144,7 @@
 
     onAjaxCropComplete: function(e) {
       this.onAjaxCrop(e);
+      this.saveCropData();
 
       this.area.destroy();
       this.cropButton.destroy();
