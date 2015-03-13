@@ -37,7 +37,7 @@
   }
   .navigation .menu li {
   line-height: 22px;
-  background: #717b83;
+  background: rgba(255,255,255,0.15);
   }
 
 .navigation .menu li .stream-flag{
