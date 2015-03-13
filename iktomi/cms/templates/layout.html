@@ -12,6 +12,11 @@
 
     {% block extrahead %}
     {% endblock %}
+    {% if HEADER_STYLES is defined %}
+       <style type="text/css">
+         {{ HEADER_STYLES }} 
+       </style>
+    {% endif %}
   </head>
   <body>
     <div class="navigation">
