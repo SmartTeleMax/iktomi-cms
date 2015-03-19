@@ -319,6 +319,8 @@ class EditItemHandler(StreamAction):
         # representation
         log.after = self._clean_item_data(self.stream, env, item)
         if log.data_changed:
+            log.object_id = item.id
+            log.global_id = ItemLock.item_global_id(item)
             log.update_time = datetime.now()
             env.db.add(log)
             env.db.commit()
@@ -374,8 +376,7 @@ class EditItemHandler(StreamAction):
 
         form = self.get_item_form(stream, env, item, initial, draft)
         EditLog = getattr(env, 'edit_log_model', None)
-        log_enabled = (item.id is not None and 
-                       EditLog is not None and
+        log_enabled = (EditLog is not None and
                        getattr(env, 'version', 'admin') == 'admin' and
                        stream.edit_log_action is not None)
 

@@ -243,8 +243,10 @@ class EditLogHandler(GetAction):
 
         form_cls = rel_stream.config.ItemForm
 
-        form1 = form_cls.load_initial(env, data.item, initial={})
-        form2 = form_cls.load_initial(env, data.item, initial={})
+        item_cp = type(data.item)(id=data.item.id)
+
+        form1 = form_cls.load_initial(env, item_cp, initial={})
+        form2 = form_cls.load_initial(env, item_cp, initial={})
         form1.model = form2.model = rel_stream.get_model(env)
 
         form1.accept(log.before)
