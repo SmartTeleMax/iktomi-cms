@@ -14,6 +14,11 @@ from jinja2 import Markup
 
 class PublishStreamListHandler(StreamListHandler):
 
+    def prepare_data(self, env, data):
+        data = StreamListHandler.prepare_data(self, env, data)
+        data['allow_add'] = data['allow_add'] and env.version == 'admin'
+        return data
+
     def list_form_data(self, env, paginator, filter_data):
         if env.version == 'admin':
             return StreamListHandler.list_form_data(
@@ -33,6 +38,12 @@ class PublishItemHandler(EditItemHandler):
         changes = self.changed_fields(env, td['item'], td['form'])
         td['form'].changed_fields = changes
         return td
+
+    def create_allowed(self, env):
+        return self.stream.has_permission(env, 'c') and env.version == 'admin'
+
+    def delete_allowed(self, env, item=None):
+        return self.stream.has_permission(env, 'd') and env.version == 'admin'
 
     def get_front_item_form(self, env, item):
         front_models = _AdminReplicated.front
