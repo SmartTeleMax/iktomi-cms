@@ -6,6 +6,7 @@ from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.cms.publishing.stream import PublishItemHandler, \
         PublishStreamNoState, PublishStream
 from iktomi.cms.stream import Stream
+from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
 
 
@@ -23,6 +24,9 @@ class I18nItemHandler(PublishItemHandler):
     # XXX turn off autosave or make it save to DraftForm only?
 
     PrepareItemHandler = PrepareI18nItemHandler
+
+    def drop_field_on_i18n(self, field, key):
+        return field and isinstance(field.conv, convs.Char)
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         if item.state not in (item.ABSENT, item.DELETED):
@@ -60,7 +64,11 @@ class I18nItemHandler(PublishItemHandler):
                 self, stream, env, item, initial, draft)
         form.accept(source_form.raw_data)
         form.errors = {}
-
+        for key in form.raw_data.keys():
+            field = form.get_field(key)
+            if self.drop_field_on_i18n(field, key):
+                field.set_raw_value(form.raw_data,
+                                    field.from_python(field.get_initial()))
         return form
 
     def process_item_template_data(self, env, td):
