@@ -175,7 +175,9 @@
     autoSaveHandler: function(callback){
       var url = this.frm.dataset.autosave;
       if (! url || this.saveInProgress()) {
-        if (callback) { callback(); }
+        // `&& typeof(callback) == 'function'` 
+        // is the HACK to make the code work in FF 8.0.1
+        if (callback && typeof(callback) == 'function') { callback(); }
         return;
       }
 
@@ -191,7 +193,7 @@
         if (this.statusElement.getAttribute('data-status') != 'draft') {
           this.statusElement.setAttribute('data-status', 'no-changes');
         }
-        if (callback) { callback(); }
+        if (callback && typeof(callback) == 'function') { callback(); }
         return;
       }
 
@@ -204,7 +206,7 @@
           $$('.autosave-errors').removeClass('autosave-errors');
           if (result.success || result.error == 'draft'){
             this.frm.store('savedData', newData);
-            if (callback) { callback(); }
+            if (callback && typeof(callback) == 'function') { callback(); }
           }
           if (result.success){
             this.statusElement.setAttribute('data-status', 'saved');
