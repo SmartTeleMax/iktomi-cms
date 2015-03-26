@@ -302,8 +302,9 @@ class EditItemHandler(StreamAction):
                 env.user, data.edit_session)
         if log is None:
             before = self._clean_item_data(stream, env, item)
+            action_type = 'create' if item.id is None else 'edit'
             log = EditLog(stream_name=stream.uid(env),
-                          type="edit",
+                          type=action_type,
                           object_id=item.id,
                           global_id=ItemLock.item_global_id(item),
                           edit_session=data.edit_session,
