@@ -166,12 +166,16 @@ class AdminWithLanguage(WithLanguage):
                     item = self._create_version(model)
                     db.add(item)
 
-            if not item._front_item:
+            if item._front_item is None:
+                # Front item will be created right now,
+                # `_front_item` is cached_property,
+                # so we should invalidate it's value
+                del item.__dict__['_front_item']
                 # XXX it is better to do this automatically on before_insert or
                 #     after_insert
                 item._create_front_object()
             # flush changes for each language separately
-            # to force queries in right order aloso on the front
+            # to force queries in right order also on the front
             db.flush()
 
         if hasattr(self, 'state'): # XXX or isinstance check?
@@ -266,11 +270,17 @@ class _AdminReplicated(object):
 
     def _create_versions(self):
         # be careful! makes flush!
-        if not self._front_item:
-            object_session(self).flush()
+        if self._front_item is None:
+            db = object_session(self)
+            db.flush()
+            # Front item will be created right now,
+            # `_front_item` is cached_property,
+            # so we should invalidate it's value
+            del self.__dict__['_front_item']
             # XXX it is better to do this automatically on before_insert or
             #     after_insert
             self._create_front_object()
+            db.flush()
         # the item is created, we set PRIVATE state as default
         # XXX hasattr looks hacky
         if hasattr(self, 'state'):
