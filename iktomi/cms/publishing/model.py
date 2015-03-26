@@ -270,7 +270,7 @@ class _AdminReplicated(object):
 
     def _create_versions(self):
         # be careful! makes flush!
-        if not self._front_item:
+        if self._front_item is None:
             db = object_session(self)
             db.flush()
             # Front item will be created right now,
