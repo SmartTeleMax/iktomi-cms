@@ -400,6 +400,11 @@
                 top += params[1];
               }
             }
+            var form = this.el.getParent('form'); 
+            var cropDataField = form.getElement('[name='+this.el.dataset.inputName+'_crop]');
+            if(cropDataField){
+              cropDataField.value='';
+            }
             this.sourceImage = new Element('img', {
               'src': fillFrom.dataset.currentFile,
               'class': 'source-image'

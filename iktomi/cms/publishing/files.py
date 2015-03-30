@@ -48,7 +48,7 @@ class ReplicatedFileEventHandlers(ReplicatedHandlersMixin, FileEventHandlers):
 class PublicatedFileEventHandlers(
     PublicatedHandlersMixin,
     ReplicatedHandlersMixin,
-    ImageEventHandlers
+    FileEventHandlers
 ): pass
 
 class PublicatedImageEventHandlers(
