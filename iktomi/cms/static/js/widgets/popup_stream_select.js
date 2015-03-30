@@ -551,7 +551,7 @@ var PopupStreamSelectMultiple = new Class({
       this.container.getElement('label[for="'+input.id+'"]').destroy();
       input.destroy();
       this._rows[index].destroy();
-      delete this._inputs[index];
+      this._inputs.splice(index, 1);
       delete this._selected_items[index];
       delete this._rows[index];
       this.onChange();
