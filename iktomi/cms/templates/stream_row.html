@@ -31,7 +31,7 @@
       {%- if item.state == item.ABSENT %} absent{% endif %}
     {%- endif %}"
   {%- endblock %}
-  {%- if item.title is defined %} data-title="{{ item.title }}"{% endif %}>
+  {%- if item.title is defined %} data-title="{{ item.title|striptags }}"{% endif %}>
 
   {%- block list_fields %}
     {%- for name, field in list_fields.items() %}
