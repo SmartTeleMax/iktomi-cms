@@ -1,5 +1,6 @@
 <table class="fieldset fieldset-line{% if field.widget.js_block %} init-block{% endif %}" 
-    {%- if field.widget.js_block %} data-block-name="{{ field.widget.js_block }}"{% endif %}>
+    {%- if field.widget.js_block %} data-block-name="{{ field.widget.js_block }}"{% endif %}
+    {%- if readonly %} data-readonly="readonly"{% endif %}>
   <tr class="error-row">
     {%- for subfield in field.fields %}
       {%- if subfield.readable %}

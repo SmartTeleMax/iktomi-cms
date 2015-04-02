@@ -120,7 +120,7 @@
     };
 
     Blocks.register('datetime', function (el) {
-        return !el.get('readonly') && Time(el, {container: $('app-content')});
+        return (!el.get('readonly') && !el.dataset.readonly) && Time(el, {container: $('app-content')});
     });
 })();
 
