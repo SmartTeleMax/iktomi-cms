@@ -184,8 +184,8 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
         ext = os.path.splitext(original_name)[1]
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
 
-        rel_images = self._collect_related_fields(env, field, image,
-                                                  original_name, ext)
+        # preventing autocrop because of filter enhancement on ajax problem
+        rel_images = []
 
         original_name = env.request.GET["file"]
         file_manager = self._get_file_manager(env)
@@ -254,8 +254,9 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
         transient = file_manager.new_transient(ext)
         image.save(transient.path, quality=100)
 
-        rel_images = self._collect_related_fields(
-                                    env, form_field, image, original_name, ext)
+        # preventing autocrop because of filter enhancement on ajax problem
+        rel_images = []
+
 
         return env.json({
             'status': 'ok',
