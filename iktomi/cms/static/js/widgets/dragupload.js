@@ -339,6 +339,29 @@
     },
 
     setData: function(data){
+      if(data.mode=='empty'){
+        this.file_data.empty();
+        this.add_hidden('mode', 'empty');
+        this.add_hidden('transient_name', data.file);
+        this.add_hidden('original_name', data.original_name);
+        if (this.thumb){
+            this.thumb.destroy();
+        }
+
+        this.uploading_file = null;
+        this._replace_fileinput();
+        this.clrbtn.setStyle('display', 'none');
+
+        this.progressbar.set(100);
+        (function(){
+            this.pb_container.setStyle('visibility', 'hidden');
+        }.bind(this)).delay(2000);
+
+        if (this.deletebtn) {
+          this.deletebtn.setStyle('display', 'none');
+        }
+        return;
+      }
       //this.uploader.enable();
       this.uploading_file = null;
       this._replace_fileinput();

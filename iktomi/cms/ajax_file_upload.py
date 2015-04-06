@@ -107,6 +107,7 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
 
     force_autocrop = True
     action = 'image_upload'
+    use_autocrop = False
 
     @property
     def app(self):
@@ -133,25 +134,29 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
                 if not self.force_autocrop and \
                         not getattr(rel_form_field.conv, 'autocrop', False):
                     continue
-
-
-                resizer = rel_field.prop.resize
-                target_size = rel_field.prop.image_sizes
-                transforms = resizer.transformations(image.size, target_size)
-                rel_image = resizer(image, target_size)
-                file_manager = self._get_file_manager(env)
-                rel_transient = file_manager.new_transient(ext)
-                rel_image.save(rel_transient.path)
-
-                rel_images.append({
-                    "name": rel_form_field.input_name,
-                    "file": rel_transient.name,
-                    'file_url': file_manager.get_transient_url(rel_transient, env),
-                    'fill_from': form_field.input_name,
-                    'transformations': transforms,
-                    'source_size': image.size,
-                    'original_name': original_name,
+                if not self.use_autocrop:
+                    rel_images.append({
+                        "name": rel_form_field.input_name,
+                        "mode":"empty"
                     })
+                    rel_image = None
+                else:
+                    resizer = rel_field.prop.resize
+                    target_size = rel_field.prop.image_sizes
+                    transforms = resizer.transformations(image.size, target_size)
+                    rel_image = resizer(image, target_size)
+                    file_manager = self._get_file_manager(env)
+                    rel_transient = file_manager.new_transient(ext)
+                    rel_image.save(rel_transient.path)
+                    rel_images.append({
+                        "name": rel_form_field.input_name,
+                        "file": rel_transient.name,
+                        'file_url': file_manager.get_transient_url(rel_transient, env),
+                        'fill_from': form_field.input_name,
+                        'transformations': transforms,
+                        'source_size': image.size,
+                        'original_name': original_name,
+                        })
                 rel_images += self._collect_related_fields(
                                         env, rel_form_field,
                                         rel_image, original_name, ext)
