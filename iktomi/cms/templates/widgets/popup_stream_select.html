@@ -8,11 +8,11 @@
      data-config="{{ widget.js_config() }}">
 
   {% macro option(id='', title='', index=None) %}
-    {%- if title is defined -%}{# XXX I don't like this forced interface #}
       <label for="{{ widget.id }}-input{% if widget.multiple %}-{{ index }}{% endif %}">
-        {{ title }}
+        {%- if title is defined -%}
+            {{ title }}
+        {% endif -%}
       </label>
-    {% endif -%}
     <input type="checkbox"
            checked="checked"
            id="{{ widget.id }}-input{% if widget.multiple %}-{{ index }}{% endif %}"

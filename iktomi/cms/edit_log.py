@@ -190,10 +190,13 @@ class EditLogHandler(GetAction):
     cls = 'edit-log'
     action = 'edit_log'
     title = u'Журнал изменений'
-    log_types = {'edit': u'Правка',
-                 'publish': u'Опубликовано',
-                 'unpublish': u'Снято с публикации',
-                 'revert': u'Откат'}
+    log_types = {
+        'create': u'Создано',
+        'edit': u'Правка',
+        'publish': u'Опубликовано',
+        'unpublish': u'Снято с публикации',
+        'revert': u'Откат'
+    }
 
     @property
     def PrepareItemHandler(self):
