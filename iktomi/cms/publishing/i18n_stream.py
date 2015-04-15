@@ -26,7 +26,8 @@ class I18nItemHandler(PublishItemHandler):
     PrepareItemHandler = PrepareI18nItemHandler
 
     def drop_field_on_i18n(self, field, key):
-        return field and isinstance(field.conv, convs.Char)
+        return field and (isinstance(field.conv, convs.Char) or
+                          field.name == 'id')
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         if item.state not in (item.ABSENT, item.DELETED):
