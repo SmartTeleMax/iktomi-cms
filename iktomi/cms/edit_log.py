@@ -12,10 +12,10 @@ from iktomi.cms.loner import Loner
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
 
 
-def all_by_default(conv, value):
-    if not value:
-        return [k for k, v in conv.conv.choices]
-    return value
+#def all_by_default(conv, value):
+#    if not value:
+#        return [k for k, v in conv.conv.choices]
+#    return value
 
 
 class EditLogItemFilterForm(FilterForm):
@@ -36,7 +36,8 @@ class EditLogItemFilterForm(FilterForm):
             if field.name == 'streams':
                 field = field(conv=convs.ListOf(
                             convs.EnumChoice(choices=streams),
-                            all_by_default))
+                            #all_by_default
+                            ))
             if field.name == 'type':
                 field = field(conv=convs.EnumChoice(choices=types))
             fields.append(field)
@@ -85,6 +86,48 @@ class EditLogFilterForm(EditLogItemFilterForm):
     ] + EditLogItemFilterForm.fields
 
 
+def preload_users(env, entries):
+    entries_by_id = dict((x.id, x) for x in entries)
+    m = env.models.admin
+    query = env.db.query(m.AdminUser)\
+                  .join(m.EditLogAdminUser)\
+                  .filter(m.EditLogAdminUser.log_id.in_(entries_by_id))\
+                  .with_entities(m.EditLogAdminUser.log_id, m.AdminUser)
+    objects = query.all()
+
+    for entry in entries_by_id.values():
+        # XXX what is the right way to do this?!
+        entry.__dict__['users'] = [v for k, v in objects if k == entry.id]
+
+def preload_items(env, entries):
+    by_stream = {}
+    for entry in entries:
+        by_stream.setdefault(entry.stream_name, [])
+        by_stream[entry.stream_name].append(entry.object_id)
+
+    by_stream_and_id = {}
+    for stream_name, ids in by_stream.items():
+
+        name = stream_name.split(':')[0]
+        if name not in env.streams:
+            continue
+        stream = env.streams[name]
+        lang = decode_stream_uid(stream_name)[1].get('lang')
+
+        stream_env = VersionedStorage(version="admin", lang=lang)
+        stream_env._storage._parent_storage = env
+        # XXX only for multi db! will fail on single db
+        stream_env.models = env.models.admin
+        if lang:
+            stream_env.models = getattr(stream_env.models, lang)
+
+        M = stream.get_model(stream_env)
+        items = stream.item_query(stream_env).filter(M.id.in_(ids)).all()
+        for item in items:
+            by_stream_and_id[(stream_name, str(item.id))] = item
+    return by_stream_and_id
+
+
 def global_log(env, data, stream=None):
     insure_is_xhr(env)
 
@@ -124,12 +167,23 @@ def global_log(env, data, stream=None):
     #url = stream.url_for(env, self.action, item=data.item.id)
     paginator = ModelPaginator(env.request, query,
                                impl=FancyPageRange(),
-                               limit=30,
+                               limit=50,
                                #url=url
                                )
+    preload_users(env, paginator.items)
 
-    expand_obj = partial(_expand, env, for_item=getattr(data, 'item', None))
-    paginator.items = [expand_obj(obj) for obj in paginator.items]
+    if getattr(data, 'item', None) is None:
+        expand_obj = partial(_expand, env)
+        by_stream_and_id = preload_items(env, paginator.items)
+        paginator.items = [expand_obj(obj,
+                                      for_item=by_stream_and_id.get((obj.stream_name, obj.object_id)))
+                           for obj in paginator.items]
+
+    else:
+        expand_obj = partial(_expand, env, for_item=data.item)
+        paginator.items = [expand_obj(obj) for obj in paginator.items]
+
+    paginator.items = filter(None, paginator.items)
 
     reverse_data = data.as_dict()
     if stream is not None:
@@ -174,10 +228,16 @@ def _expand(env, obj, for_item=None):
     else:
         item = for_item
 
+    if item is not None:
+        item_title = getattr(item, 'title', unicode(item))
+    else:
+        item_title = u"<{}: удалённый или недоступный объект: {}>".format(
+                                stream.title, obj.object_id)
+
     return {"obj": obj,
             "stream": stream,
             "item": item,
-            "item_title": getattr(item, 'title', unicode(item)),
+            "item_title": item_title,
             "lang": lang,
             "type": stream.edit_log_action.log_type_title(obj)}
 
@@ -194,6 +254,7 @@ class EditLogHandler(GetAction):
         'create': u'Создано',
         'edit': u'Правка',
         'publish': u'Опубликовано',
+        'delete': u'Удалено',
         'unpublish': u'Снято с публикации',
         'revert': u'Откат'
     }

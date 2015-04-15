@@ -2,6 +2,8 @@
 
 {% set pager = paginate(paginator) %}
 
+{% macro url_to_href(url) %} href="{{ url }}"{% endmacro %}
+
 {% macro stream_content() %}
   {{ pager }}
   <table class="items">
@@ -20,29 +22,33 @@
       <td colspan="5">История пуста</td>
     {% endif %}
     {%- for entry in paginator.items %}
-      {% if entry and entry.item %}
-          {% set obj=entry.obj %}
-          {% set lang_kw = {'lang': entry.lang } if entry.lang else {} %}
-          {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id, **lang_kw) -%}
-          <tr class="item {{ loop.cycle('odd', 'even') }} edit-log-{{obj.type}}">
-            <td class="field_id"><a href="{{ url }}">{{ obj.id }}</a></td>
-            <td>
-              {% if entry.lang %}<span class="lang-{{ entry.lang }}"></span>{% endif -%}
-            </td>
-            <td><a href="{{ url }}">{{ entry.type }}</a></td>
-            {% if not item is defined %}
-              <td><a href="{{ url }}">{{ entry.item_title }}</a></td>
-            {% endif %}
-            <td><a href="{{ url }}">
-              {%- for user in obj.users %}
-                {{- user.name or user.login }}
-              {% endfor -%}
-            </a></td>
-            <td><a href="{{ url }}">
-                {{ obj.update_time.strftime("%d.%m.%Y %H:%M") }}
-            </a></td>
-          </tr>
-      {% endif %}
+      {% set obj=entry.obj %}
+      {% set lang_kw = {'lang': entry.lang } if entry.lang else {} %}
+      <tr class="item {{ loop.cycle('odd', 'even') }} edit-log-{{obj.type}}">
+          {% if entry.item %}
+              {%- set url = entry.stream.url_for(env, 'edit_log.entry', item=obj.object_id, log_id=obj.id, **lang_kw) -%}
+              {% set href = url_to_href(url) %}
+          {% else %}
+              {% set href = '' %}
+          {% endif %}
+
+          <td class="field_id"><a {{ href }}>{{ obj.id }}</a></td>
+          <td>
+            {% if entry.lang %}<span class="lang-{{ entry.lang }}"></span>{% endif -%}
+          </td>
+          <td><a {{ href }}>{{ entry.type }}</a></td>
+          {% if not item is defined %}
+              <td><a {{ href }}>{{ entry.item_title }}</a></td>
+          {% endif %}
+          <td><a {{ href }}>
+            {%- for user in obj.users %}
+              {{- user.name or user.login }}
+            {% endfor -%}
+          </a></td>
+          <td><a {{ href }}>
+              {{ obj.update_time.strftime("%d.%m.%Y %H:%M") }}
+          </a></td>
+      </tr>
     {% endfor %}
     </tbody>
   </table>

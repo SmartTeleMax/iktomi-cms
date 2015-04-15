@@ -42,6 +42,17 @@ td.edit-log-ins{
         background-color: hsl(20,80%,93%);
         }
 
+.edit-log-delete.odd td{
+    background-color: hsl(0,50%,60%);
+    }
+    .edit-log-delete.even td{
+        background-color: hsl(0,50%,63%);
+        }
+    .edit-log-delete,
+    .edit-log-delete a{
+        color: white;
+        }
+
 .edit-log-info{
     padding: 0 10px;
     overflow: hidden;

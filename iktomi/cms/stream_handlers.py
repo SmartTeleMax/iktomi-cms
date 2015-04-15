@@ -633,6 +633,9 @@ class DeleteItemHandler(_ReferrersAction):
                            .qs_set(filter_form.get_data())
         if env.request.method == 'POST':
             env.db.delete(item)
+            log = self.stream.create_log_entry(env, data.item, 'delete')
+            if log is not None:
+                env.db.add(log)
             try:
                 self.clear_tray(env, item)
                 env.db.commit()

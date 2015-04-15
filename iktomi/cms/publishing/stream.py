@@ -282,6 +282,11 @@ class DeleteFlagHandler(DeleteItemHandler):
         self.stream.insure_has_permission(env, 'd')
 
         data.item.delete()
+
+        log = self.stream.create_log_entry(env, data.item, 'delete')
+        if log is not None:
+            env.db.add(log)
+
         self.clear_tray(env, data.item)
         env.db.commit()
 
