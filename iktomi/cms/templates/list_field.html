@@ -3,7 +3,8 @@
               {{ url_for_static(field_val.url) }}
               {%- else -%}
               {{- field_val.url -}}
-              {%- endif -%}" {{ attrs|xmlattr }} style="border: none;" />
+              {%- endif -%}" {{ attrs|xmlattr }}
+         style="border: none; width: {{ field.width }};" />
 {% elif field.static %}
   <a href="{{ url_for_static(field_val.url) }}">{{ field_val }}</a>
 {% else %}
