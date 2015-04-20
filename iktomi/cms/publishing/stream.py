@@ -190,7 +190,7 @@ class UnpublishAction(PostAction):
 
     def is_available(self, env, item):
         return hasattr(item, 'state') and \
-                item.public and \
+                item.state == item.PUBLIC and \
                 self.stream.has_permission(env, 'p') and \
                 env.version == 'admin'
 
