@@ -312,8 +312,8 @@ class HasChangesListField(ListField):
     def __init__(self, name='has_unpublished_changes', title='', **kwargs):
         kwargs.setdefault('link_to_item', False)
         kwargs.setdefault('transform', lambda x: x)
-        kwargs.setdefault('width', '0%')
-        return ListField.__init__(self, name, title, **kwargs)
+        kwargs.setdefault('classname', 'width-0')
+        ListField.__init__(self, name, title, **kwargs)
 
 
 
