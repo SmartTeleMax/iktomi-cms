@@ -30,22 +30,27 @@ def ListFields(*args):
             field = ListField(*field)
         fields.append(field)
     if not fields or fields[0].name != 'id':
-        fields.insert(0, ListField('id', 'ID', '0%'))
+        fields.insert(0, ListField('id', 'ID', classname='width-0'))
     fields.insert(1, ItemLockListField())
     return OrderedDict(fields)
 
 
 class ListField(object):
 
-    template='list_field.html'
+    template = 'list_field.html'
 
-    def __init__(self, name, title, width='auto', image=False,
+    # Use classname and define width in css files
+    _obsolete = frozenset(['width'])
+
+    def __init__(self, name, title, image=False,
                  transform=lambda f: u'—' if f is None else f,
                  static=False, link_to_item=True, classname='',
-                 template=None):
+                 template=None, **kwargs):
+        if self._obsolete & set(kwargs):
+            raise TypeError('Obsolete parameters are used: {}'.format(
+                list(self._obsolete & set(kwargs))))
         self.name = name
         self.title = title
-        self.width = width
         self.image = image
         self.static = static
         self.transform = transform
@@ -69,13 +74,13 @@ class ListField(object):
 
 class ItemLockListField(ListField):
 
-    template='list_field_item_lock.html'
+    template = 'list_field_item_lock.html'
 
     def __init__(self, name='locked', title='', **kwargs):
         kwargs.setdefault('link_to_item', False)
         kwargs.setdefault('transform', lambda x: x)
-        kwargs.setdefault('width', '0%')
-        return ListField.__init__(self, name, title, **kwargs)
+        kwargs.setdefault('classname', 'width-0')
+        ListField.__init__(self, name, title, **kwargs)
 
     def get_value(self, env, item, url, loop):
         lock = env.item_lock.check(item)

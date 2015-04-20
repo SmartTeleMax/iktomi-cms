@@ -377,6 +377,7 @@ tr.even td.unpublished {
     background-color: hsl(20,80%,93%);
     }
 
-
-
-
+/* Replacement of width="0%" in ListField */
+.width-0 {
+    width: 0;
+}
