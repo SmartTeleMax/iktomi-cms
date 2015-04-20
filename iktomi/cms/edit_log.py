@@ -88,7 +88,7 @@ class EditLogFilterForm(EditLogItemFilterForm):
 
 def preload_users(env, entries):
     entries_by_id = dict((x.id, x) for x in entries)
-    m = env.models.admin
+    m = env.models_.admin
     query = env.db.query(m.AdminUser)\
                   .join(m.EditLogAdminUser)\
                   .filter(m.EditLogAdminUser.log_id.in_(entries_by_id))\
@@ -117,7 +117,7 @@ def preload_items(env, entries):
         stream_env = VersionedStorage(version="admin", lang=lang)
         stream_env._storage._parent_storage = env
         # XXX only for multi db! will fail on single db
-        stream_env.models = env.models.admin
+        stream_env.models = env.models_.admin
         if lang:
             stream_env.models = getattr(stream_env.models, lang)
 
@@ -150,7 +150,7 @@ def global_log(env, data, stream=None):
 
         filter_form = EditLogFilterForm(env,
                                         streams=stream_choices,
-                                        models=env.models.admin,
+                                        models=env.models_.admin,
                                         types=types)
     else:
         log_types = stream.edit_log_action.log_types
