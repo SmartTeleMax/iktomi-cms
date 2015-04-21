@@ -24,7 +24,7 @@
           <tr>
             {% call thead_content() %}
               {%- for field in list_fields.values() -%}
-                <th style="width: {{ field.width }};" class="field_{{ field.name }}"
+                <th class="field_{{ field.name }}"
                     {%- if not field.title %} class="no-title"{% endif %}>
                   {{- field.title -}}
                 </th>
