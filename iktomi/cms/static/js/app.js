@@ -32,7 +32,9 @@
         }
         // XXX cleanup
         var url = link.getAttribute('href');
-        if (url.indexOf('://') != -1 || url.indexOf('javascript:') == 0){
+        if (url.indexOf('://') != -1 || 
+              url.indexOf('javascript:') == 0
+              || e.ctrlKey || e.metaKey || e.shiftKey){
           return;
         }
         e.preventDefault();

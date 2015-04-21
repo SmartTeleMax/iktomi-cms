@@ -70,6 +70,12 @@
     'paginator': function(){
       this.form.getParent('.stream').addEventListener('click', function(e){
         var link = e.target.tagName == 'A'? e.target: e.target.getParent('a');
+        var url = link.getAttribute('href');
+        if (url.indexOf('://') != -1 || 
+              url.indexOf('javascript:') == 0
+              || e.ctrlKey || e.metaKey || e.shiftKey){
+          return;
+        }
         if (link && e.target.getParent('.pages')){
           this.submit(link.getAttribute('href'));
           e.preventDefault(); e.stopPropagation();
