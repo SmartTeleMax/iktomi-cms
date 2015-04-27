@@ -4800,6 +4800,112 @@ wysihtml5.dom.parse = (function() {
       }
     }
 
+    // XXX STM changes
+    var self = this;
+    function getWrapperTag(){
+        var wrapInlineTags = self.cleanerConfig.wrapInlineTags;
+        // default value
+        if(wrapInlineTags === undefined){
+            return context.createElement('p');
+        }else if(wrapInlineTags === true || wrapInlineTags === null){
+            return context.createElement('p');
+        }else if(wrapInlineTags === false){
+            return false;
+        }else{
+            return context.createElement(wrapInlineTags)
+        }
+    }
+
+    function getTagsToWrap(){
+        var defaultTags = ['B', 'BIG', 'I', 'SMALL', 'TT',
+                           'ABBR', 'ACRONYM', 'CITE', 'CODE',
+                           'DFN', 'EM', 'KBD', 'STRONG', 'SAMP',
+                           'VAR', 'A', 'BDO', 'BR', 'MAP', 'OBJECT',
+                           'Q', 'SPAN', 'SUB', 'SUP'];
+        var tagsToWrap = self.cleanerConfig.tagsToWrap;
+        if(tagsToWrap){
+            return tagsToWrap;
+        }else{
+            return defaultTags;
+        }
+    };
+
+    // XXX STM changes
+    var children = Array.prototype.slice.call(fragment.childNodes);
+    var tagsToWrap = getTagsToWrap();
+    if(getWrapperTag() && tagsToWrap){
+        var par = null;
+        for (var i=0; i < children.length; i++){
+            var child = children[i];
+            if (child.nodeType == child.TEXT_NODE) {
+                if (par === null){
+                    par = getWrapperTag()
+                    fragment.insertBefore(par, child)
+                }
+                par.appendChild(child);
+                continue;
+            }
+            if (child.nodeType != child.ELEMENT_NODE) {
+                continue;
+            }
+            if (child.tagName == 'BR' && tagsToWrap.indexOf('BR') != -1){
+                if (par === null || par.childNodes.length != 0){
+                    par = getWrapperTag()
+                    fragment.insertBefore(par, child)
+                }
+                fragment.removeChild(child)
+                continue;
+            }
+
+            if (tagsToWrap.indexOf(child.tagName) != -1){
+                if (par === null){
+                    par = getWrapperTag()
+                    fragment.insertBefore(par, child)
+                }
+                par.appendChild(child);
+                continue;
+            }
+
+            par = null;
+
+            if (child.tagName == 'P'){
+
+                var pChildren = Array.prototype.slice.call(child.childNodes);
+                for (var j=0; j < pChildren.length; j++){
+                    var pChild = pChildren[j];
+                    if (pChild.tagName == 'BR' && tagsToWrap.indexOf('BR') != -1){
+                        var newChild = getWrapperTag()
+                        fragment.insertBefore(newChild, child.nextSibling)
+                        child.removeChild(pChild)
+
+                        child = newChild
+                        for (var k = j+1; k < pChildren.length; k++){
+                            child.appendChild(pChildren[k])
+                        }
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+
+    // XXX <- STM changes ->
+    var children = Array.prototype.slice.call(fragment.childNodes);
+    // Drop empty paragraphs
+    var dropEmptyTags = self.cleanerConfig.dropEmptyTags;
+    if(dropEmptyTags !== undefined){
+        for (var i=0; i < children.length; i++){
+            var child = children[i];
+            if (dropEmptyTags.indexOf(child.tagName) >= 0 &&
+                    child.nodeType == child.ELEMENT_NODE &&
+                    child.childNodes.length<=1 && // XXX is textContent slow?
+                    !wysihtml5.lang.string(child.textContent).trim()){
+                fragment.removeChild(child);
+            }
+        }
+    }
+    // XXX end STM code
+
     // Clear element contents
     element.innerHTML = "";
 
@@ -4947,18 +5053,18 @@ wysihtml5.dom.parse = (function() {
       classes.push(setClass);
     }
 
-    if (addClass) {
-      for (attributeName in addClass) {
-        method = addClassMethods[addClass[attributeName]];
-        if (!method) {
-          continue;
-        }
-        newClass = method(_getAttribute(oldNode, attributeName));
-        if (typeof(newClass) === "string") {
-          classes.push(newClass);
-        }
-      }
-    }
+    //if (addClass) {
+    //  for (attributeName in addClass) {
+    //    method = addClassMethods[addClass[attributeName]];
+    //    if (!method) {
+    //      continue;
+    //    }
+    //    newClass = method(_getAttribute(oldNode, attributeName));
+    //    if (typeof(newClass) === "string") {
+    //      classes.push(newClass);
+    //    }
+    //  }
+    //}
 
     // make sure that wysihtml5 temp class doesn't get stripped out
     allowedClasses["_wysihtml5-temp-placeholder"] = 1;
@@ -5119,59 +5225,60 @@ wysihtml5.dom.parse = (function() {
     })()
   };
 
+  // XXX STM changes
   // ------------ class converter (converts an html attribute to a class name) ------------ \\
-  var addClassMethods = {
-    align_img: (function() {
-      var mapping = {
-        left:   "wysiwyg-float-left",
-        right:  "wysiwyg-float-right"
-      };
-      return function(attributeValue) {
-        return mapping[String(attributeValue).toLowerCase()];
-      };
-    })(),
+  //var addClassMethods = {
+  //  align_img: (function() {
+  //    var mapping = {
+  //      left:   "wysiwyg-float-left",
+  //      right:  "wysiwyg-float-right"
+  //    };
+  //    return function(attributeValue) {
+  //      return mapping[String(attributeValue).toLowerCase()];
+  //    };
+  //  })(),
 
-    align_text: (function() {
-      var mapping = {
-        left:     "wysiwyg-text-align-left",
-        right:    "wysiwyg-text-align-right",
-        center:   "wysiwyg-text-align-center",
-        justify:  "wysiwyg-text-align-justify"
-      };
-      return function(attributeValue) {
-        return mapping[String(attributeValue).toLowerCase()];
-      };
-    })(),
+  //  align_text: (function() {
+  //    var mapping = {
+  //      left:     "wysiwyg-text-align-left",
+  //      right:    "wysiwyg-text-align-right",
+  //      center:   "wysiwyg-text-align-center",
+  //      justify:  "wysiwyg-text-align-justify"
+  //    };
+  //    return function(attributeValue) {
+  //      return mapping[String(attributeValue).toLowerCase()];
+  //    };
+  //  })(),
 
-    clear_br: (function() {
-      var mapping = {
-        left:   "wysiwyg-clear-left",
-        right:  "wysiwyg-clear-right",
-        both:   "wysiwyg-clear-both",
-        all:    "wysiwyg-clear-both"
-      };
-      return function(attributeValue) {
-        return mapping[String(attributeValue).toLowerCase()];
-      };
-    })(),
+  //  clear_br: (function() {
+  //    var mapping = {
+  //      left:   "wysiwyg-clear-left",
+  //      right:  "wysiwyg-clear-right",
+  //      both:   "wysiwyg-clear-both",
+  //      all:    "wysiwyg-clear-both"
+  //    };
+  //    return function(attributeValue) {
+  //      return mapping[String(attributeValue).toLowerCase()];
+  //    };
+  //  })(),
 
-    size_font: (function() {
-      var mapping = {
-        "1": "wysiwyg-font-size-xx-small",
-        "2": "wysiwyg-font-size-small",
-        "3": "wysiwyg-font-size-medium",
-        "4": "wysiwyg-font-size-large",
-        "5": "wysiwyg-font-size-x-large",
-        "6": "wysiwyg-font-size-xx-large",
-        "7": "wysiwyg-font-size-xx-large",
-        "-": "wysiwyg-font-size-smaller",
-        "+": "wysiwyg-font-size-larger"
-      };
-      return function(attributeValue) {
-        return mapping[String(attributeValue).charAt(0)];
-      };
-    })()
-  };
+  //  size_font: (function() {
+  //    var mapping = {
+  //      "1": "wysiwyg-font-size-xx-small",
+  //      "2": "wysiwyg-font-size-small",
+  //      "3": "wysiwyg-font-size-medium",
+  //      "4": "wysiwyg-font-size-large",
+  //      "5": "wysiwyg-font-size-x-large",
+  //      "6": "wysiwyg-font-size-xx-large",
+  //      "7": "wysiwyg-font-size-xx-large",
+  //      "-": "wysiwyg-font-size-smaller",
+  //      "+": "wysiwyg-font-size-larger"
+  //    };
+  //    return function(attributeValue) {
+  //      return mapping[String(attributeValue).charAt(0)];
+  //    };
+  //  })()
+  //};
 
   return parse;
 })();
@@ -8573,33 +8680,37 @@ wysihtml5.views.View = Base.extend(
       });
     }
 
-    if (browser.hasHistoryIssue() && browser.supportsSelectionModify()) {
-      dom.observe(element, "keydown", function(event) {
-        if (!event.metaKey && !event.ctrlKey) {
-          return;
-        }
+    // XXX STM changes
+    // Ctrl+Shifth+larr/rarr extend -> selection to the start or to the end of
+    // the line
+    // XXX breaks Ctrl+rarr Ctrl+larr behaviour in FF, commented
+    //if (browser.hasHistoryIssue() && browser.supportsSelectionModify()) {
+    //  dom.observe(element, "keydown", function(event) {
+    //    if (!event.metaKey && !event.ctrlKey) {
+    //      return;
+    //    }
 
-        var keyCode   = event.keyCode,
-            win       = element.ownerDocument.defaultView,
-            selection = win.getSelection();
+    //    var keyCode   = event.keyCode,
+    //        win       = element.ownerDocument.defaultView,
+    //        selection = win.getSelection();
 
-        if (keyCode === 37 || keyCode === 39) {
-          if (keyCode === 37) {
-            selection.modify("extend", "left", "lineboundary");
-            if (!event.shiftKey) {
-              selection.collapseToStart();
-            }
-          }
-          if (keyCode === 39) {
-            selection.modify("extend", "right", "lineboundary");
-            if (!event.shiftKey) {
-              selection.collapseToEnd();
-            }
-          }
-          event.preventDefault();
-        }
-      });
-    }
+    //    if (keyCode === 37 || keyCode === 39) {
+    //      if (keyCode === 37) {
+    //        selection.modify("extend", "left", "lineboundary");
+    //        if (!event.shiftKey) {
+    //          selection.collapseToStart();
+    //        }
+    //      }
+    //      if (keyCode === 39) {
+    //        selection.modify("extend", "right", "lineboundary");
+    //        if (!event.shiftKey) {
+    //          selection.collapseToEnd();
+    //        }
+    //      }
+    //      event.preventDefault();
+    //    }
+    //  });
+    //}
 
     // --------- Shortcut logic ---------
     dom.observe(element, "keydown", function(event) {
@@ -9455,6 +9566,8 @@ wysihtml5.views.Textarea = wysihtml5.views.View.extend(
     // Object which includes parser rules to apply when html gets inserted via copy & paste
     // See parser_rules/*.js for examples
     parserRules:          { tags: { br: {}, span: {}, div: {}, p: {} }, classes: {} },
+    // serverside Cleaner config copy
+    cleanerConfig:        {},
     // Parser method to use when the user inserts content via copy & paste
     parser:               wysihtml5.dom.parse,
     // Class name which should be set on the contentEditable element in the created sandbox iframe, can be styled via the 'stylesheets' option

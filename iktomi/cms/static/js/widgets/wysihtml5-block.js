@@ -21,7 +21,8 @@
       //  
       //  return isString ? wysihtml5.quirks.getCorrectInnerHTML(element) : element;
       //}
-      parserRules: config.parserRules // defined in parser rules set 
+      parserRules: config.parserRules, // defined in parser rules set 
+      cleanerConfig: config.cleanerConfig,
     });
     var iframe = editor.composer.iframe;
 
