@@ -25,7 +25,8 @@
                       e.target: 
                       e.target.getParent('a[href]'));
       if (link){
-        if (link.get('target') == '_blank' || link.get('rel') == 'external'){
+        if (link.get('target') == '_blank' || link.get('rel') == 'external'
+            || e.which == 2){  // Last check for Chrome middlebutton behaviour
           e.preventDefault();
           window.open(link.href);
           return;
