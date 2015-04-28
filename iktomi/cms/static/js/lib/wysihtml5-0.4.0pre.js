@@ -4896,7 +4896,7 @@ wysihtml5.dom.parse = (function() {
     if(dropEmptyTags !== undefined){
         for (var i=0; i < children.length; i++){
             var child = children[i];
-            if (child.tagName == 'P' &&
+            if (dropEmptyTags.indexOf('P') >= 0 && child.tagName == 'P' &&
                     child.nodeType == child.ELEMENT_NODE &&
                     child.childNodes.length<=1 && // XXX is textContent slow?
                     !wysihtml5.lang.string(child.textContent).trim()){
