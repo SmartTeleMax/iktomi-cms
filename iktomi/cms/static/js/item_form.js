@@ -151,7 +151,7 @@
       var _doSubmit = function(){
         this.submit(button, function(result){
           renderPage(result, this.container);
-        }, url);
+        }.bind(this), url);
       }.bind(this);
 
       if (!button.dataset.itemForm){
