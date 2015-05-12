@@ -15,7 +15,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         } else {
             value = [];
         }
-        this.key = this.key || -1;
+        //this.key = this.key || 1;
         //for (var i=value.length; i--;){
         //    if(!value[i]._key){
         //      value[i]._key = (this.key--);
@@ -28,14 +28,14 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
     subWidget: function(data){
         var prop = _clone(this.props.subwidget);
         if(data._key == undefined){
-            this.key = this.key || -1;
-            data._key = this.key--;
+            data._key = this.state.value.length + 1;
         }
+        prop._key = data._key;
         prop.parent = this;
         prop.id = this.props.id + '.' + data._key;
         prop.input_name = this.props.input_name + '.'  + data._key;
         prop.errors = this.props.errors[data._key] || {};
-        prop.data = data;
+        prop.data = data[data._key];
  
         if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
             throw "Component does not exist: " + prop.widget;
@@ -64,7 +64,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
                           </td>;
         }
 
-        return <tr className="fieldlist-item" key={subWidget.props.data._key}>
+        return <tr className="fieldlist-item" key={subWidget.props._key}>
                   <td className="fieldlist-cell">
                       {subWidget}
                   </td>
@@ -132,10 +132,12 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
     },
     onAddClick: function(e){
         var value = this.getValue();
-        value.push(Widgets.getDefaultValue(this.props.subwidget));
+        var newWidgetState = Widgets.getDefaultValue(this.props.subwidget);
+        var newValue = {};
+        newValue[String(value.length+1)] = newWidgetState;
+        newValue['_key'] = String(value.length+1);
+        value.push(newValue);
         this.setValue(value);
- 
-        //this.fireChange();
     },
     fireChange: function(){
         // XXX why doesn't this work?
