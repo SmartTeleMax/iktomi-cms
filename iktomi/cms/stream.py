@@ -96,17 +96,20 @@ class FilterForm(Form):
     fields = []
 
     def filter_by_scalar(self, query, field, value):
-        return query.filter(getattr(self.model, field.name)==value)
+        if hasattr(self.model, field.name):
+            return query.filter(getattr(self.model, field.name)==value)
+        return query
 
     def filter_by_true(self, query, field, value):
-        if value:
+        if value and hasattr(self.model, field.name):
             return self.filter_by_scalar(query, field, value)
         return query
 
     def filter_by_list(self, query, field, values):
-        prop = getattr(self.model, field.name)
-        for value in values:
-            query = query.filter(prop.contains(value))
+        if hasattr(self.model, field.name):
+            prop = getattr(self.model, field.name)
+            for value in values:
+                query = query.filter(prop.contains(value))
         return query
 
     def filter_by_default(self, query, field, value):
