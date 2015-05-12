@@ -35,6 +35,7 @@ text/jsx:widgets/checkbox
 text/jsx:widgets/calendar
 text/jsx:widgets/datetime
 text/jsx:widgets/fileinput
+text/jsx:widgets/imageinput
 
 
 lib/longpress

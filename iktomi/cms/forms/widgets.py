@@ -305,12 +305,23 @@ class AjaxFileInput(FileInput):
     def js_config(self):
         return {'input': self.id,
                 'error': self.field.error,
-                'upload_url': self.upload_url,
+                'upload_url': self.upload_url or self.field.upload_url,
                 'value': self.field.get_data()}
 
     def render(self):
         return dict(Widget.render(self),
                     **self.js_config())
+
+
+class AjaxImageInput(AjaxFileInput):
+
+    show_image = False
+    allow_upload = False
+
+    def js_config(self):
+        return dict(AjaxFileInput.js_config(self),
+                    show_image=self.show_image,
+                    allow_upload=self.allow_upload)
 
 
 class Calendar(TextInput):

@@ -98,7 +98,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                   )
 
     def _collect_related_fields(self, env, form_field, image,
-                                original_name, ext):
+                                original_name, ext, source):
         rel_images = []
         for name in dir(form_field.model):
             rel_field = getattr(form_field.model, name)
@@ -112,26 +112,27 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
                         not getattr(rel_form_field.conv, 'autocrop', False):
                     continue
 
-
                 resizer = rel_field.prop.resize
                 target_size = rel_field.prop.image_sizes
-                transforms = resizer.transformations(image.size, target_size)
+                transforms = resizer.transformations(image, target_size)
                 rel_image = resizer(image, target_size)
                 rel_transient = env.file_manager.new_transient(ext)
                 rel_image.save(rel_transient.path)
 
-                rel_images.append({
-                    "name": rel_form_field.input_name,
-                    "file": rel_transient.name,
-                    'file_url': env.file_manager.get_transient_url(rel_transient, env),
-                    'fill_from': form_field.input_name,
-                    'transformations': transforms,
-                    'source_size': image.size,
-                    'original_name': original_name,
-                    })
+                rel_images.append({rel_form_field.input_name:{
+                    "current_url":env.file_manager.get_transient_url(rel_transient, env),
+                    "transient_name":rel_transient.name,
+                    "original_name": original_name,
+                    "mode":"transient",
+                    "source_url":source.url,
+                    "source_transient":source.name,
+                    "sizes": target_size,
+                    }
+                })
                 rel_images += self._collect_related_fields(
                                         env, rel_form_field,
-                                        rel_image, original_name, ext)
+                                        rel_image, original_name, ext,
+                                        rel_transient)
         return rel_images
 
     def _get_form(self, env, data):
@@ -162,14 +163,17 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
 
         rel_images = self._collect_related_fields(env, field, image,
-                                                  original_name, ext)
-
+                                                  original_name, ext,
+                                                  transient)
+        related_files = {}
+        for image in rel_images:
+            related_files.update(image)
         original_name = env.request.GET["file"]
         return {
             "file": transient.name,
             'file_url': env.file_manager.get_transient_url(transient, env),
             'original_name': original_name,
-            'related_files': rel_images,
+            'related_files': related_files,
             }
 
     def crop(self, env, data):
@@ -229,12 +233,16 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
         image.save(transient.path, quality=100)
 
         rel_images = self._collect_related_fields(
-                                    env, form_field, image, original_name, ext)
+                                    env, form_field, image,
+                                    original_name, ext, transient)
 
+        related_files = {}
+        for image in rel_images:
+            related_files.update(image)
         return env.json({
             'status': 'ok',
             'file': transient.name,
             'file_url': env.file_manager.get_transient_url(transient, env),
             'original_name': original_name,
-            'related_files': rel_images,
+            'related_files': related_files,
             })

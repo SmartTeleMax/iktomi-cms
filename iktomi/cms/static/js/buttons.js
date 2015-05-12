@@ -27,11 +27,10 @@
             var className = "button action-" + action.action + 
                                   (action.cls? " icon-" + action.cls: "");
             className += visible ? '' : ' hidden';
-            return <a href={this.getUrl()}
-                      title={visible ? (action.hint || undefined) : undefined}
+            return <button title={visible ? (action.hint || undefined) : undefined}
                       onClick={this.onClick}
-                      className={className}>{action.title}</a>
-        }
+                      className={className}>{action.title}</button>
+        },
     }
 
     var saveAndContinueProto = Object.merge({}, buttonProto, {
@@ -60,7 +59,19 @@
         }
     });
     var getProto = Object.merge({}, buttonProto, {
-        onClick: function(e){}
+        onClick: function(e){},
+        render: function() {
+            var action = this.props;
+            var visible = this.isVisible();
+            var className = "button action-" + action.action + 
+                                  (action.cls? " icon-" + action.cls: "");
+            className += visible ? '' : ' hidden';
+            return <a href={this.getUrl()} 
+                      title={visible ? (action.hint || undefined) : undefined}
+                      onClick={this.onClick}
+                      className={className}>{action.title}</a>
+        },
+ 
     });
 
 

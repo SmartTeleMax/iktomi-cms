@@ -113,6 +113,10 @@
             var data = this.getPropsData();
             for (var i=0; i<this.props.widgets.length; i++){
                 var prop = _clone(this.props.widgets[i]);
+                if(!prop.key){
+                    // Auto key property setting     
+                    prop.key = "auto-key-" + i;
+                }
                 if (data[prop.key] == undefined){
                     var default_ = Widgets.getDefaultValue(prop);
                     if (default_ !== null){

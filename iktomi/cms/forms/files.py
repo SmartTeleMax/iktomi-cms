@@ -28,31 +28,23 @@ class AjaxFileField(FileFieldSet):
             kwargs['conv'] = conv(required=required)
         FileFieldSet.__init__(self, *args, **kwargs)
 
-    def get_diff(field1, field2):
-        path1 = field1.form.raw_data.get(field1.prefix+'path')
-        path2 = field2.form.raw_data.get(field2.prefix+'path')
-        if path1 != path2:
-            return dict(label=field2.label,
-                        name=field2.input_name,
-                        before=lambda: path1,
-                        after=lambda: path2,
-                        changed=True)
-
     def get_data(self):
         data = {}
+
         for field in self.fields:
             data.update(field.get_data())
         # XXX we must return actual file state even in draft form
         # to avoid errors on autosave
-        file_obj = self.clean_value
+        form_cls = self.form.__class__
+        form_state = form_cls._load_initial(self.form.item,
+                                            initial={},
+                                            fields=self.form.fields)
+        file_obj = form_state[self.name]
         if file_obj is not None:
-            if isinstance(file_obj, PersistentFile):
-                data['current_url'] = file_obj.url
-            if isinstance(file_obj, TransientFile) and file_obj.stored_to:
-                data['mode'] = 'existing'
-                data['transient_name'] = None
-                data['original_name'] = None
-                data['current_url'] = file_obj.stored_to.url
+            data['mode'] = 'existing'
+            data['current_url'] = file_obj.url
+            data['transient_name'] = None
+            data['original_name'] = None
         return {self.name: data}
 
 
@@ -70,7 +62,7 @@ class ImageFieldSetConv(FileFieldSetConv):
 
 class AjaxImageField(AjaxFileField):
 
-    widget = widgets.FieldSetWidget(template='widgets/ajax_imageinput')
+    widget = widgets.AjaxImageInput
     #: used when file is uploaded
     thumb_size = None
     model_field = None
@@ -172,52 +164,19 @@ class AjaxImageField(AjaxFileField):
 
         return None
 
-    def set_raw_value(self, raw_data, value):
-        AjaxFileField.set_raw_value(self, raw_data, value)
-        # XXX hack!
-        if getattr(self.form, 'for_diff', False) and \
-                self.clean_value and \
-                not self.conv.autocrop:
-            resizer = ResizeFit()
-            try:
-                img = Image.open(self.clean_value.path)
-            except IOError:
-                pass
-            else:
-                img = resizer(img, (100, 100))
-                img = img.convert('RGB')
-                img_file = StringIO()
-                img.save(img_file, format='jpeg')
-                data = "data:image/jpeg;base64," + \
-                        img_file.getvalue().encode('base64').replace('\n', '')
-                raw_data[self.prefix+'image'] = data
+    def get_data(self):
+        result = AjaxFileField.get_data(self)
+        data = result[self.name]
 
-    def get_diff(field1, field2):
-        path1 = field1.form.raw_data.get(field1.prefix+'path')
-        path2 = field2.form.raw_data.get(field2.prefix+'path')
-        if path1 != path2:
-            img1 = field1.form.raw_data.get(field1.prefix+'image')
-            img2 = field2.form.raw_data.get(field2.prefix+'image')
-            if img1 or img2:
-                if img1:
-                    before = lambda: Markup("<img src='{}'/>").format(img1)
-                else:
-                    before = lambda: ''
-                if img2:
-                    after = lambda: Markup("<img src='{}'/>").format(img2)
-                else:
-                    after = lambda: ''
-                return dict(label=field2.label,
-                            name=field2.input_name,
-                            before=before,
-                            after=after,
-                            changed=True)
-            elif not field1.conv.autocrop and not field2.conv.autocrop:
-                return dict(label=field2.label,
-                            name=field2.input_name,
-                            before=lambda: path1,
-                            after=lambda: path2,
-                            changed=True)
+        if self.fill_from:
+            # XXX Hack to get original image source for cropping
+            field = self.form.get_field(self.fill_from)
+            original_data = field.get_data()[self.fill_from]
+            if 'current_url' in original_data:
+                data['source_url'] = original_data['current_url']
+                data['source_mode'] = original_data['mode']
+                data['source_transient'] = original_data['transient_name']
+        data['upload_url'] = self.upload_url
+        data['sizes'] = self.model_field.image_sizes
 
-
-
+        return {self.name:data}
