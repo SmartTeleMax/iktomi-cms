@@ -67,6 +67,7 @@ class WysiHtml5(Widget):
     @cached_property
     def js_config(self):
         return json.dumps({'parserRules': self.parser_rules,
+                           'cleanerConfig': self.cleaner_config,                 
                            'stylesheets': self.stylesheets})
 
     @cached_property
@@ -87,6 +88,18 @@ class WysiHtml5(Widget):
         if 'i' in rules and not 'em' in rules:
             rules['em']  = {'rename_tag': 'i'}
         return {'tags': rules}
+
+    @cached_property
+    def cleaner_config(self):
+        conv = self.field.conv
+        config = {}
+        if hasattr(conv, 'tags_to_wrap'):
+            config['tagsToWrap'] = [x.upper() for x in conv.tags_to_wrap]
+        if hasattr(conv, 'drop_empty_tags'):
+            config['dropEmptyTags'] = [x.upper() for x in conv.drop_empty_tags]
+        if hasattr(conv, 'wrap_inline_tags'):
+            config['wrapInlineTags'] = conv.wrap_inline_tags
+        return config
 
     @cached_property
     def html_conv(self):
