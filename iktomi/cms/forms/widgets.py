@@ -67,7 +67,7 @@ class WysiHtml5(Widget):
     @cached_property
     def js_config(self):
         return json.dumps({'parserRules': self.parser_rules,
-                           'cleanerConfig': self.cleaner_config,                 
+                           'cleanerConfig': self.cleaner_config,
                            'stylesheets': self.stylesheets})
 
     @cached_property
@@ -167,6 +167,7 @@ class WysiHtml5(Widget):
                             **{rev_marker: {'remove': 1},
                                marker: {}})
         data['js_config'] = json.dumps({'parserRules': parser_rules,
+                                        'cleanerConfig': self.cleaner_config,
                                         'stylesheets': self.stylesheets})
         if self.field.readable:
             return self.env.template.render(self.template, **data)
