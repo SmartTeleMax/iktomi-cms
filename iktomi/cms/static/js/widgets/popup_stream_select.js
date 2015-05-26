@@ -137,6 +137,7 @@ var PopupStreamSelect = new Class({
       }.bind(this));
     }
     this.popup.contentEl.addEvent('load', this.patchItemForm.bind(this));
+    this.popup.contentEl.addEvent('load', this.popup.onWindowResize.bind(this.popup));
 
     this.popup.contentEl.addEvent('click', function(e){
         var a = e.target.match('a[data-id]') ?
