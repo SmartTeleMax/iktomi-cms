@@ -95,7 +95,7 @@ function makeMutable(obj){
             }
             var init = JSON.stringify(initial);
             initial = _mergeObjects(initial, value);
-            return {'value': _mergeObjects(value, initial),
+            return {'value': initial,//_mergeObjects(value, initial),
                     'errors': this.props.errors}
         },
 

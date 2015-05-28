@@ -16,6 +16,11 @@ from PIL import Image
 class AjaxFileField(FileFieldSet):
 
     widget = widgets.AjaxFileInput
+    multiple = True
+    initial = {'mode':'empty', 
+               'transient_name':None, 
+               'original_name':None,
+               'current_url': None}
 
     @property
     def upload_url(self):
@@ -34,17 +39,14 @@ class AjaxFileField(FileFieldSet):
         for field in self.fields:
             data.update(field.get_data())
         # XXX we must return actual file state even in draft form
-        # to avoid errors on autosave
-        form_cls = self.form.__class__
-        form_state = form_cls._load_initial(self.form.item,
-                                            initial={},
-                                            fields=self.form.fields)
-        file_obj = form_state[self.name]
-        if file_obj is not None:
-            data['mode'] = 'existing'
-            data['current_url'] = file_obj.url
-            data['transient_name'] = None
-            data['original_name'] = None
+        file_field = self.form.get_field(self.input_name)
+        if file_field:
+            file_obj = file_field.clean_value
+            if file_obj is not None:
+                data['mode'] = 'existing'
+                data['current_url'] = file_obj.url
+                data['transient_name'] = None
+                data['original_name'] = None
         return {self.name: data}
 
 
