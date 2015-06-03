@@ -16,6 +16,14 @@ from PIL import Image
 logger = logging.getLogger(__file__)
 
 
+class PrepareItemHandler(PrepareItemHandler):
+
+    def retrieve_item(self, env, item):
+        stream = self.action.stream
+        model = stream.get_model(env)
+        return env.db.query(model).filter_by(id=item).first()
+
+
 class FileUploadHandler(web.WebHandler):
 
     def __init__(self, file_manager):
