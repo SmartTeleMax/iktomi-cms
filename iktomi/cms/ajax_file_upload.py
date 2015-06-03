@@ -7,12 +7,11 @@ from iktomi import web
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.forms.fields import AjaxImageField
 from iktomi.cms.forms import convs
-from iktomi.cms.stream_handlers import PrepareItemHandler
+from iktomi.cms.stream_handlers import PrepareItemHandler, NoneIntConv
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.forms.files import check_file_path
 from PIL import Image
-from .flashmessages import flash
 
 logger = logging.getLogger(__file__)
 
