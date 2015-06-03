@@ -7,12 +7,7 @@ from iktomi import web
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.forms.fields import AjaxImageField
 from iktomi.cms.forms import convs
-from iktomi.cms.stream_handlers import (
-    PrepareItemHandler,
-    NoneIntConv,
-    insure_is_xhr,
-    see_other,
-)
+from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.unstable.db.sqla.files import FileAttribute
 from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.forms.files import check_file_path
@@ -24,34 +19,10 @@ logger = logging.getLogger(__file__)
 
 class PrepareItemHandler(PrepareItemHandler):
 
-    def prepare_item_handler(self, env, data):
-        '''Item actions dispatcher'''
-        if self.action.xhr:
-            insure_is_xhr(env)
-
+    def retrieve_item(self, env, item):
         stream = self.action.stream
         model = stream.get_model(env)
-        stream.insure_has_permission(env, 'r')
-
-        data.filter_form = stream.get_filter_form(env)
-        # Note: errors are displayed, but ignored in code.
-        data.filter_form.accept(env.request.GET)
-
-        if data.item is not None:
-            data.item = env.db.query(model).filter_by(id=data.item).first()
-            if data.item is None:
-                raise HTTPNotFound
-        elif not self.action.allowed_for_new:
-            flash(env, u'Действие «%s» недоступно для нового объекта' %
-                  (self.action.title,),
-                  'failure')
-            item_url = stream.url_for(env, 'item')(
-                data.filter_form.get_data())
-            return see_other(item_url)
-
-        self.take_lock(env, data)
-        return self.next_handler(env, data)
-    __call__ = prepare_item_handler
+        return env.db.query(model).filter_by(id=item).first()
 
 
 class FileUploadHandler(web.WebHandler):
