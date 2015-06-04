@@ -34,7 +34,8 @@
       this.form.getParent('.stream').setStyle('min-height', minHeight);
     },
     'getFilterKey': function() {
-      return this.form.get('action');
+      var isPopup = this.form.getParent('.popup') ? '-popup' : '';
+      return this.form.get('action') + isPopup;
     },
     'saveState': function() {
       var key = this.getFilterKey();
