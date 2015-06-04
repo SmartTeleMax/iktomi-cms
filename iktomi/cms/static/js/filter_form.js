@@ -10,10 +10,8 @@
     form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
     form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
     form.getElement('.sidefilter-close').addEvent('click', function(e){
-      var sidefilter = this.form.getParent('.sidefilter');
-      sidefilter.toggleClass('is-open');
-      var minHeight = sidefilter.getElement('form').getHeight();
-      this.form.getParent('.stream').setStyle('min-height', minHeight);
+      this.toggle();
+      this.saveState();
     }.bind(this));
     //form.getElement('.sidefilter-tags').addEvent('click', function(e){
     //  this.form.getParent('.sidefilter').toggleClass('is-open');
@@ -21,12 +19,40 @@
 
     this.setFilters();
 
+    this.restoreState();
+
     //form.getParent('.sidefilter').addEvent('click', function(){
     //  this.form.getParent('.sidefilter').addClass('is-open');
     //}.bind(this));
   }
  
   FilterForm.prototype = {
+    'toggle': function(open) {
+      var sidefilter = this.form.getParent('.sidefilter');
+      sidefilter.toggleClass('is-open', open);
+      var minHeight = sidefilter.getElement('form').getHeight();
+      this.form.getParent('.stream').setStyle('min-height', minHeight);
+    },
+    'getFilterKey': function() {
+      return this.form.get('action');
+    },
+    'saveState': function() {
+      var key = this.getFilterKey();
+      if (key) {
+        var sidefilter = this.form.getParent('.sidefilter');
+        var value = sidefilter.hasClass('is-open') ? 'opened' : 'closed';
+        lscache.set(key, value, 7 * 24 * 60);
+      }
+    },
+    'restoreState': function() {
+      var key = this.getFilterKey();
+      if (key) {
+        var value = lscache.get(key);
+        if (value) {
+          this.toggle(value == 'opened');
+        }
+      }
+    },
     'getSubmitUrl': function() {
       var qs = this.form.toQueryString();
       qs = qs.replace(/[^&]+=\.?(?:&|$)/g, '').replace(/&$/, '');
@@ -54,7 +80,6 @@
             var href = addButton.get('href').split('?')[0] + (qs? '?' + qs: '');
             addButton.set('href', href);
           }
-          this.form.getParent('.sidefilter').removeClass('is-open');
           this.setFilters();
 
         }.bind(this)
