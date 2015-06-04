@@ -555,7 +555,8 @@ var PopupStreamSelectMultiple = new Class({
       input.destroy();
       this._rows[index].destroy();
       this._inputs.splice(index, 1);
-      this._selected_items.splice(index, 1);
+      _sel_item_index = this._selected_items.indexOf(input.value)
+      this._selected_items.splice(_sel_item_index, 1);
       this._rows.splice(index, 1);
       this.onChange();
     }).bind(this);
