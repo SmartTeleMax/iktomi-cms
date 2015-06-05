@@ -83,6 +83,7 @@
           }
           this.setFilters();
 
+          document.activeElement.blur();
         }.bind(this)
       }).get();
     },
