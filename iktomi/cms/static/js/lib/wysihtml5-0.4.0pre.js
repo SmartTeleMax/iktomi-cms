@@ -4830,6 +4830,8 @@ wysihtml5.dom.parse = (function() {
         }
     };
 
+    var splitParagraphsByBr = self.cleanerConfig.splitParagraphsByBr;
+
     // XXX STM changes
     var children = Array.prototype.slice.call(fragment.childNodes);
     var tagsToWrap = getTagsToWrap();
@@ -4873,7 +4875,7 @@ wysihtml5.dom.parse = (function() {
                 var pChildren = Array.prototype.slice.call(child.childNodes);
                 for (var j=0; j < pChildren.length; j++){
                     var pChild = pChildren[j];
-                    if (pChild.tagName == 'BR' && tagsToWrap.indexOf('BR') != -1){
+                    if (pChild.tagName == 'BR' && splitParagraphsByBr){
                         var newChild = getWrapperTag()
                         fragment.insertBefore(newChild, child.nextSibling)
                         child.removeChild(pChild)

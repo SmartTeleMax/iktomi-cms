@@ -67,7 +67,7 @@ class WysiHtml5(Widget):
     @cached_property
     def js_config(self):
         return json.dumps({'parserRules': self.parser_rules,
-                           'cleanerConfig': self.cleaner_config,                 
+                           'cleanerConfig': self.cleaner_config,
                            'stylesheets': self.stylesheets})
 
     @cached_property
@@ -99,6 +99,9 @@ class WysiHtml5(Widget):
             config['dropEmptyTags'] = [x.upper() for x in conv.drop_empty_tags]
         if hasattr(conv, 'wrap_inline_tags'):
             config['wrapInlineTags'] = conv.wrap_inline_tags
+        if hasattr(conv, 'split_paragraphs_by_br'):
+            # XXX does not take an effect in the converter
+            config['splitParagraphsByBr'] = conv.split_paragraphs_by_br
         return config
 
     @cached_property
@@ -167,6 +170,7 @@ class WysiHtml5(Widget):
                             **{rev_marker: {'remove': 1},
                                marker: {}})
         data['js_config'] = json.dumps({'parserRules': parser_rules,
+                                        'cleanerConfig': self.cleaner_config,
                                         'stylesheets': self.stylesheets})
         if self.field.readable:
             return self.env.template.render(self.template, **data)
