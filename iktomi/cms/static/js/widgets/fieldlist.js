@@ -4,7 +4,7 @@ function FieldList(){
 
 FieldList.prototype = {
 
-  initialize: function(container, template, order, allowCreate, allowDelete, limit) {
+  initialize: function(container, template, order, readonly, allowCreate, allowDelete, limit) {
     this.container = $(container);
     this.$events = {}; // XXX is not copied
     this.template = template;
@@ -15,6 +15,12 @@ FieldList.prototype = {
     this.limit = limit;
     this.currentCount = this.len();
     this.addBtn = this.btn('#add', 'button w-button', 'Добавить', this.add.bind(this));
+
+    if (readonly) {
+      allowCreate = false;
+      allowDelete = false;
+    }
+
     if (allowCreate){
         this.addBtn.inject(this.container, this.newBlockPosition);
     }
@@ -166,10 +172,14 @@ FieldList.prototype = {
 FieldList.implement(Events.prototype);
 
 Blocks.register('fieldlist', function(el){
-  new FieldList(el, el.dataset.template, el.dataset.order,
-                !el.dataset.readonly, // allowCreate
-                !el.dataset.readonly, // allowDelete
-                el.dataset.maxLength);
+  new FieldList(
+      el, el.dataset.template,
+      el.dataset.order,
+      el.dataset.readonly,
+      el.dataset.allowcreate, // allowCreate
+      el.dataset.allowdelete, // allowDelete
+      el.dataset.maxLength
+  );
 });
 
 
