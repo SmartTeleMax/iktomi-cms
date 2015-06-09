@@ -137,6 +137,7 @@ var PopupStreamSelect = new Class({
       }.bind(this));
     }
     this.popup.contentEl.addEvent('load', this.patchItemForm.bind(this));
+    this.popup.contentEl.addEvent('load', this.popup.onWindowResize.bind(this.popup));
 
     this.popup.contentEl.addEvent('click', function(e){
         var a = e.target.match('a[data-id]') ?
@@ -479,7 +480,6 @@ var PopupStreamSelectMultiple = new Class({
   reset: function() {
     new Elements(this._inputs).destroy();
     this._inputs = [];
-    this._map = {};
     this._rows = [];
     this.getItemsDiv().empty();
     this._selected_items = [];
@@ -505,6 +505,14 @@ var PopupStreamSelectMultiple = new Class({
   getInput: function(index) {
     return this._inputs[index];
   },
+  getIndexById: function(id) {
+    // Return index of first element in _inputs with given id. Return -1 if not found.
+    for (var i = 0; i < this._inputs.length; i++) {
+      if (this._inputs[i].value === id) {
+        return i;
+      }
+    }
+  },
   getLabel: function(index) {
     return this.container.getElement('label[for="'+this.getInput(index).id+'"]');
   },
@@ -514,10 +522,6 @@ var PopupStreamSelectMultiple = new Class({
     this.makeLinksExternal(row);
     if (this.options.unshift && this._inputs.length > 0) {
       // add to the first position
-      for (key in this._map) {
-        this._map[key] += 1;
-      }
-      this._map[id] = 0;
       var input = this.newInput(item, id);
       input.inject(this._inputs[0], 'before');
       this._inputs.unshift(input);
@@ -526,7 +530,6 @@ var PopupStreamSelectMultiple = new Class({
       row.inject(this.getItemsDiv(), 'top');
     } else {
       // add to the end
-      this._map[id] = this._inputs.length;
       var input = this.newInput(item, id);
       input.inject(this.inputPlace);
       this._inputs.push(input);
@@ -541,19 +544,20 @@ var PopupStreamSelectMultiple = new Class({
     this.onChange();
 
   },
-
+  
   remove: function(id) {
     var
     link, item,
-    index = this._map[id],
+    index = this.getIndexById(id),
     remove = (function() {
       var input = this.getInput(index);
       this.container.getElement('label[for="'+input.id+'"]').destroy();
       input.destroy();
       this._rows[index].destroy();
       this._inputs.splice(index, 1);
-      delete this._selected_items[index];
-      delete this._rows[index];
+      _sel_item_index = this._selected_items.indexOf(input.value)
+      this._selected_items.splice(_sel_item_index, 1);
+      this._rows.splice(index, 1);
       this.onChange();
     }).bind(this);
 

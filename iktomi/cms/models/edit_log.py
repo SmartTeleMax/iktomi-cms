@@ -2,7 +2,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, PickleType, DateTime, \
         String, desc
 from sqlalchemy.dialects.mysql import MEDIUMBLOB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, deferred
 from datetime import datetime
 from iktomi.cms.item_lock import ItemLock
 from iktomi.utils import cached_property
@@ -70,8 +70,8 @@ def EditLog(models):
     global_id = Column(String(100), nullable=False, default='')
     edit_session = Column(String(50), nullable=False, default='')
 
-    before = Column(MediumPickleType, default=list)
-    after = Column(MediumPickleType, default=list)
+    before = deferred(Column(MediumPickleType, default=list), group='data')
+    after = deferred(Column(MediumPickleType, default=list), group='data')
     #diff = Column(Html(MediumText), nullable=True)
 
     creation_time = Column(DateTime, default=datetime.now, nullable=False)

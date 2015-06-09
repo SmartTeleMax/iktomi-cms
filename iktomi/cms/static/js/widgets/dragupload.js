@@ -339,7 +339,7 @@
     },
 
     setData: function(data){
-      if(data.mode=='empty'){
+      if(data.mode=='empty' && !data.use_autocrop){
         this.file_data.empty();
         this.add_hidden('mode', 'empty');
         this.add_hidden('transient_name', data.file);
@@ -445,7 +445,7 @@
       }
 
       this.el.dataset.currentFile = data.file_url;
-      this.add_hidden('mode', 'transient');
+      this.add_hidden('mode', data.mode);
       this.add_hidden('transient_name', data.file);
       this.add_hidden('original_name', data.original_name);
       if (this.deletebtn) {

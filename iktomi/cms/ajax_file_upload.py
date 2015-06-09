@@ -16,6 +16,14 @@ from PIL import Image
 logger = logging.getLogger(__file__)
 
 
+class PrepareItemHandler(PrepareItemHandler):
+
+    def retrieve_item(self, env, item):
+        stream = self.action.stream
+        model = stream.get_model(env)
+        return env.db.query(model).filter_by(id=item).first()
+
+
 class FileUploadHandler(web.WebHandler):
 
     def __init__(self, file_manager):
@@ -65,6 +73,7 @@ class FileUploadHandler(web.WebHandler):
             "file": transient.name,
             'file_url': file_manager.get_transient_url(transient, env),
             'original_name': original_name,
+            'mode':'transient'
             }
 
     def __call__(self, env, data):
@@ -107,7 +116,7 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
 
     force_autocrop = True
     action = 'image_upload'
-    use_autocrop = False
+    use_autocrop = True
 
     @property
     def app(self):
@@ -137,8 +146,9 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
                 if not self.use_autocrop:
                     rel_images.append({
                         "name": rel_form_field.input_name,
-                        "mode":"empty"
-                    })
+                        "mode":"empty",
+                        "use_autocrop": self.use_autocrop,
+                        })
                     rel_image = None
                 else:
                     resizer = rel_field.prop.resize
@@ -156,6 +166,8 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
                         'transformations': transforms,
                         'source_size': image.size,
                         'original_name': original_name,
+                        'use_autocrop': self.use_autocrop,
+                        'mode': 'empty'
                         })
                 rel_images += self._collect_related_fields(
                                         env, rel_form_field,
@@ -199,6 +211,8 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             'file_url': file_manager.get_transient_url(transient, env),
             'original_name': original_name,
             'related_files': rel_images,
+            'use_autocrop': self.use_autocrop,
+            'mode':'transient'
             }
 
     def crop(self, env, data):
@@ -268,4 +282,6 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             'file_url': file_manager.get_transient_url(transient, env),
             'original_name': original_name,
             'related_files': rel_images,
+            'use_autocrop' : self.use_autocrop,
+            'mode' : 'transient'
             })

@@ -3,6 +3,8 @@
        data-block-name="fieldlist"
        data-new-block-position="{{widget.new_block_position or ''}}"
        data-template="{{ widget.render_template_field()|forceescape }}"
+       {%- if widget.allow_create %}data-allowcreate="allowcreate"{% endif -%}
+       {%- if widget.allow_delete %}data-allowdelete="allowdelete"{% endif -%}
        {%- if readonly %} data-readonly="readonly"{% endif %}
        {%- if field.order %} data-order="true"{% endif %}
        {%- if field.max_length %} data-max-length="{{ field.max_length }}"{% endif -%}
