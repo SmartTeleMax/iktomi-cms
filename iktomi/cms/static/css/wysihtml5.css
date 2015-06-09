@@ -100,6 +100,8 @@ textarea.wysihtml5{
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="table"] { background-position: -275px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="createLink"] { background-position: -300px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="underline"] { background-position: -525px; }
+.wysihtml5-toolbar a.btn[data-wysihtml5-command="fullscreen"] { background-position: -550px; }
+.fullscreen .wysihtml5-toolbar a.btn[data-wysihtml5-command="fullscreen"] { background-position: -575px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="sup"] { background-position: -650px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="sub"] { background-position: -675px; }
 .wysihtml5-toolbar a.btn[data-wysihtml5-command="extrachars"] { background-position: -700px; }
@@ -188,4 +190,25 @@ textarea.wysihtml5{
     height: 300px;
     }
 
-
+.wysihtml5-widget.fullscreen{
+    position: fixed;
+    top: 0;
+    z-index: 4;
+    left:  0;
+    bottom:  35px; /* hack to make iframe 100% equal to window 100%-35px */
+    right: 0;
+    width: auto;
+    background: #fff;
+    }
+.wysihtml5-widget.fullscreen iframe,
+.wysihtml5-widget.fullscreen textarea{
+    position: absolute;
+    top: 35px !important;
+    left: 0 !important; bottom: 0 !important; right: 0!important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: inherit !important;
+}
+body.wysihtml5-fullscreen{
+    overflow: hidden;
+    }

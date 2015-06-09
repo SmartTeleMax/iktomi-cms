@@ -304,6 +304,19 @@
   wysihtml5.commands.outdent = Object.merge(Object.create(wysihtml5.commands.indent), {
     cmd: 'outdent'
   });
+})(wysihtml5);
+
+(function(wysihtml5) {
+  wysihtml5.commands.fullscreen = {
+    exec: function(composer, command, value) {
+      // XXX mootools dependencies
+      var widget = composer.textarea.element.getParent('.wysihtml5-widget');
+      var add = widget.hasClass('fullscreen')?'removeClass': 'addClass';
+
+      widget[add]('fullscreen');
+      document.body[add]('wysihtml5-fullscreen');
+    }
+  }
 
 })(wysihtml5);
 
