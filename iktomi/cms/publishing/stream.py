@@ -118,7 +118,8 @@ class PublishAction(PostAction):
 
     @property
     def app(self):
-        return web.match('/<int:item>/%s' % self.action, self.action) | \
+        return web.match('/<idconv:item>/%s' % self.action, self.action,
+                         convs={'idconv': self.stream.id_converter}) | \
                web.method('POST', strict=True) | \
                self.PrepareItemHandler(self) | self
 
@@ -163,7 +164,8 @@ class UnpublishAction(PostAction):
 
     @property
     def app(self):
-        return web.match('/<int:item>/%s' % self.action, self.action) | \
+        return web.match('/<idconv:item>/%s' % self.action, self.action,
+                         convs={'idconv': self.stream.id_converter}) | \
                web.method('POST', strict=True) | \
                self.PrepareItemHandler(self) | self
 
@@ -207,7 +209,8 @@ class RevertAction(PostAction):
 
     @property
     def app(self):
-        return web.match('/<int:item>/%s' % self.action, self.action) | \
+        return web.match('/<idconv:item>/%s' % self.action, self.action,
+                         convs={'idconv': self.stream.id_converter}) | \
                web.method('POST', strict=True) | \
                self.PrepareItemHandler(self) | self
 

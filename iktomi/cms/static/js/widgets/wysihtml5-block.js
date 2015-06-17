@@ -313,6 +313,8 @@
       var widget = composer.textarea.element.getParent('.wysihtml5-widget');
       var add = widget.hasClass('fullscreen')?'removeClass': 'addClass';
 
+      widget.setStyle('width', '');
+      widget.setStyle('height', '');
       widget[add]('fullscreen');
       document.body[add]('wysihtml5-fullscreen');
     }

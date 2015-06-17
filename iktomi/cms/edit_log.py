@@ -268,7 +268,8 @@ class EditLogHandler(GetAction):
         if isinstance(self.stream, Loner):
             prefix = web.prefix('/log', name=self.action)
         else:
-            prefix = web.prefix('/<int:item>/log', name=self.action)
+            prefix = web.prefix('/<idconv:item>/log', name=self.action,
+                                convs={'idconv': self.stream.id_converter})
         return prefix | self.PrepareItemHandler(self) | web.cases(
                 web.match('') | self,
                 web.match('/<int:log_id>', 'entry') | self.log_entry,
