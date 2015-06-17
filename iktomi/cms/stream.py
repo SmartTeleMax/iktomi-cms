@@ -10,6 +10,7 @@ from iktomi.utils import cached_property
 from collections import OrderedDict
 from iktomi.utils.storage import VersionedStorage
 from iktomi import web
+from iktomi.web.url_converters import Converter, default_converters
 from iktomi.cms.forms import Form
 from iktomi.cms.item_lock import ItemLock
 from iktomi.utils.deprecation import deprecated
@@ -17,6 +18,30 @@ from . import stream_handlers as handlers
 from .flashmessages import flash
 
 logger = logging.getLogger(__name__)
+
+
+_none_converter_factory_cache = {}
+
+def none_converter_factory(cls):
+    if cls in _none_converter_factory_cache:
+        return _none_converter_factory_cache[cls]
+
+    class NoneConverter(cls):
+        regex = Converter.regex
+
+        def to_python(self, value, **kwargs):
+            if value == '+':
+                return None
+            return super(NoneConverter, self).to_python(value, **kwargs)
+
+        def to_url(self, value):
+            if value is None:
+                return '+'
+            return super(NoneConverter, self).to_url(value)
+
+    _none_converter_factory_cache[cls] = NoneConverter
+
+    return NoneConverter
 
 
 def I18nLabel(string, lang):
@@ -146,6 +171,7 @@ class FilterForm(Form):
 
 
 class Stream(object):
+    id_converter_name = 'int'
 
     actions = []
     core_actions = [handlers.StreamListHandler(),
@@ -164,6 +190,14 @@ class Stream(object):
         self.module_name = module_name
         self.actions = [x.bind(self) for x in self.core_actions + self.actions]
         self.core_actions = []
+
+    @cached_property
+    def id_converter(self):
+        return default_converters.get(self.id_converter_name)
+
+    @cached_property
+    def id_none_converter(self):
+        return none_converter_factory(self.id_converter)
 
     @property
     def prefix_handler(self):
