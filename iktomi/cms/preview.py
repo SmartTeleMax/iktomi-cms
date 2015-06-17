@@ -25,7 +25,8 @@ class PreviewHandler(GetAction):
         if isinstance(self.stream, Loner):
             prefix = web.prefix('/'+self.action, name=self.action)
         else:
-            prefix = web.prefix('/<int:item>/'+self.action, name=self.action)
+            prefix = web.prefix('/<idconv:item>/'+self.action, name=self.action,
+                                convs={'idconv': self.stream.id_converter})
         return prefix | self.PrepareItemHandler(self) | self
 
     def item_url(self, env, data, item):

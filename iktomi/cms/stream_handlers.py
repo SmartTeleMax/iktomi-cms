@@ -8,12 +8,12 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
 from sqlalchemy.orm.util import identity_key
 
+from iktomi.utils.deprecation import deprecated
 from iktomi.utils import cached_property
 from iktomi import web
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
 from iktomi.web.url_converters import Integer as IntegerConv, \
                         Converter as BaseConv, ConvertError
-
 
 from .item_lock import ItemLockData
 from .item_lock import ModelLockError, ItemLock
@@ -33,9 +33,12 @@ def insure_is_xhr(env):
 
 
 class NoneIntConv(IntegerConv):
-
     name = 'noneint'
     regex = BaseConv.regex
+
+    @deprecated('Use stream property id_none_converter instead')
+    def __init(self, *args, **kwargs):
+        super(NoneIntConv, self).__init__(*args, **kwargs)
 
     def to_python(self, value, **kwargs):
         if value == '+':
@@ -227,8 +230,8 @@ class EditItemHandler(StreamAction):
 
     @property
     def app_prefix(self):
-        return web.prefix('/<noneint:item>', name='item',
-                          convs={'noneint': NoneIntConv})
+        return web.prefix('/<idconv:item>', name='item',
+                          convs={'idconv': self.stream.id_none_converter})
     @property
     def app(self):
         # Be careful, put prepare handler only after match! Otherwise it brakes
@@ -600,8 +603,8 @@ class DeleteItemHandler(_ReferrersAction):
 
     @property
     def app(self):
-        return web.match('/<noneint:item>/delete', 'delete',
-                         convs={'noneint': NoneIntConv}) | \
+        return web.match('/<idconv:item>/delete', 'delete',
+                         convs={'idconv': self.stream.id_converter}) | \
             self.PrepareItemHandler(self) | self
 
     def is_available(self, env, item):
@@ -671,9 +674,9 @@ class GetReferrersHandler(_ReferrersAction):
 
     @property
     def app(self):
-        return web.match('/<noneint:item>/{}'.format(self.action),
+        return web.match('/<idconv:item>/{}'.format(self.action),
                          self.action,
-                         convs={'noneint': NoneIntConv}) | \
+                         convs={'idconv': self.stream.id_converter}) | \
             self.PrepareItemHandler(self) | self
 
     def referrers_handler(self, env, data):
