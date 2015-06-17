@@ -207,9 +207,7 @@ class PrepareItemHandler(web.WebHandler):
             flash(env, u'Действие «%s» недоступно для нового объекта' %
                   (self.action.title,),
                   'failure')
-            item_url = stream.url_for(env, 'item')(
-                data.filter_form.get_data())
-            return see_other(item_url)
+            raise HTTPNotFound
 
         self.take_lock(env, data)
         return self.next_handler(env, data)
