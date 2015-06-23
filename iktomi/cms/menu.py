@@ -4,10 +4,11 @@ from iktomi.utils.storage import VersionedStorage
 class Menu(object):
 
     template = 'menu/menu'
+    rel = None
 
     def __init__(self, title, link=None, endpoint=None, params=None,
                  items=None, env=None, template_vars={}, template=None,
-                 permissions= {'*': 'rwxcd'}):
+                 permissions= {'*': 'rwxcd'}, rel=None):
         self.parent = None
         self.title = title
         self.link = link
@@ -21,6 +22,7 @@ class Menu(object):
         self.perms.update(permissions)
         for item in self.items:
             item.parent = weakproxy(self)
+        self.rel = self.rel or rel
 
     @cached_property
     def env(self):
@@ -76,7 +78,7 @@ class Menu(object):
             return ''
         return self.env.render_to_string(self.template, dict(
             menu=self, url=self.url, active=self.active,
-            title=self.title, **self.template_vars))
+            title=self.title, rel=self.rel, **self.template_vars))
 
     def child_count(self):
         return len(self.items)

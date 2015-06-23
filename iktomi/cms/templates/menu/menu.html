@@ -3,7 +3,7 @@
     {% if menu.endpoint_name %}data-endpoint="{{ menu.endpoint_name }}"{% endif %}>
 
     {% if url %}
-      <a href="{{ url }}">{{ title }}</a>
+      <a href="{{ url }}"{% if rel %} rel="{{ rel }}"{% endif %}>{{ title }}</a>
     {% else %}
       <span>{{ title }}</span>
     {% endif %}
