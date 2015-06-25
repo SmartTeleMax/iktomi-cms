@@ -33,7 +33,7 @@
         }
         // XXX cleanup
         var url = link.getAttribute('href');
-        if (url.indexOf('://') != -1 || 
+        if (url.indexOf('://') != -1 || link.get('rel') == 'internal' ||
               url.indexOf('javascript:') == 0
               || e.ctrlKey || e.metaKey || e.shiftKey){
           return;
