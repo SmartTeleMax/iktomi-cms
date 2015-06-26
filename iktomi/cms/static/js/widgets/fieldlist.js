@@ -176,8 +176,8 @@ Blocks.register('fieldlist', function(el){
       el, el.dataset.template,
       el.dataset.order,
       el.dataset.readonly,
-      el.dataset.allowcreate, // allowCreate
-      el.dataset.allowdelete, // allowDelete
+      el.dataset.allowcreate,
+      el.dataset.allowdelete,
       el.dataset.maxLength
   );
 });
