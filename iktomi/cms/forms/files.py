@@ -16,7 +16,6 @@ from PIL import Image
 class AjaxFileField(FileFieldSet):
 
     widget = widgets.AjaxFileInput
-    multiple = True
     initial = {'mode':'empty', 
                'transient_name':None, 
                'original_name':None,
