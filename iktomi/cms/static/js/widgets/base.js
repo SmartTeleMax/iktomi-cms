@@ -147,6 +147,7 @@ function makeMutable(obj){
             this.setValue(e.target.value);
         },
         render: function(){
+            console.log(this.getError());
             return <div>{this.getValue()}</div>
         }
     });

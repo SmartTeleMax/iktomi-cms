@@ -30,8 +30,8 @@
                              key="hint"/>
             }
 
-            var widgetErrors = fieldset.state.errors[widget.props.key];
-            var errorMsg = widgetErrors && widgetErrors['.']
+            var widgetErrors = fieldset.state.errors[widget.props.input_name];
+            var errorMsg = widgetErrors && widgetErrors['.'].text
             var error = (errorMsg? 
                             <div className="error" key="error">{errorMsg}</div> :
                             '');
@@ -181,8 +181,7 @@
     var ReactFormProto = Object.merge({}, FieldSetProto, {
         setErrors: function(newErrors){
             newErrors = makeMutable(newErrors);
-            var errors = _mergeObjects(this.state.errors, newErrors);
-            this.setState({'errors': errors});
+            this.setState({'errors': newErrors});
         },
 
         flush: function(){
