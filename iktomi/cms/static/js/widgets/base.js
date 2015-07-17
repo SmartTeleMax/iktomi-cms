@@ -99,9 +99,9 @@ function makeMutable(obj){
                 var initial = this.props.multiple? []: new MutableString('');
             }
             
-            initial = _mergeObjects(value, initial);
-            return {'value': initial,
-                    'errors': this.props.errors}
+            initial = _mergeObjects(initial, value);
+            return {'value': _mergeObjects(value, initial),
+                    'errors': this.props.errors};
         },
 
         getItemForm: function(){
