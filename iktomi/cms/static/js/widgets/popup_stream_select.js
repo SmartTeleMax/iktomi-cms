@@ -231,11 +231,15 @@
             return [];
         },
         onDropClick: function(e){
-            // XXX works only for multiple
-            var index = e.target.getParent('tr').getAllPrevious('tr').length;
-            var value = this.state.value;
-            value.splice(index, 1);
-            this.setValue(value);
+            if (this.props.multiple){
+                // XXX works only for multiple
+                var index = e.target.getParent('tr').getAllPrevious('tr').length;
+                var value = this.state.value;
+                value.splice(index, 1);
+                this.setValue(value);
+            } else {
+                this.setValue(null);
+            }
         },
         _move: function (arr, oldIndex, newIndex) {
             if (newIndex >= arr.length) {
