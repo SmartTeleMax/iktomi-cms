@@ -48,6 +48,22 @@ function _mergeObjects(value, newValue){
 }
 
 
+function _clearErrors(errors){
+    if (errors instanceof MutableString){
+        errors.text = '';
+    } else if (Array.isArray(errors)){
+        for (var i=errors.length; i--;){
+            _clearErrors(errors[i]);
+        }
+    } else if (typeof errors == 'object') {
+        for (var key in errors){
+            if(errors.hasOwnProperty(key)){
+                _clearErrors(errors[key]);
+            }
+        }
+    }
+}
+
 
 (function(){
   function ItemForm(frm){

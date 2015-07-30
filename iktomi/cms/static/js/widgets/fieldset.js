@@ -30,8 +30,9 @@
                              key="hint"/>
             }
 
-            var widgetErrors = fieldset.state.errors[widget.props.input_name];
-            var errorMsg = widgetErrors && widgetErrors['.'].text
+            var widgetErrors = fieldset.state.errors[widget.key];
+            var errorMsg = widgetErrors && widgetErrors['.'] && widgetErrors['.'].text
+            console.log(widget.props.input_name, widget.key, fieldset.state.errors, errorMsg)
             var error = (errorMsg? 
                             <div className="error" key="error">{errorMsg}</div> :
                             '');
@@ -107,12 +108,18 @@
             return this.props.data;
         },
 
+        getPropsErrors: function(){
+            return this.props.errors;
+        },
+
         render: function() {
             //this.widgetsByName = {};
             var ws = [];
             var data = this.getPropsData();
+            var errors = this.getPropsErrors();
             for (var i=0; i<this.props.widgets.length; i++){
                 var prop = _clone(this.props.widgets[i]);
+                var originalKey = prop.key;
                 if(!prop.key){
                     // Auto key property setting     
                     prop.key = "auto-key-" + i;
@@ -124,7 +131,11 @@
                     }
                 }
                 prop.data = data[prop.key];
-                prop.errors = this.props.errors[prop.key] || {};
+                if (originalKey){
+                    prop.errors = errors[prop.key] = errors[prop.key] || {'.': new MutableString('')};
+                } else {
+                    prop.errors = errors;
+                }
                 prop.parent = this;
                 prop.id = this.props.id + '.' + prop.key;
                 prop.input_name = this.props.input_name ? 
@@ -181,7 +192,9 @@
     var ReactFormProto = Object.merge({}, FieldSetProto, {
         setErrors: function(newErrors){
             newErrors = makeMutable(newErrors);
-            this.setState({'errors': newErrors});
+            _clearErrors(this.state.errors);
+            var errors = _mergeObjects(this.state.errors, newErrors);
+            this.setState({'errors': errors});
         },
 
         flush: function(){
@@ -208,6 +221,9 @@
         },
         getPropsData: function(){
             return this.props.parent.props.data;
+        },
+        getPropsErrors: function(){
+            return this.props.parent.props.errors;
         }
     });
 
