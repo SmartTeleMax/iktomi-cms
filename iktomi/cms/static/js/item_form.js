@@ -33,8 +33,14 @@ function _mergeObjects(value, newValue){
         }
         return value;
     } else if (typeof value == 'object') {
-        for (var key in newValue) if(newValue.hasOwnProperty(key)){
-            value[key] = _mergeObjects(value[key], newValue[key]);
+        for (var key in newValue){
+            if(newValue.hasOwnProperty(key)){
+                if(value[key] === null){
+                    value[key] = newValue[key];
+                }else{
+                    value[key] = _mergeObjects(value[key], newValue[key]);
+                }
+            }
         }
         return value
     }

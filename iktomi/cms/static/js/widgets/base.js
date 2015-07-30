@@ -89,14 +89,19 @@ function makeMutable(obj){
                 // Value object must be mutable.
                 // As I understand, this is react's method to collect
                 // changes from children.
-                var initial = this.props.multiple? this.props.initial: {'text': this.props.initial};
+                if(this.props.multiple || typeof this.props.initial == 'object'){
+                    var initial = this.props.initial;
+                }
+                else {
+                    var initial = {'text': this.props.initial }
+                }
             } else {
                 var initial = this.props.multiple? []: new MutableString('');
             }
-            var init = JSON.stringify(initial);
+            
             initial = _mergeObjects(initial, value);
             return {'value': _mergeObjects(value, initial),
-                    'errors': this.props.errors}
+                    'errors': this.props.errors};
         },
 
         getItemForm: function(){

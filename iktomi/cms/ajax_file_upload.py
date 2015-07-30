@@ -114,7 +114,7 @@ class StreamImageUploadHandler(PostAction, FileUploadHandler):
 
                 resizer = rel_field.prop.resize
                 target_size = rel_field.prop.image_sizes
-                transforms = resizer.transformations(image, target_size)
+                transforms = resizer.transformations(image.size, target_size)
                 rel_image = resizer(image, target_size)
                 rel_transient = env.file_manager.new_transient(ext)
                 rel_image.save(rel_transient.path)
