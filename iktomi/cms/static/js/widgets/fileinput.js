@@ -82,11 +82,11 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
         if(this.state.value.current_url){
             if(currentMode == 'transient'){
                 urlDiv = <div className="file_data">  
-                           <p>Заргужен временный файл<br />
+                           <p>Загружен временный файл<br />
                               <a key="url"
                                  target="_blank"
-                                 href={this.state.value.current_url.toString()} >
-                                 {this.state.value.transient_name}
+                                 href={this.state.value.current_url.toString()}>
+                                 {this.state.value.transient_name.toString()}
                               </a>
                            </p>
                          </div>;
@@ -96,7 +96,7 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
                            <a key="url"
                               target="_blank" 
                               href={this.state.value.current_url.toString()} >
-                              Прикрепленный файл
+                              Прикреплённый файл
                            </a>
                          </div>;
             }
