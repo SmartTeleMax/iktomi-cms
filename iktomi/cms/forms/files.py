@@ -41,6 +41,8 @@ class AjaxFileField(FileFieldSet):
         file_field = self.form.get_field(self.input_name)
         if file_field:
             file_obj = file_field.clean_value
+            if getattr(file_obj, 'stored_to', None) is not None:
+                file_obj = file_obj.stored_to
             if file_obj is not None:
                 data['mode'] = 'existing'
                 data['current_url'] = file_obj.url
