@@ -11,7 +11,6 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
 from iktomi.cms.models.edit_log import make_diff
-from iktomi.forms import fields
 _all2 = locals().keys()
 
 # place this after _all2 to add them to __all__
@@ -66,15 +65,15 @@ class DiffFieldSetMixIn(object):
                         changed=True)
 
 
-class FieldSet(FieldSet, DiffFieldSetMixIn):
+class JSONFieldSet(JSONFieldSet, DiffFieldSetMixIn):
     pass
 
 
-class FieldBlock(FieldBlock, DiffFieldSetMixIn):
+class JSONFieldBlock(JSONFieldBlock, DiffFieldSetMixIn):
     pass
 
 
-class FieldList(FieldList):
+class JSONFieldList(JSONFieldList):
 
     widget = widgets.FieldListWidget
 
@@ -147,6 +146,10 @@ class FieldList(FieldList):
                         after=lambda: '',
                         children=diffs,
                         changed=True)
+
+FieldSet = JSONFieldSet
+FieldList = JSONFieldList
+FieldBlock = JSONFieldBlock
 
 
 def SplitDateTimeField(name, label, required=True,
