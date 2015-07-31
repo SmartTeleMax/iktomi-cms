@@ -18,6 +18,9 @@ Widgets.ProgressBar = Widgets.create(Widgets.Widget,{
 });
 
 Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
+    getDefault: function(props){
+        return {};
+    },
     onProgress:function(e){
         this.setState({progress: e.loaded/e.total * 100});
     },
