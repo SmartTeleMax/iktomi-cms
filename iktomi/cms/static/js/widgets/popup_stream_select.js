@@ -145,11 +145,12 @@
         onItemClicked: function(e) {
             e.preventDefault();
             e.stopPropagation();
-            var id = e.target.dataset.id;
+            var target = e.target.getParent('a') || e.target;
+            var id = target.dataset.id;
             if (this.props.multiple && this.hasValue(id)){
                 this.remove(id);
             } else {
-                var row = e.target.getParent('tr');
+                var row = target.getParent('tr');
                 this.add(id, row);
             }
             if (!this.props.multiple){
