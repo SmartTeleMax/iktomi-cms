@@ -22,7 +22,8 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         //    }
         //}
  
-        return {'value': value}
+        return {'value': value,
+                'errors': this.props.errors};
  
     },
     subWidget: function(data){
@@ -34,7 +35,10 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         prop.parent = this;
         prop.id = this.props.id + '.' + data._key;
         prop.input_name = this.props.input_name + '.'  + data._key;
-        prop.errors = this.props.errors[data._key] || {};
+
+        var errors = this.props.errors;
+        prop.errors = errors[data._key] = errors[data._key] || {'.': new MutableString('')};
+
         prop.data = data[data._key];
  
         if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
@@ -45,7 +49,14 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
  
     fieldListRow: function(data){
         var subWidget = this.subWidget(data);
-        var error = '', orderButtons = '', deleteButton = '';
+        var orderButtons = '', deleteButton = '';
+
+        var widgetErrors = this.state.errors[data._key];
+        var errorMsg = widgetErrors && widgetErrors['.'] && widgetErrors['.'].text
+        var error = (errorMsg? 
+                        <div className="error" key="error">{errorMsg}</div> :
+                        '');
+
         if (!this.props.readonly){
             deleteButton = <td className="fieldlist-delete fieldlist-btns">
                               <button className="button button-tiny icon-delete"
@@ -66,6 +77,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
 
         return <tr className="fieldlist-item" key={subWidget.props._key}>
                   <td className="fieldlist-cell">
+                      {error}
                       {subWidget}
                   </td>
                   {orderButtons}
