@@ -7,9 +7,13 @@
         <label for="{{diff.name}}">{{ diff.label }}</label>
       </div>
     </th><td{% if diff.changed %} class="edit-log-del"{% endif %}>
-      {{- diff.before() -}}
+      <div class="init-block" data-block-name="render-component" 
+                              data-component-props="{{- diff.widget -}}" 
+                              data-component-state="{{- diff.before() -}}"></div> 
     </td><td{% if diff.changed %} class="edit-log-ins"{% endif %}>
-      {{- diff.after() -}}
+      <div class="init-block" data-block-name="render-component" 
+                              data-component-props="{{- diff.widget -}}" 
+                              data-component-state="{{- diff.after() -}}"></div> 
     </td></tr>
 
     {%- if diff.children is defined %}

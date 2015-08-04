@@ -11,6 +11,7 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
 from iktomi.cms.models.edit_log import make_diff
+
 _all2 = locals().keys()
 
 # place this after _all2 to add them to __all__

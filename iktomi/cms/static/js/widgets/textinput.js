@@ -39,6 +39,7 @@ Widgets.Textarea = Widgets.create(Widgets.TextInput, {
                          onChange={this.onChange}
                          onKeyDown={this.onKeyDown}
                          onBlur={this.onBlur}
+                         disabled={this.props.readonly}
                          value={this.state.value.text}></textarea>;
     }
 });
