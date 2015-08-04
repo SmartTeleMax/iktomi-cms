@@ -48,14 +48,14 @@
         var widget = this.props.parent.props;
         var parent = this.props.parent;
         var removeBtn = '';
-        if(widget.allow_delete){
+        if(widget.allow_delete && !widget.readonly){
             removeBtn = <td>
                           <button className='button button-tiny icon-delete'
                                   onClick={parent.onDropClick}></button>
                         </td>;
         }
         var sortBtns = '';
-        if (widget.multiple && widget.sortable){
+        if (widget.multiple && widget.sortable && !widget.readonly){
             sortBtns = <td className='w-control-cell'>
                          <a className='up-btn'
                             onClick={parent.onUpClick}>↑</a>

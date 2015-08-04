@@ -66,11 +66,11 @@ class DiffFieldSetMixIn(object):
                         changed=True)
 
 
-class JSONFieldSet(JSONFieldSet, DiffFieldSetMixIn):
+class JSONFieldSet(JSONFieldSet):
     pass
 
 
-class JSONFieldBlock(JSONFieldBlock, DiffFieldSetMixIn):
+class JSONFieldBlock(JSONFieldBlock):
     pass
 
 

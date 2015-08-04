@@ -4,6 +4,7 @@ Widgets.HiddenInput = Widgets.create(Widgets.Widget, {
     render: function() {
         return <input type="hidden"
                       name={this.props.input_name}
+                      disabled={this.props.readonly}
                       value={this.state.value}/>;
     }
 });
@@ -24,6 +25,7 @@ Widgets.TextInput = Widgets.create(Widgets.Widget, {
     },
     render: function() {
         return <input type="text"
+                      disabled={this.props.readonly}
                       className={this.props.classname || false}
                       name={this.props.input_name}
                       value={this.state.value.text}
@@ -50,6 +52,7 @@ Widgets.PasswordInput = Widgets.create(Widgets.TextInput, {
         return <input type="password"
                       className={this.props.classname || false}
                       onChange={this.onChange}
+                      disabled={this.props.readonly}
                       name={this.props.input_name}
                       value={this.state.value.text} />;
     }

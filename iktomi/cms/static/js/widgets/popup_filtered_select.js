@@ -29,22 +29,27 @@ Widgets.PopupFilteredSelect = Widgets.create(Widgets.Select, {
                              data-published={option.published}
                              value={option.value}/>;
           var label = <label className={"tree_label" + (option.published? " published": '')}
-                             onClick={this.showPopup}>
+                             onClick={this.props.readonly ? '' : this.showPopup}>
                         {option.title}
                       </label>;
-          var close = <span className="remove" onClick={this.removeValue.pass(option.value)}>x</span>
+          var close = this.props.readonly ? '' : <span className="remove" onClick={this.removeValue.pass(option.value)}>x</span>;
           items.push(<li className={selected?'selected':''}
                          key={'input-'+option.value}>{input}{label}{close}</li>);
 
         }
+        var buttons = '';
+        if(!this.props.readonly){
+            var buttons = <div className="w-buttons" key="buttons">
+                            <a className="button"
+                              id={ widget.id +"-listbutton"}
+                              onClick={this.showPopup}>{widget.open_btn_text}</a>
+                          </div>
+        }
+
         return <div id={widget.id}
                     className={"popup-select " + (widget.classname || "")}>
-                 <div><ul className="selected_values" id="{{ widget.id }}-values">{items}</ul></div>
-                 <div className="w-buttons">
-                   <a className="button"
-                      id={ widget.id +"-listbutton"}
-                      onClick={this.showPopup}>{widget.open_btn_text}</a>
-                 </div>
+                <div> <ul className="selected_values" id="{{ widget.id }}-values">{items}</ul></div>
+                    { buttons }
                </div>;
     },
 
