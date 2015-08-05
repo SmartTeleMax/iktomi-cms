@@ -36,9 +36,10 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         prop.id = this.props.id + '.' + data._key;
         prop.input_name = this.props.input_name + '.'  + data._key;
 
-        var errors = this.props.errors;
-        prop.errors = errors[data._key] = errors[data._key] || {'.': new MutableString('')};
-
+        if(!this.props.readonly){
+            var errors = this.props.errors;
+            prop.errors = errors[data._key] = errors[data._key] || {'.': new MutableString('')};
+        }
         prop.data = data[data._key];
  
         if(!(React.DOM[prop.widget]||Widgets[prop.widget])){
@@ -49,10 +50,11 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
  
     fieldListRow: function(data){
         var subWidget = this.subWidget(data);
-        var orderButtons = '', deleteButton = '';
-
-        var widgetErrors = this.state.errors[data._key];
-        var errorMsg = widgetErrors && widgetErrors['.'] && widgetErrors['.'].text
+        var orderButtons = '', deleteButton = '', errorMsg = '';
+        if(!this.props.readonly){
+            var widgetErrors = this.state.errors[data._key];
+            var errorMsg = widgetErrors && widgetErrors['.'] && widgetErrors['.'].text
+        }
         var error = (errorMsg? 
                         <div className="error" key="error">{errorMsg}</div> :
                         '');
@@ -64,7 +66,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
                                       onClick={this.onDropClick}/>
                            </td>;
         }
-        if (this.props.sortable){
+        if (this.props.sortable && !this.props.readonly){
             orderButtons = <td className="fieldlist-order fieldlist-btns">
                               <button className="sort sort-up"
                                       type="button"
@@ -96,6 +98,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         var addButton = <button className="button w-button"
                                 type="button"
                                 onClick={this.onAddClick}>Добавить</button>;
+        addButton = this.props.readonly? '' : addButton;
         return <div>
                   <table className={"fieldlist "+(this.props.className || '')}
                          id={this.props.id}><tbody>{fields}</tbody></table>

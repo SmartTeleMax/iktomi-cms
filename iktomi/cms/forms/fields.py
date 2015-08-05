@@ -66,14 +66,6 @@ class DiffFieldSetMixIn(object):
                         changed=True)
 
 
-class JSONFieldSet(JSONFieldSet):
-    pass
-
-
-class JSONFieldBlock(JSONFieldBlock):
-    pass
-
-
 class JSONFieldList(JSONFieldList):
 
     widget = widgets.FieldListWidget
@@ -93,12 +85,16 @@ class JSONFieldList(JSONFieldList):
         return False
 
     def get_diff(fieldlist1, fieldlist2):
+        if fieldlist1.get_data() != fieldlist2.get_data():
+            return make_diff(fieldlist1, fieldlist2)
+        return None
+
         reordered = False
         fields1 = []
         fields2 = []
-        for index in fieldlist1.raw_value or []:
+        for index in fieldlist1.get_data() or []:
             fields1.append(fieldlist1.field(name=index))
-        for index in fieldlist2.raw_value or []:
+        for index in fieldlist2.get_data() or []:
             fields2.append(fieldlist2.field(name=index))
 
         diffs = []
@@ -120,8 +116,8 @@ class JSONFieldList(JSONFieldList):
                     if diff is not None:
                         diffs.append(diff)
                 else:
-                    data1 = _get_field_data(fieldlist1, field1)
-                    data2 = _get_field_data(fieldlist2, field2)
+                    data1 = fieldlist1.get_data()
+                    data2 = fieldlist2.get_data()
                     if data1 != data2:
                         diff = make_diff(field1, field2,
                                         changed=True)
