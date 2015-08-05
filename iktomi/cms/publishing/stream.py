@@ -49,12 +49,7 @@ class PublishItemHandler(EditItemHandler):
         return form
 
     def _collect_changed_fields(self, diff):
-        names = [] # XXX need to be fixed sum([self._collect_changed_fields(subdiff)
-                   #     for subdiff in diff.get('children', [])], [])
-        if names:
-            return names
-        if diff['name'] and diff['changed']:
-            return [diff['name']]
+        # XXX Need to be fixed
         return []
 
     def changed_fields(self, env, item, admin_form):

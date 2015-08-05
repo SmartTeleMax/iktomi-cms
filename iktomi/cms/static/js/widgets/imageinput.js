@@ -31,6 +31,9 @@ Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
         }
     },
     showCropper:function(e){
+        if(this.props.readonly){
+            return '';
+        }
         var sourceMode = this.state.value.source_mode ? this.state.value.source_mode.toString() : 'transient';
         new Cropper({src:this.state.value.source_url.toString(),
                      targetWidth:this.state.value.sizes[0].toString(),
@@ -55,6 +58,9 @@ Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
         return image;
     },
     inputElements: function(){
+        if(this.props.readonly){
+            return '';
+        }
         var inputElements = '';
         if (this.props.allow_upload){
             inputElements = Widgets.AjaxFileInput.proto.inputElements.bind(this)();
