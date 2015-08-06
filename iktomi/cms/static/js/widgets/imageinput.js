@@ -69,7 +69,7 @@ Widgets.AjaxImageInput = Widgets.create(Widgets.AjaxFileInput, {
     },
     render:function(){
         var displayElement = '';
-        if(this.props.show_image){
+        if(this.props.show_image && !this.props.readonly){
             displayElement = this.image();
         }else{
             displayElement = this.urlDiv();
