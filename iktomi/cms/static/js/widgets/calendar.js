@@ -37,19 +37,22 @@ Widgets.Calendar = Widgets.create(Widgets.Widget, {
         var widget = this.props;
         var todayButton = widget.today_button?
               <span className='timecalendar-now' onClick={this.setToday}>сегодня</span>: '';
+        var calendarButton = <button type="button"
+                       key="calendar_button"
+                       className={"calendar "+(widget.readonly?'hidden':'')}
+                       onClick={this.showCalendar}></button>;
+        calendarButton = widget.readonly ? '' : calendarButton;
         return <div>
                <input type="text"
                       name={widget.input_name}
                       value={this.state.value.text}
                       className={widget.classname||false}
                       size={widget.size||false}
-                      readonly={widget.readonly||false}
+                      disabled={widget.readonly||false}
                       //onBlur={this.onBlur}
                       onChange={this.onChange}
                       />
-               <button type="button"
-                       className={"calendar "+(widget.readonly?'hidden':'')}
-                       onClick={this.showCalendar}></button>
+               {calendarButton} 
                {todayButton}
                <div className="calendar-place"></div>
             </div>;

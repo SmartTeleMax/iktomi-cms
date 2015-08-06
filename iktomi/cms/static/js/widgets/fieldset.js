@@ -30,7 +30,7 @@
                              key="hint"/>
             }
 
-            var widgetErrors = fieldset.state.errors[widget.key];
+            var widgetErrors = widget.props.readonly ? '' : fieldset.state.errors[widget.key];
             var errorMsg = widgetErrors && widgetErrors['.'] && widgetErrors['.'].text
             console.log(widget.props.input_name, widget.key, fieldset.state.errors, errorMsg)
             var error = (errorMsg? 
@@ -131,7 +131,7 @@
                     }
                 }
                 prop.data = data[prop.key];
-                if (originalKey){
+                if (originalKey && !this.props.readonly){
                     prop.errors = errors[prop.key] = errors[prop.key] || {'.': new MutableString('')};
                 } else {
                     prop.errors = errors;

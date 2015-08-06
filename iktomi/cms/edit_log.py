@@ -250,10 +250,7 @@ class EditLogHandler(GetAction):
         form1.accept(log.before)
         form2.accept(log.after)
 
-        # reset permissions
         form1.permissions = form2.permissions = frozenset('r')
-        form1.fields = [field(parent=form1) for field in form1.fields]
-        form2.fields = [field(parent=form2) for field in form2.fields]
 
         diff = form1.get_diff(form2)
         diffs = diff['children'] if diff is not None else []

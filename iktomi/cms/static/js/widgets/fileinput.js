@@ -83,6 +83,9 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
         var currentMode = this.state.value.mode.toString();
         var urlDiv = "";
         if(this.state.value.current_url){
+            if(this.props.readonly){
+                return <span key="url">{this.state.value.current_url.toString()}</span>;
+            }
             if(currentMode == 'transient'){
                 urlDiv = <div className="file_data">  
                            <p>Загружен временный файл<br />
@@ -107,6 +110,9 @@ Widgets.AjaxFileInput = Widgets.create(Widgets.Widget, {
         return urlDiv;
     },
     inputElements: function(){
+        if(this.props.readonly){
+            return '';
+        }
         return [<input type="file"
                         key="file"
                         onChange={this.onChange}  

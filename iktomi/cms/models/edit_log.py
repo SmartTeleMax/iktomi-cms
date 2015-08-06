@@ -8,40 +8,25 @@ from iktomi.cms.item_lock import ItemLock
 from iktomi.utils import cached_property
 #from webob.multidict import MultiDict
 from .base import register_model
+import json
 
 __all__ = ['EditLog']
 
 
 def make_diff(field1, field2, changed=False):
     # XXX move to proper place
-    if field1 is not None:
-        label = field1.label or field1.name
-        #field1.permissions = set('r')
-        before = lambda: field1.widget.render()
-    else:
-        before = lambda: ''
-    if field2 is not None:
-        label = field2.label or field2.name
-        name = field2.input_name
-        #field2.permissions = set('r')
-        after = lambda: field2.widget.render()
-    else:
-        after = lambda: ''
-        name = ''
+    widget = json.dumps(field1.widget.render())
+    label = field1.label or field1.name
+    before = lambda: field1.get_json_value()
+    name = field2.input_name
+    after = lambda: field2.get_json_value()
 
     return dict(label=label,
+                widget=widget,
                 name=name,
                 before=before,
                 after=after,
                 changed=changed)
-
-
-#def _get_field_data(form, field):
-#    md = MultiDict()
-#    rv = field.from_python(form.python_data.get(field.name))
-#    field.set_raw_value(md, rv)
-#    return md
-
 
 
 # XXX MySQL-specific type. How to resulve this?

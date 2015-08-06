@@ -10,16 +10,18 @@ from iktomi.unstable.db.sqla.images import ImageProperty
 from iktomi.unstable.utils.image_resizers import ResizeFit
 from iktomi.utils import cached_property
 from iktomi.cms.forms import convs, widgets
+from iktomi.cms.models.edit_log import make_diff
 from PIL import Image
-
+import json
 
 class AjaxFileField(FileFieldSet):
 
     widget = widgets.AjaxFileInput
-    initial = {'mode':'empty', 
-               'transient_name':None, 
+    initial = {'mode':'empty',
+               'transient_name':None,
                'original_name':None,
                'current_url': None}
+    _initial_for_diff = initial
 
     @property
     def upload_url(self):
@@ -49,6 +51,18 @@ class AjaxFileField(FileFieldSet):
                 data['transient_name'] = None
                 data['original_name'] = None
         return {self.name: data}
+
+    def accept(self, data):
+        self._initial_for_diff = data
+        return FileFieldSet.accept(self, data)
+
+    def get_json_value(self):
+        return json.dumps(self._initial_for_diff)
+
+    def get_diff(field1, field2):
+        changed = field1.get_json_value() != field2.get_json_value()
+        diff = make_diff(field1, field2, changed=changed)
+        return diff
 
 
 class ImageFieldSetConv(FileFieldSetConv):

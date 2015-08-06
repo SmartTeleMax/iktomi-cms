@@ -237,6 +237,9 @@
 
 (function(wysihtml5) {
   wysihtml5.views.Composer.prototype.withNoHistory = function(callback){
+    if(!this.undoManager){
+        return;
+    }
     this.undoManager.transact();
     var position = this.undoManager.position;
     callback.call(this);
@@ -253,6 +256,20 @@
   }
 })(wysihtml5);
 
+
+function makeid(n)
+{
+    if(!n){
+        n = 10;
+    }
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < n; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return "id-"+text;
+}
 
 (function() {
     Widgets.WysiHtml5 = Widgets.create(Widgets.Widget, {
@@ -331,6 +348,7 @@
               // XXX how to return if nothing changed??
             }
             var toolbar = '';
+            var id = this.props.id ? this.props.id : makeid();
             if(!this.props.readonly){
               var buttons = [];
               for(var i=0; i<this.props.buttons.length; i++){
@@ -347,17 +365,17 @@
                 }
                 buttons.push(<span key={'sep'+i} className="separator"></span>);
               }
-              toolbar = <div id={this.props.id +"-toolbar"}
+              toolbar = <div id={id +"-toolbar"}
                              className="wysihtml5-toolbar"
                              style={{display: "none"}}>{buttons}</div>
             }
             var className = "wysihtml5-widget " + (this.props.classname || "");
             return <div className={className}>
                 {toolbar}
-                <textarea id={this.props.id}
+                <textarea id={id}
                           name={this.props.input_name }
                           className="wysihtml5"
-                          readonly={this.props.readonly?readonly:null}
+                          disabled={this.props.readonly?"readonly":null}
                           defaultValue={this.getValue()}
                           ref="textarea">
                 </textarea>

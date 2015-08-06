@@ -65,14 +65,6 @@ class DiffFieldSetMixIn(object):
                         changed=True)
 
 
-class JSONFieldSet(JSONFieldSet, DiffFieldSetMixIn):
-    pass
-
-
-class JSONFieldBlock(JSONFieldBlock, DiffFieldSetMixIn):
-    pass
-
-
 class JSONFieldList(JSONFieldList):
 
     widget = widgets.FieldListWidget
@@ -92,60 +84,9 @@ class JSONFieldList(JSONFieldList):
         return False
 
     def get_diff(fieldlist1, fieldlist2):
-        reordered = False
-        fields1 = []
-        fields2 = []
-        for index in fieldlist1.raw_value or []:
-            fields1.append(fieldlist1.field(name=index))
-        for index in fieldlist2.raw_value or []:
-            fields2.append(fieldlist2.field(name=index))
-
-        diffs = []
-        while fields1:
-            field2 = None
-            field1 = fields1.pop(0)
-            if fields2 and fieldlist1._is_pair(field1, fields2[0]):
-                field2 = fields2.pop(0)
-
-            if field1.widget.render_type == "hidden":
-                continue
-            if field2 is not None:
-                if hasattr(field1, 'get_diff'):
-                    diff = field1.get_diff(field2)
-                    if diff is not None:
-                        diffs.append(diff)
-                elif hasattr(field1.widget, 'get_diff'):
-                    diff = field1.widget.get_diff(field1, field2)
-                    if diff is not None:
-                        diffs.append(diff)
-                else:
-                    data1 = _get_field_data(fieldlist1, field1)
-                    data2 = _get_field_data(fieldlist2, field2)
-                    if data1 != data2:
-                        diff = make_diff(field1, field2,
-                                        changed=True)
-                        diffs.append(diff)
-            else:
-                diff = make_diff(field1, None,
-                                 changed=False)
-                diffs.append(diff)
-                reordered = True
-
-        while fields2:
-            field2 = fields2.pop(0)
-            diff = make_diff(None, field2,
-                            changed=True)
-            diffs.append(diff)
-
-        if not reordered:
-            diffs = [x for x in diffs if x['changed'] or x]
-        if diffs:
-            return dict(label=fieldlist1.label or '',
-                        name=fieldlist1.input_name,
-                        before=lambda: '',
-                        after=lambda: '',
-                        children=diffs,
-                        changed=True)
+        changed = fieldlist1.get_data() != fieldlist2.get_data()
+        diff = make_diff(fieldlist1, fieldlist2, changed=changed)
+        return diff
 
 FieldSet = JSONFieldSet
 FieldList = JSONFieldList

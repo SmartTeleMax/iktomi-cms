@@ -1,22 +1,22 @@
 <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
 <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
-{% macro diff_table(diff, level=0) %}
+{% macro diff_table(diff) %}
+    {% if diff.changed %}
     <tr class="form-row edit-log-level edit-log-level-{{level}}"><th>
       <div class="form-label">
         <label for="{{diff.name}}">{{ diff.label }}</label>
       </div>
     </th><td{% if diff.changed %} class="edit-log-del"{% endif %}>
-      {{- diff.before() -}}
+      <div class="init-block" data-block-name="render-component" 
+                              data-component-props="{{- diff.widget -}}" 
+                              data-component-state="{{- diff.before() -}}"></div> 
     </td><td{% if diff.changed %} class="edit-log-ins"{% endif %}>
-      {{- diff.after() -}}
+      <div class="init-block" data-block-name="render-component" 
+                              data-component-props="{{- diff.widget -}}" 
+                              data-component-state="{{- diff.after() -}}"></div> 
     </td></tr>
-
-    {%- if diff.children is defined %}
-      {%- for di in diff.children %}
-        {{- diff_table(di, level+1) }}
-      {%- endfor %}
-    {%- endif -%}
+    {% endif %}
 {% endmacro %}
 
 <div class="content">
@@ -46,4 +46,3 @@
     </div>
   </div>
 </div>
-
