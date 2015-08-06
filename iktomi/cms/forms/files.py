@@ -17,12 +17,12 @@ import json
 class AjaxFileField(FileFieldSet):
 
     widget = widgets.AjaxFileInput
-    initial = {'mode':'empty', 
-               'transient_name':None, 
+    initial = {'mode':'empty',
+               'transient_name':None,
                'original_name':None,
                'current_url': None}
     _initial_for_diff = initial
-    
+
     @property
     def upload_url(self):
         return self.env.root.load_tmp_file
@@ -51,7 +51,7 @@ class AjaxFileField(FileFieldSet):
                 data['transient_name'] = None
                 data['original_name'] = None
         return {self.name: data}
-    
+
     def accept(self, data):
         self._initial_for_diff = data
         return FileFieldSet.accept(self, data)
