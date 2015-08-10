@@ -6,8 +6,9 @@ from iktomi.cms.stream_handlers import PrepareItemHandler
 from iktomi.cms.publishing.stream import PublishItemHandler, \
         PublishStreamNoState, PublishStream
 from iktomi.cms.stream import Stream
+from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
-
+from iktomi.forms.form_json import Form, FieldSet, FieldList
 
 class PrepareI18nItemHandler(PrepareItemHandler):
 
@@ -23,6 +24,28 @@ class I18nItemHandler(PublishItemHandler):
     # XXX turn off autosave or make it save to DraftForm only?
 
     PrepareItemHandler = PrepareI18nItemHandler
+
+    def drop_field_on_i18n(self, field):
+        return field and (isinstance(field.conv, convs.Char) or
+                          field.name == 'id')
+
+    def clean_field(self, field):
+        if isinstance(field, FieldSet) or isinstance(field, Form):
+            for key in field.get_data().keys():
+                subfield = field.get_field(key)
+                if subfield is not None:
+                    self.clean_field(subfield)
+        
+        if isinstance(field, FieldList):
+            for item in field.get_data()[field.name]:
+                key = item['_key']
+                subfield = field.get_field(key)
+                self.clean_field(subfield)
+            return
+
+        if not isinstance(field, Form):
+            if self.drop_field_on_i18n(field):
+                field.accept(field._null_value)
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         if item.state not in (item.ABSENT, item.DELETED):
@@ -44,23 +67,14 @@ class I18nItemHandler(PublishItemHandler):
             # The item has been deleted on all language versions, creation is
             # not allowed
             raise HTTPNotFound
-        # make object reflection, do not add it to db
-        #fake_item = item.__class__()
-        ## XXX do not replicate text fields, creation time, etc
-        #replicate_attributes(source_item, fake_item)
-        #form = PublishItemHandler.get_item_form(
-        #        self, stream, env, fake_item, initial, draft)
-        # XXX hack!
-        #form.item = item
 
         # hack do get initial value for form from source item
         source_form = PublishItemHandler.get_item_form(
                     self, stream, env, source_item, initial, draft)
         form = PublishItemHandler.get_item_form(
                 self, stream, env, item, initial, draft)
-        form.accept(source_form.raw_data)
-        form.errors = {}
-
+        form.accept(source_form.get_data())
+        self.clean_field(form)
         return form
 
     def process_item_template_data(self, env, td):
@@ -87,7 +101,7 @@ class I18nStreamMixin(object):
 
     def uid(self, env, version=True):
         # Attention! Be careful!
-        # Do not change format of uid unless you are sure it will not 
+        # Do not change format of uid unless you are sure it will not
         # brake tray views, where stream_name and language are parsed out
         # from the uid
         if version:
@@ -125,7 +139,7 @@ class I18nPublishStreamNoState(I18nStreamMixin, PublishStreamNoState):
 
 class I18nPublishStream(I18nStreamMixin, PublishStream):
 
-    actions = [x for x in PublishStream.actions 
+    actions = [x for x in PublishStream.actions
                     if x.action != 'item'] + [
         I18nItemHandler(),
     ]
