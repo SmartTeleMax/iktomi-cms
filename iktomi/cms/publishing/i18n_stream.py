@@ -8,7 +8,7 @@ from iktomi.cms.publishing.stream import PublishItemHandler, \
 from iktomi.cms.stream import Stream
 from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
-from iktomi.forms.form_json import Form, FieldSet, FieldList
+from iktomi.forms.form_json import Form, FieldSet, FieldList, FieldBlock
 
 class PrepareI18nItemHandler(PrepareItemHandler):
 
@@ -30,22 +30,31 @@ class I18nItemHandler(PublishItemHandler):
                           field.name == 'id')
 
     def clean_field(self, field):
-        if isinstance(field, FieldSet) or isinstance(field, Form):
-            for key in field.get_data().keys():
-                subfield = field.get_field(key)
-                if subfield is not None:
-                    self.clean_field(subfield)
-        
-        if isinstance(field, FieldList):
-            for item in field.get_data()[field.name]:
-                key = item['_key']
-                subfield = field.get_field(key)
+        if isinstance(field, FieldSet) or isinstance(field, FieldBlock):
+            for subfield in field.fields:
                 self.clean_field(subfield)
-            return
 
-        if not isinstance(field, Form):
-            if self.drop_field_on_i18n(field):
+        if isinstance(field, FieldList):
+            subfields_values = []
+            for index in field.python_data:
+                subfield = field.field(name=str(index))
+                self.clean_field(subfield)
+                value = {'_key':str(index)}
+                value.update(subfield.get_data())
+                subfields_values.append(value)
+            field.accept([]) # Hack to clean old python_data
+            field.accept(subfields_values)
+
+        if hasattr(field, 'clean_value'):
+            value = field.clean_value
+            if hasattr(value, 'state') and value.state in (value.ABSENT, value.DELETED):
                 field.accept(field._null_value)
+        if self.drop_field_on_i18n(field):
+            field.accept(field.get_initial())
+
+    def clean_form(self, form):
+        for subfield in form.fields:
+            self.clean_field(subfield)
 
     def get_item_form(self, stream, env, item, initial, draft=None):
         if item.state not in (item.ABSENT, item.DELETED):
@@ -74,7 +83,7 @@ class I18nItemHandler(PublishItemHandler):
         form = PublishItemHandler.get_item_form(
                 self, stream, env, item, initial, draft)
         form.accept(source_form.get_data())
-        self.clean_field(form)
+        self.clean_form(form)
         return form
 
     def process_item_template_data(self, env, td):
