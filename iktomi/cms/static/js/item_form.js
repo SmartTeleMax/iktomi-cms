@@ -162,6 +162,7 @@ function _clearErrors(errors){
         var applyResult = function (result){
           if (result.form) {
             this.reactForm.setErrors(result.form.errors);
+            this.reactForm.setChangedFields(result.form.changedFields);
 
             var newValue = valueToPost.json!==undefined?
                                 JSON.stringify(this.reactForm.getValue()):
