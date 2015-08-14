@@ -81,7 +81,7 @@ class ModelForm(Form, DiffFieldSetMixIn):
 
     @cached_property
     def _front_version(self):
-        return self.__class__.load_initial(self.env, self.item._item_version('front'))
+        return self.load_initial(self.env, self.item._item_version('front'))
 
     def _collect_changed_fields(self, field, result = {}):
         if isinstance(field, FieldBlock) or isinstance(field, FieldSet):
