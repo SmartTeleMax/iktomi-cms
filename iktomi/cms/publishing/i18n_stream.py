@@ -51,6 +51,17 @@ class I18nItemHandler(PublishItemHandler):
                 field.accept(field._null_value)
         if self.drop_field_on_i18n(field):
             field.accept(field.get_initial())
+        if isinstance(field.conv, convs.ListOf):
+            to_accept = []
+            for raw_value in field.get_data()[field.name]:
+                value = field.conv.accept([raw_value])[0]
+                if hasattr(value, 'state'):
+                    if value.state not in (value.ABSENT, value.DELETED):
+                        to_accept.append(raw_value)
+                else:
+                    if value and not isinstance(value, basestring):
+                        to_accept.append(raw_value)
+            field.accept(to_accept)
 
     def clean_form(self, form):
         for subfield in form.fields:
