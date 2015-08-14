@@ -31,12 +31,15 @@
             }
 
             var widgetErrors = widget.props.readonly ? '' : fieldset.state.errors[widget.key];
+
             var errorMsg = widgetErrors && widgetErrors['.'] && widgetErrors['.'].text
-            console.log(widget.props.input_name, widget.key, fieldset.state.errors, errorMsg)
             var error = (errorMsg? 
                             <div className="error" key="error">{errorMsg}</div> :
                             '');
 
+            var widgetChangedFields = fieldset.state.changedFields?fieldset.state.changedFields[widget.key] : false;
+var isFieldChanged = widgetChangedFields && widgetChangedFields ['.'] && widgetChangedFields['.'].text;
+            console.log(widget.key, isFieldChanged);
             if (widget.props.render_type == 'checkbox') {
               children = [error,
                           widget,
@@ -56,8 +59,10 @@
                           widget,
                           hint];
             }
-
             var className = 'form-row';
+            if(isFieldChanged){
+                className += ' changed-after-publication'
+            }
             var styles = null;
             if (widget.props.render_type=="full-width") { className += ' full-width';}
             if (widget.props.render_type=="hidden") { styles = {'display': 'none'};}
@@ -75,6 +80,7 @@
         },
         getInitialState: function() {
             var state = {'value': this.props.data,
+                         'changedFields':this.props.changedFields,
                          'errors': this.props.errors};
             //delete this.props.data;
             return state;
@@ -111,12 +117,17 @@
         getPropsErrors: function(){
             return this.props.errors;
         },
+        
+        getPropsChangedFields: function(){
+            return this.props.changedFields;
+        },
 
         render: function() {
             //this.widgetsByName = {};
             var ws = [];
             var data = this.getPropsData();
             var errors = this.getPropsErrors();
+            var changedFields = this.getPropsChangedFields();
             for (var i=0; i<this.props.widgets.length; i++){
                 var prop = _clone(this.props.widgets[i]);
                 var originalKey = prop.key;
@@ -133,8 +144,10 @@
                 prop.data = data[prop.key];
                 if (originalKey && !this.props.readonly){
                     prop.errors = errors[prop.key] = errors[prop.key] || {'.': new MutableString('')};
+                    prop.changedFields = changedFields[prop.key] = changedFields[prop.key] || {'.': new MutableString('')};
                 } else {
                     prop.errors = errors;
+                    prop.changedFields = changedFields;
                 }
                 prop.parent = this;
                 prop.id = this.props.id + '.' + prop.key;
@@ -197,6 +210,14 @@
             this.setState({'errors': errors});
         },
 
+        setChangedFields: function(newChangedFields){
+            newChangedFields = makeMutable(newChangedFields);
+            _clearErrors(this.state.changedFields);
+            var changedFields = _mergeObjects(this.state.changedFields, 
+                                              newChangedFields);
+            this.setState({'changedFields': changedFields});
+        },
+
         flush: function(){
           function map(element){
             if (!element._renderedComponent) { return; }
@@ -224,6 +245,9 @@
         },
         getPropsErrors: function(){
             return this.props.parent.props.errors;
+        },
+        getPropsChangedFields: function(){
+            return this.props.parent.props.changedFields;
         }
     });
 
@@ -232,6 +256,7 @@
         var props = JSON.parse(json);
         props.data = makeMutable(props.data);
         props.errors = makeMutable(props.errors || {});
+        props.changedFields = makeMutable(props.changedFields || {});
         return React.createElement(ReactForm, props);
     }
 

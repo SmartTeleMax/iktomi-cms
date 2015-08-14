@@ -23,6 +23,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
         //}
  
         return {'value': value,
+                'changedFields':this.props.changedFields,
                 'errors': this.props.errors};
  
     },
@@ -40,6 +41,7 @@ Widgets.FieldList = Widgets.FieldListWidget = Widgets.create({
             var errors = this.props.errors;
             prop.errors = errors[data._key] = errors[data._key] || {'.': new MutableString('')};
         }
+        prop.changedFields = this.props.changedFields[data._key] || {'.': new MutableString('')};
         prop.data = data[data._key];
  
         if(!(React.DOM[prop.widget]||Widgets[prop.widget])){

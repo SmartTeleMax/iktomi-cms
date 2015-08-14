@@ -5,7 +5,7 @@ from time import time
 import struct, os
 from iktomi.utils import cached_property
 from iktomi.forms.form_json import Form
-from .fields import FieldBlock, DiffFieldSetMixIn
+from .fields import FieldBlock, DiffFieldSetMixIn, FieldSet, FieldList
 
 class Form(Form):
 
@@ -76,9 +76,48 @@ class ModelForm(Form, DiffFieldSetMixIn):
             if isinstance(field, FieldBlock):
                 initial.update(cls._load_initial(item, initial, field.fields))
             elif field.name:
-                initial[field.name] = getattr(item, field.name)
+                initial[field.name] = getattr(item, field.name, {})
         return initial
 
+    @cached_property
+    def _front_version(self):
+        return self.load_initial(self.env, self.item._item_version('front'))
+
+    def _collect_changed_fields(self, field, result = {}):
+        if isinstance(field, FieldBlock) or isinstance(field, FieldSet):
+            for subfield in field.fields:
+                changed = self._collect_changed_fields(subfield, result)
+        elif isinstance(field, FieldList):
+            for index in field.python_data:
+                subfield = field.field(name=str(index))
+                changed = self._collect_changed_fields(subfield, result)
+        else:
+            front_field = self._front_version.get_field(field.input_name)
+            if front_field and field.get_data() != front_field.get_data():
+                result.update({field.input_name: True})
+
+    def changed_fields(self):
+        item = self.item
+        if not hasattr(item, 'state') or item.state != item.PUBLIC:
+            return {}
+
+        result = {}
+
+        for field in self.fields:
+            self._collect_changed_fields(field, result)
+        
+        changed_fields = _defaultdict()
+        for key, msg in result.items():
+            d = changed_fields
+            for part in key.split('.'):
+                d = d[part]
+            d['.'] = msg
+        return changed_fields
+
+    def json_data(self):
+        data = Form.json_data(self)
+        data['changedFields'] = self.changed_fields()
+        return data
 
 def _defaultdict():
     return defaultdict(_defaultdict)

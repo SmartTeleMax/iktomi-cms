@@ -28,8 +28,6 @@ class PublishItemHandler(EditItemHandler):
     def process_item_template_data(self, env, td):
         # Filter buttons
         td['version'] = env.version
-        changes = self.changed_fields(env, td['item'], td['form'])
-        td['form'].changed_fields = changes
         return td
 
     def get_front_item_form(self, env, item):
@@ -47,26 +45,6 @@ class PublishItemHandler(EditItemHandler):
         form = form_cls.load_initial(env, item._front_item, initial={}, permissions='r')
         form.model = self.stream.get_model(env)
         return form
-
-    def _collect_changed_fields(self, diff):
-        # XXX Need to be fixed
-        return []
-
-    def changed_fields(self, env, item, admin_form):
-        if env.version == 'front' or \
-           not item.has_unpublished_changes or \
-           not admin_form.is_valid or \
-           (hasattr(item, 'state') and \
-            item.state not in (item.PUBLIC, item.PRIVATE)):
-                #(not item.has_unpublished_changes and \
-                # getattr(admin_form, 'draft', None) is None):
-            return []
-
-        front_form = self.get_front_item_form(env, item)
-        diff = front_form.get_diff(admin_form)
-        if diff is None:
-            return []
-        return self._collect_changed_fields(diff)
 
     def edit_item_handler(self, env, data):
         # XXX hack!
