@@ -18,7 +18,6 @@ class Form(Form):
 
     def json_data(self):
         errors = _defaultdict()
-        print self.errors
         for key, err in self.errors.items():
             d = errors
             for part in key.split('.'):
@@ -77,7 +76,7 @@ class ModelForm(Form, DiffFieldSetMixIn):
             if isinstance(field, FieldBlock):
                 initial.update(cls._load_initial(item, initial, field.fields))
             elif field.name:
-                initial[field.name] = getattr(item, field.name)
+                initial[field.name] = getattr(item, field.name, {})
         return initial
 
     @cached_property
@@ -93,7 +92,8 @@ class ModelForm(Form, DiffFieldSetMixIn):
                 subfield = field.field(name=str(index))
                 changed = self._collect_changed_fields(subfield, result)
         else:
-            if field.get_data() != self._front_version.get_field(field.input_name).get_data():
+            front_field = self._front_version.get_field(field.input_name)
+            if front_field and field.get_data() != front_field.get_data():
                 result.update({field.input_name: True})
 
     def changed_fields(self):

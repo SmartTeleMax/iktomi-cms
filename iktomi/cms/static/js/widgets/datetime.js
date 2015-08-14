@@ -79,12 +79,22 @@ Widgets.Datetime = Widgets.create(Widgets.Widget, {
                        className="timecalendar-toggle"
                        onClick={this.showClock}></button>: '';
 
+        var changes = this.props.changedFields;
+        var calendarClass = 'calendar';
+        if(changes.date && changes.date["."] && changes.date['.'].text){
+            calendarClass = calendarClass+' changed-after-publication';
+        };
+        var timeClass = 'timeinput';
+        if(changes.time && changes.time["."] && changes.time['.'].text){
+            timeClass = timeClass+' changed-after-publication';
+        };
+
         return <div>
                <input type="text"
                       name={widget.input_name+".date"}
                       value={this.state.value.date+""}
-                      className="calendar"
-                      size={widget.size||false}
+                      className={calendarClass}
+                      size={widget.size||false}a
                       readOnly={widget.readonly||false}
                       //onBlur={this.onBlur}
                       onChange={this.onChange}
@@ -93,7 +103,7 @@ Widgets.Datetime = Widgets.create(Widgets.Widget, {
                <input type="text"
                       name={widget.input_name+".time"}
                       value={this.state.value.time+""}
-                      className="timeinput"
+                      className={timeClass}
                       readOnly={widget.readonly||false}
                       onFocus={this.showClock}
                       //onBlur={this.onBlur}
