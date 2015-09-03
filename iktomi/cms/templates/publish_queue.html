@@ -1,46 +1,70 @@
-<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
-<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-<div class="content streamcontainer itemlist">
-  <h1>Очередь публикации</h1>
-  <p>Показываются все опубликованные объекты, у которых имеются неопубликованные изменения.</p>
+{% from "macros/filter_form.html" import sidefilter, paginate %}
+{% set pager = paginate(paginator) %}
 
-  {% if not changed %}
-    <p>Очередь публикации пуста.</p>
-  {% endif %}
+{% macro stream_content() %}
+    {% if not changed %}
+      <p>Очередь публикации пуста.</p>
+    {% endif %}
 
-  <div class="table">
-    <div class="line"></div>
-    <table class="container"><tbody><tr><td>
-      <table class="items">
+    {{ pager }}
+    <table class="items">
+      <thead>
+        <th>ID</th>
+        <th>Тип</th>
+        <th>Изменён</th>
+        <th>Объект</th>
+      </thead>
         <tbody>
-        {% for stream, item in changed %}
+        {% for stream, subenv, item in changed %}
+          {% set item_url = stream.url_for(subenv, 'item', item=item.id) %}
           <tr class="item {{ loop.cycle('odd', 'even') }}
                      {%- if item.public is defined -%}
                        {%- if item.public %} published{% else %} unpublished{% endif -%}
                        {%- endif %}">
             <td class="field_id">
-              <a href="{{ stream.url_for(env, 'item', item=item.id) }}">
-                {{- item.id -}}
-              </a>
+                <a href="{{ item_url }}">{{- item.id -}}</a>
             </td>
             <td class="field_id">
-              <a href="{{ stream.url_for(env, 'item', item=item.id) }}">
-                {{- stream.title -}}
-              </a>
+                <a href="{{ item_url }}">{{- stream.title -}}</a>
+            </td>
+            <td class="field_updated_dt">
+                <a href="{{ item_url }}">{{- item.updated_dt.strftime("%d.%m.%Y %H:%M") -}}</a>
             </td>
             <td>
-              <a href="{{ stream.url_for(env, 'item', item=item.id) }}">
-                {%- if item.title is defined %}
-                  {{- item.title -}}
-                {%- else -%}
-                  {{- item -}}
-                {%- endif -%}
-              <a>
+                <a href="{{ item_url }}">
+                    {{- item.title if item.title is defined else item -}}
+                <a>
             </td>
           </tr>
         {% endfor %}
         </tbody>
-      </table>
-    </td></tr></tbody></table>
+    </table>
+    {{ pager }}
+{% endmacro %}
+
+
+
+
+{% if no_layout %}
+    {{ stream_content() }}
+{% else %}
+  <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+  <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+  <div class="content itemlist">
+    <div class="header">
+      <h1 class="stream_title nowrap">Очередь публикации</h1>
+    </div>
+    <div>
+      <div class="stream">
+        <div class="line"></div>
+        {#{ sidefilter(filter_form, current_url) }#}
+
+
+        <div class="stream-items with-sidefilter">
+          <p>Показываются все опубликованные объекты, у которых имеются неопубликованные изменения (давние правки&nbsp;&ndash; сверху).</p>
+          {{ stream_content() }}
+        </div>
+      </div>
+    <div>
   </div>
-</div>
+{% endif %}
