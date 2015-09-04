@@ -197,6 +197,9 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             return {'status': 'failure',
                     'error': 'Invalid image'}
 
+        if image.size[0] * image.size[1] > field.size[0] * field.size[1]:
+            raise HTTPBadRequest('Image size exceeds the limit')
+
         original_name = env.request.GET["file"]
         ext = os.path.splitext(original_name)[1]
         ext = ext or ('.' + (image.format or 'jpeg')).lower()
