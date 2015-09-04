@@ -225,19 +225,26 @@ class SortConverter(convs.EnumChoice):
                                  self.from_python(value))
         return value
 
-    # this does not work well, but default sort value is redundant in raw_data
-    # and accordingly in query string. We need other way to do that.
-    #def from_python(self, value):
-    #    value = convs.EnumChoice.from_python(self, value)
-    #    if value == self.field.get_initial():
-    #        return ''
-    #    return value
+
+class SortWidget(widgets.Select):
+
+    classname='js-sort-field'
+    render_type="hidden"
+
+    def get_options(self, value):
+        options = widgets.Select.get_options(self, value)
+        if not value:
+            initial_value = self.field.conv.from_python(
+                    self.field.get_initial())
+            for option in options:
+                option['selected'] = option['value'] == initial_value
+        return options
 
 
 class SortField(Field):
 
-    conv = SortConverter
-    widget = widgets.Select(classname='js-sort-field', render_type="hidden")
+    conv = SortConverter()
+    widget = SortWidget()
     # (db column, list_field name)
     choices = (('id', 'id'),)
 
@@ -260,6 +267,12 @@ class SortField(Field):
         if is_desc:
             value = desc(value)
         return query.order_by(value)
+
+    def set_raw_value(self, raw_data, value):
+        if value == self.conv.from_python(self.get_initial()):
+            raw_data[self.input_name] = ''
+        else:
+            raw_data[self.input_name] = value
 
 
 
