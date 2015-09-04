@@ -16,10 +16,11 @@ ItemLock.prototype = {
   initialize: function(el, options){
       this.el = el;
       this.options = Object.merge({}, this.options, options)
-      this.failed_attempts = 0;
+      this.failedAttempts = 0;
       this.updateTimer = this.checkTimer = null;
       this.options.timeout = Math.round((this.options.timeout/3)*1000);
       this.popup = new Popup(_popup_id(), {'close_button_on':false, 'clickable_overlay':false});
+
       this.updateRequest = null;
       this.forceLockRequest = null;
       this.lockActions = this.getActions();
@@ -119,7 +120,7 @@ ItemLock.prototype = {
         this.stop();
         this.showDialog(response.message, this.lockActions, response.locked_session)
       } else {
-        this.failed_attempts = 0;
+        this.failedAttempts = 0;
         this.popup.hide();
       }
   },
@@ -165,7 +166,18 @@ ItemLock.prototype = {
     } else if(response.status == 'captured') {
       sessionStorage[this.options.globalId] = response.edit_session;
       this.releaseLock = function(){}; // To not release the lock
-      window.location.reload(); // XXX should work without reload
+      var parentPopup = this.el.getParent('.popup');
+      parentPopup = parentPopup && parentPopup.retrieve('popup')
+      popupUrl = parentPopup && parentPopup.contentEl.dataset.url;
+      if (popupUrl) {
+        loadPage(popupUrl, false, parentPopup.contentEl);
+        parentPopup.contentEl.addEvent('load', function(){
+          parentPopup.onWindowResize();
+        });
+        this.popup.hide();
+      } else {
+        window.location.reload(); // XXX should work without reload
+      }
     } else if(response.status == 'fail'){
       this.stop();
       this.showDialog(response.message, this.lockActions, response.locked_session)
@@ -178,8 +190,8 @@ ItemLock.prototype = {
   },
 
   handleError: function(response){
-    this.failed_attempts++;
-    if(this.failed_attempts >= this.options.maxFailedAttempts){
+    this.failedAttempts++;
+    if(this.failedAttempts >= this.options.maxFailedAttempts){
       this.stop();
     }
     this.popup.hide();

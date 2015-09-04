@@ -95,11 +95,11 @@ var Popup = new Class({
   setZindex: function(){
     var zindex=10;
     $$('.popup').each(function(p){
-      popup = p.retrieve('popup');
+      var popup = p.retrieve('popup');
       if(popup.visible == true && popup.zindex > zindex){
         zindex = popup.zindex;
       }
-    });
+    }.bind(this));
     this.zindex = zindex+2;
     this.overlay.setStyle('z-index', this.zindex);
     this.loader.setStyle('z-index', this.zindex+1);
@@ -109,7 +109,7 @@ var Popup = new Class({
   show: function() {
     this.setZindex();
     this.visible = true;
-  
+
     // events are delegated throught .window-delegate, so there is no need to
     // clean them up manually
     window.addEvent('resize', this._onWindowResize);

@@ -43,8 +43,11 @@
         if (link.get('rel') == 'popup'){
           var popup = new Popup();
           loadPage(url, false, popup.contentEl);
-          popup.contentEl.addEvent('load', function(){
+          popup.contentEl.addEvent('domready', function(){
             popup.show();
+          });
+          popup.contentEl.addEvent('load', function(){
+            popup.onWindowResize();
           });
           return;
         }
@@ -70,7 +73,11 @@
     pushState = pushState === undefined? true: pushState;
     var isMain = contentBlock == $('app-content');
     if (!url){
-      url = window.location.pathname + window.location.search;
+      if (contentBlock.dataset.url) {
+        url = contentBlock.dataset.url;
+      } else {
+        url = window.location.pathname + window.location.search;
+      }
     }
     if (isMain && !force && url == currentUrl){
       console.log('Skipping URL (already loaded): ' + url);
@@ -91,8 +98,10 @@
           } else {
             history.replaceState(null, null, url);
           }
+        } else {
+          contentBlock.dataset.url = url;
         }
-        console.log('loadPage success', url);
+        //console.log('loadPage success', url);
         renderPage(result, contentBlock);
       }
     }).get();
@@ -116,6 +125,11 @@
         // delegate which is used to pass events from window to listener
         new Element('div', {'class': 'window-delegate'}).inject(contentBlock);
       }
+
+      var evt = document.createEvent("HTMLEvents");
+      evt.initEvent("domready", false, true);
+      contentBlock.dispatchEvent(evt);
+
       Blocks.init(contentBlock);
       window.setTimeout(function(){
         contentBlock.setStyle('height', '');
