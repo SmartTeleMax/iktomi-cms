@@ -1,5 +1,4 @@
-<div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
-<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+{% extends "layout.html" %}
 
 {% macro diff_table(diff, level=0) %}
     <tr class="form-row edit-log-level edit-log-level-{{level}}"><th>
@@ -19,31 +18,36 @@
     {%- endif -%}
 {% endmacro %}
 
-<div class="content">
-  <div class="header">
-    <h1><a href="{{ stream.url_for(env, 'edit_log', item=item.id) }}">Журнал изменений</a><br/>
-        <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
-    </h1>
-  </div>
-  <div class="text">
-    <div class="line"></div>
-    <div class="form">
-      <dl class="edit-log-info">
-          <dt>Автор</dt>
-          <dd>{%- for user in log.users %}{{- user.name or user.login }}{% if not loop.last %}, {% endif %}{% endfor -%}</dd>
-          <dt>Тип</dt>
-          <dd><strong>{{ log_type|capitalize }}</strong></dd>
-          <dt>Дата и время</dt>
-          <dd>{% set d1 = log.creation_time.strftime("%d.%m.%Y %H:%M:%S") %}
-              {% set d2 = log.update_time.strftime("%d.%m.%Y %H:%M:%S") %}
-              {% if d1 == d2 %}{{ d1 }} {% else %}{{ d1 }} – {{ d2 }}{% endif %}</dd></dl>
+{% block content %}
+  <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+  <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
 
-      <table class="edit-log-diff"><tbody>
-        {%- for diff in diffs %}
-          {{- diff_table(diff) }}
-        {%- endfor -%}
-      </tbody></table>
+  <div class="content">
+    <div class="header">
+      <h1><a href="{{ stream.url_for(env, 'edit_log', item=item.id) }}">Журнал изменений</a><br/>
+          <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
+      </h1>
+    </div>
+    <div class="text">
+      <div class="line"></div>
+      <div class="form">
+        <dl class="edit-log-info">
+            <dt>Автор</dt>
+            <dd>{%- for user in log.users %}{{- user.name or user.login }}{% if not loop.last %}, {% endif %}{% endfor -%}</dd>
+            <dt>Тип</dt>
+            <dd><strong>{{ log_type|capitalize }}</strong></dd>
+            <dt>Дата и время</dt>
+            <dd>{% set d1 = log.creation_time.strftime("%d.%m.%Y %H:%M:%S") %}
+                {% set d2 = log.update_time.strftime("%d.%m.%Y %H:%M:%S") %}
+                {% if d1 == d2 %}{{ d1 }} {% else %}{{ d1 }} – {{ d2 }}{% endif %}</dd></dl>
+
+        <table class="edit-log-diff"><tbody>
+          {%- for diff in diffs %}
+            {{- diff_table(diff) }}
+          {%- endfor -%}
+        </tbody></table>
+      </div>
     </div>
   </div>
-</div>
+{% endblock %}
 

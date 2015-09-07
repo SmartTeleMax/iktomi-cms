@@ -6,7 +6,6 @@ from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
 from webob.multidict import MultiDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
-from sqlalchemy.orm.util import identity_key
 
 from iktomi.utils.deprecation import deprecated
 from iktomi.utils import cached_property
@@ -75,7 +74,7 @@ class StreamListHandler(StreamAction):
         return web.match() | self
 
     def list_handler(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
 
         stream = self.stream
         stream.insure_has_permission(env, 'x')
@@ -192,8 +191,8 @@ class PrepareItemHandler(web.WebHandler):
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
-        if self.action.xhr:
-            insure_is_xhr(env)
+        #if self.action.xhr:
+        #    insure_is_xhr(env)
 
         stream = self.action.stream
         stream.insure_has_permission(env, 'r')
@@ -620,7 +619,7 @@ class DeleteItemHandler(_ReferrersAction):
             env.db.delete(obj)
 
     def delete_item_handler(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
         item, edit_session, lock_message, filter_form = \
             data.item, data.edit_session, data.lock_message, data.filter_form
         stream = self.stream

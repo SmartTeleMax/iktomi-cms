@@ -1,3 +1,5 @@
+{% extends "layout.html" %}
+
 {% from "macros/filter_form.html" import sidefilter, paginate %}
 {% set pager = paginate(paginator) %}
 
@@ -43,28 +45,29 @@
 {% endmacro %}
 
 
+{% block content %}
+    {% if no_layout %}
+        {{ stream_content() }}
+    {% else %}
+        <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+        <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+        <div class="content itemlist">
+            <div class="header">
+                <h1 class="stream_title nowrap">Очередь публикации</h1>
+            </div>
+            <div>
+                <div class="stream">
+                    <div class="line"></div>
 
-
-{% if no_layout %}
-    {{ stream_content() }}
-{% else %}
-  <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
-  <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-  <div class="content itemlist">
-    <div class="header">
-      <h1 class="stream_title nowrap">Очередь публикации</h1>
-    </div>
-    <div>
-      <div class="stream">
-        <div class="line"></div>
-        {#{ sidefilter(filter_form, current_url) }#}
-
-
-        <div class="stream-items with-sidefilter">
-          <p>Показываются все опубликованные объекты, у которых имеются неопубликованные изменения (давние правки&nbsp;&ndash; сверху).</p>
-          {{ stream_content() }}
+                    <div class="stream-items with-sidefilter">
+                        <p>Показываются все опубликованные объекты,
+                           у которых имеются неопубликованные изменения
+                           (давние правки&nbsp;&ndash; сверху).
+                        </p>
+                        {{ stream_content() }}
+                    </div>
+                </div>
+            <div>
         </div>
-      </div>
-    <div>
-  </div>
-{% endif %}
+    {% endif %}
+{% endblock %}

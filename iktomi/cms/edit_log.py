@@ -5,7 +5,6 @@ from iktomi import web
 from iktomi.utils.storage import VersionedStorage
 from iktomi.cms.stream import decode_stream_uid, FilterForm
 from iktomi.cms.stream_actions import GetAction
-from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.forms.fields import Field, DateFromTo, SortField
 from iktomi.cms.loner import Loner
@@ -129,7 +128,7 @@ def preload_items(env, entries):
 
 
 def global_log(env, data, stream=None):
-    insure_is_xhr(env)
+    #insure_is_xhr(env)
 
     EditLog = env.edit_log_model
 
@@ -284,7 +283,7 @@ class EditLogHandler(GetAction):
     __call__ = edit_log
 
     def log_entry(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
 
         if getattr(env, 'version', None) == 'front':
             raise HTTPNotFound()

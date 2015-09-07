@@ -1,9 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
-    {% block title %}
     <title>{{ title|default('Административный интерфейс')|striptags }}</title>
-    {% endblock %}
 
     <script type="text/javascript"> window.CMS_STATIC_URL = "{{ CMS_STATIC_URL }}"; </script>
 
@@ -73,7 +71,7 @@
     {% endif %}
 
     <div id="app-content">
-      {#% block content %}{% endblock %#}
+      {%- block content %}{% endblock -%}
     </div>
 
     <div id="overlay" class="overlay"></div>

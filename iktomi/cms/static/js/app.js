@@ -1,6 +1,9 @@
 (function(){
   var currentUrl = window.location.pathname + window.location.search;
   window.addEvent('domready', function(){
+    var isEmpty = $$("#app-content>*").length == 0;
+
+    new Element('div', {'class': 'window-delegate'}).inject($('app-content'));
     Blocks.init(document.body);
 
     window.addEvents({'scroll': delegateWindowEvents('scroll'),
@@ -65,7 +68,9 @@
       }
     }, false);
 
-    loadPage(null, true);
+    if (isEmpty) {
+        loadPage(null, true);
+    }
   });
 
   function loadPage(url, force, contentBlock, pushState){
@@ -112,41 +117,59 @@
     loadPage();
   }, false);
 
+  function renderHtml(result, contentBlock){
+    contentBlock = contentBlock || $('app-content');
+    contentBlock.setStyle('height', contentBlock.getHeight());
+
+    var options = this.options, response = this.response;
+
+    result = result.stripScripts();
+
+    var match = result.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    if (match) { result = match[1]; }
+    var temp = new Element('div').set('html', result);
+    temp = temp.getElement('#app-content') || temp;
+
+    contentBlock.empty();
+
+    while (temp.childNodes.length) {
+      contentBlock.appendChild(temp.childNodes[0]);
+    }
+
+    if (contentBlock == $('app-content')){
+      // delegate which is used to pass events from window to listener
+      new Element('div', {'class': 'window-delegate'}).inject(contentBlock);
+    }
+
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent("domready", false, true);
+    contentBlock.dispatchEvent(evt);
+
+    Blocks.init(contentBlock);
+    window.setTimeout(function(){
+      contentBlock.setStyle('height', '');
+      if (contentBlock.id == 'app-content'){
+        window.scrollTo(window.scrollX, 0);
+      }
+    }, 2);
+
+    var bodyClass = contentBlock.getElement('[data-body-class]');
+    document.body.set('class',
+        bodyClass ? bodyClass.dataset.bodyClass : null);
+    (contentBlock.getParent('.popup') || document.body).removeClass('loading');
+
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent("load", false, true);
+    contentBlock.dispatchEvent(evt);
+  }
+
   function renderPage(result, contentBlock){
     try {
       if (typeof result == 'string') {
         result = JSON.decode(result);
       }
     } catch (e){
-      contentBlock = contentBlock || $('app-content');
-      contentBlock.setStyle('height', contentBlock.getHeight());
-      contentBlock.set('html', result);
-      if (contentBlock == $('app-content')){
-        // delegate which is used to pass events from window to listener
-        new Element('div', {'class': 'window-delegate'}).inject(contentBlock);
-      }
-
-      var evt = document.createEvent("HTMLEvents");
-      evt.initEvent("domready", false, true);
-      contentBlock.dispatchEvent(evt);
-
-      Blocks.init(contentBlock);
-      window.setTimeout(function(){
-        contentBlock.setStyle('height', '');
-        if (contentBlock.id == 'app-content'){
-          window.scrollTo(window.scrollX, 0);
-        }
-      }, 2);
-
-      var bodyClass = contentBlock.getElement('[data-body-class]');
-      document.body.set('class',
-          bodyClass ? bodyClass.dataset.bodyClass : null);
-      (contentBlock.getParent('.popup') || document.body).removeClass('loading');
-
-      var evt = document.createEvent("HTMLEvents");
-      evt.initEvent("load", false, true);
-      contentBlock.dispatchEvent(evt);
-      return;
+      return renderHtml(result, contentBlock);
     }
 
 

@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from iktomi import web
 from iktomi.cms.stream_handlers import PrepareItemHandler, EditItemHandler,\
-        DeleteItemHandler, insure_is_xhr, StreamListHandler
+        DeleteItemHandler, StreamListHandler
 from iktomi.cms.stream import Stream, ListField, FilterForm
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.flashmessages import flash
-from iktomi.cms.item_lock import ItemLock
 from iktomi.cms.publishing.model import _AdminReplicated
 from iktomi.utils import cached_property
 from iktomi.utils.storage import VersionedStorage
@@ -277,7 +276,7 @@ class RevertAction(PostAction):
 class DeleteFlagHandler(DeleteItemHandler):
 
     def delete_flag_handler(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
 
         if env.request.method != 'POST':
             return DeleteItemHandler.__call__(self, env, data)

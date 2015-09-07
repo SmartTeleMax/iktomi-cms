@@ -4,7 +4,6 @@ from webob.exc import HTTPNotFound
 
 from iktomi import web
 from iktomi.cms.stream_actions import GetAction
-from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.cms.loner import Loner
 
 
@@ -40,7 +39,7 @@ class PreviewHandler(GetAction):
                 getattr(env, 'version', None) != 'front'
 
     def preview(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
         if not self.is_available(env, data.item):
             raise HTTPNotFound
 

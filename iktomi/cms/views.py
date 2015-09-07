@@ -5,7 +5,6 @@ import logging
 from webob.exc import HTTPMethodNotAllowed, HTTPNotFound, HTTPBadRequest, HTTPForbidden
 from iktomi import web
 from iktomi.cms.stream import expand_stream
-from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth, LoginForm
 from .item_lock import ModelLockError, ModelLockedByOther
 from iktomi.cms.forms import Form, convs
@@ -19,7 +18,7 @@ class IndexHandler(web.WebHandler):
         self.dashboard = dashboard
 
     def index(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
 
         return env.render_to_response('index', dict(
             title=u'Редакторский интерфейс сайта',
@@ -240,7 +239,7 @@ class TrayView(web.WebHandler):
         env.db.commit()
 
     def tray(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
         env.models = env.models.admin
         env.version = 'admin'
         tray = env.db.query(self.Tray).get(data.tray)

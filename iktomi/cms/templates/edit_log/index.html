@@ -1,3 +1,5 @@
+{% extends "layout.html" %}
+
 {% from "macros/filter_form.html" import sidefilter, paginate %}
 
 {% set pager = paginate(paginator) %}
@@ -55,27 +57,29 @@
   {{ pager }}
 {% endmacro %}
 
-{% if no_layout %}
-    {{ stream_content() }}
-{% else %}
-  <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
-  <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-  <div class="content itemlist">
-    <div class="header">
-      <h1 class="stream_title nowrap">{{ title }}</h1>
-      {% if item is defined %}
-        <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
-      {% endif %}
-    </div>
-    <div>
-      <div class="stream">
-        <div class="line"></div>
-        {{ sidefilter(filter_form, current_url) }}
-
-        <div class="stream-items with-sidefilter">
-          {{ stream_content() }}
-        </div>
+{% block content %}
+  {% if no_layout %}
+      {{ stream_content() }}
+  {% else %}
+    <div class="init-block" data-block-name="title" data-title="{{ title }}"></div>
+    <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+    <div class="content itemlist">
+      <div class="header">
+        <h1 class="stream_title nowrap">{{ title }}</h1>
+        {% if item is defined %}
+          <a style="font-size: 10px;" href="{{ stream.url_for(env, 'item', item=item.id) }}">{{ item }}</a>
+        {% endif %}
       </div>
-    <div>
-  </div>
-{% endif %}
+      <div>
+        <div class="stream">
+          <div class="line"></div>
+          {{ sidefilter(filter_form, current_url) }}
+  
+          <div class="stream-items with-sidefilter">
+            {{ stream_content() }}
+          </div>
+        </div>
+      <div>
+    </div>
+  {% endif %}
+{% endblock %}

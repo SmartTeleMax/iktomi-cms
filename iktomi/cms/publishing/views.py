@@ -2,7 +2,6 @@
 from .stream import PublishStream
 from .i18n_stream import I18nPublishStream
 from iktomi.web import WebHandler
-from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.utils.storage import VersionedStorage
 
 
@@ -12,7 +11,7 @@ class PublishQueue(WebHandler):
         self.streams = streams
 
     def publish_queue(self, env, data):
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
 
         changed = []
         for stream in self.streams.values():

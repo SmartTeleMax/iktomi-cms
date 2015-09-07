@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from iktomi.utils import cached_property
 from iktomi import web
-from .stream_handlers import EditItemHandler, PrepareItemHandler, insure_is_xhr
+from .stream_handlers import EditItemHandler, PrepareItemHandler
 from .stream import Stream
 
 class PrepareLonerHandler(PrepareItemHandler):
@@ -11,7 +11,7 @@ class PrepareLonerHandler(PrepareItemHandler):
 
     def prepare_item_handler(self, env, data):
         '''Item actions dispatcher'''
-        insure_is_xhr(env)
+        #insure_is_xhr(env)
 
         stream = self.action.stream
         stream.insure_has_permission(env, 'r')

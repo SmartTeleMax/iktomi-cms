@@ -1,12 +1,16 @@
 <div>
-  {%- if referers %}
-    <h3><span style="color: #333">На объект</span> &laquo;{{ item|escape }}&raquo; <span style="color: #333">ссылаются:</span></h3>
-    <ul>
-      {%- for referer, referer_url in referers.items() -%}
-        <li><a href="{{ referer_url }}" rel="external">{{ referer|escape }}</a></li>
-      {%- endfor -%}
-    </ul>
-  {% else %}
-    <h3>Не найдено ссылок на объект &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo;</h3>
-  {%- endif -%}
+    {%- if referers %}
+        <h3><span style="color: #333">На объект</span> 
+            &laquo;{{ item|escape }}&raquo; <span style="color: #333">ссылаются:</span>
+        </h3>
+        <ul>
+          {%- for referer, referer_url in referers.items() -%}
+            <li><a href="{{ referer_url }}" rel="external">{{ referer|escape }}</a></li>
+          {%- endfor -%}
+        </ul>
+    {%- else -%}
+        <h3>Не найдено ссылок на объект
+            &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo;
+        </h3>
+    {%- endif -%}
 </div>
