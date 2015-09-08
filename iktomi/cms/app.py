@@ -10,6 +10,7 @@ import json
 #from i18n.translation import get_translations
 from webob.exc import HTTPSeeOther
 
+
 class AdminEnvironment(web.AppEnvironment):
 
     # cfg = cfg

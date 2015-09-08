@@ -1,8 +1,6 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-
 <div style="margin: 0 50px 0 80px">
   <h1>Действительно хотите удалить объект &laquo;<a href="{{ item_url }}">{{ item|escape }}</a>&raquo;?</h1>
   {%- if referers %}
