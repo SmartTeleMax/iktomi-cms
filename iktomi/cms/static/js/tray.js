@@ -93,4 +93,11 @@ Blocks.register('tray-popup', function(el){
   }
 
   el.getElement('.tray-popup__to-user').addEvent('click', putToUser);
+  $('app-content').addEvent('pre-render', function(e){
+    var count = e.body.getElement('.tray-count');
+    count = count && count.get('text');
+    if (count) {
+      $('app-content').getElement('.tray-count').set('text', count);
+    }
+  })
 });

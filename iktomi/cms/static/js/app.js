@@ -172,14 +172,21 @@
         if (match) { result = match[1]; }
 
         var match = result.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        if (match) { result = match[1]; }
+        var bodyHtml = match? match[1]: result;
         var temp = new Element('div').set('html', result);
-        temp = temp.getElement('#app-content') || temp;
+        var content = temp.getElement('#app-content') || temp;
+
+        var evt = document.createEvent("HTMLEvents");
+        evt.body = temp;
+        evt.content = content;
+        evt.html = result;
+        evt.initEvent("pre-render", false, true);
+        contentBlock.dispatchEvent(evt);
 
         contentBlock.empty();
 
-        while (temp.childNodes.length) {
-            contentBlock.appendChild(temp.childNodes[0]);
+        while (content.childNodes.length) {
+            contentBlock.appendChild(content.childNodes[0]);
         }
 
         if (contentBlock == $('app-content')){
@@ -207,7 +214,7 @@
         var evt = document.createEvent("HTMLEvents");
         evt.initEvent("load", false, true);
         contentBlock.dispatchEvent(evt);
-    }
+    };
 
     function delegateWindowEvents(type){
         // Delegate window events to special element which is utilized every time
