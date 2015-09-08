@@ -62,11 +62,11 @@
                 return;
             }
 
-            var item_forms = Array.from($$('.item-form'));
+            var itemForms = Array.from($$('.item-form'));
             function doLoad() {
-                if (item_forms.length){
-                    var item_form = item_forms.shift();
-                    item_form.retrieve('ItemForm').autoSaveHandler(doLoad);
+                if (itemForms.length){
+                    var itemForm = itemForms.shift();
+                    itemForm.retrieve('ItemForm').autoSaveHandler(doLoad);
                 } else {
                     loadPage(url);
                 }
@@ -163,6 +163,13 @@
         var options = this.options, response = this.response;
 
         result = result.stripScripts();
+
+        var titleMatch = result.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        if(titleMatch && ! contentBlock.getParent('.popup')){
+            document.querySelector('title').set('text', titleMatch[1]);
+        }
+
+        if (match) { result = match[1]; }
 
         var match = result.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
         if (match) { result = match[1]; }

@@ -41,6 +41,7 @@
   }
 
   function title(elem){
+    console.warn('DEPRECATED title block, use <title> tag instead');
     if(! elem.getParent('.popup')){
       document.querySelector('title').set('html', elem.dataset.title);
       elem.destroy();
