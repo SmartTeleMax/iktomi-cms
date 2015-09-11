@@ -1,28 +1,9 @@
 # -*- coding: utf-8 -*-
 # Common admin views
-import logging
 
 from webob.exc import HTTPMethodNotAllowed, HTTPForbidden
 from iktomi import web
-from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.auth import SqlaModelAuth, LoginForm
-
-logger = logging.getLogger(__name__)
-
-
-class IndexHandler(web.WebHandler):
-    def __init__(self, dashboard):
-        self.dashboard = dashboard
-
-    def index(self, env, data):
-        insure_is_xhr(env)
-
-        return env.render_to_response('index', dict(
-            title=u'Редакторский интерфейс сайта',
-            menu='index',
-            dashboard=self.dashboard(env),
-        ))
-    __call__ = index
 
 
 @web.request_filter
@@ -67,7 +48,5 @@ class AdminAuth(SqlaModelAuth):
 
     def logout(self, redirect_to=None):
         return SqlaModelAuth.logout(self, redirect_to=redirect_to)
-
-
 
 
