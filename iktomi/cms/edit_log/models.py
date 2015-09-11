@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from sqlalchemy import Column, ForeignKey, Integer, PickleType, DateTime, \
         String, desc
 from sqlalchemy.dialects.mysql import MEDIUMBLOB
 from sqlalchemy.orm import relationship, deferred
-from datetime import datetime
-from iktomi.cms.item_lock import ItemLock
-from iktomi.utils import cached_property
 from webob.multidict import MultiDict
-from .base import register_model
+
+from iktomi.utils import cached_property
+from iktomi.cms.item_lock import ItemLock
+from iktomi.cms.models.base import register_model
 
 __all__ = ['EditLog']
 

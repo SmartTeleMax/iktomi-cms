@@ -3,90 +3,16 @@ from webob.exc import HTTPNotFound
 from functools import partial
 from iktomi import web
 from iktomi.utils.storage import VersionedStorage
-from iktomi.cms.stream import decode_stream_uid, FilterForm
+from iktomi.cms.stream import decode_stream_uid
 from iktomi.cms.stream_actions import GetAction
 from iktomi.cms.stream_handlers import insure_is_xhr
-from iktomi.cms.forms import convs, widgets
-from iktomi.cms.forms.fields import Field, DateFromTo, SortField
 from iktomi.cms.loner import Loner
 from iktomi.utils.paginator import ModelPaginator, FancyPageRange
+from .forms import EditLogFilterForm, EditLogItemFilterForm
 
 
-#def all_by_default(conv, value):
-#    if not value:
-#        return [k for k, v in conv.conv.choices]
-#    return value
 
-
-class EditLogItemFilterForm(FilterForm):
-
-    def __init__(self, *args, **kwargs):
-        # XXX hack! do not do in this way. Use class_factory
-        streams = kwargs.pop('streams', None)
-        types = kwargs.pop('types')
-        models = kwargs.pop('models')
-        env = args[0]
-        fields = []
-        for field in self.fields:
-            field = field()
-            if field.name == 'users':
-                AdminUser = env.auth_model
-                field = field(conv=convs.ModelChoice(model=AdminUser,
-                                                     title_field="login"))
-            if field.name == 'streams':
-                field = field(conv=convs.ListOf(
-                            convs.EnumChoice(choices=streams),
-                            #all_by_default
-                            ))
-            if field.name == 'type':
-                field = field(conv=convs.EnumChoice(choices=types))
-            fields.append(field)
-        self.fields = fields
-        FilterForm.__init__(self, *args, **kwargs)
-
-    fields = [
-        Field('object_id',
-              label=u"ID",
-              widget=widgets.TextInput(classname="small")),
-        Field('type',
-              label=u'Тип',
-              #conv=convs.EnumChoice(),
-              widget=widgets.PopupFilteredSelect()),
-        Field('users',
-              label=u'Пользователь',
-              #conv=convs.ModelChoice(model=models.AdminUser),
-              widget=widgets.PopupFilteredSelect()),
-        DateFromTo('creation_time'),
-        SortField('sort',
-                  choices=(('id', 'id'),
-                           ('type', 'type'),
-                           ('title', 'title'),
-                           ('date', 'date')),
-                  initial='-id'),
-    ]
-
-    def filter_by__streams(self, query, field, value):
-        EditLog = self.model
-        cond = EditLog.stream_name.in_(value)
-        for stream_name in value:
-            cond |= EditLog.stream_name.startswith(stream_name + ':')
-        return query.filter(cond)
-
-    def filter_by__users(self, query, field, value):
-        return query.filter(self.model.users.contains(value))
-
-
-class EditLogFilterForm(EditLogItemFilterForm):
-
-    fields = [
-        Field('streams',
-              label=u'Потоки',
-              #conv=convs.ListOf(convs.EnumChoice()),
-              widget=widgets.PopupFilteredSelect())
-    ] + EditLogItemFilterForm.fields
-
-
-def preload_users(env, entries):
+def _preload_users(env, entries):
     entries_by_id = dict((x.id, x) for x in entries)
     m = env.models_.admin
     query = env.db.query(m.AdminUser)\
@@ -99,7 +25,8 @@ def preload_users(env, entries):
         # XXX what is the right way to do this?!
         entry.__dict__['users'] = [v for k, v in objects if k == entry.id]
 
-def preload_items(env, entries):
+
+def _preload_items(env, entries):
     by_stream = {}
     for entry in entries:
         by_stream.setdefault(entry.stream_name, [])
@@ -126,6 +53,43 @@ def preload_items(env, entries):
         for item in items:
             by_stream_and_id[(stream_name, str(item.id))] = item
     return by_stream_and_id
+
+
+def _expand(env, obj, for_item=None):
+    # XXX all this is like a hack!
+    stream_name = obj.stream_name.split(':')[0]
+    if stream_name not in env.streams:
+        return {}
+    stream = env.streams[stream_name]
+    lang = decode_stream_uid(obj.stream_name)[1].get('lang')
+    if for_item is None:
+        stream_env = VersionedStorage(version="admin", lang=lang)
+        stream_env._storage._parent_storage = env
+        # XXX only for multi db! will fail on single db
+        stream_env.models = env.models.admin
+        if lang:
+            stream_env.models = getattr(stream_env.models, lang)
+    else:
+        stream_env = env
+
+    assert 'r' in stream.get_permissions(stream_env)
+    if for_item is None:
+        item = stream.item_query(stream_env).filter_by(id=obj.object_id).first()
+    else:
+        item = for_item
+
+    if item is not None:
+        item_title = getattr(item, 'title', unicode(item))
+    else:
+        item_title = u"<{}: удалённый или недоступный объект: {}>".format(
+                                stream.title, obj.object_id)
+
+    return {"obj": obj,
+            "stream": stream,
+            "item": item,
+            "item_title": item_title,
+            "lang": lang,
+            "type": stream.edit_log_action.log_type_title(obj)}
 
 
 def global_log(env, data, stream=None):
@@ -170,11 +134,11 @@ def global_log(env, data, stream=None):
                                limit=50,
                                #url=url
                                )
-    preload_users(env, paginator.items)
+    _preload_users(env, paginator.items)
 
     if getattr(data, 'item', None) is None:
         expand_obj = partial(_expand, env)
-        by_stream_and_id = preload_items(env, paginator.items)
+        by_stream_and_id = _preload_items(env, paginator.items)
         paginator.items = [expand_obj(obj,
                                       for_item=by_stream_and_id.get((obj.stream_name, obj.object_id)))
                            for obj in paginator.items]
@@ -203,43 +167,6 @@ def global_log(env, data, stream=None):
                             stream=stream)
 
     return env.render_to_response('edit_log/index', tdata)
-
-
-def _expand(env, obj, for_item=None):
-    # XXX all this is like a hack!
-    stream_name = obj.stream_name.split(':')[0]
-    if stream_name not in env.streams:
-        return {}
-    stream = env.streams[stream_name]
-    lang = decode_stream_uid(obj.stream_name)[1].get('lang')
-    if for_item is None:
-        stream_env = VersionedStorage(version="admin", lang=lang)
-        stream_env._storage._parent_storage = env
-        # XXX only for multi db! will fail on single db
-        stream_env.models = env.models.admin
-        if lang:
-            stream_env.models = getattr(stream_env.models, lang)
-    else:
-        stream_env = env
-
-    assert 'r' in stream.get_permissions(stream_env)
-    if for_item is None:
-        item = stream.item_query(stream_env).filter_by(id=obj.object_id).first()
-    else:
-        item = for_item
-
-    if item is not None:
-        item_title = getattr(item, 'title', unicode(item))
-    else:
-        item_title = u"<{}: удалённый или недоступный объект: {}>".format(
-                                stream.title, obj.object_id)
-
-    return {"obj": obj,
-            "stream": stream,
-            "item": item,
-            "item_title": item_title,
-            "lang": lang,
-            "type": stream.edit_log_action.log_type_title(obj)}
 
 
 class EditLogHandler(GetAction):

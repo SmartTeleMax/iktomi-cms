@@ -1,10 +1,10 @@
 from .base import model_factories
 
 from .admins import *
-from .editor_notes import *
 from .autosave import *
-from .tray import *
-from .edit_log import *
+from iktomi.cms.tray.models import *
+from iktomi.cms.editor_notes.models import *
+from iktomi.cms.edit_log.models import *
 
 __all__ = ['model_factories']
 

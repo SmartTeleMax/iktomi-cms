@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
-from iktomi.utils import cached_property
 from sqlalchemy import Column, ForeignKey, Integer, DateTime, \
         Index, String, Text
 from sqlalchemy.orm import relationship, object_session
 from sqlalchemy import func
-from datetime import datetime
-from .base import register_model
+
+from iktomi.utils import cached_property
+from iktomi.cms.models.base import register_model
 
 __all__ = ['Tray']
 
