@@ -14,7 +14,6 @@ setup(
                     'iktomi.cms.item_lock',
                     'iktomi.cms.models',
                     'iktomi.cms.publishing',
-                    'iktomi.cms.streams',
                     'iktomi.cms.tray',
                     'iktomi.cms.utils'],
 
