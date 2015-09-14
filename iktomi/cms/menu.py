@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
 from iktomi.utils import cached_property, weakproxy
 from iktomi.utils.storage import VersionedStorage
+from iktomi import web
+#from iktomi.cms.stream_handlers import insure_is_xhr
+
 
 class Menu(object):
 
@@ -219,8 +223,6 @@ class LangLonerMenu(LonerMenu):
         return vs
 
 
-
-
 class DashRow(MenuGroup):
 
     template = 'menu/dashboard'
@@ -247,3 +249,24 @@ def DashMenu(*args, **kwargs):
 def DashLoner(*args, **kwargs):
     kwargs.setdefault('template', 'menu/dashboard-row')
     return LonerMenu(*args, **kwargs)
+
+
+class IndexHandler(web.WebHandler):
+    "A view for index page"
+
+    def __init__(self, dashboard):
+        self.dashboard = dashboard
+
+    def index(self, env, data):
+        #insure_is_xhr(env)
+
+        return env.render_to_response('index', dict(
+            title=u'Редакторский интерфейс сайта',
+            menu='index',
+            dashboard=self.dashboard(env),
+        ))
+    __call__ = index
+
+
+
+

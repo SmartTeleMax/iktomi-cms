@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from iktomi.db.sqla.types import StringList
 from iktomi.auth import encrypt_password, check_password as check_password_
 from datetime import datetime
-from .base import register_model
+from iktomi.cms.models.base import register_model
 
 __all__ = ['AdminUser']
 

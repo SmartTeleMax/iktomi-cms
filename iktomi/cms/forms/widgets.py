@@ -5,7 +5,7 @@ from iktomi.forms import widgets
 from datetime import datetime
 from iktomi.cms.forms import convs
 from iktomi.utils import cached_property
-from iktomi.cms.models.edit_log import make_diff
+from iktomi.cms.edit_log.models import make_diff
 from lxml.html.diff import htmldiff
 import json
 

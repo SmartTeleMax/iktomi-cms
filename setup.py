@@ -4,13 +4,17 @@ from distutils.core import setup
 
 setup(
     name='iktomi.cms',
-    version='0.1',
+    version='0.2',
     packages=['iktomi',
               'iktomi.cms',
+                    'iktomi.cms.auth',
+                    'iktomi.cms.edit_log',
+                    'iktomi.cms.editor_notes',
                     'iktomi.cms.forms',
+                    'iktomi.cms.item_lock',
                     'iktomi.cms.models',
                     'iktomi.cms.publishing',
-                    'iktomi.cms.streams',
+                    'iktomi.cms.tray',
                     'iktomi.cms.utils'],
 
     package_dir={
@@ -33,7 +37,7 @@ setup(
     },
     requires=[
         'webob (>1.1b1)',
-        'iktomi (>0.3)',
+        'iktomi (>0.4.2)',
     ],
     author='Denis Otkidach',
     author_email='denis.otkidach@gmail.com',

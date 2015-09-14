@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from iktomi.cms.forms import convs, widgets
 from iktomi.cms.publishing.model import WithState
-from iktomi.cms.models.edit_log import _get_field_data, make_diff
+from iktomi.cms.edit_log.models import _get_field_data, make_diff
 from iktomi.forms import fields
 _all2 = locals().keys()
 
@@ -275,23 +275,12 @@ class SortField(Field):
             raw_data[self.input_name] = value
 
 
-
-class EditorNoteField(Field):
-
-    permissions = 'r'
-    widget = widgets.Widget(template="widgets/editor_notes")
-
-    def get_data(self):
-        item = self.form.item
-        if item is None or item.id is None:
-            return []
-        EditorNote = self.model
-        env = self.env
-        return EditorNote.get_for_item(env.db, env.stream.uid(env, version=False), item)
-
-    @property
-    def submit_url(self):
-        return self.env.url_for('post_note')
+object_ref_fields = [
+    Field('stream_name',
+          conv=convs.Char(convs.length(0, 100), required=True)),
+    Field('object_id',
+          conv=convs.Char(convs.length(0, 100), required=True)),
+]
 
 
 # Expose all variables defined after imports and all variables imported from

@@ -4,7 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, DateTime, \
         Index, String, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .base import register_model
+from iktomi.cms.models.base import register_model
 
 __all__ = ['EditorNote']
 
