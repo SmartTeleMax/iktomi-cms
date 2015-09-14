@@ -6,7 +6,7 @@ from iktomi.cms.stream import expand_stream
 from iktomi.cms.stream_handlers import insure_is_xhr
 from iktomi.web.shortcuts import Rule
 from iktomi.cms.forms import Form, convs
-from iktomi.forms.fields import Field, object_ref_fields
+from iktomi.cms.forms.fields import Field, object_ref_fields
 
 
 class TrayView(web.WebHandler):
