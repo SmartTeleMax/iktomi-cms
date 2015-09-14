@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from iktomi import web
 from iktomi.cms.forms import Form, convs
-from iktomi.forms.fields import Field, object_ref_fields
+from iktomi.cms.forms.fields import Field, object_ref_fields
 
 
 class PostNote(web.WebHandler):
