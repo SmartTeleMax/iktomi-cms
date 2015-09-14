@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='iktomi.cms',
-    version='0.1',
+    version='0.2',
     packages=['iktomi',
               'iktomi.cms',
                     'iktomi.cms.auth',
@@ -37,7 +37,7 @@ setup(
     },
     requires=[
         'webob (>1.1b1)',
-        'iktomi (>0.3)',
+        'iktomi (>0.4.2)',
     ],
     author='Denis Otkidach',
     author_email='denis.otkidach@gmail.com',
