@@ -7,10 +7,15 @@ setup(
     version='0.1',
     packages=['iktomi',
               'iktomi.cms',
+                    'iktomi.cms.auth',
+                    'iktomi.cms.edit_log',
+                    'iktomi.cms.editor_notes',
                     'iktomi.cms.forms',
+                    'iktomi.cms.item_lock',
                     'iktomi.cms.models',
                     'iktomi.cms.publishing',
                     'iktomi.cms.streams',
+                    'iktomi.cms.tray',
                     'iktomi.cms.utils'],
 
     package_dir={
