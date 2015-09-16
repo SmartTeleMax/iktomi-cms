@@ -39,7 +39,6 @@
 
             var widgetChangedFields = fieldset.state.changedFields?fieldset.state.changedFields[widget.key] : false;
 var isFieldChanged = widgetChangedFields && widgetChangedFields ['.'] && widgetChangedFields['.'].text;
-            console.log(widget.key, isFieldChanged);
             if (widget.props.render_type == 'checkbox') {
               children = [error,
                           widget,

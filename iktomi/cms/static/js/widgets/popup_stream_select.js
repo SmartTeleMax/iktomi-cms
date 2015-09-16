@@ -222,6 +222,7 @@
             var el = this.getDOMNode();
             this.popup = new Popup();
             this.popup.contentEl.addEvent('load', this.patchItemForm);
+            el.store('widget', this);
         },
         getValueAsList: function(){
             if (this.props.multiple) {

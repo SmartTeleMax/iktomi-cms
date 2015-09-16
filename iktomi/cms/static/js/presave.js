@@ -65,6 +65,7 @@ var PreSaveHook = new Class({
       // XXX hack to initialize after all widgets
       //     May be, place init-block on the bottom of the form?
       this.widget = this.get_widget(frm);
+      this.after_init()
       this.confirm_rule();
     }.bind(this), 1);
   },
@@ -76,6 +77,8 @@ var PreSaveHook = new Class({
   get_widget: function(){},
 
   confirm_rule: function(){},
+  
+  after_init: function(){},
   
   get_require_check: function(){
     return this.require_check;
