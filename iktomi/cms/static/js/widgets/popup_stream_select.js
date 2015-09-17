@@ -43,7 +43,14 @@
           links.setProperty('rel', rel);
         }
       },
-
+      setMain:function(){
+          this.props.parent.getMainWidget().setValue(this.props.value);
+      },
+      isMain: function(){
+          var input_name = this.props.parent.props.main_field_name;
+          var value = this.props.parent.getFormWidget().getValueByInputName(input_name);
+          return this.props.value.text == value.text;
+      },
       render: function(){
         var widget = this.props.parent.props;
         var parent = this.props.parent;
@@ -53,6 +60,10 @@
                           <button className='button button-tiny icon-delete'
                                   onClick={parent.onDropClick}></button>
                         </td>;
+        }
+        var selectMainRadioButton = ''
+        if(widget.allow_select_main){
+            selectMainRadioButton = <td key="select_main_button"><input name={widget.input_name+'_main'} value={this.props.value.text} checked={this.isMain()} onChange={this.setMain} type="radio"></input></td>;
         }
         var sortBtns = '';
         if (widget.multiple && widget.sortable && !widget.readonly){
@@ -65,6 +76,7 @@
         }
 
         return <tr>
+                 {selectMainRadioButton}
                  <input type="hidden"
                         name={widget.input_name}
                         value={this.props.value}></input>
@@ -87,8 +99,8 @@
               //if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
               //  this._select_items.push(result.item_id);
               //  // Show only created item in stream after redirection
-              //  var urlWithId = this.props.url + 
-              //                    (this.props.url.indexOf('?') == -1? '?': '&') + 
+              //  var urlWithId = this.props.url +
+              //                    (this.props.url.indexOf('?') == -1? '?': '&') +
               //                    'id='+result.item_id;
               //  this.show(callback, urlWithId);
               //}
@@ -174,10 +186,10 @@
         },
 
         addSelectAllButtons: function(html, scripts, redirect) {
-            var selectButton = new Element('a', {'href':'javascript:void(0)', 
+            var selectButton = new Element('a', {'href':'javascript:void(0)',
                                                  'text':'выбрать все',
                                                  'class':'button'});
-            var deselectButton = new Element('a', {'href':'javascript:void(0)', 
+            var deselectButton = new Element('a', {'href':'javascript:void(0)',
                                                  'text':'убрать выбор текущих',
                                                  'class':'button'});
 
@@ -222,6 +234,7 @@
             var el = this.getDOMNode();
             this.popup = new Popup();
             this.popup.contentEl.addEvent('load', this.patchItemForm);
+            el.store('widget', this);
         },
         getValueAsList: function(){
             if (this.props.multiple) {
@@ -308,16 +321,23 @@
             this.popup.setTitle(this.props.title);
             this.load(this.props.create_url);
         },
-
-        render: function() {
-            var widget = this.props;
+        getRows: function(){
             var values = this.getValueAsList();
             var rows = [];
             for (var i=0; i<values.length; i++){
               rows.push(ItemRow({parent: this,
+                                 allow_select_main:this.props.allow_select_main,
                                  key: 'row-'+values[i],
                                  value: values[i]}))
             }
+            return rows;
+        },
+
+        getMainWidget: function(){
+             return $$('input[name="'+this.props.main_field_name+'"]')[0].retrieve('widget');
+        },
+        render: function() {
+            var widget = this.props;
             var buttons = '';
             if(!widget.readonly){
               var selectButton = '';
@@ -339,7 +359,7 @@
                         id={widget.id}>
                       <div>
                         <table className="w-popup-stream-select-items">
-                          <tbody>{rows}</tbody>
+                          <tbody>{this.getRows()}</tbody>
                         </table>
                       </div>
                       {buttons}

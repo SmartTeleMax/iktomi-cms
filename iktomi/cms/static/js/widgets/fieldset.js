@@ -39,7 +39,6 @@
 
             var widgetChangedFields = fieldset.state.changedFields?fieldset.state.changedFields[widget.key] : false;
 var isFieldChanged = widgetChangedFields && widgetChangedFields ['.'] && widgetChangedFields['.'].text;
-            console.log(widget.key, isFieldChanged);
             if (widget.props.render_type == 'checkbox') {
               children = [error,
                           widget,
@@ -231,8 +230,15 @@ var isFieldChanged = widgetChangedFields && widgetChangedFields ['.'] && widgetC
             }
           }
           map(this);
+        },
+        getValueByInputName: function(input_name){
+            var input_name_parts = input_name.split(".");
+            var value = this.props.data;
+            for(var i=0; i < input_name_parts.length; i++){
+                value = value[input_name_parts[i]];
+            }
+            return value;
         }
-
     });
 
     Widgets.FieldSetWidget = Widgets.FieldSet = Widgets.create(FieldSetProto);

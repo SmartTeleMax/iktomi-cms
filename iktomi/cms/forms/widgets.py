@@ -149,6 +149,8 @@ class PopupStreamSelect(Select):
     allow_create = False
     allow_select = True
     allow_delete = True
+    allow_select_main = False
+    main_field_name = False
     sortable = True
     select_all_button = True
     unshift = False
@@ -182,6 +184,8 @@ class PopupStreamSelect(Select):
             'allow_delete': self.allow_delete,
             'allow_create': self.allow_create,
             'allow_select': self.allow_select,
+            'allow_select_main': self.allow_select_main,
+            'main_field_name': self.main_field_name if self.main_field_name else self.name+'_main',
             'sortable': self.sortable,
             'unshift': self.unshift,
             'open_btn_text': self.open_btn_text,
