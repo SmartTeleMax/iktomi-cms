@@ -287,6 +287,8 @@ class Calendar(TextInput):
 
     classname = 'calendar'
     js_block = 'calendar'
+    today_button = True
+    today_button_text = u"сегодня"
 
     @cached_property
     def size(self):
@@ -294,6 +296,8 @@ class Calendar(TextInput):
 
     def render(self):
         return dict(Widget.render(self),
+                    today_button=self.today_button,
+                    today_button_text=self.today_button_text,
                     size=self.size)
 
 

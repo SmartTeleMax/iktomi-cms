@@ -17,6 +17,12 @@ Widgets.Calendar = Widgets.create(Widgets.Widget, {
         this.setValue(dt);
     },
 
+
+    setToday: function(){
+        var dt = this.calendar.format(new Date());
+        this.setValue(dt);
+    },
+
     showCalendar: function(){
         if (this.calendar.isVisible()){
             this.calendar.hide();
@@ -36,7 +42,7 @@ Widgets.Calendar = Widgets.create(Widgets.Widget, {
     render: function() {
         var widget = this.props;
         var todayButton = widget.today_button?
-              <span className='timecalendar-now' onClick={this.setToday}>сегодня</span>: '';
+              <span className='timecalendar-now' onClick={this.setToday}>{widget.today_button_text}</span>: '';
         var calendarButton = <button type="button"
                        key="calendar_button"
                        className={"calendar "+(widget.readonly?'hidden':'')}
