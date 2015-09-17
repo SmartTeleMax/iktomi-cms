@@ -174,7 +174,7 @@
         var match = result.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
         var bodyHtml = match? match[1]: result;
         var temp = new Element('div').set('html', result);
-        var content = temp.getElement('#app-content') || temp;
+        var content = temp.getElement('.app-content') || temp;
 
         var evt = document.createEvent("HTMLEvents");
         evt.body = temp;
