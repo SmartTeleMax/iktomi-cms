@@ -154,6 +154,17 @@ function makeMutable(obj){
         render: function(){
             console.log(this.getError());
             return <div>{this.getValue()}</div>
+        },
+        componentDidMount: function(){
+            var el = this.getDOMNode();
+            el.store('widget', this);
+        },
+        getFormWidget: function(){
+            var parent = this.props.parent;
+            while(parent.props.id != this.props.form_id){
+                var parent = parent.props.parent;
+            }
+            return parent;
         }
     });
 
