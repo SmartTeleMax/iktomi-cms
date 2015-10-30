@@ -5055,18 +5055,18 @@ wysihtml5.dom.parse = (function() {
       classes.push(setClass);
     }
 
-    //if (addClass) {
-    //  for (attributeName in addClass) {
-    //    method = addClassMethods[addClass[attributeName]];
-    //    if (!method) {
-    //      continue;
-    //    }
-    //    newClass = method(_getAttribute(oldNode, attributeName));
-    //    if (typeof(newClass) === "string") {
-    //      classes.push(newClass);
-    //    }
-    //  }
-    //}
+    if (addClass) {
+      for (attributeName in addClass) {
+        method = addClassMethods[addClass[attributeName]];
+        if (!method) {
+          continue;
+        }
+        newClass = method(_getAttribute(oldNode, attributeName));
+        if (typeof(newClass) === "string") {
+          classes.push(newClass);
+        }
+      }
+    }
 
     // make sure that wysihtml5 temp class doesn't get stripped out
     allowedClasses["_wysihtml5-temp-placeholder"] = 1;
@@ -5227,7 +5227,19 @@ wysihtml5.dom.parse = (function() {
     })()
   };
 
-  // XXX STM changes
+  // XXX STM changesa
+  var addClassMethods = {
+    align_text: (function() {
+      var mapping = {
+        right:    "align-right",
+        center:   "align-center"
+        justify:  "align-justify"
+      };
+      return function(attributeValue) {
+        return mapping[String(attributeValue).toLowerCase()];
+      };
+    })()
+  };
   // ------------ class converter (converts an html attribute to a class name) ------------ \\
   //var addClassMethods = {
   //  align_img: (function() {
