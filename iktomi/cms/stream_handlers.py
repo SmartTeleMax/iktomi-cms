@@ -102,8 +102,6 @@ class StreamListHandler(StreamAction):
                     live_search=stream.live_search,
                     base_template=self.base_template)
 
-        data = stream.process_item_template_data(env, data)
-
         return env.render_to_response(self.template_name, data)
     __call__ = list_handler
 
