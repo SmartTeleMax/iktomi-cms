@@ -5232,7 +5232,7 @@ wysihtml5.dom.parse = (function() {
     align_text: (function() {
       var mapping = {
         right:    "align-right",
-        center:   "align-center"
+        center:   "align-center",
         justify:  "align-justify"
       };
       return function(attributeValue) {
