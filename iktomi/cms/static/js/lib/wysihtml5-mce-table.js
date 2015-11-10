@@ -1295,6 +1295,17 @@
             }
         }
 
+        function addTableBorder(){
+            if (table) {
+                var border = table.getAttribute('border');
+                if (border && border == '0' || !border) {
+                  table.setAttribute('border', '1');
+                } else {
+                  table.setAttribute('border', '0');
+                }
+            }
+        }
+
         table = table || dom.getParent(selection.getStart(), 'table');
 
         buildGrid();
@@ -1365,6 +1376,9 @@
                 break;
             case 'insertColAfter':
                 res = insertCol(false);
+                break;
+            case 'addBorder':
+                res = addTableBorder();
                 break;
         }
 
@@ -1462,4 +1476,7 @@
     wysihtml5.commands.copyRow = Object.create(wysihtml5.commands.mce_table);
     wysihtml5.commands.pasteRowBefore = Object.create(wysihtml5.commands.mce_table);
     wysihtml5.commands.pasteRowAfter = Object.create(wysihtml5.commands.mce_table);
+
+
+    wysihtml5.commands.addBorder = Object.create(wysihtml5.commands.mce_table);
 })(wysihtml5);
