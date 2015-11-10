@@ -48,6 +48,12 @@ class StreamAction(web.WebHandler):
     def bind(self, stream):
         return self.__class__(stream=stream, **self.init_kwargs)
 
+    def url(self, env, item=None):
+        kwargs = {}
+        if item:
+            kwargs['item'] = item.id
+        return self.stream.url_for(env, self.action, **kwargs)
+
 
 class PostAction(StreamAction):
 

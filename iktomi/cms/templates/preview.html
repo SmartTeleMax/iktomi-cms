@@ -8,7 +8,7 @@
   <a class="compact-toggle" title="Компактный вид"></a>
   {% if not is_popup %}
     {% for action in actions %}
-      {%- set action_url = stream.url_for(env, action.action, item=item.id) -%}
+      {%- set action_url = action.url(env, item=item) -%}
       <a href="{{ action_url }}"
          rel="{{ action.mode }}"
          {%- if action.item_lock %} data-item-lock="true"{% endif %}
