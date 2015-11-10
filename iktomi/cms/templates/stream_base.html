@@ -18,7 +18,7 @@
       {% endif %}
       {%- for action in stream.actions %}
         {%- if action.display and not action.for_item and action.action %}
-          <a href="{{ stream.url_for(env, action.action) }}" 
+          <a href="{{ action.url(env) }}" 
             {%- if action.js_block %} data-block-name="{{ action.js_block }}" {% endif %}
              class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}
                           {%- if action.js_block %} init-block{% endif %}
