@@ -10,24 +10,26 @@
       {{- title }}
     </h1>
     {% block after_title %}{% endblock %}
-    <div class="stream_buttons">
-      {% if allow_add %}
-      <a href="{{ item_url() }}" class="button js-button-add icon-add">
-        Создать
-      </a>
-      {% endif %}
-      {%- for action in stream.actions %}
-        {%- if action.display and not action.for_item and action.action %}
-          <a href="{{ action.url(env) }}" 
-            {%- if action.js_block %} data-block-name="{{ action.js_block }}" {% endif %}
-             class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}
-                          {%- if action.js_block %} init-block{% endif %}
-                          {% if action.classname %} {{ action.classname }}{% endif %}">
-            {{- action.title -}}
+    {% block buttons %}
+        <div class="stream_buttons">
+          {% if allow_add %}
+          <a href="{{ item_url() }}" class="button js-button-add icon-add">
+            Создать
           </a>
-        {%- endif %}
-      {%- endfor %}
-    </div>
+          {% endif %}
+          {%- for action in stream.actions %}
+            {%- if action.display and not action.for_item and action.action %}
+              <a href="{{ stream.url_for(env, action.action) }}"
+                {%- if action.js_block %} data-block-name="{{ action.js_block }}" {% endif %}
+                 class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}
+                              {%- if action.js_block %} init-block{% endif %}
+                              {% if action.classname %} {{ action.classname }}{% endif %}">
+                {{- action.title -}}
+              </a>
+            {%- endif %}
+          {%- endfor %}
+        </div>
+    {% endblock %}
   </div>
   {% endif %}
 
