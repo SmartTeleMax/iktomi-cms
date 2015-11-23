@@ -634,8 +634,9 @@ class DeleteItemHandler(_ReferrersAction):
             log = self.stream.create_log_entry(env, data.item, 'delete')
             if log is not None:
                 env.db.add(log)
-            try:
+            if getattr(env, 'object_tray_model', None):
                 self.clear_tray(env, item)
+            try:
                 env.db.commit()
             except IntegrityError:
                 env.db.rollback()
