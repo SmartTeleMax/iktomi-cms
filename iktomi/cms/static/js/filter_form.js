@@ -1,32 +1,35 @@
 (function(){
   function FilterForm(form){
-    this.form = form;
-    this.$events = {}; // XXX is not copied
-    form.store('filterForm', this);
-    form.store('submitFilter', this.submit.bind(this));
-    this.paginator();
-    this.$events = {};
-    this.changeUrl = !this.form.getParent('.popup');
-    form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
-    form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
-    form.getElement('.sidefilter-close').addEvent('click', function(e){
-      this.toggle();
-      this.saveState();
-    }.bind(this));
-    //form.getElement('.sidefilter-tags').addEvent('click', function(e){
-    //  this.form.getParent('.sidefilter').toggleClass('is-open');
-    //}.bind(this));
-
-    this.setFilters();
-
-    this.restoreState();
-
-    //form.getParent('.sidefilter').addEvent('click', function(){
-    //  this.form.getParent('.sidefilter').addClass('is-open');
-    //}.bind(this));
+    this.init(form);
   }
  
   FilterForm.prototype = {
+    'init': function(form){
+      this.form = form;
+      this.$events = {}; // XXX is not copied
+      form.store('filterForm', this);
+      form.store('submitFilter', this.submit.bind(this));
+      this.paginator();
+      this.$events = {};
+      this.changeUrl = !this.form.getParent('.popup');
+      form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
+      form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
+      form.getElement('.sidefilter-close').addEvent('click', function(e){
+        this.toggle();
+        this.saveState();
+      }.bind(this));
+      //form.getElement('.sidefilter-tags').addEvent('click', function(e){
+      //  this.form.getParent('.sidefilter').toggleClass('is-open');
+      //}.bind(this));
+
+      this.setFilters();
+
+      this.restoreState();
+
+      //form.getParent('.sidefilter').addEvent('click', function(){
+      //  this.form.getParent('.sidefilter').addClass('is-open');
+      //}.bind(this));
+    },
     'toggle': function(open) {
       var sidefilter = this.form.getParent('.sidefilter');
       sidefilter.toggleClass('is-open', open);
@@ -130,6 +133,9 @@
       });
 
       this.form.reset();
+      this.form.getElements('input').each(function(item){
+          item.value = '';
+      });
       this.form.retrieve('submitFilter')();
     }
   };
@@ -145,4 +151,5 @@
       el.destroy();
     }
   });
+  window.FilterForm = FilterForm;
 })();

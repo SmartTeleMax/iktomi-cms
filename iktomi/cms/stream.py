@@ -120,6 +120,8 @@ class FilterForm(Form):
 
     fields = []
 
+    js_block = 'filter-form'
+
     def filter_by_scalar(self, query, field, value):
         return query.filter(getattr(self.model, field.name)==value)
 
