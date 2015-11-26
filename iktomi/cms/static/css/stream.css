@@ -257,9 +257,11 @@
       }
 
 
+.w-popup-stream-select-items .odd td,
 .items .odd td {
     background: #E2E4E6;
 }
+.w-popup-stream-select-items .even td,
 .items .even td {
     background: #F0F1F2;
 }
