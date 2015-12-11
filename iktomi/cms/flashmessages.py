@@ -19,8 +19,10 @@ def flash_message_handler(env, data, nxt):
     return set_flash_cookies(env, result)
 
 
-def flash(env, message, category=None):
+def flash(env, message, category=None, unique=True):
     # XXX this will not work on errors
     if not hasattr(env, '_flash'):
         env._flash = []
-    env._flash.append((unicode(message), category))
+    value = (unicode(message), category)
+    if not unique or value not in env._flash:
+        env._flash.append(value)
