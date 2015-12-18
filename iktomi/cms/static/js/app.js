@@ -35,13 +35,6 @@
                         e.target: 
                         e.target.getParent('a[href]'));
         if (link){
-            if (link.get('target') == '_blank' || link.get('rel') == 'external'
-                || e.which == 2){  // Last check for Chrome middlebutton behaviour
-                e.preventDefault();
-                window.open(link.href);
-                return;
-            }
-            // XXX cleanup
             var url = link.getAttribute('href');
             if (url.indexOf('://') != -1 || link.get('rel') == 'internal' ||
                   url.indexOf('javascript:') == 0
@@ -49,6 +42,12 @@
                 return;
             }
             e.preventDefault();
+            if (link.get('target') == '_blank' || link.get('rel') == 'external'
+                || e.which == 2){  // Last check for Chrome middlebutton behaviour
+                window.open(link.href);
+                return;
+            }
+            // XXX cleanup
 
             if (link.get('rel') == 'popup'){
                 var popup = new Popup();

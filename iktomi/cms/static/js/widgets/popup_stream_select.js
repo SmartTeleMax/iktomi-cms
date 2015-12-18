@@ -184,8 +184,8 @@ var PopupStreamSelect = new Class({
         if (result.item_id && this._selected_items.indexOf(result.item_id) < 0) {
           this._select_items.push(result.item_id);
           // Show only created item in stream after redirection
-          var urlWithId = this.options.url + 
-                            (this.options.url.indexOf('?') == -1? '?': '&') + 
+          var urlWithId = this.options.url +
+                            (this.options.url.indexOf('?') == -1? '?': '&') +
                             'id='+result.item_id;
           this.show(callback, urlWithId);
         }
@@ -211,14 +211,17 @@ var PopupStreamSelect = new Class({
     }
     this.attachContentEvents();
     this.popup.show();
-
+    var liveSearch = this.popup.el.getElement('label[class=livesearch]');
+    if(liveSearch){
+        liveSearch.getElement('input').focus();
+    }
   },
 
   addSelectAllButtons: function(html, scripts, redirect) {
-    var selectButton = new Element('a', {'href':'javascript:void(0)', 
+    var selectButton = new Element('a', {'href':'javascript:void(0)',
                                          'text':'выбрать все',
                                          'class':'button'});
-    var deselectButton = new Element('a', {'href':'javascript:void(0)', 
+    var deselectButton = new Element('a', {'href':'javascript:void(0)',
                                          'text':'убрать выбор текущих',
                                          'class':'button'});
 
@@ -324,7 +327,7 @@ var PopupStreamSelect = new Class({
       el.getElements('a').setProperty('rel', this.options.rel);
     }
   },
-  
+
   setState: function(el){
     var empty = !this.container.getElement('.w-popup-stream-select-items tr');
     this.container.toggleClass('empty', empty);
@@ -544,7 +547,7 @@ var PopupStreamSelectMultiple = new Class({
     this.onChange();
 
   },
-  
+
   remove: function(id) {
     var
     link, item,
