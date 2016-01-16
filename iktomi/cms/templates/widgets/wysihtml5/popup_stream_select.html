@@ -1,5 +1,5 @@
 {% macro stream_select_button(widget, command_name, property_name, title_inflected) %}
-<a data-wysihtml5-command="{{ command_name }}" class="btn">Вставить ссылку на {{ title_inflected }}</a>
+    <a data-wysihtml5-command="{{ command_name }}" class="btn">Вставить ссылку на {{ title_inflected }}</a>
     <div class="wysihtml5-dialog-place">
       <div class="w-popup-stream-select wysihtml5-dialog wysihtml5-menu" style="display: none" 
            id="{{ widget.id }}-{{ property_name }}">
