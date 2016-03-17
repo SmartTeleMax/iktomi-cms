@@ -1,7 +1,10 @@
 {% macro sidefilter(filter_form, stream_url) %}
   {% if filter_form %}
     <div class="sidefilter">
-      <form id="{{ filter_form.id }}" action="{{ stream_url }}" class="filter-form init-block" data-block-name="{{ filter_form.js_block }}">
+      <form id="{{ filter_form.id }}" action="{{ stream_url }}"
+            class="filter-form init-block"
+            data-block-name="{{ filter_form.js_block }}"
+            {%- if filter_form.search_input %} data-search-input="{{ filter_form.search_input }}"{% endif %}>
         <a class="sidefilter-close">
           <legend>Фильтры</legend>
         </a>

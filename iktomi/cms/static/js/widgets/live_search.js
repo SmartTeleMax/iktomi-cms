@@ -7,9 +7,11 @@
     this.searchInput = this.filterForm.getElement(this.filterForm.dataset.searchInput) ||
                        this.filterForm.getElement('input[name=search]') ||
                        this.filterForm.getElement('input[name=title]');
-    if (!this.searchInput) {
-      this.processSearchItems();    
-    }
+    this.processSearchItems();
+    window.setTimeout(function() {
+        var h = this.processSearchItems.bind(this);
+        this.filterForm.retrieve('filterForm').addEvent('load', h);
+    }.bind(this), 1);
     this._value = null; 
     this._submitTimeout = null;
 
@@ -20,12 +22,10 @@
   }
 
 
-
-
-
   LiveSearch.prototype = {
 
     processSearchItems: function(){
+      if (this.searchInput) { return; }
       var items = this.input.getParent('.stream').getElements('.items .item');
       items.each(function(item) {
         var texts = [];

@@ -121,6 +121,7 @@ class FilterForm(Form):
     fields = []
 
     js_block = 'filter-form'
+    search_input = None # for live search widget
 
     def filter_by_scalar(self, query, field, value):
         return query.filter(getattr(self.model, field.name)==value)
