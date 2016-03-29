@@ -97,9 +97,7 @@ class StreamListHandler(StreamAction):
                     is_popup=('__popup' in env.request.GET),
                     no_layout=no_layout,
                     menu=stream.module_name,
-                    title=stream.title,
                     item_row=item_row,
-                    live_search=stream.live_search,
                     base_template=self.base_template)
 
         return env.render_to_response(self.template_name, data)
@@ -143,9 +141,10 @@ class StreamListHandler(StreamAction):
                       stream=stream,
                       item_url=item_url,
                       list_fields=stream.list_fields,
-                      title=stream.config.title,
+                      title=stream.title,
                       filter_form=filter_form,
                       allow_add=stream.has_permission(env, 'c'),
+                      live_search=stream.live_search,
                       repr=repr)
         result.update(self.list_form_data(env, paginator, filter_data))
         result = stream.process_list_template_data(env, result)
