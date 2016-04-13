@@ -667,7 +667,7 @@
 
                     // Add something to the inner node
                     if (curNode) {
-                        curNode.innerHTML = Env.ie ? '&nbsp;' : '<br data-mce-bogus="1" />';
+                        curNode.innerHTML = '<br data-mce-bogus="1" />';
                     }
 
                     return false;
