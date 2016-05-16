@@ -6,23 +6,6 @@
         new Element('div', {'class': 'window-delegate'}).inject($('app-content'));
         Blocks.init(document.body);
 
-        window.addEvents({'scroll': delegateWindowEvents('scroll'),
-                          'mousewheel': delegateWindowEvents('mousewheel'),
-                          'resize': delegateWindowEvents('resize')})
-
-        window.addEvent = function(type, callback){
-            var delegate = this.document.getElement('.window-delegate');
-            delegate.addEvent('delegated-'+type, callback);
-        }
-        window.removeEvent = function(type, callback){
-            var delegate = this.document.getElement('.window-delegate');
-            delegate.removeEvent('delegated-'+type, callback);
-        };
-
-        // XXX not implemented
-        window.addEvents = null;
-        window.removeEvents = null;
-
         document.querySelector('body').addEventListener('click', onBodyClick, false);
 
         if (isEmpty) {
@@ -30,9 +13,27 @@
         }
     });
 
+    window.addEvents({'scroll': delegateWindowEvents('scroll'),
+                      'mousewheel': delegateWindowEvents('mousewheel'),
+                      'keydown': delegateWindowEvents('keydown'),
+                      'resize': delegateWindowEvents('resize')})
+
+    window.addEvent = function(type, callback){
+        var delegate = this.document.getElement('.window-delegate');
+        delegate.addEvent('delegated-'+type, callback);
+    }
+    window.removeEvent = function(type, callback){
+        var delegate = this.document.getElement('.window-delegate');
+        delegate.removeEvent('delegated-'+type, callback);
+    };
+
+    // XXX not implemented
+    window.addEvents = null;
+    window.removeEvents = null;
+
     function onBodyClick(e){
         var link = (e.target.tagName == 'A' && e.target.getAttribute('href')?
-                        e.target: 
+                        e.target:
                         e.target.getParent('a[href]'));
         if (link){
             var url = link.getAttribute('href');
