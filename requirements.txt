@@ -1,0 +1,9 @@
+https://github.com/SmartTeleMax/iktomi/zipball/master
+html5lib
+webob
+sqlalchemy>=1.0.6
+python-memcached
+pytest
+pytest-cov
+jinja2
+mock
