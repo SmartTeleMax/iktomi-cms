@@ -10,4 +10,6 @@
 *.orig
 dist/
 build/
-.pycamp
+.coverage
+venv-python*
+.cache
