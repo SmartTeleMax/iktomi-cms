@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from iktomi.unstable.db.sqla.files import FileProperty, FileEventHandlers
-from iktomi.unstable.db.sqla.images import ImageProperty, ImageEventHandlers
+from iktomi.db.sqla.files import FileProperty, FileEventHandlers
+from iktomi.db.sqla.images import ImageProperty, ImageEventHandlers
 from sqlalchemy.orm import object_session
 
 from .model import _FrontReplicated, _WithState

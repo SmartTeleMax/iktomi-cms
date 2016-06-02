@@ -2,10 +2,10 @@
 from cStringIO import StringIO
 from jinja2 import Markup
 from iktomi.forms.form import Form
-from iktomi.unstable.forms.files import FileFieldSet, FileFieldSetConv
-from iktomi.unstable.db.files import PersistentFile
-from iktomi.unstable.db.sqla.files import FileAttribute
-from iktomi.unstable.db.sqla.images import ImageProperty
+from iktomi.forms.files import FileFieldSet, FileFieldSetConv
+from iktomi.db.files import PersistentFile
+from iktomi.db.sqla.files import FileAttribute
+from iktomi.db.sqla.images import ImageProperty
 from iktomi.unstable.utils.image_resizers import ResizeFit
 from iktomi.utils import cached_property
 from iktomi.cms.forms import convs, widgets

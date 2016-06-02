@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from iktomi.unstable.forms.convs import *
-from iktomi.unstable.forms.convs import __all__ as _all1
+from iktomi.forms.convs import *
+from iktomi.forms.convs import __all__ as _all1
 #_all1 = locals().keys()
 from sqlalchemy.orm import Query
 from iktomi.cms.publishing.model import WithState

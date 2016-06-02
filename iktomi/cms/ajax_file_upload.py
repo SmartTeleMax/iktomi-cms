@@ -8,9 +8,9 @@ from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.forms.fields import AjaxImageField
 from iktomi.cms.forms import convs
 from iktomi.cms.stream_handlers import PrepareItemHandler, NoneIntConv
-from iktomi.unstable.db.sqla.files import FileAttribute
-from iktomi.unstable.db.sqla.images import ImageProperty
-from iktomi.unstable.forms.files import check_file_path
+from iktomi.db.sqla.files import FileAttribute
+from iktomi.db.sqla.images import ImageProperty
+from iktomi.forms.files import check_file_path
 from PIL import Image
 
 logger = logging.getLogger(__file__)
