@@ -184,6 +184,7 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
 
     def save_file(self, env, data, length):
         form = self._get_form(env, data)
+        N_ = env.gettext
         #form.model = self.stream.get_model(env)
         field = form.get_field(data.field_name)
         if not isinstance(field, AjaxImageField) or \
@@ -195,11 +196,11 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             image = Image.open(transient.path)
         except IOError:
             return {'status': 'failure',
-                    'error': 'Invalid image'}
+                    'error': N_('Invalid image')}
 
         if image.size[0] * image.size[1] > getattr(env.cfg, 'MAX_IMAGE_SIZE', 5000*5000):
             return {'status': 'failure',
-                    'error': 'Image size exceeds the limit'}
+                    'error': N_('Image size exceeds the limit')}
 
         original_name = env.request.GET["file"]
         ext = os.path.splitext(original_name)[1]
@@ -221,6 +222,7 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
 
     def crop(self, env, data):
         item = data.item
+        N_ = env.gettext
 
         if env.request.method != 'POST':
             raise HTTPMethodNotAllowed()
@@ -254,21 +256,21 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             file_manager = self._get_file_manager(env)
             source = file_manager.get_transient(transient_name).path
         else:
-            return fail('Invalid mode')
+            return fail(N_('Invalid mode'))
 
         _, original_name = os.path.split(source)
 
         try:
             image = Image.open(source)
         except IOError:
-            return fail('Invalid image')
+            return fail(N_('Invalid image'))
 
         box = ()
         for f in  ['left', 'top', 'right', 'bottom']:
             try:
                 box += (int(env.request.POST.get(f, '')), )
             except ValueError:
-                return fail('Invalid coordinates')
+                return fail(N_('Invalid coordinates'))
 
         image = image.crop(box)
         ext = os.path.splitext(source)[1]
