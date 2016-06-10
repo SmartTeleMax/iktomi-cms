@@ -4,7 +4,6 @@ import os
 import logging
 from webob.exc import HTTPMethodNotAllowed, HTTPBadRequest, HTTPNotFound
 from iktomi import web
-from iktomi.utils.i18n import N_
 from iktomi.cms.stream_actions import PostAction
 from iktomi.cms.forms.fields import AjaxImageField
 from iktomi.cms.forms import convs
@@ -196,14 +195,12 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
         try:
             image = Image.open(transient.path)
         except IOError:
-            msg = N_('Invalid image')
             return {'status': 'failure',
-                    'error': _(msg)}
+                    'error': _('Invalid image') }
 
         if image.size[0] * image.size[1] > getattr(env.cfg, 'MAX_IMAGE_SIZE', 5000*5000):
-            msg = N_('Image size exceeds the limit')
             return {'status': 'failure',
-                    'error': _(msg)}
+                    'error': _('Image size exceeds the limit') }
 
         original_name = env.request.GET["file"]
         ext = os.path.splitext(original_name)[1]
@@ -257,24 +254,21 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             file_manager = self._get_file_manager(env)
             source = file_manager.get_transient(transient_name).path
         else:
-            msg = N_('Invalid mode')
-            return fail(_(msg))
+            return fail(_('Invalid mode') )
 
         path, original_name = os.path.split(source)
 
         try:
             image = Image.open(source)
         except IOError:
-            msg = N_('Invalid image')
-            return fail(_(msg))
+            return fail(_('Invalid image') )
 
         box = ()
         for f in  ['left', 'top', 'right', 'bottom']:
             try:
                 box += (int(env.request.POST.get(f, '')), )
             except ValueError:
-                msg = N_('Invalid coordinates')
-                return fail(_(msg))
+                return fail(_('Invalid coordinates'))
 
         image = image.crop(box)
         ext = os.path.splitext(source)[1]
