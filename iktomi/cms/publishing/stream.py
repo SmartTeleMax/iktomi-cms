@@ -140,6 +140,7 @@ class PublishAction(PostAction):
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
         return env.json({'success': True,
+                         'item_id':data.item.id,
                          'location': url})
     __call__ = admin_publish
 
@@ -186,6 +187,7 @@ class UnpublishAction(PostAction):
 
         url = self.stream.url_for(env, 'item', item=data.item.id)
         return env.json({'success': True,
+                         'item_id':data.item.id,
                          'location': url})
     __call__ = unpublish
 
