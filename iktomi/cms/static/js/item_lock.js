@@ -176,7 +176,7 @@ ItemLock.prototype = {
         });
         this.popup.hide();
       } else {
-        window.location.reload(); // XXX should work without reload
+        window.location.reload(true); // XXX should work without reload
       }
     } else if(response.status == 'fail'){
       this.stop();
