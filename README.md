@@ -51,14 +51,20 @@
 
 * Representing, converting and validating objects by
   [iktomi forms](http://iktomi.readthedocs.org/en/latest/forms-basic.html).
-* Extendable WYSIWYG editor. **describe**
-* Flexible HTML cleanup converter.
-    * WYSIWYG buttons to display are chosen
-      automatically on the base of converter allowed tags, when possible.
+* Extendable WYSIWYG editor. Is based on wysihtml5 and inherits its plugin system.
+  By default, allows to do standart HTML formatting and cleanup, undo/redo,
+  raw HTML editing.
+* Flexible HTML cleanup converter implemented on top of [lxml.html.clean](http://lxml.de/api/lxml.html.clean-module.html),
+  with tunable list of allowed tag names, attributes, classes, url schemes and other options,
+  also fully-extendable.
+
+* WYSIWYG buttons to display are chosen
+  automatically on the base of converter allowed tags, when possible.
 * Widgets for selecting objects from another stream for sqlalchemy relationships.
 * Inline editing of item collections inside current object (sqlalchemy
   delete-orphan option). Depth of relationships to edit is not limited.
-* Ajax file upload. **describe**
+* Ajax file upload. Files in forms are uploaded without page reload and without
+  blocking other fields to be edited.
 * Automated generation of scaled/cropped image versions
     * Describe image resizing rules and sizes by ImageResizer objects and 
       their combinations.
@@ -68,6 +74,7 @@
     * Default cropping rectangles are displayed on first upload.
 * Grouping values in field to collapsable FieldBlock-s.
 * Long-press character autocomplete in text inputs and WYSIWYG.
+  Hold a key to see a list of similar characters and choose the one you need.
 
 ### More editing features
 
@@ -83,7 +90,7 @@
 * Pluggable editor notes widget for an item.
 * Trays (inboxes) for editors. An editor can send any object to another
   editor's tray.
-* Preview action. **describe**
+* Preview item after edit or before publishing using real site views and templates.
 
 ### Publication
 
@@ -113,4 +120,3 @@
 
 * Docs
 * Tests
-* Try to use react forms
