@@ -10,18 +10,19 @@
 * Single-page, ajax-based, without page reloads in general.
 
 ### Streams
-* Streams of object of the same type.
+* Streams provide similar edit form and actions for objects of the same type.
+* Objects list page.
     * Define list of object values.
-    * Sorting stream object by field values.
+    * Ordering stream object by field values.
     * Pagination.
-* Pluggable actions for objects in the stream: edit, delete, preview, 
-  edit log, publishing, etc.
-* Pluggable actions for entire stream: ordering, etc.
 * Filtering a stream based on FilterForm.
-    * Filtered by corresponding 
+    * Filtered by value of a field.
     * Allowed to use all the widgets available for edit form
       (many of them are useless here, never mind).
     * Ability to define custom filtering conditions for fields in FieldForm.
+* Pluggable actions for objects in the stream: edit, delete, preview, 
+  edit log, publishing, etc.
+* Pluggable actions for entire stream: ordering, etc.
 * Ability to define persistent query filter conditions for entire stream.
 * Manual ordering of objects in a stream, saved to database
 * Permissions system for accessing, creating, changing, deleting and
