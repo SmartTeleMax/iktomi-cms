@@ -1,3 +1,31 @@
+0.2.1
+=====
+
+**Minor features**
+
+* WYSIWYG: preserve alignment of pasted text with classes
+* WYSIWYG: allow borders
+* Stream actions url resolving delegated to `StreamAction` class
+* Allow to redefine filter form's JS block name
+* Option to made flash messages unique
+* Moved some parameters to `prepare_data` for list handler
+* Implemented anchoring on the page
+
+
+
+**Minor bugfixes**
+
+* Removed redundant menu inside of popup
+* Removed item template data processing call from inside of list view
+* Fixed clear_tray method for the case tray is absent
+* Preserve filter_form data in stream list view while changing language
+* JS: filter form clearField action fix
+* Fixed bug on ctrl-click in popup-stream-select
+* Livesearch autofocus and other fixes
+
+
+
+
 0.2
 =====
 

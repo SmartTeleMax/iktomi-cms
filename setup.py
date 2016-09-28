@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='iktomi.cms',
-    version='0.2',
+    version='0.2.1',
     packages=['iktomi',
               'iktomi.cms',
                     'iktomi.cms.auth',
