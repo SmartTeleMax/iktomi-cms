@@ -71,16 +71,18 @@
       their combinations.
     * Manual image cropping from the source image interface.
     * Scaled images are generated on Ajax upload, so preview and cropping
-      is available immediately. 
+      is available immediately. Crop rectangle coordinates could be saved to the database.
     * Default cropping rectangles are displayed on first upload.
+    * Ability to apply Pillow filters.
 * Grouping values in field to collapsable FieldBlock-s.
+  The title of the block could be constructed dinamically based on nested values.
 * Long-press character autocomplete in text inputs and WYSIWYG.
   Hold a key to see a list of similar characters and choose the one you need.
 
 ### More editing features
 
-* Edit logging for an object (if edited is a stream).
-    * Log edit, delete and publication actions, and others if implemented.
+* Edit logging for an object in a stream.
+    * Log creation, edit, delete and publication actions, and others if implemented.
     * Save editor, date of edit, initial and resulting state of the form
     * Show field-based diff
     * Images are logged as thumbnails.
@@ -95,7 +97,9 @@
 
 ### Publication
 
-* Two-state based publishing system.
+* Two-version based publishing system: all edits are applied on editing database.
+  An editor with sufficient permission can publish the object
+  and it will be replicated to front-end database.
 * Base classes for creating sqlalchemy classes for editorial and published versions
   of objects.
 * Internationalized streams (with finite language count), internationalized

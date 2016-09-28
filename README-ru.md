@@ -16,108 +16,104 @@
     * Постраничное представление.
 * Фильтрация отображаемый на странице списка объектов посредством FilterForm.
     * Фильтрация объектов по значению полей.
-    * Allowed to use all the widgets available for edit form
-      (many of them are useless here, never mind).
-    * Ability to define custom filtering conditions for fields in FieldForm.
-* Pluggable actions for objects in the stream: edit, delete, preview, 
-  edit log, publishing, etc.
-* Pluggable actions for entire stream: ordering, etc.
-* Ability to define persistent query filter conditions for entire stream.
-* Manual ordering of objects in a stream, saved to database
-* Permissions system for accessing, creating, changing, deleting and
-  publishing objects. Is extendable.
-* Loners: a stream for just a one item, without list view.
+    * Для конструирования формы можно использовать те же поля и виджеты, что и для формы редактирования.
+    * Возможность программировать собственные условия фильтрации на уровне полей.
+* Подключаемые и расширяемые компоненты потока - действия над объектами: редактирование, удаление,
+  предпросмотр, история правок, публикация и т.д.
+* Подключаемые действия для всего потока: ручное упорядочивание, групповое редактирование и т.д.
+* Возможность задать постоянный фильтр для потока.
+* Возможность включения ручной сортировки объектов в потоке с сохранением в базу данных.
+* Расширяемая система разграничения доступа, прав создания, редактирования, удаления и публикации объектов.
+* Поддержка Loners: потоков для всего одного экземпляра объекта без страницы списка.
 
-### Edit
+### Редактирование
 
-* Editing an object in the stream
-* Autosave periodically and on page leave
-* Draft forms. If form does not validate, it is saved as draft.
-  Next time user opens the objects edit page, he gets the form in the state
-  (invalid) he leaved it, with errors displayed. But invalid state of object
-  is not commited.
-* Item locks
-    * Items are locked automatically for actions marked as lockable
-    * Unable to edit item without lock ownership
-    * Locks are browser tab-based, so editor can not be in editing conflict 
-      with himself even if he had opened same objects in two tabs
-    * Show lock owner when attempting to access locked item,
-    * Ability to force the lock
-    * Highlight locked items in the stream
-* Before-delete warning with list of all items linking to current (having
-  stream and accessible by the editor)
+* Форма редактирования объекта в потоке
+* Возможность включения автосохранения через определенные периоды времени и при покидании страницы.
+* Черновики форм. Если форма не проходит валидацию, она сохраняется как черновик.
+  В следующий раз при заходе на страницу редактирования пользователь получает форму
+  в точно таком же (невалидном) состоянии, в котором он её оставил, с отображаемыми сообщениями об ошибках.
+  При этом невалидны объекты в основную базу данных не сохраняются.
+* Блокировки объектов.
+    * Объекты блокируются редакторами автоматически для действий, отмеченных как требующие блокировки.
+    * Пользователи, не обладающие блокировкой, не могут производить действия над объектом,
+      у блокировки может быть только один обладатель в каждый момент времени.
+    * Блокировки реализованы на уровне вкладок браузера, так что пользователь не может
+      войти в конфликт с самим собой, даже если он открыл одну страницу в разных вкладках.
+    * Отображение обладателя блокировки при попытке получить доступ к объекту.
+    * Возможность принудительного перехвата блокировки.
+    * Обозначение заблокированных объектов на странице списка в потоке.
+* Страница подтверждения удаления объекта со списком всех ссылающихся на него объектов
+  (если связь реализована через sqlalchemy, а объекты имеют свой поток и доступны для пользователя).
 
-### Forms
+### Формы
 
-* Representing, converting and validating objects by
-  [iktomi forms](http://iktomi.readthedocs.org/en/latest/forms-basic.html).
-* Extendable WYSIWYG editor. Is based on wysihtml5 and inherits its plugin system.
-  By default, allows to do standart HTML formatting and cleanup, undo/redo,
-  raw HTML editing.
-* Flexible HTML cleanup converter implemented on top of [lxml.html.clean](http://lxml.de/api/lxml.html.clean-module.html),
-  with tunable list of allowed tag names, attributes, classes, url schemes and other options,
-  also fully-extendable.
+* Отображение, валидация и редактирование объектов с помощью
+  [форм iktomi](http://iktomi.readthedocs.org/en/latest/forms-basic.html).
+* Расширяемый редактор WYSIWYG. Основе wysihtml5 и наследует его систему плагинов.
+  По-умолчанию, поддерживает стандартное форматирование и чистку HTML, отмену и повтор действий,
+  редактирование исходного кода HTML.
+* Гибкий конвертен для очистки HTML, реализованный на основе
+  [lxml.html.clean](http://lxml.de/api/lxml.html.clean-module.html),
+  с настраиваемым списком разрешенных имен тегов, атрибутов, классов, схем URL и др.
+  Также полностью расширяем и позволяет писать произвольный код очистки и преобразования HTML.
+* Показ и скрытие кнопок WYSIWYG автоматически на основе списка разрешенных тегов,
+  когда это возможно.
+* Виджеты для выбора объектов из других потоков, с полным сохранением возможности фильтрации и сортировки потока.
+* Редактирование вложенных объектов и коллекций на странице родительского объекта (свойство sqlalchemy
+  delete-orphan). Неограниченная глубина вложенности коллекций.
+* Загрузка файлов через Ajax. Файлы в формах загружаются без перезагрузки и блокировки
+  редактирования остального содержимого.
+* Автоматическая генерация уменьшенных и обрезанных вариантов изображения.
+    * Правила изменения размера задаются с помощью объектов ImageResizer и их комбинаций.
+    * Возможность обрезать изображение до требуемого соотношения сторон вручную,
+      используя виджет обрезки. Координаты прямоугольника обрезки могут быть сохранены в базу.
+    * Размерный ряд изображения генерируется непосредственно при загрузке через Ajax,
+      так что предпросмотр доступны сразу после этого.
+    * При загрузке изображения у уменьшенных копий отображается прямоугольник,
+      по которому они были обрезана.
+    * Возможность применения фильтров Pillow.
+* Группировка полей формы в схлопывающиеся блоки FieldBlock.
+  Название блока может быть динамическим на основе значений вложенных полей.
+* Предложение вариантов ввода символа в текстовых полях и редакторе WYSIWYG.
+  Зажмите клавишу и выберите вариант из списка похожих символов.
 
-* WYSIWYG buttons to display are chosen
-  automatically on the base of converter allowed tags, when possible.
-* Widgets for selecting objects from another stream for sqlalchemy relationships.
-* Inline editing of item collections inside current object (sqlalchemy
-  delete-orphan option). Depth of relationships to edit is not limited.
-* Ajax file upload. Files in forms are uploaded without page reload and without
-  blocking other fields to be edited.
-* Automated generation of scaled/cropped image versions
-    * Describe image resizing rules and sizes by ImageResizer objects and 
-      their combinations.
-    * Manual image cropping from the source image interface.
-    * Scaled images are generated on Ajax upload, so preview and cropping
-      is available immediately. 
-    * Default cropping rectangles are displayed on first upload.
-* Grouping values in field to collapsable FieldBlock-s.
-* Long-press character autocomplete in text inputs and WYSIWYG.
-  Hold a key to see a list of similar characters and choose the one you need.
+### Расширенные возможности редактирования
 
-### More editing features
+* История правок для объектов в потоке.
+    * Регистрация событий создания, правки, удаления и публикации 
+      (и других, если это реализовано).
+    * Сохранение в базе редактора, даты правки, изначального и конечного значения формы.
+    * Показ журнала правок и разницы между версиями (diff).
+    * Сохранение вариантов изображения в виде миниатюр.
+* Возможность добавления хуков перед сохранением, с помощью которых можно отложить отправку запроса,
+  предупредить редактора о возможных ошибках и т.д. В частности, выводится сообщение,
+  если файл находится в процессе загрузки.
+* Показ списка связанных объектов из других потоков.
+* Подключаемый виджет редакторских заметок к объекту.
+* Лотки для редакторов. Редактор может положить объект в лоток к коллеге с соответствующим комментарием.
+* Предпросмотр объекта после редактирования или перед публикацией с использованием
+  настоящего кода отображения и шаблонов страницы.
 
-* Edit logging for an object (if edited is a stream).
-    * Log edit, delete and publication actions, and others if implemented.
-    * Save editor, date of edit, initial and resulting state of the form
-    * Show field-based diff
-    * Images are logged as thumbnails.
-* Precommit hooks, allows to postpone a commit, warn editor for some possibly
-  wrong conditions, etc.
-    * Warn if file upload is in progress.
-* Show linked items in different streams.
-* Pluggable editor notes widget for an item.
-* Trays (inboxes) for editors. An editor can send any object to another
-  editor's tray.
-* Preview item after edit or before publishing using real site views and templates.
+### Публикация
 
-### Publication
+* Публикация объектов на основе двухверсионной системы: объекты редактируются в закрытой
+  редакторской базе. Пользователь с соответствующими привелегиями может опубликовать объект,
+  и он вместе со всеми правками будет перенесён в общедоступную базу.
+* Базовый класс для создания классов sqlalchemy для редакторской и публичной версий объектов.
+* Мультиязычные потоки (с заданным в коде набором языков).
+* Возможность создавать мультиязычные объекты sqlalchemy.
+  Если для определённого класса эта опция настроена, то принадлежащие разным языкам
+  объекты с одинаковым идентификатором будут считаться разными языковыми версиями друг друга.
+* Возможность хранения языковых версий в одной таблице или в отдельной таблице для каждого языка.
+  Хранение в одной таблице может позволить иметь общие поля для всех языков
+  (например, общие файлы изображений в объектах Фото и специфичные для каждого языка заголовки)
+* Автоматическое выставление времени создания и последнего изменения.
 
-* Two-state based publishing system.
-* Base classes for creating sqlalchemy classes for editorial and published versions
-  of objects.
-* Internationalized streams (with finite language count), internationalized
-  publishing streams.
-* Language versions for an object can be with one-to-one item correspondence.
-  If this option is on, object with same id are considered different language
-  versions for the same item.
-* Base classes supporting single-table storage of language versions of the object,
-  allowing to define common fields for all versions (for example, for Photo images
-  can be common, and titles can be specific for each language).
-* Automated creation time and update time tracking.
+### Детали реализации и прочие особенности
 
-### Implementation details and minor features
-
-* Embedded sqlalchemy model factories for all provided features,
-  that can be imported and initiated in the application.
-* Flashing messages from ajax request handlers throught cookies.
-* JS and CSS packer based on one or multiple Manifest files.
-  Allows to combine files from iktomi-cms pack and app-specific
-  user-defined ones.
-
-## What next?
-
-* Docs
-* Tests
+* Встроенные фабрики для моделей sqlalchemy.
+* Возможность отправки всплывающих сообщений через cookie на клиентское приложение.
+* Упаковщик JS и CSS, работающий на основе одного или нескольких файлов Manifest.
+  Возможность комбинирования файлов из iktomi-cms и файлов, специфичных для приложения.
 
