@@ -34,7 +34,7 @@ class AdminEnvironment(web.AppEnvironment):
 
     @cached_property
     def url_for_static(self):
-        return self.static.construct_reverse()
+        return self.static.url_for_static
 
     # @storage_cached_property
     # def template(storage):
