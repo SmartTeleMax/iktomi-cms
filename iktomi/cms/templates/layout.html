@@ -42,10 +42,6 @@
       </div>
       {{ context.top_menu.render() }}
 
-      {%- if menu -%}
-        <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
-      {%- endif -%}
-
       <div style="clear: both"></div>
     </div>
     {%- if context.item_trays is defined and context.users is defined -%}
@@ -77,6 +73,9 @@
 
     <div id="app-content" class="app-content">
       {%- block content %}{% endblock -%}
+      {%- if menu -%}
+        <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
+      {%- endif -%}
     </div>
 
     <div id="overlay" class="overlay"></div>

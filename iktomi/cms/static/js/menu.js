@@ -26,11 +26,10 @@
         var active = document.getElement('.navigation [data-endpoint="'+elem.dataset.menu+'"]');
         makeActive(active);
       }
-      
       elem.destroy()
     }
   }
-    
+
   function makeActive(item){
     if(item){
       if (item.tagName == 'LI'){

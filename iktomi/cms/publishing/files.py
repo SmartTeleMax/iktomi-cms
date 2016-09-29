@@ -5,6 +5,7 @@ from sqlalchemy.orm import object_session
 
 from .model import _FrontReplicated, _WithState
 
+# ======================================================================
 
 class ReplicatedHandlersMixin(object):
 
@@ -41,10 +42,8 @@ class PublicatedHandlersMixin(object):
 class ReplicatedImageEventHandlers(ReplicatedHandlersMixin, ImageEventHandlers):
     pass
 
-
 class ReplicatedFileEventHandlers(ReplicatedHandlersMixin, FileEventHandlers):
     pass
-
 
 class PublicatedFileEventHandlers(
     PublicatedHandlersMixin,
@@ -52,12 +51,12 @@ class PublicatedFileEventHandlers(
     FileEventHandlers
 ): pass
 
-
 class PublicatedImageEventHandlers(
     PublicatedHandlersMixin,
     ReplicatedHandlersMixin,
     ImageEventHandlers
 ): pass
+
 
 
 # XXX name of class in too long
