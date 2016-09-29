@@ -76,13 +76,15 @@ function flashAll(){
   for (var i = allCookies.length; i--;) {
     var c = allCookies[i].trim();
     if (c.substr(0, 10) ==  'flash-msg-') {
-      var c_name = c.split('=')[0];
+      var cName = c.split('=')[0];
       // Hack to workaround bad cookie processing
-      var cookie = Cookie.read(c_name).replace(/^"|"$/g, '');
-      if (cookie.charAt(0) == '\\'){ cookie = eval('"'+cookie+'"'); }
+      var cookie = Cookie.read(cName).replace(/^"|"$/g, '');
+      if (cookie.indexOf('"') === -1) {
+        cookie = eval('"'+cookie+'"'); // XXX
+      }
 
       var data = JSON.decode(cookie);
-      Cookie.dispose(c_name);
+      Cookie.dispose(cName);
 
       // ugly hack for double escaped string
       if (typeof(data) == 'string' && data.charAt(0) == '[') {
