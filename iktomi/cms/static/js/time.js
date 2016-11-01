@@ -90,7 +90,7 @@
                 visibility: 'hidden'
             },
             click: function(e) {
-                timeField.value = e.target.innerText;
+                timeField.value = e.target.innerText || e.target.textContent;
                 widget.setStyle('visibility', 'hidden');
                 document.body.removeEvent('mousedown', close);
             }
