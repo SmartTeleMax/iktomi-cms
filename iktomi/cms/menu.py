@@ -12,7 +12,7 @@ class Menu(object):
 
     def __init__(self, title, link=None, endpoint=None, params=None,
                  items=None, env=None, template_vars={}, template=None,
-                 permissions= {'*': 'rwxcd'}, rel=None):
+                 permissions={'*': 'rwxcd'}, rel=None):
         self.parent = None
         self.title = title
         self.link = link
@@ -233,18 +233,22 @@ def DashI18nStream(*args, **kwargs):
                       for lang in ('ru', 'en')],
                       template="menu/dashboard-row-i18n")
 
+
 def DashI18nLoner(*args, **kwargs):
     return MenuGroup([LangLonerMenu(*args, **dict(kwargs, lang=lang))
                       for lang in ('ru', 'en')],
                       template="menu/dashboard-row-i18n")
 
+
 def DashStream(*args, **kwargs):
     kwargs.setdefault('template', 'menu/dashboard-row')
     return StreamMenu(*args, **kwargs)
 
+
 def DashMenu(*args, **kwargs):
     kwargs.setdefault('template', 'menu/dashboard-row')
     return Menu(*args, **kwargs)
+
 
 def DashLoner(*args, **kwargs):
     kwargs.setdefault('template', 'menu/dashboard-row')

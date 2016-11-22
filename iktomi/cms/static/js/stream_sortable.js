@@ -62,6 +62,9 @@
                       display: 'inline-block',
                       'box-sizing': 'border-box'});
       }
+      function fixTdHeight(td, i){
+        td.setStyle('min-height', td.parentNode.getHeight());
+      }
 
       for (var j = this.items.length; j--;){
         this.items[j].getChildren('td').each(boxifyTd);
@@ -89,6 +92,10 @@
                          'min-height': '30px'})
       var tds = tfootTr.getChildren('td');
       tds[tds.length-1].setStyles(buttonThStyles);
+
+      for (var j = this.items.length; j--;){
+        this.items[j].getChildren('td').each(fixTdHeight);
+      }
     },
     unboxify: function(){
       var els = this.el.getElements('.items,.items tr,.items td,.items th,.items tbody,.items thead,.items .tfoot');

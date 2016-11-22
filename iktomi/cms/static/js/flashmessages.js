@@ -8,7 +8,7 @@
 
 function flash(text, className, timeout){
   className = className || '';
-  timeout = timeout || 3000;
+  timeout = timeout || (className == 'failure' ? 6000 : 3000);
   if (!$('flashmessages')) {
     new Element ('div', {id: "flashmessages"}).inject(document.body);
     $('flashmessages').addEvent('click', function(e){
@@ -70,33 +70,15 @@ function flash(text, className, timeout){
 
 }
 
-function flashAll(){
-  var allCookies = document.cookie.split(';');
-
-  for (var i = allCookies.length; i--;) {
-    var c = allCookies[i].trim();
-    if (c.substr(0, 10) ==  'flash-msg-') {
-      var cName = c.split('=')[0];
-      // Hack to workaround bad cookie processing
-      var cookie = Cookie.read(cName).replace(/^"|"$/g, '');
-      if (cookie.indexOf('"') === -1) {
-        cookie = eval('"'+cookie+'"'); // XXX
-      }
-
-      var data = JSON.decode(cookie);
-      Cookie.dispose(cName);
-
-      // ugly hack for double escaped string
-      if (typeof(data) == 'string' && data.charAt(0) == '[') {
-        data = JSON.decode(data);
-      }
-
-      for (var j=0; j<data.length; j++){
-        flash(data[j][0], data[j][1], data[j][1]=='failure'?6000:undefined);
-      }
+function flashAll(data){
+    for (var j=0; j<data.length; j++){
+        flash(data[j][0], data[j][1]);
     }
-  }
 }
+
+Blocks.register('flashmessage', function(elem) {
+    flash(elem.dataset.text, elem.dataset.category, elem.dataset.timeout);
+});
 
 (function(){
   // XXX hack to add callback to all Ajax events
@@ -108,7 +90,18 @@ function flashAll(){
 
     this.addEventListener('readystatechange', function(){
         if(this.readyState == 4) {
-            flashAll();
+            if (this.responseText && this.responseText[0] == '{') {
+                var resp;
+                try {
+                    resp = JSON.parse(this.responseText);
+                } catch (e) {
+                    return;
+                }
+
+                if (resp._flashmessages) {
+                    flashAll(resp._flashmessages);
+                }
+            }
         }
     }.bind(this));
   }

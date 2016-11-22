@@ -1,11 +1,11 @@
 {% macro list_field(name, field, item, url, loop) %}
-    {%- set field_val = field(env, item, url, loop) %}
+    {%- set field_val = field(env, item, url, loop) -%}
 
     {%- if field_val.attrs is defined %}
         {%- set attrs = field_val.attrs %}
     {%- else %}
         {%- set attrs = {} %}
-    {%- endif %}
+    {%- endif -%}
 
     <td class="field_{{ name }}{% if field.classname is defined %} {{ field.classname }}{% endif %}{% if field.image %} has-image{% endif %}">
       {%- if field.link_to_item -%}
@@ -17,7 +17,7 @@
         {% include field.template %}
       {%- endif -%}
     </td>
-{% endmacro %}
+{%- endmacro %}
 
 
 
@@ -36,7 +36,7 @@
   {%- block list_fields %}
     {%- for name, field in list_fields.items() %}
       {%- if item.state is not defined or item.state not in (item.ABSENT, item.DELETED) or name == 'id' %}
-        {{ list_field(name, field, item, url, loop) }}
+        {{- list_field(name, field, item, url, loop) -}}
       {% else -%}
         <td class="field_{{ name }}" title="Deleted"></td>
       {%- endif %}
@@ -56,6 +56,6 @@
       {%- endif %}
       {{- f.widget.render() -}}
     </td>
-    {% endif %}
+    {%- endif -%}
   {% endblock %}
 </tr>

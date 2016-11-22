@@ -1,26 +1,28 @@
 # -*- coding: utf-8 -*-
 
-import logging, warnings
+import logging
+import warnings
+from collections import OrderedDict
 
 from webob.exc import HTTPForbidden
 from webob.multidict import MultiDict
 from jinja2 import Markup
 
-from iktomi.utils import cached_property
-from collections import OrderedDict
-from iktomi.utils.storage import VersionedStorage
 from iktomi import web
 from iktomi.web.url_converters import Converter, default_converters
+from iktomi.utils import cached_property
+from iktomi.utils.storage import VersionedStorage
+from iktomi.utils.deprecation import deprecated
 from iktomi.cms.forms import Form
 from iktomi.cms.item_lock import ItemLock
-from iktomi.utils.deprecation import deprecated
-from . import stream_handlers as handlers
-from .flashmessages import flash
+from iktomi.cms import stream_handlers as handlers
+from iktomi.cms.flashmessages import flash
 
 logger = logging.getLogger(__name__)
 
 
 _none_converter_factory_cache = {}
+
 
 def none_converter_factory(cls):
     if cls in _none_converter_factory_cache:
@@ -124,7 +126,7 @@ class FilterForm(Form):
     search_input = None # for live search widget
 
     def filter_by_scalar(self, query, field, value):
-        return query.filter(getattr(self.model, field.name)==value)
+        return query.filter(getattr(self.model, field.name) == value)
 
     def filter_by_true(self, query, field, value):
         if value:
@@ -211,7 +213,7 @@ class Stream(object):
             return nxt(env, data)
 
         part = self.module_name.rsplit('.', 1)[-1]
-        return web.prefix('/' +part, name=part) | \
+        return web.prefix('/' + part, name=part) | \
                set_stream_handler
 
     @property
@@ -248,11 +250,11 @@ class Stream(object):
     @cached_property
     @deprecated("use `stream.edit_log_action is not None` instead")
     def edit_log(self):
-        return any(x for x in self.actions if x.action=='edit_log')
+        return any(x for x in self.actions if x.action == 'edit_log')
 
     @cached_property
     def referrers(self):
-        return any(x for x in self.actions if x.action=='referrers')
+        return any(x for x in self.actions if x.action == 'referrers')
 
     @cached_property
     def app_namespace(self):
@@ -269,7 +271,7 @@ class Stream(object):
     @cached_property
     def edit_action(self):
         for action in self.actions:
-            if action.action=='item':
+            if action.action == 'item':
                 return action
 
     @cached_property
@@ -281,13 +283,13 @@ class Stream(object):
     @cached_property
     def preview_action(self):
         for action in self.actions:
-            if action.action=='preview':
+            if action.action == 'preview':
                 return action
 
     @cached_property
     def edit_log_action(self):
         for action in self.actions:
-            if action.action=='edit_log':
+            if action.action == 'edit_log':
                 return action
 
     def create_log_entry(self, env, item, type_):
@@ -388,7 +390,8 @@ class Stream(object):
         return self.config.Model
 
     def __repr__(self):
-        return '<%s.%s: %s>' % (self.__class__.__module__, self.__class__.__name__, self.module_name)
+        cls = self.__class__
+        return '<%s.%s: %s>' % (cls.__module__, cls.__name__, self.module_name)
 
     def item_query(self, env):
         return env.db.query(self.get_model(env))
@@ -445,8 +448,6 @@ def expand_stream(env, obj):
         stream_title = stream.title
         if 'lang' in params:
             stream_title = I18nLabel(stream_title, params['lang'])
-        url = stream.url_for(stream_env, 'item', 
+        url = stream.url_for(stream_env, 'item',
                              item=obj.object_id, **params)
         return (url, stream_title, stream, obj, item)
-
-

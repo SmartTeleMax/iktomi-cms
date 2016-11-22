@@ -76,6 +76,10 @@
       {%- if menu -%}
         <div class="init-block" data-block-name="menu" data-menu="{{ menu }}"></div>
       {%- endif -%}
+      {%- for text, category in context.flashmessages -%}
+        <div class="init-block" data-block-name="flashmessage"
+             data-text="{{ text }}" data-category="{{ category or '' }}"></div>
+      {%- endfor -%}
     </div>
 
     <div id="overlay" class="overlay"></div>
