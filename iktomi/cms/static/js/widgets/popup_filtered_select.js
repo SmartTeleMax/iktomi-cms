@@ -30,7 +30,7 @@ var PopupFilteredSelect = new Class({
         }
 
         this.values.getElements('input').each(function(opt){
-          this.options.push({'id':opt.value, 'value':opt.value,
+          this.options.push({'value':opt.value,
               'title':opt.getNext('label').get('html'),
               'selected':(opt.checked)
               });
