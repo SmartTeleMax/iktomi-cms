@@ -184,7 +184,7 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
 
     def save_file(self, env, data, length):
         form = self._get_form(env, data)
-        N_ = env.gettext
+        _ = env.gettext
         #form.model = self.stream.get_model(env)
         field = form.get_field(data.field_name)
         if not isinstance(field, AjaxImageField) or \
@@ -196,11 +196,11 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             image = Image.open(transient.path)
         except IOError:
             return {'status': 'failure',
-                    'error': N_('Invalid image')}
+                    'error': _('Invalid image') }
 
         if image.size[0] * image.size[1] > getattr(env.cfg, 'MAX_IMAGE_SIZE', 5000*5000):
             return {'status': 'failure',
-                    'error': N_('Image size exceeds the limit')}
+                    'error': _('Image size exceeds the limit') }
 
         original_name = env.request.GET["file"]
         ext = os.path.splitext(original_name)[1]
@@ -222,11 +222,9 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
 
     def crop(self, env, data):
         item = data.item
-        N_ = env.gettext
-
         if env.request.method != 'POST':
             raise HTTPMethodNotAllowed()
-
+        _ = env.gettext
         fail = lambda msg: env.json(dict(status='failure', error=msg))
 
         form = self._get_form(env, data)
@@ -256,21 +254,21 @@ class StreamImageUploadHandler(StreamFileUploadHandler):
             file_manager = self._get_file_manager(env)
             source = file_manager.get_transient(transient_name).path
         else:
-            return fail(N_('Invalid mode'))
+            return fail(_('Invalid mode') )
 
-        _, original_name = os.path.split(source)
+        path, original_name = os.path.split(source)
 
         try:
             image = Image.open(source)
         except IOError:
-            return fail(N_('Invalid image'))
+            return fail(_('Invalid image') )
 
         box = ()
         for f in  ['left', 'top', 'right', 'bottom']:
             try:
                 box += (int(env.request.POST.get(f, '')), )
             except ValueError:
-                return fail(N_('Invalid coordinates'))
+                return fail(_('Invalid coordinates'))
 
         image = image.crop(box)
         ext = os.path.splitext(source)[1]

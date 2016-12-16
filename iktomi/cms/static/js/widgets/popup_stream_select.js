@@ -200,7 +200,12 @@ var PopupStreamSelect = new Class({
       var id = this._select_items.pop();
       while(id) {
         var item = this.popup.el.getElement('.itemlist .item a[data-id='+id+']').getParent('.item');
-        this.onItemClicked(item, ''+id);
+        if (this._selected_items.indexOf(''+id) == -1) {
+          this.add(item, ''+id);
+        } else{
+          this.remove(''+id);
+          this.add(item, ''+id);
+        }
         id = this._select_items.pop();
       }
 

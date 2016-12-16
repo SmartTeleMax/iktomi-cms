@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import inspect
-import json
 from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
 from webob.multidict import MultiDict
@@ -20,14 +19,10 @@ from .stream_actions import StreamAction
 from .flashmessages import flash
 
 
-def see_other(location):
-    return web.Response(json.dumps({'location': location}),
-                        content_type="application/json")
-
 def insure_is_xhr(env):
     if (env.request.method in ('GET', 'HEAD') and \
-           not env.request.is_xhr and \
-           not '__ajax' in env.request.GET):
+            not env.request.is_xhr and \
+            '__ajax' not in env.request.GET):
         raise HTTPOk(body=env.render_to_string('layout.html', {}))
 
 
@@ -135,7 +130,6 @@ class StreamListHandler(StreamAction):
         except AttributeError:
             pass
 
-
         result = dict(stream.template_data,
                       paginator=paginator,
                       stream=stream,
@@ -156,10 +150,9 @@ class StreamListHandler(StreamAction):
                 (self.stream.list_edit_action.use_with_filters or not filter_data)
 
         if use_list_form:
-            return {'list_item_form':self.stream.ListItemForm(
+            return {'list_item_form': self.stream.ListItemForm(
                                                  env, items=paginator.items)}
         return {}
-
 
 
 class PrepareItemHandler(web.WebHandler):
@@ -226,15 +219,16 @@ class EditItemHandler(StreamAction):
     def app_prefix(self):
         return web.prefix('/<idconv:item>', name='item',
                           convs={'idconv': self.stream.id_none_converter})
+
     @property
     def app(self):
         # Be careful, put prepare handler only after match! Otherwise it brakes
         # file upload (yes, its not obvious!)
-        prepare =  self.PrepareItemHandler(self)
+        prepare = self.PrepareItemHandler(self)
         return self.app_prefix | web.cases(
                 web.match('', '') | prepare | self,
                 web.match('/autosave', 'autosave') | \
-                        web.method('POST', strict=True) | prepare |self.autosave
+                        web.method('POST', strict=True) | prepare | self.autosave
             )
 
     def create_allowed(self, env):
@@ -295,12 +289,12 @@ class EditItemHandler(StreamAction):
         EditLog = env.edit_log_model
         stream = self.stream
         log = EditLog.last_for_item(
-                env.db, stream.uid(env), item, 
+                env.db, stream.uid(env), item,
                 env.user, data.edit_session)
         if log is None:
             before = self._clean_item_data(stream, env, item)
-            if (item.id is None
-                    or hasattr(item, 'existing') and not item.existing):
+            if (item.id is None or
+                    hasattr(item, 'existing') and not item.existing):
                 action_type = 'create'
             else:
                 action_type = 'edit'
@@ -354,7 +348,6 @@ class EditItemHandler(StreamAction):
         else:
             save_allowed = self.save_allowed(env, item)
             delete_allowed = self.delete_allowed(env, item)
-
 
         autosave_allowed = save_allowed and \
                            getattr(env, 'draft_form_model', None) and \
@@ -431,7 +424,7 @@ class EditItemHandler(StreamAction):
                     env.db.add(draft)
                 draft.data = form.raw_data.items()
 
-                if not env.user in draft.users:
+                if env.user not in draft.users:
                     draft.users.append(env.user)
                 draft.update_time = datetime.now()
                 env.db.commit()
@@ -463,7 +456,7 @@ class EditItemHandler(StreamAction):
 
                              item_lock=data.item_lock,
 
-                             actions=[x for x in stream.actions 
+                             actions=[x for x in stream.actions
                                       if x.for_item and x.is_visible(env, item)],
                              item_buttons=stream.buttons,
 
@@ -481,7 +474,6 @@ class EditItemHandler(StreamAction):
         return env.render_to_response(self.get_item_template(env, item),
                                       template_data)
     __call__ = edit_item_handler
-
 
     def autosave(self, env, data):
         data.autosave = True
@@ -504,6 +496,7 @@ def _get_all_classes(model):
             base_models.remove(m)
 
     _seen = set()
+
     def _iter_subclasses(cls):
         for sub in cls.__subclasses__():
             if sub not in _seen:
@@ -517,6 +510,7 @@ def _get_all_classes(model):
         models |= set([x for x in _iter_subclasses(m)
                        if not x.__dict__.get('__abstract__', False)])
     return models
+
 
 def _get_referers(db, item):
     '''Returns a dictionary mapping referer model class to query of all
@@ -534,7 +528,7 @@ def _get_referers(db, item):
             if prop.uselist:
                 query = query.filter(comp.contains(item))
             else:
-                query = query.filter(comp==item)
+                query = query.filter(comp == item)
             count = query.count()
             if count:
                 queries[prop] = (count, query)

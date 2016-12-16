@@ -14,7 +14,7 @@ var PopupFilteredSelect = new Class({
         this.values = this.field.getElement('.selected_values');
         this.listButton = $(this.fieldId+'-listbutton');
 
-        this.options = new Hash();
+        this.options = new Array();
         this.disabledOptions = new Hash();
         this.selectedOptions = new Hash();
 
@@ -30,7 +30,7 @@ var PopupFilteredSelect = new Class({
         }
 
         this.values.getElements('input').each(function(opt){
-          this.options.set(opt.value, {'value':opt.value,
+          this.options.push({'value':opt.value,
               'title':opt.getNext('label').get('html'),
               'selected':(opt.checked)
               });
