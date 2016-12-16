@@ -14,8 +14,7 @@ setup(
                     'iktomi.cms.item_lock',
                     'iktomi.cms.models',
                     'iktomi.cms.publishing',
-                    'iktomi.cms.tray',
-                    'iktomi.cms.utils'],
+                    'iktomi.cms.tray'],
 
     package_dir={
         'iktomi.cms': 'iktomi/cms'
