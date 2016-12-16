@@ -1,3 +1,20 @@
+0.2.2
+=====
+
+* Transport flashmessages via JSON, not cookies.
+
+**Bugfixes**
+
+* Added tranlations for image upload failure messages.
+* Fixed item toggling in PopupStreamSelect.
+* Fixed publication of items inside of PopupStreamSelect's popup.
+* Fixed force page reload button handling in ItemLock.
+* Fixed cookie parsing for webob 1.5.
+* Fixed menu highlight.
+* Fixed time widget click handling for Firefox.
+* Fixed PopupFilteredSelect options ordering.
+
+
 0.2.1
 =====
 
