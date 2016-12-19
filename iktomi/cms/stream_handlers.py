@@ -280,8 +280,9 @@ class EditItemHandler(StreamAction):
             env.db.delete(draft)
 
         if item.id is None:
-            logger.info("creating {}".format(str(item.__class__)))
-            env.redis.set('create_'+str(item.__class__), 'lock', 2)
+            form_id = env.request.POST['form_id']
+            logger.info("creating with form{}".format(form_id))
+            env.redis.set('create_'+str(form_id), 'lock', 60)
 
         self.stream.commit_item_transaction(env, item, silent=autosave)
         if hasattr(self, 'post_create'):
@@ -388,9 +389,9 @@ class EditItemHandler(StreamAction):
             if not save_allowed:
                 raise HTTPForbidden
 
-            if item.id is None and env.redis.get('create_'+str(item.__class__)):
-                env.redis.set('create_'+str(item.__class__), 'lock', 2)
-                logger.warning("forbidding create {}".format(str(item.__class__)))
+            form_id = env.request.POST['form_id']
+            if item.id is None and env.redis.get('create_'+form_id):
+                logger.warning("forbidding create {}".format(form_id))
                 raise HTTPForbidden
 
             log = None
