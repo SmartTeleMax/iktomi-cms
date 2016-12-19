@@ -17,6 +17,10 @@ from .item_lock import ItemLockData
 from .item_lock import ModelLockError, ItemLock
 from .stream_actions import StreamAction
 from .flashmessages import flash
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def insure_is_xhr(env):
@@ -275,6 +279,10 @@ class EditItemHandler(StreamAction):
         if draft is not None:
             env.db.delete(draft)
 
+        if item.id is None:
+            logger.info("creating {}".format(str(item.__class__)))
+            env.redis.set('create_'+str(item.__class__), 'lock', 2)
+
         self.stream.commit_item_transaction(env, item, silent=autosave)
         if hasattr(self, 'post_create'):
             self.post_create(item)
@@ -369,6 +377,7 @@ class EditItemHandler(StreamAction):
                 and 'force_draft' not in env.request.GET:
             draft = None
 
+
         form = self.get_item_form(stream, env, item, initial, draft)
         EditLog = getattr(env, 'edit_log_model', None)
         log_enabled = (EditLog is not None and
@@ -377,6 +386,11 @@ class EditItemHandler(StreamAction):
 
         if request.method == 'POST':
             if not save_allowed:
+                raise HTTPForbidden
+
+            if item.id is None and env.redis.get('create_'+str(item.__class__)):
+                env.redis.set('create_'+str(item.__class__), 'lock', 2)
+                logger.warning("forbidding create {}".format(str(item.__class__)))
                 raise HTTPForbidden
 
             log = None
