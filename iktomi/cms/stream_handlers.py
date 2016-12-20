@@ -17,6 +17,7 @@ from .item_lock import ItemLockData
 from .item_lock import ModelLockError, ItemLock
 from .stream_actions import StreamAction
 from .flashmessages import flash
+from redis.exceptions import WatchError
 import logging
 
 
@@ -282,7 +283,6 @@ class EditItemHandler(StreamAction):
         if item.id is None:
             form_id = env.request.POST['_form_id']
             logger.info("creating {}".format(form_id))
-            env.redis.set('create_'+str(form_id), 'lock', 60)
 
         self.stream.commit_item_transaction(env, item, silent=autosave)
         if hasattr(self, 'post_create'):
@@ -390,9 +390,6 @@ class EditItemHandler(StreamAction):
                 raise HTTPForbidden
 
             form_id = env.request.POST['_form_id']
-            if item.id is None and env.redis.get('create_'+form_id):
-                logger.warning("forbidding create {}".format(form_id))
-                raise HTTPForbidden
 
             log = None
             if log_enabled:
@@ -401,9 +398,22 @@ class EditItemHandler(StreamAction):
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
                 need_lock = item.id is None and self.item_lock and autosave
-                item, item_url, autosave_url = \
-                        self.save_item(env, filter_form, form,
-                                       item, draft, autosave)
+                with env.redis.pipeline() as pipe:
+                    try:
+                        pipe.watch(form_id)
+                        current_val = pipe.get(form_id) or 0
+                        next_val = int(current_val) + 1
+                        pipe.multi()
+                        pipe.set(form_id, next_val, 60)
+                        pipe.execute()
+                        if next_val < 2:
+                            item, item_url, autosave_url = \
+                                    self.save_item(env, filter_form, form,
+                                                   item, draft, autosave)
+                        else:
+                            raise HTTPForbidden
+                    except WatchError:
+                        raise HTTPForbidden
 
                 if log is not None:
                     self.save_log_item(env, data, log, item)
