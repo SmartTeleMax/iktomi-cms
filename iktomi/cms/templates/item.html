@@ -74,6 +74,7 @@
       {%- endif %}
       {%- if form.presavehooks is defined %} data-presavehooks="{{ ' '.join(form.presavehooks) }}"{% endif %}>
   <div class="content">
+    <input name="_form_id" type="hidden" value="{{ form.id }}" />
     <div class="header">
       <div style="float:left">
         {% block title %}

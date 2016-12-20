@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import inspect
 from datetime import datetime
-from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
+from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk, HTTPConflict
 from webob.multidict import MultiDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
@@ -17,6 +17,11 @@ from .item_lock import ItemLockData
 from .item_lock import ModelLockError, ItemLock
 from .stream_actions import StreamAction
 from .flashmessages import flash
+from redis.exceptions import WatchError
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 def insure_is_xhr(env):
@@ -275,6 +280,10 @@ class EditItemHandler(StreamAction):
         if draft is not None:
             env.db.delete(draft)
 
+        if item.id is None:
+            form_id = env.request.POST['_form_id']
+            logger.info("creating {}".format(form_id))
+
         self.stream.commit_item_transaction(env, item, silent=autosave)
         if hasattr(self, 'post_create'):
             self.post_create(item)
@@ -320,6 +329,23 @@ class EditItemHandler(StreamAction):
             log.update_time = datetime.now()
             env.db.add(log)
             env.db.commit()
+
+    def watch_for_key(self, env, key, timeout=60):
+        with env.redis.pipeline() as pipe:
+            try:
+                # watching the key in redis to prevent same form
+                # duplicate creation. Creating object only after
+                # redis transaction completed successfully and if it
+                # was first transaction
+                pipe.watch(key)
+                current_val = pipe.get(key)
+                pipe.multi()
+                pipe.set(key, 1, timeout)
+                pipe.execute()
+                if current_val is not None:
+                    raise HTTPConflict
+            except WatchError:
+                raise HTTPConflict
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
@@ -369,6 +395,7 @@ class EditItemHandler(StreamAction):
                 and 'force_draft' not in env.request.GET:
             draft = None
 
+
         form = self.get_item_form(stream, env, item, initial, draft)
         EditLog = getattr(env, 'edit_log_model', None)
         log_enabled = (EditLog is not None and
@@ -379,6 +406,8 @@ class EditItemHandler(StreamAction):
             if not save_allowed:
                 raise HTTPForbidden
 
+            form_id = env.request.POST['_form_id']
+
             log = None
             if log_enabled:
                 log = self.get_log_item(env, data, item)
@@ -386,9 +415,13 @@ class EditItemHandler(StreamAction):
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
                 need_lock = item.id is None and self.item_lock and autosave
+                if item.id is None:
+                    self.watch_for_key(env, 'create_'+form_id)
+
                 item, item_url, autosave_url = \
                         self.save_item(env, filter_form, form,
                                        item, draft, autosave)
+
 
                 if log is not None:
                     self.save_log_item(env, data, log, item)
