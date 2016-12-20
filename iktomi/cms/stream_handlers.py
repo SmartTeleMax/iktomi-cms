@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import inspect
 from datetime import datetime
-from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk
+from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk, HTTPConflict
 from webob.multidict import MultiDict
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, RelationshipProperty
@@ -398,22 +398,33 @@ class EditItemHandler(StreamAction):
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
                 need_lock = item.id is None and self.item_lock and autosave
-                with env.redis.pipeline() as pipe:
-                    try:
-                        pipe.watch(form_id)
-                        current_val = pipe.get(form_id) or 0
-                        next_val = int(current_val) + 1
-                        pipe.multi()
-                        pipe.set(form_id, next_val, 60)
-                        pipe.execute()
-                        if next_val < 2:
-                            item, item_url, autosave_url = \
-                                    self.save_item(env, filter_form, form,
-                                                   item, draft, autosave)
-                        else:
-                            raise HTTPForbidden
-                    except WatchError:
-                        raise HTTPForbidden
+                if item.id is None:
+                    with env.redis.pipeline() as pipe:
+                        try:
+                            # watching the key in redis to prevent same form
+                            # duplicate creation. Creating object only after
+                            # redis transaction completed successfully and if it
+                            # was first transaction
+                            create_redis_key = "create_" + form_id
+                            pipe.watch(create_redis_key)
+                            current_val = pipe.get(create_redis_key)
+                            next_val = 1
+                            pipe.multi()
+                            pipe.set(create_redis_key, next_val, 60)
+                            pipe.execute()
+                            if current_val is None:
+                                item, item_url, autosave_url = \
+                                        self.save_item(env, filter_form, form,
+                                                       item, draft, autosave)
+                            else:
+                                raise HTTPConflict
+                        except WatchError:
+                            raise HTTPConflict
+                else:
+                    item, item_url, autosave_url = \
+                            self.save_item(env, filter_form, form,
+                                           item, draft, autosave)
+
 
                 if log is not None:
                     self.save_log_item(env, data, log, item)
