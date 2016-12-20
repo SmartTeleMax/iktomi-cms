@@ -330,6 +330,23 @@ class EditItemHandler(StreamAction):
             env.db.add(log)
             env.db.commit()
 
+    def watch_for_key(self, env, key, timeout=60):
+        with env.redis.pipeline() as pipe:
+            try:
+                # watching the key in redis to prevent same form
+                # duplicate creation. Creating object only after
+                # redis transaction completed successfully and if it
+                # was first transaction
+                pipe.watch(key)
+                current_val = pipe.get(key)
+                pipe.multi()
+                pipe.set(key, 1, timeout)
+                pipe.execute()
+                if current_val is not None:
+                    raise HTTPConflict
+            except WatchError:
+                raise HTTPConflict
+
     def edit_item_handler(self, env, data):
         '''View for item page.'''
 
@@ -399,31 +416,11 @@ class EditItemHandler(StreamAction):
             if accepted and not lock_message:
                 need_lock = item.id is None and self.item_lock and autosave
                 if item.id is None:
-                    with env.redis.pipeline() as pipe:
-                        try:
-                            # watching the key in redis to prevent same form
-                            # duplicate creation. Creating object only after
-                            # redis transaction completed successfully and if it
-                            # was first transaction
-                            create_redis_key = "create_" + form_id
-                            pipe.watch(create_redis_key)
-                            current_val = pipe.get(create_redis_key)
-                            next_val = 1
-                            pipe.multi()
-                            pipe.set(create_redis_key, next_val, 60)
-                            pipe.execute()
-                            if current_val is None:
-                                item, item_url, autosave_url = \
-                                        self.save_item(env, filter_form, form,
-                                                       item, draft, autosave)
-                            else:
-                                raise HTTPConflict
-                        except WatchError:
-                            raise HTTPConflict
-                else:
-                    item, item_url, autosave_url = \
-                            self.save_item(env, filter_form, form,
-                                           item, draft, autosave)
+                    self.watch_for_key(env, 'create_'+form_id)
+
+                item, item_url, autosave_url = \
+                        self.save_item(env, filter_form, form,
+                                       item, draft, autosave)
 
 
                 if log is not None:
