@@ -324,6 +324,17 @@
         vertical-align: middle;
         white-space: nowrap;
         }
+    .livesearch.is-loading:after {
+        content: '';
+        position: absolute;
+        top: 14px;
+        right: 45px;
+        width: 5px;
+        height: 5px;
+        border-radius: 3px;
+        background-color: #1abc9c;
+        animation: button-blink-opacity 1.4s infinite;
+        }
 
 
 .item img {

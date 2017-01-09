@@ -1,3 +1,6 @@
+@-webkit-keyframes button-blink-opacity{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes button-blink-opacity{0%,100%{opacity:1}50%{opacity:.4}}
+
 .button {
   font-size: 12px;
   /*font-weight: 500;*/
@@ -233,6 +236,10 @@
     content: "↶";
     left: 1px; top:6px;
     }
+
+.button.is-loading {
+    animation: button-blink-opacity 1.4s infinite;
+}
 
 
  .button.icon-edit{

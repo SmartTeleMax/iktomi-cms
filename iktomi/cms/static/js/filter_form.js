@@ -12,9 +12,13 @@
       this.paginator();
       this.$events = {};
       this.changeUrl = !this.form.getParent('.popup');
-      form.getElement('.sidefilter__submit').addEvent('click', this.onSubmitClick.bind(this));
-      form.getElement('.sidefilter__clear').addEvent('click', this.onClearClick.bind(this));
-      form.getElement('.sidefilter-close').addEvent('click', function(e){
+      this.submitButton = form.getElement('.sidefilter__submit');
+      this.clearButton = form.getElement('.sidefilter__clear');
+      this.closeButton = form.getElement('.sidefilter-close');
+
+      this.submitButton.addEvent('click', this.onSubmitClick.bind(this));
+      this.clearButton.addEvent('click', this.onClearClick.bind(this));
+      this.closeButton.addEvent('click', function(e){
         this.toggle();
         this.saveState();
       }.bind(this));
@@ -65,6 +69,10 @@
     'submit': function(url){
       url = (url === undefined? this.getSubmitUrl(): url);
 
+      this.submitButton.addClass('is-loading');
+      var livesearch = this.form.getParent('.stream').getElement('.livesearch');
+      if (livesearch) { livesearch.addClass('is-loading'); }
+
       var form = this.form;
       new Request({
         'url': url + (url.indexOf('?') == -1? '?': '&') + '__ajax&__no_layout',
@@ -86,6 +94,11 @@
           }
           this.setFilters();
 
+        }.bind(this),
+
+        'onComplete': function() {
+          this.submitButton.removeClass('is-loading');
+          if (livesearch) { livesearch.removeClass('is-loading'); }
         }.bind(this)
       }).get();
     },
