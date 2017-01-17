@@ -280,10 +280,6 @@ class EditItemHandler(StreamAction):
         if draft is not None:
             env.db.delete(draft)
 
-        if item.id is None:
-            form_id = env.request.POST['_form_id']
-            logger.info("creating {}".format(form_id))
-
         self.stream.commit_item_transaction(env, item, silent=autosave)
         if hasattr(self, 'post_create'):
             self.post_create(item)
@@ -395,7 +391,6 @@ class EditItemHandler(StreamAction):
                 and 'force_draft' not in env.request.GET:
             draft = None
 
-
         form = self.get_item_form(stream, env, item, initial, draft)
         EditLog = getattr(env, 'edit_log_model', None)
         log_enabled = (EditLog is not None and
@@ -406,7 +401,7 @@ class EditItemHandler(StreamAction):
             if not save_allowed:
                 raise HTTPForbidden
 
-            form_id = env.request.POST['_form_id']
+            form_id = env.request.POST.get('_form_id')
 
             log = None
             if log_enabled:
@@ -415,13 +410,12 @@ class EditItemHandler(StreamAction):
             accepted = form.accept(request.POST)
             if accepted and not lock_message:
                 need_lock = item.id is None and self.item_lock and autosave
-                if item.id is None:
-                    self.watch_for_key(env, 'create_'+form_id)
+                if item.id is None and form_id is not None:
+                    self.watch_for_key(env, 'create_' + form_id)
 
                 item, item_url, autosave_url = \
                         self.save_item(env, filter_form, form,
                                        item, draft, autosave)
-
 
                 if log is not None:
                     self.save_log_item(env, data, log, item)
