@@ -326,7 +326,9 @@ class EditItemHandler(StreamAction):
             env.db.add(log)
             env.db.commit()
 
-    def watch_for_key(self, env, key, timeout=60):
+    def watch_for_key(self, env, key, timeout=4):
+        # XXX hack: timeout should be less than autosave interval,
+        #     otherwise a conflict never ends
         with env.redis.pipeline() as pipe:
             try:
                 # watching the key in redis to prevent same form
