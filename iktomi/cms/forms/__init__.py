@@ -3,10 +3,17 @@ from webob.multidict import MultiDict
 from time import time
 import struct, os
 from iktomi.utils import cached_property
-from ...forms import Form
+from ...forms import Form as BaseForm
 from .fields import FieldBlock, DiffFieldSetMixIn
 
-class Form(Form):
+class Form(BaseForm):
+
+    help_category = 'ItemForm'
+
+    @property
+    def stream(self):
+        if self.env and self.env.stream:
+            return self.env.stream
 
     @cached_property
     def id(self):
@@ -14,6 +21,14 @@ class Form(Form):
         # Time part is repeated in about 3 days period
         time_part = struct.pack('!d', time())[3:]
         return 'form'+(time_part+os.urandom(1)).encode('hex')
+
+    def get_help(self, fieldname):
+        if self.env.stream:
+            helpkey = "/".join(['streams',
+                                self.env.stream.module_name,
+                                self.help_category,
+                                fieldname])
+            return self.env.get_help(helpkey, self.help_category)
 
 
 def _get_field_data(form, field):

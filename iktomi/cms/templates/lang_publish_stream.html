@@ -6,7 +6,8 @@
     <a class="stream-flag{% if version == env.version %} selected{% endif %}"
        {%- if version == 'admin' %} title="Рабочая версия"{% endif %}
        {%- if version == 'front' %} title="Опубликованная версия"{% endif %}
-       href="{{ stream.url_for(env, version=version) }}">
+       href="{{ stream.url_for(env, version=version) }}"
+       data-help-message="{{ stream.get_help(env, 'stream-flag-'+version) }}">
       <span class="version-{{ version }}"></span>
     </a>
   {%- endfor -%}
@@ -14,7 +15,8 @@
     <span style="padding-left: 20px;">&nbsp;</span>
     {%- for lang, lang_name in stream.langs -%}
       <a class="stream-flag{% if lang == env.lang %} selected{% endif %}"
-         href="{{ stream.url_for(env, lang=lang).qs_set(filter_form.get_data()) }}">
+         href="{{ stream.url_for(env, lang=lang).qs_set(filter_form.get_data()) }}"
+         data-help-message="{{ stream.get_help(env, 'stream-flag-'+lang) }}">
         <span class="lang-{{ lang }}"></span>
       </a>
     {% endfor %}

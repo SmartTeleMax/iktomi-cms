@@ -13,6 +13,12 @@
   {%- endif -%}
 {% endmacro -%}
 
+{% macro help(field) %}
+  {%- if field.help_message %}
+    <div class="help-message hide">{{ field.help_message }}</div>
+  {%- endif -%}
+{% endmacro -%}
+
 {% for field in form.fields %}
   {%- set widget=field.widget -%}
   {%- set changed = field.form.changed_fields is defined and 
@@ -31,20 +37,23 @@
           {{- widget.render()|safe }}
           {{- label(field, changed) }}
           {{- hint(field) -}}
+          {{- help(field) -}}
         {%- elif widget.render_type == 'hidden' %}
           {{- widget.render()|safe }}
         {%- elif widget.render_type == 'full-width' %}
+          {{- help(field) -}}
           {{- label(field, changed) }}
           {{- widget.render()|safe }}
           {{- hint(field) -}}
         {% else %}
-          {%- if field.label -%}
+          {%- if field.label or field.help_message -%}
             <div class="form-label">
-              {{- label(field, changed) -}}
+                {{- label(field, changed) -}}
             </div>
           {%- endif -%}
           {{ widget.render()|safe }}
           {{- hint(field) -}}
+          {{- help(field) -}}
         {% endif -%}
     </div>
   {%- endif %}

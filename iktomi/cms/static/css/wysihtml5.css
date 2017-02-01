@@ -1,5 +1,6 @@
 .wysihtml5-widget{
     width: 600px;
+    margin-bottom:25px;
     }
 textarea.wysihtml5{
   height: 400px;

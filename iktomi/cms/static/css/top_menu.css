@@ -13,9 +13,12 @@
 }
 
 .navigation .links {
-    float: right;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
     padding: 10px 20px;
-    max-width: 250px;
+    max-width: 350px;
     }
     .navigation .links .links__link{
         padding-left: 10px;

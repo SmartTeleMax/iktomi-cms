@@ -124,6 +124,7 @@ class FilterForm(Form):
 
     js_block = 'filter-form'
     search_input = None # for live search widget
+    help_category = 'FilterForm'
 
     def filter_by_scalar(self, query, field, value):
         return query.filter(getattr(self.model, field.name) == value)
@@ -418,6 +419,12 @@ class Stream(object):
             flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
                        'failure')
 
+    def get_help(self, env, title, category='StreamSubmenu'):
+        helpkey = "/".join(['streams',
+                            self.module_name,
+                            category,
+                            title])
+        return env.get_help(helpkey, category)
 
 def decode_stream_uid(stream_name):
     if ':' in stream_name:

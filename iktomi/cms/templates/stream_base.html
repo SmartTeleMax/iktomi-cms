@@ -13,7 +13,8 @@
     {% block buttons %}
         <div class="stream_buttons">
           {% if allow_add %}
-          <a href="{{ item_url() }}" class="button js-button-add icon-add">
+          <a href="{{ item_url() }}" class="button js-button-add icon-add"
+             data-help-message="{{ stream.get_help(env, 'create-button', 'Action') }}">
             Создать
           </a>
           {% endif %}
@@ -23,7 +24,8 @@
                 {%- if action.js_block %} data-block-name="{{ action.js_block }}" {% endif %}
                  class="button{%- if action.cls %} icon-{{ action.cls }}{% endif %}
                               {%- if action.js_block %} init-block{% endif %}
-                              {% if action.classname %} {{ action.classname }}{% endif %}">
+                              {% if action.classname %} {{ action.classname }}{% endif %}"
+                 data-help-message="{{ action.help_message(env) }}">
                 {{- action.title -}}
               </a>
             {%- endif %}
@@ -32,6 +34,12 @@
     {% endblock %}
   </div>
   {% endif %}
+
+  {% block common_stream_help %}
+    {% if stream.get_help(env, 'common-info') %}
+      <div class="help-message help-common-info hide">{{ stream.get_help(env, 'common-info') }}</div>
+    {% endif %}
+  {% endblock %}
 
   <div class="filtr">
     {% block before_tabs %}{% endblock %}

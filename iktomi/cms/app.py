@@ -27,6 +27,7 @@ class AdminEnvironment(web.AppEnvironment):
     # static = static
     # db_maker = db_maker
     # template_loader = template_loader
+    # get_help = get_help
     #
     # @storage_cached_property
     # def template(storage):

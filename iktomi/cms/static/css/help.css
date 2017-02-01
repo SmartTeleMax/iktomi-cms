@@ -1,0 +1,157 @@
+.help-button {
+    padding: 12px;
+    line-height: 14px;
+    border-radius: 2px;
+}
+.help-button:hover,
+.help-button:focus {
+    text-decoration: none;
+}
+
+.help-mode{
+}
+
+.help-mode .help-button {
+    background: #A00;
+    padding-left:20px;
+    }
+    .help-mode .help-button:before {
+        content:"×";
+        font-size:24px;
+        top:12px;
+        left:24px;
+        position:absolute;
+    }
+
+
+.help-message{
+    font-size: 14px;
+    font-family: Liberation Serif,Times New Roman,sans-serif;
+    padding: 15px 0 15px 30px;
+    position: relative;
+    color: #565656;
+    font-style:italic;
+    outline: 3px solid rgba(0,255,255,0.2);
+    margin-top: 3px;
+    max-width: 600px;
+    }
+    .help-message:before {
+        content: "?";
+        position: absolute;
+        text-align: center;
+        font-size: 16px;
+        top: 12px;
+        left: 5px;
+        color: #fff;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border-radius: 10px;
+        background: #555;
+    }
+
+.help-wrapper-header {
+    position:fixed;
+    z-index:9999;
+    cursor: help;
+    background: rgba(0,255,255,0.1);
+    outline: 3px solid rgba(0,255,255,0.2);
+    border-radius: 4px;
+    }
+    .help-wrapper:hover {
+        background: rgba(0,200,200,0.15);
+        outline: 3px solid rgba(0,200,200,0.25);
+        }
+
+
+.help-wrapper{
+    position:absolute;
+    z-index:9999;
+    cursor: help;
+    background: rgba(0,255,255,0.1);
+    outline: 3px solid rgba(0,255,255,0.2);
+    border-radius: 4px;
+    }
+    .help-wrapper:hover {
+        background: rgba(0,200,200,0.15);
+        outline: 3px solid rgba(0,200,200,0.25);
+        }
+
+.help-popup{
+    position:fixed;
+    background:#FFF;
+    z-index:3;
+    padding: 5px 5px 5px 38px;
+    border: 1px solid #eee;
+    min-height:30px;
+    max-width:500px;
+    }
+    .help-popup:before {
+        content: "?";
+        position: absolute;
+        text-align: center;
+        font-size: 16px;
+        top: 10px;
+        left: 10px;
+        color: #fff;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border-radius: 10px;
+        background: #555;
+    }
+    .help-popup p:last-child {
+        margin-bottom: 0;
+        }
+
+.help-common-info{
+    max-width:600px;
+    position:relative;
+    padding: 5px 5px 5px 38px;
+    margin-bottom:10px;
+}
+
+.hidden{
+    visibility:hidden;
+}
+
+.greyitalic{
+    color: #868492;
+}
+
+a.btn[data-help-message], button[data-help-message]{
+    position:relative;
+}
+
+.help-overlay{
+    width: 70%;
+    height: 100%;
+    position: absolute;
+    opacity:0.7;
+    z-index:1;
+}
+
+.noteditable{
+    pointer-events:none;
+}
+
+input.noteditable, textarea.noteditable{
+    background-color:#fafafa;
+}
+
+.help-global{
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    background: #A00;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-top: 3px;
+    width: 100%;
+    }
+    .help-global p {
+        margin: 0;
+    }

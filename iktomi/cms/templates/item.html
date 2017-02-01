@@ -2,7 +2,7 @@
 
 {% macro buttons(is_popup=False) %}
 <div class="buttons form-controls init-block" data-block-name="compact-buttons" data-compact-name="form-controls">
-  <a class="compact-toggle" title="Компактный вид"></a>
+  <a class="compact-toggle" title="Компактный вид" data-help-message="{{ stream.get_help(env, 'compact-toggle') }}"></a>
   {% if not is_popup %}
     {% for action in actions %}
       {%- set action_url = action.url(env, item=item) -%}
@@ -12,6 +12,7 @@
          {%- if action.item_lock %} data-item-lock="true"{% endif %}
          {%- if action.accepts_item_form %} data-item-form="true"{% endif %}
          {%- if action.js_block %} data-block-name="{{ action.js_block }}"{% endif %}
+         data-help-message="{{ action.help_message(env) }}"
          class="button action-{{ action.action }}
                 {%- if action.js_block %} init-block{% endif %}
                 {%- if action.cls %} icon-{{ action.cls}}{% endif %}">
@@ -25,6 +26,7 @@
     {% if 'save_and_continue' in item_buttons %}
     <a href="" class="button icon-apply" rel="save-and-continue"
        data-item-lock="true"
+       data-help-message="{{ save_action.help_message(env) }}"
        data-item-form="true">
       Сохранить
     </a>
@@ -82,18 +84,18 @@
           {%- if is_popup or not list_allowed %}
             {{- stream_title }}
           {%- else -%}
-            <a href="{{ stream_url }}">{{ stream_title }}</a>
+            <a href="{{ stream_url }}" data-help-message="{{ stream.get_help(env, 'stream-title')}}">{{ stream_title }}</a>
           {%- endif -%}
         </h1>
         {% endblock %}
 
         {% block after_title %}{% endblock -%}
         {%- if log_enabled and item.id %}
-            <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}" title="История правок"></a>
+            <a class="edit-log-link" href="{{ stream.url_for(env, 'edit_log', item=item.id) }}" data-help-message="{{ stream.get_help(env, 'edit_log') }}" title="История правок"></a>
         {%- endif %}
 
         {% if item.id and stream.referrers %} {# XXX #}
-            <a class="referrers-link" href="{{ stream.url_for(env, 'referrers', item=item.id) }}" title="Связанные объекты" rel="popup"></a>
+            <a class="referrers-link" href="{{ stream.url_for(env, 'referrers', item=item.id) }}" title="Связанные объекты" data-help-message="{{ stream.get_help(env, 'referrers') }}" rel="popup"></a>
         {% endif %}
 
         {%- if context.item_trays is defined and item and item.id -%}
@@ -101,7 +103,7 @@
              data-delete-url="{{ env.url_for('delete_from_tray') }}"
              data-stream-name="{{ stream.uid(env, version=False) }}"
              data-object-id="{{ item.id }}">
-          <button type="button" class="trays__add" title="Отправить в рабочую папку пользователю"></button>
+          <button type="button" class="trays__add" title="Отправить в рабочую папку пользователю" data-help-message="{{ stream.get_help(env, 'trays') }}" ></button>
           <div class="trays__dropdown">
             <div class="trays__list">
             {%- for object_tray in context.item_trays(stream, item) -%}
@@ -130,8 +132,15 @@
       {% from "macros/autosave_status.html" import autosave_status %}
       {{ autosave_status(autosave_allowed, draft) }}
     </div>
+
     <div class="text">
       <div class="line"></div>
+
+      {% block common_item_help %}
+        {% if stream.get_help(env, 'common-item-info') %}
+            <div class="help-message help-common-info hide">{{ stream.get_help(env, 'common-item-info') }}</div>
+        {% endif %}
+      {% endblock %}
       {% if has_draft and not draft %}
         <div class="has-draft">
           <p>Имеется несохранённый черновик объекта.</p>

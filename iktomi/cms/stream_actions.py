@@ -54,6 +54,15 @@ class StreamAction(web.WebHandler):
             kwargs['item'] = item.id
         return self.stream.url_for(env, self.action, **kwargs)
 
+    def help_message(self, env):
+        action_name = self.action or self.__class__.__name__
+        helpkey = "/".join(['streams',
+                            env.stream.module_name,
+                            'Action',
+                            action_name])
+        return env.get_help(helpkey, 'Action')
+
+
 
 class PostAction(StreamAction):
 

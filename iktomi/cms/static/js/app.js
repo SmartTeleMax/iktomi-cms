@@ -11,6 +11,7 @@
         if (isEmpty) {
             loadPage(null, true);
         }
+        resetHelp();
     });
 
     window.addEvents({'scroll': delegateWindowEvents('scroll'),
@@ -79,6 +80,19 @@
         console.log('navigated to: ' + window.location);
         loadPage();
     }, false);
+
+    window.resetHelp = function(){
+        if($('help-button') === null){
+            return;
+        }
+        disableHelp(true);
+        $$('.navigation').removeClass('help-mode');
+        if($$('[data-help-message]').length > 0 || $$('.help-message').length > 0){
+          $('help-button').removeClass('hide');
+        } else {
+          $('help-button').addClass('hide');
+        }
+    }
 
     function loadPage(url, force, contentBlock, pushState){
         contentBlock = contentBlock || $('app-content');
@@ -230,6 +244,7 @@
         var evt = document.createEvent("HTMLEvents");
         evt.initEvent("load", false, true);
         contentBlock.dispatchEvent(evt);
+        resetHelp();
     };
 
     function delegateWindowEvents(type){
@@ -253,7 +268,7 @@
         } else if (status == 403){
             var text = 'В доступе отказано. Возможно, утеряна сессия, попробуйте войти заново (ошибка 403)';
         } else if (status == 409){
-            var text = 'При сохранении объекта произошел конфликт: два одновременных запроса.\n' + 
+            var text = 'При сохранении объекта произошел конфликт: два одновременных запроса.\n' +
               ' Подождите несколько секунд и попробуйте снова (ошибка 409)';
         } else if (status/100>>0 == 4){
             var text = 'Ошибка приложения ('+status+')';
