@@ -144,7 +144,7 @@ textarea.bigtext{
     margin-top: 4px;
     text-align: right;
     }
-  .hint:before{
+  /*.hint:before{
     content: "?";
     display: inline-block;
     background-color: #aaa;
@@ -155,7 +155,7 @@ textarea.bigtext{
     margin-right: 5px;
     text-align: center;
     font-weight: bold;
-    }
+    }*/
   /*.hint-right:before{
     float: right;
     margin-right: 0px;

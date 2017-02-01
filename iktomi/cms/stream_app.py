@@ -22,11 +22,11 @@ class Streams(dict):
         return cls.from_list(stream_list, package, **kwargs)
 
     @staticmethod
-    def get_stream(name, package, stream_class=Stream):
+    def get_stream(name, package, stream_class=Stream, **kwargs):
         module = import_module('.' + name, package)
         stream_class = getattr(module, 'Loner', stream_class)
         stream_class = getattr(module, 'Stream', stream_class)
-        return stream_class(name, module)
+        return stream_class(name, module, **kwargs)
 
     def to_app(self):
         return self._create_subapp()

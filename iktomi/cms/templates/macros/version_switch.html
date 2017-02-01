@@ -33,6 +33,7 @@
               {%- if absent %} absent{% endif %}"
        {%- if version == 'admin' %} title="Рабочая версия"{% endif %}
        {%- if version == 'front' %} title="Опубликованная версия"{% endif %}
+       data-help-message="{{ stream.get_help(env, 'flag-'+version) }}"
        {%- if not absent %} href="{{ stream.url_for(env, url_name, version=version, item=item.id) }}"
        {%- endif %}>
       <span class="version-{{ version }}"></span>
@@ -57,6 +58,7 @@
                   {%- if public %} public{% endif %}
                   {%- if has_changes %} has-changes{% endif %}"
            {%- if has_changes %} title="Имеются неопубликованные изменения"{% endif %}
+           data-help-message="{{ stream.get_help(env, 'flag-'+lang) }}"
            {% if lang != env.lang %}
            href="{{ stream.url_for(env, url_name, version='admin', lang=lang, item=item.id) }}"
            {%- endif %} >

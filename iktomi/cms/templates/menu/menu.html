@@ -17,6 +17,7 @@
   </li>
 {% else %}
   {% if menu.has_children %}
+    <div class="help-overlay hide"></div>
     <ul class="menu">
       {% for item in menu %}
         {{ item.render() }}

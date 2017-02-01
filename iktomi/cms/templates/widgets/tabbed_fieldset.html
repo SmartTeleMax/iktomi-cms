@@ -16,10 +16,12 @@
       {%- if field.label -%}
         <label for="{{ field.id }}">{{ field.label }}</label>
       {%- endif -%}
+      {{ help(field) }}
     {%- elif widget.render_type == 'hidden' %}
       {{ widget.render()|safe }}
     {%- elif widget.render_type == 'full-width' %}
       <div class="full-width">
+        {{ help(field) }}
         {% if field.label %}
         <p class="th"><label for="{{ field.id }}">{{ field.label }}</label></p>
         {% endif %}
@@ -28,11 +30,18 @@
     {%- else %}
       {%- if field.label %}
         <div class="form-label" for="{{ field.id }}"><label>{{ field.label }}</label></div>
+        {{ help(field) }}
       {%- endif %}
       {{- widget.render()|safe }}
     {%- endif %}
 </div>
 {%- endmacro -%}
+
+{% macro help(field) %}
+  {%- if field.help_message %}
+    <div class="help-message hide">{{ field.help_message }}</div>
+  {%- endif -%}
+{% endmacro -%}
 
 <div class="init-block fieldset tabbed_fieldset"
        id="{{ field.input_name }}-container"
@@ -54,5 +63,6 @@
         {{ render_subfield(field.get_field(subfield), loop) }}
       {% endfor %}
     </div>
+    {{ help(field) }}
   {% endif %}
 </div>

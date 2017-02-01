@@ -5,7 +5,7 @@
 
 {% macro buttons(is_popup=False) %}
 <div class="buttons form-controls init-block" data-block-name="compact-buttons" data-compact-name="form-controls">
-  <a class="compact-toggle" title="Компактный вид"></a>
+  <a class="compact-toggle" title="Компактный вид" data-help-message="{{ stream.get_help(env, 'compact-toggle') }}></a>
   {% if not is_popup %}
     {% for action in actions %}
       {%- set action_url = action.url(env, item=item) -%}
@@ -21,7 +21,8 @@
     <a href="{{ stream.url_for(env, 'item', item=item.id) }}"
        rel="get"
        {%- if item_lock %} data-item-lock="true"{% endif %}
-       class="button action-edit icon-edit">
+       class="button action-edit icon-edit"
+       data-help-message="{{ stream.get_help(env, 'cancel-preview', 'Action')}}">
       Править
     </a>
   {% endif %}

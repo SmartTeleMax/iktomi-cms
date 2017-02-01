@@ -21,11 +21,14 @@
       <div class="links">
         {% if user %}
         <form action="{{ url_for('logout') }}" method="POST">
+          {% if ENABLE_HELP %}
+            <a id="help-button" class="help-button hide" onclick="toggleHelpMode();return false" href="" title="Помощь">Помощь</a>
+          {% endif %}
           <span class="links__link user">Привет, 
             <b>
               {{ user.name }}
             {%- if context.user_tray is defined and context.user_tray %}
-              <a href="{{ url_for("tray", tray=context.user_tray.id) }}" class="tray-count" title="Рабочая папка пользователя">
+              <a href="{{ url_for("tray", tray=context.user_tray.id) }}" class="tray-count" title="Рабочая папка пользователя" data-help-message="{{ env.get_help('tray-count') }}">
                 {{ context.user_tray.object_count }}
               </a>
             {%- endif -%}
@@ -83,5 +86,6 @@
     </div>
 
     <div id="overlay" class="overlay"></div>
+    <div class="help-global hide">{{ env.get_help('global-message') }}</div>
   </body>
 </html>
