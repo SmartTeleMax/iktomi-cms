@@ -38,6 +38,10 @@ class AdminAuth(SqlaModelAuth):
                                                 env, **form.python_data)
                     if user_identity is not None:
                         response = env.json({'success': True})
+                        if hasattr(env, 'cfg') and hasattr(env.cfg, 'AUTH_EXPIRES'):
+                            return self.login_identity(user_identity,
+                                                       response=response,
+                                                       ttl=env.cfg.AUTH_EXPIRES)
                         return self.login_identity(user_identity,
                                                    response=response)
 
