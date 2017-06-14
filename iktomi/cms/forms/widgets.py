@@ -223,7 +223,7 @@ class PopupStreamSelect(Select):
 
     def render_row_template(self, **data):
         return self.env.render_to_string(self.stream.row_template_name,
-                                         **dict(self.stream.template_data, **data))
+                                         dict(self.stream.template_data, **data))
 
     def item_row(self, item, row_cls=''):
         url = self.stream.url_for(self.env, 'item', item=item.id)
