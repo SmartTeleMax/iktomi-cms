@@ -347,12 +347,10 @@ class EditItemHandler(StreamAction):
 
     def edit_item_handler(self, env, data):
         '''View for item page.'''
-
         item, lock_message, filter_form = \
             data.item, data.lock_message, data.filter_form
         stream = self.stream
         request = env.request
-
         initial = filter_form.defaults()
         stream_url = stream.url_for(env).qs_set(filter_form.get_data())
         create_allowed = save_allowed = self.create_allowed(env)
@@ -445,6 +443,9 @@ class EditItemHandler(StreamAction):
                                  'lock_message': lock_message})
             elif lock_message:
                 stream.rollback_due_lock_lost(env, item)
+                return env.json({'success': False,
+                                 'error': 'item_lock',
+                                 'lock_message': lock_message})
             elif autosave:
                 stream.rollback_due_form_errors(env, item, silent=True)
                 if draft is None:
