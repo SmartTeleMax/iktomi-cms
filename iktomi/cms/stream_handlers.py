@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import inspect
+import json
 from datetime import datetime
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk, HTTPConflict
 from webob.multidict import MultiDict
@@ -466,6 +467,7 @@ class EditItemHandler(StreamAction):
             else:
                 stream.rollback_due_form_errors(env, item, silent=autosave)
 
+        flashmessages = getattr(env, '_flash', '')
         template_data = dict(filter_form=filter_form,
                              success=success,
                              form=form,
@@ -480,6 +482,7 @@ class EditItemHandler(StreamAction):
                              submit_url=stream.url_for(env, 'item',
                                                     item=item.id).qs_set(
                                                         filter_form.get_data()),
+                             flashmessages=json.dumps(flashmessages),
 
                              menu=stream.module_name,
                              stream_url=stream_url,

@@ -67,6 +67,7 @@
 <form id="{{ form.id }}"
       class="init-block item-form{% if is_popup %} popup-form{% endif %}"
       action="{{ submit_url }}"
+      data-flashmessages="{{flashmessages}}"
       method="post"
       enctype="multipart/form-data"
       data-block-name="item-form"
