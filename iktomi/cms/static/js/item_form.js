@@ -59,6 +59,7 @@
       this.frm.getElements('.buttons a[rel="save-and-add"]').addEvent('click', this.redirectHandler);
       this.frm.addEvent('change', this.changeHandler);
       this.frm.addEvent('submit', function(e){ e.preventDefault(); });
+      this.container.addEvent('domready', this.onContentReady.bind(this));
       //this.frm.addEvent('keydown', this.changeHandler);
     },
 
@@ -114,6 +115,30 @@
 
     load: function(url){
       loadPage(url, true, this.container);
+    },
+
+    _getFirstError(element) {
+      var errorSelector = '.error',
+          errors = document.querySelectorAll(errorSelector);
+      if (errors.length > 0) {
+        return errors[0]
+      }
+    },
+
+    onContentReady: function(e) {
+      var firstError = this._getFirstError(this.container),
+          form = this.container.querySelector('form');
+          flashmessages = form.dataset.flashmessages || '',
+          parsedFlashmessages = JSON.parse(flashmessages);
+      
+      if (firstError) {
+        var scrollOptions = {block: 'center', behavior: 'smooth'};
+        setTimeout(() => firstError.scrollIntoView(scrollOptions), 1000);
+      }
+
+      if (flashmessages) {
+        flashAll(parsedFlashmessages);
+      }
     },
 
     changeHandler: function(e){
