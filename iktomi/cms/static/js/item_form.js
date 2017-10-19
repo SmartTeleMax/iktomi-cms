@@ -128,8 +128,7 @@
     onContentReady: function(e) {
       var firstError = this._getFirstError(this.container),
           form = this.container.querySelector('form');
-          flashmessages = form.dataset.flashmessages || '',
-          parsedFlashmessages = JSON.parse(flashmessages);
+          flashmessages = form.dataset.flashmessages || '';
       
       if (firstError) {
         var scrollOptions = {block: 'center', behavior: 'smooth'};
@@ -137,7 +136,12 @@
       }
 
       if (flashmessages) {
-        flashAll(parsedFlashmessages);
+        try {
+          var parsedFlashmessages = JSON.parse(flashmessages);
+          flashAll(parsedFlashmessages);
+        } catch (e) {
+          console.log('Error when parsing flashmessages:', flashmessages)
+        }
       }
     },
 
