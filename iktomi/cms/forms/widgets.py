@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 from iktomi.forms.widgets import *
 from iktomi.forms import widgets
 
@@ -122,7 +123,7 @@ class WysiHtml5(Widget):
         tag_buttons = set()
         for button, tags in self.BUTTON_TAGS:
             tag_buttons.add(button)
-            tags = [tags] if isinstance(tags, basestring) else tags
+            tags = [tags] if isinstance(tags, six.string_types) else tags
             if not (set(tags) - self.allowed_elements):
                 buttons.add(button)
         all_btns = set(sum(dict(self.button_blocks).values(), []))

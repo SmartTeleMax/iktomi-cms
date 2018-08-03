@@ -8,6 +8,8 @@ from functools import partial
 from os import path
 from iktomi import web
 from iktomi.web import WebHandler
+from io import open
+import six
 
 from webob.exc import HTTPNotModified
 
@@ -26,7 +28,10 @@ class StaticPacker(WebHandler):
         check = check or content
         etag_request = request.headers.get('If-None-Match')
         # XXX may be another algorythm?
-        check = check.encode('utf-8') if isinstance(check, unicode) else check
+        if isinstance(check, six.text_type):
+            check = check.encode('utf-8')
+        else:
+            check = check.decode()
         etag_response = str(binascii.crc32(check))
         if etag_request == etag_response:
             raise HTTPNotModified()
@@ -53,7 +58,7 @@ class StaticPacker(WebHandler):
         return 'url(%s)' % url
 
     def get_css_contents(self, base_url, base_path, filename):
-        with open(filename) as f:
+        with open(filename, 'rb') as f:
             data = f.read().decode('utf-8').strip()
             base_path = path.dirname(filename)
             data = re.sub(r'@import (?:url\()?"?\'?([^"\')]+)\'?"?\)?\s*(\w*)\s*;',
@@ -109,7 +114,7 @@ class StaticPacker(WebHandler):
                 files = [x +'.js' for x in files]
             for name in files:
                 filename = path.join(root, name)
-                with open(filename) as f:
+                with open(filename, 'rb') as f:
                     data = f.read().decode('utf-8').strip()
                     if not data.endswith(';'):
                         data += ';'

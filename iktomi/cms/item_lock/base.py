@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os, logging
+import six
 from time import time
 import sqlalchemy.orm.util
 
@@ -39,7 +40,10 @@ class BaseItemLock(object):
         self.env = env
 
     def _create_edit_session(self):
-        return os.urandom(5).encode('hex')
+        if six.PY2:
+            return os.urandom(5).encode('hex')
+        else:
+            return os.urandom(5).hex()
 
     @staticmethod
     def item_global_id(obj, view_in_obj=True):
@@ -53,7 +57,7 @@ class BaseItemLock(object):
     def _item_lock_key(self, obj):
         '''Construct key for memcache. obj should be either model object or its
         global identifier.'''
-        if not isinstance(obj, basestring):
+        if not isinstance(obj, six.string_types):
             obj = self.item_global_id(obj)
         return self._lock_prefix + str(obj)
 
@@ -126,10 +130,10 @@ class ItemLockData(object):
             try:
                 edit_session = env.item_lock.update_or_create(
                     item, edit_session)
-            except ModelLockedByOther, e:
-                message = unicode(e)
+            except ModelLockedByOther as e:
+                message = six.u(e)
                 owner_session = e.edit_session
-            except ModelLockError, e:
+            except ModelLockError as e:
                 message = unicode(e)
         return cls(env, stream, item, filter_form,
                    edit_session, owner_session, message)

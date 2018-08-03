@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from iktomi import web
 from iktomi.utils.deprecation import deprecated
 
@@ -13,6 +15,6 @@ def flash(env, message, category=None, unique=True):
     # XXX this will not work on errors
     if not hasattr(env, '_flash'):
         env._flash = []
-    value = (unicode(message), category)
+    value = (six.u(message), category)
     if not unique or value not in env._flash:
         env._flash.append(value)

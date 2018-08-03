@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.forms.files import FileFieldSet, FileFieldSetConv

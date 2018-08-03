@@ -8,7 +8,7 @@ from redis import WatchError
 
 def loads(value):
     if value:
-        return json.loads(value)
+        return json.loads(value.decode())
 
 
 class RedisItemLock(BaseItemLock):

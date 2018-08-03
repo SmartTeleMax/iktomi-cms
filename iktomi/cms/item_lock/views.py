@@ -31,7 +31,7 @@ class ItemLockView(object):
             raise HTTPMethodNotAllowed()
         try:
             env.item_lock.update(data.item_id, data.edit_session)
-        except ModelLockError, e:
+        except ModelLockError as e:
             return env.json(self.failure_lock_message(e))
         return env.json({'status':'updated'})
 
@@ -40,7 +40,7 @@ class ItemLockView(object):
             raise HTTPMethodNotAllowed()
         try:
             edit_session = env.item_lock.create(data.item_id, True)
-        except ModelLockError, e:
+        except ModelLockError as e:
             return env.json(self.failure_lock_message(e))
 
         return env.json({'status':'captured',

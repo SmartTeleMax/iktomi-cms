@@ -9,7 +9,7 @@
 
      data-global-id="{{ global_id }}"
      data-edit-session="{{ edit_session or owner_session }}"
-     data-item-title="{{ quote_js(item.__unicode__()) }}"
+     data-item-title="{{ quote_js(item.__title__()) }}"
      data-lock-message="{{ message }}"
      {%- if back_title %} data-back-title="{{ back_title }}" {% endif %}
      {%- if back_help %} data-back-help="{{ back_help }}" {% endif %}>

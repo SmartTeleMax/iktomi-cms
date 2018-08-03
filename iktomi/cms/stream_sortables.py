@@ -64,9 +64,9 @@ class ListEditAction(BaseListEditAction):
                     if getattr(item, ordering_field) != value["order"]:
                         try:
                             edit_sessions[item] = env.item_lock.create(item)
-                        except ModelLockedByOther, e:
+                        except ModelLockedByOther as e:
                             lock_messages.append(unicode(e))
-                        except ModelLockError, e:
+                        except ModelLockError as e:
                             lock_messages.append(unicode(e))
                         self.set_order(item, ordering_field, value['order'])
                         modified_items.append(item)

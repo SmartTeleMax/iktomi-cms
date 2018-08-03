@@ -2,6 +2,7 @@
 import inspect
 import json
 from datetime import datetime
+import six
 from webob.exc import HTTPNotFound, HTTPForbidden, HTTPOk, HTTPConflict
 from webob.multidict import MultiDict
 from sqlalchemy.exc import IntegrityError
@@ -429,7 +430,7 @@ class EditItemHandler(StreamAction):
                     try:
                         gid = ItemLock.item_global_id(item)
                         lock = env.item_lock.create(gid)
-                    except ModelLockError, e:
+                    except ModelLockError as e:
                         flash(env, unicode(e))
                     else:
                         result = dict(result,
@@ -477,7 +478,7 @@ class EditItemHandler(StreamAction):
                              has_draft=has_draft,
                              stream=stream,
                              stream_title=stream.config.title,
-                             title=unicode(item),
+                             title=six.u(item),
                              log_enabled=log_enabled,
                              submit_url=stream.url_for(env, 'item',
                                                     item=item.id).qs_set(

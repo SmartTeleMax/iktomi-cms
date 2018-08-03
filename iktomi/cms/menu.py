@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from six.moves import reduce
+
 from iktomi.utils import cached_property, weakproxy
 from iktomi.utils.storage import VersionedStorage
 from iktomi import web
@@ -18,7 +20,7 @@ class Menu(object):
         self.link = link
         self.endpoint = endpoint
         self.params = params or {}
-        self.items = filter(None, items or [])
+        self.items = list(filter(None, items or []))
         self._env = env
         self.template = template or self.template
         self.template_vars = template_vars
