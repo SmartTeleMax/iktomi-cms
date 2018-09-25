@@ -131,10 +131,10 @@ class ItemLockData(object):
                 edit_session = env.item_lock.update_or_create(
                     item, edit_session)
             except ModelLockedByOther as e:
-                message = six.u(e)
+                message = six.PY3 and str(e) or unicode(e)
                 owner_session = e.edit_session
             except ModelLockError as e:
-                message = unicode(e)
+                message = six.PY3 and str(e) or unicode(e)
         return cls(env, stream, item, filter_form,
                    edit_session, owner_session, message)
 

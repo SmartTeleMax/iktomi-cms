@@ -478,7 +478,7 @@ class EditItemHandler(StreamAction):
                              has_draft=has_draft,
                              stream=stream,
                              stream_title=stream.config.title,
-                             title=six.u(item),
+                             title=item.__title__,
                              log_enabled=log_enabled,
                              submit_url=stream.url_for(env, 'item',
                                                     item=item.id).qs_set(

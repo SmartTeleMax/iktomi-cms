@@ -15,6 +15,6 @@ def flash(env, message, category=None, unique=True):
     # XXX this will not work on errors
     if not hasattr(env, '_flash'):
         env._flash = []
-    value = (six.u(message), category)
+    value = (message, category)
     if not unique or value not in env._flash:
         env._flash.append(value)

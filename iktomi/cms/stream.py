@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import six
 import logging
 import warnings
 from collections import OrderedDict
@@ -403,21 +403,34 @@ class Stream(object):
         '''commits request.db and flashes success message'''
         env.db.commit()
         if not silent:
-            flash(env, u'Объект (%s) сохранен' % (item,), 'success')
+            flash(
+                env,
+                six.u('Объект (%s) сохранен') % (item.__title__,),
+                'success',
+            )
 
     def rollback_due_lock_lost(self, env, item, silent=False):
         '''rollbacks request.db and flashes failure message'''
         env.db.rollback()
         if not silent:
-            flash(env, u'Объект (%s) не был сохранен из-за '
-                       u'перехваченной блокировки' % (item,),
-                       'failure')
+            flash(
+                env,
+                six.u(
+                    'Объект (%s) не был сохранен из-за перехваченной блокировки',
+                ) % (item.__title__,),
+                'failure',
+            )
 
     def rollback_due_form_errors(self, env, item, silent=False):
         env.db.rollback()
         if not silent:
-            flash(env, u'Объект (%s) не был сохранен из-за ошибок' % (item,),
-                       'failure')
+            flash(
+                env,
+                six.u(
+                    'Объект (%s) не был сохранен из-за ошибок',
+                ) % (item.__title__,),
+                'failure',
+            )
 
     def get_help(self, env, title, category='StreamSubmenu'):
         helpkey = "/".join(['streams',
