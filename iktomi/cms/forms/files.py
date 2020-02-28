@@ -180,10 +180,10 @@ class AjaxImageField(AjaxFileField):
             resizer = ResizeFit()
             try:
                 img = Image.open(self.clean_value.path)
+                img = resizer(img, (100, 100))
             except IOError:
                 pass
             else:
-                img = resizer(img, (100, 100))
                 img = img.convert('RGB')
                 img_file = StringIO()
                 img.save(img_file, format='jpeg')
