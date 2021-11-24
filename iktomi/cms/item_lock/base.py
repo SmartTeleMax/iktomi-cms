@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-
-import os, logging
 import six
+import os
+import logging
 from time import time
 import sqlalchemy.orm.util
+if six.PY3:
+    import binascii
 
 logger = logging.getLogger('iktomi.cms.item_lock')
 
@@ -43,14 +45,17 @@ class BaseItemLock(object):
         if six.PY2:
             return os.urandom(5).encode('hex')
         else:
-            return os.urandom(5).hex()
+            return binascii.hexlify(os.urandom(5)).decode()
+
 
     @staticmethod
     def item_global_id(obj, view_in_obj=True):
         # XXX this look to the item is hacky
         if hasattr(obj, 'item_global_id') and view_in_obj:
             return obj.item_global_id()
-        cls, ident = sqlalchemy.orm.util.identity_key(instance=obj)
+        result = sqlalchemy.orm.util.identity_key(instance=obj)
+        cls = result[0]
+        ident = result[1]
         ident = '-'.join(map(str, ident))
         return '%s.%s:%s' % (cls.__module__, cls.__name__, ident)
 
@@ -131,10 +136,10 @@ class ItemLockData(object):
                 edit_session = env.item_lock.update_or_create(
                     item, edit_session)
             except ModelLockedByOther as e:
-                message = six.PY3 and str(e) or unicode(e)
+                message = six.u(e)
                 owner_session = e.edit_session
             except ModelLockError as e:
-                message = six.PY3 and str(e) or unicode(e)
+                message = six.u(e)
         return cls(env, stream, item, filter_form,
                    edit_session, owner_session, message)
 

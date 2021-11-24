@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
+from six import StringIO
 from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.forms.files import FileFieldSet, FileFieldSetConv
@@ -180,10 +177,10 @@ class AjaxImageField(AjaxFileField):
             resizer = ResizeFit()
             try:
                 img = Image.open(self.clean_value.path)
-                img = resizer(img, (100, 100))
             except IOError:
                 pass
             else:
+                img = resizer(img, (100, 100))
                 img = img.convert('RGB')
                 img_file = StringIO()
                 img.save(img_file, format='jpeg')

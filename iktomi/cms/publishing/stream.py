@@ -368,7 +368,7 @@ class PublishStreamNoState(Stream):
     def list_fields(self):
         fields = getattr(self.config, 'list_fields', {})
         cls = fields.__class__
-        fields = fields.values()
+        fields = list(fields.values())
         fields.insert(1, HasChangesListField())
         return cls(fields)
 

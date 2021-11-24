@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 from webob.exc import HTTPMethodNotAllowed
 from iktomi.cms.item_lock import ModelLockError, ModelLockedByOther
 from iktomi import web
@@ -21,10 +22,10 @@ class ItemLockView(object):
     def failure_lock_message(e):
         if isinstance(e, ModelLockedByOther):
             return {'status': 'fail',
-                    'message': unicode(e),
+                    'message': six.u(e),
                     'locked_session': e.edit_session}
         return {'status': 'fail',
-                'message': unicode(e)}
+                'message': six.u(e)}
 
     def update_lock(self, env, data):
         if env.request.method != "POST":

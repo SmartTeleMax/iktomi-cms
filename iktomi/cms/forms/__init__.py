@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
-from webob.multidict import MultiDict
+import six
 from time import time
-import struct, os
+import os
+import struct
+if six.PY3:
+    import binascii
+
+from webob.multidict import MultiDict
 from iktomi.utils import cached_property
 from ...forms import Form as BaseForm
 from .fields import FieldBlock, DiffFieldSetMixIn
+
 
 class Form(BaseForm):
 
@@ -20,7 +26,11 @@ class Form(BaseForm):
         '''Random ID for given form input'''
         # Time part is repeated in about 3 days period
         time_part = struct.pack('!d', time())[3:]
-        return 'form'+(time_part+os.urandom(1)).encode('hex')
+        if six.PY2:
+            h = (time_part+os.urandom(1)).encode('hex')
+        else:
+            h = binascii.hexlify(time_part+os.urandom(1)).decode()
+        return 'form' + h
 
     def get_help(self, fieldname):
         if self.env.stream:
