@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import six
 
 from webob.exc import HTTPNotFound
 
@@ -54,7 +55,7 @@ class PreviewHandler(GetAction):
                      stream=self.stream,
                      stream_url=self.stream.url_for(env),
                      stream_title=self.stream.config.title,
-                     title=unicode(item),
+                     title=six.u(item),
                      menu=self.stream.module_name,
                      actions=[x for x in self.stream.actions 
                               if x.for_item and x.is_visible(env, item)

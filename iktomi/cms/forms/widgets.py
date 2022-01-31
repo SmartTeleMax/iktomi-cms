@@ -290,9 +290,9 @@ class PopupFilteredSelect(Select):
         assert isinstance(choice_conv, convs.EnumChoice)
 
         values = value if self.multiple else [value]
-        values = map(unicode, values)
+        values = map(six.u, values)
         for choice, label in choice_conv.options():
-            choice = unicode(choice)
+            choice = six.u(choice)
             options.append(dict(value=choice,
                                 title=label,
                                 selected=(choice in values)))

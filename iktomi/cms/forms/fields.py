@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from iktomi.forms.fields import *
 from iktomi.forms.fields import __all__ as _all1
 from iktomi.forms.form import Form
@@ -18,7 +20,7 @@ _all2 = locals().keys()
 from .files import AjaxImageField, AjaxFileField
 
 def optional_unicode(value):
-    return unicode(value) if hasattr(value, '__unicode__') else ''
+    return six.u(value) if hasattr(value, '__unicode__') else ''
 
 class DiffFieldSetMixIn(object):
 

@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='iktomi.cms',
-    version='0.2.6',
+    version='0.2.7',
     packages=['iktomi',
               'iktomi.cms',
                     'iktomi.cms.auth',
@@ -40,8 +40,8 @@ setup(
     ],
     author='Denis Otkidach',
     author_email='denis.otkidach@gmail.com',
-    maintainer='Harut Dagesyan',
-    maintainer_email='yes@harutune.name',
+    maintainer='Evgeny Mayorov',
+    maintainer_email='motormen@gmail.com',
     description='CMS components for iktomi.',
     #long_description=open('README').read(),
     url='http://github.com/SmartTeleMax/iktomi-cms/',

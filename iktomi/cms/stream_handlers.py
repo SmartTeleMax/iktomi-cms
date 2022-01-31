@@ -252,9 +252,15 @@ class EditItemHandler(StreamAction):
 
     def _clean_item_data(self, stream, env, item):
         form_cls = stream.config.ItemForm
-        form = form_cls.load_initial(env, item, initial={}, permissions='r', for_diff=True)
+        form = form_cls.load_initial(
+            env,
+            item,
+            initial={},
+            permissions='r',
+            for_diff=True,
+        )
         raw_data = form.raw_data.items()
-        unic = lambda s: (s if type(s) in (unicode, bytes) else unicode(s))
+        unic = lambda s: (s if type(s) in (six.text_type, bytes) else six.u(s))
         return [(unic(k), unic(v)) for k, v in raw_data]
 
     def get_item_form(self, stream, env, item, initial, draft=None):
@@ -307,7 +313,7 @@ class EditItemHandler(StreamAction):
                 action_type = 'edit'
             log = EditLog(stream_name=stream.uid(env),
                           type=action_type,
-                          object_id=item.id,
+                          object_id=str(item.id),
                           global_id=ItemLock.item_global_id(item),
                           edit_session=data.edit_session,
                           users=[env.user],
@@ -431,7 +437,7 @@ class EditItemHandler(StreamAction):
                         gid = ItemLock.item_global_id(item)
                         lock = env.item_lock.create(gid)
                     except ModelLockError as e:
-                        flash(env, unicode(e))
+                        flash(env, six.u(e))
                     else:
                         result = dict(result,
                             edit_session=lock,
@@ -638,7 +644,7 @@ class DeleteItemHandler(_ReferrersAction):
         ObjectTray = env.object_tray_model
         stream_name = env.stream.uid(env, version=False)
         tray_objects = env.db.query(ObjectTray)\
-                             .filter_by(object_id=item.id)\
+                             .filter_by(object_id=str(item.id))\
                              .filter_by(stream_name=stream_name)\
                              .all()
         for obj in tray_objects:

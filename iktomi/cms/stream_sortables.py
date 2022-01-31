@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from iktomi.forms import Field, FieldSet, FieldList
 from iktomi.cms.forms import convs
 from iktomi.cms.list_edit import ListItemForm as BaseListItemForm, \
@@ -65,9 +67,9 @@ class ListEditAction(BaseListEditAction):
                         try:
                             edit_sessions[item] = env.item_lock.create(item)
                         except ModelLockedByOther as e:
-                            lock_messages.append(unicode(e))
+                            lock_messages.append(six.u(e))
                         except ModelLockError as e:
-                            lock_messages.append(unicode(e))
+                            lock_messages.append(six.u(e))
                         self.set_order(item, ordering_field, value['order'])
                         modified_items.append(item)
 

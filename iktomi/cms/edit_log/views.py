@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from webob.exc import HTTPNotFound
 from functools import partial
 from iktomi import web
@@ -77,7 +79,7 @@ def _expand(env, obj, for_item=None):
         item = for_item
 
     if item is not None:
-        item_title = getattr(item, 'title', unicode(item))
+        item_title = getattr(item, 'title', six.u(item))
     else:
         item_title = u"<{}: удалённый или недоступный объект: {}>".format(
                                 stream.title, obj.object_id)

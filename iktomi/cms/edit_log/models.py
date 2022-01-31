@@ -101,7 +101,7 @@ def EditLog(models):
         log = db.query(cls)\
                 .filter(cls.users.contains(user))\
                 .filter_by(stream_name=stream_name,
-                           object_id=item.id)\
+                           object_id=str(item.id))\
                 .order_by(desc(cls.update_time))\
                 .first()
         if log and log.edit_session == edit_session and log.type=='edit':
