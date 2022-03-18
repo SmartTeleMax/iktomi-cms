@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-from six import StringIO
+import six
+if six.PY3:
+    from io import BytesIO
+    import base64
+else:
+    from StringIO import StringIO
+
 from jinja2 import Markup
 from iktomi.forms.form import Form
 from iktomi.forms.files import FileFieldSet, FileFieldSetConv
@@ -182,10 +188,17 @@ class AjaxImageField(AjaxFileField):
             else:
                 img = resizer(img, (100, 100))
                 img = img.convert('RGB')
-                img_file = StringIO()
-                img.save(img_file, format='jpeg')
-                data = "data:image/jpeg;base64," + \
-                        img_file.getvalue().encode('base64').replace('\n', '')
+                if six.PY3:
+                    img_file = BytesIO()
+                    img.save(img_file, format='jpeg')
+                    img_file.seek(0)
+                    v = base64.b64encode(img_file.read()).decode()
+                    v = v.replace('\n', '')
+                else:
+                    img_file = StringIO()
+                    img.save(img_file, format='jpeg')
+                    v = img_file.getvalue().encode('base64').replace('\n', '')
+                data = "data:image/jpeg;base64," + v            
                 raw_data[self.prefix+'image'] = data
 
     def get_diff(field1, field2):
